@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supermom · Product Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:        #F4436C;
+    --pink-soft:   #FFF0F3;
+    --pink-border: #FADDE5;
+    --yellow:      #FFD600;
+    --text:        #1A1625;
+    --text-sec:    #6E6A7C;
+    --text-muted:  #B0ACBC;
+    --bg:          #FDF8F6;
+    --surface:     #FFFFFF;
+    --border:      #EDE8E3;
+    --border-soft: #F4EFE9;
+    --radius-lg:   16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  /* Header */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 58px; position: sticky; top: 0; z-index: 50; }
+  .header-brand { display: flex; align-items: center; gap: 12px; }
+  .logo-text { font-size: 17px; font-weight: 800; color: var(--pink); letter-spacing: -0.4px; }
+  .logo-text em { color: var(--yellow); font-style: normal; }
+  .header-div { width: 1px; height: 18px; background: var(--border); }
+  .header-sub { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-chip { font-size: 11.5px; font-weight: 500; color: var(--text-sec); background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; }
+
+  /* Page */
+  .page { max-width: 780px; margin: 0 auto; padding: 44px 24px 100px; }
+  .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
+  .page-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 40px; }
+
+  /* Group */
+  .group { margin-bottom: 36px; animation: fadeUp 0.35s ease both; }
+  .group:nth-child(1) { animation-delay: 0.04s; }
+  .group:nth-child(2) { animation-delay: 0.09s; }
+  .group:nth-child(3) { animation-delay: 0.14s; }
+  .group:nth-child(4) { animation-delay: 0.19s; }
+  .group:nth-child(5) { animation-delay: 0.24s; }
+  .group:nth-child(6) { animation-delay: 0.29s; }
+
+  .group-label { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; padding: 5px 13px; border-radius: 20px; margin-bottom: 10px; border: 1px solid transparent; }
+  .group-desc { font-size: 11px; font-weight: 400; text-transform: none; letter-spacing: 0; opacity: 0.7; margin-left: 2px; }
+
+  .lbl-products    { background: #FFF0F3; color: #C9234A; border-color: #FADDE5; }
+  .lbl-platform    { background: #F3F0FF; color: #5B3FD4; border-color: #DDD6FF; }
+  .lbl-foundation  { background: #EDFAF8; color: #0D8A7F; border-color: #C0EDE9; }
+  .lbl-integration { background: #FFFBEA; color: #9A6B00; border-color: #F0E5B0; }
+  .lbl-arch        { background: #EEF4FF; color: #2B5AC8; border-color: #C8D9FF; }
+  .lbl-governance  { background: #F5F4F7; color: #5A5568; border-color: #DDD9E8; }
+
+  .group-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+
+  /* Row */
+  .row { display: flex; align-items: center; padding: 13px 18px; border-bottom: 1px solid var(--border-soft); gap: 13px; cursor: pointer; transition: background 0.12s; }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: #FDF5F7; }
+  .row.has-children:hover { background: var(--pink-soft); }
+
+  .row-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+  .row:hover .row-num { background: var(--pink-soft); border-color: var(--pink-border); color: var(--pink); }
+
+  .row-body { flex: 1; min-width: 0; }
+  .row-name { font-size: 13.5px; font-weight: 650; color: var(--text); letter-spacing: -0.1px; }
+  .row-desc { font-size: 12px; color: var(--text-muted); margin-top: 1px; line-height: 1.4; }
+  .row-right { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .row-arrow { font-size: 13px; color: var(--border); transition: transform 0.15s, color 0.15s; }
+  .row:hover .row-arrow { color: var(--pink); transform: translateX(3px); }
+
+  /* Toggle */
+  .toggle-icon { font-size: 9px; color: var(--text-muted); transition: transform 0.2s, color 0.15s; padding: 3px; }
+  .toggle-icon.open { transform: rotate(90deg); color: var(--pink); }
+
+  /* Children */
+  .children { display: none; border-top: 1px solid var(--pink-border); background: linear-gradient(to bottom, #FFF8FA, #FFFCFD); }
+  .children.open { display: block; }
+  .child-row { display: flex; align-items: center; padding: 10px 18px 10px 52px; border-bottom: 1px solid #FAF0F3; gap: 10px; cursor: pointer; transition: background 0.12s; }
+  .child-row:last-child { border-bottom: none; }
+  .child-row:hover { background: #FFE8EF; }
+  .child-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--pink-border); flex-shrink: 0; transition: background 0.12s; }
+  .child-row:hover .child-dot { background: var(--pink); }
+  .child-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-sec); }
+  .child-row:hover .child-name { color: var(--text); }
+  .child-arrow { font-size: 11px; color: var(--border); transition: color 0.12s; }
+  .child-row:hover .child-arrow { color: var(--pink); }
+
+  /* Badges */
+  .badge { font-size: 10.5px; font-weight: 650; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-approved { background: #E8FAF7; color: #0A7A6A; }
+  .badge-active   { background: #EDFBF0; color: #1A7A42; }
+  .badge-review   { background: #EEF1FB; color: #2A4FBE; }
+  .badge-wip      { background: #FFF5E6; color: #A05A00; }
+  .badge-outdated { background: #FEE8E8; color: #C42020; }
+
+  /* Footer */
+  .footer { text-align: center; font-size: 12px; color: var(--text-muted); padding: 28px 24px; border-top: 1px solid var(--border); line-height: 1.8; }
+  .footer a { color: var(--pink); text-decoration: none; font-weight: 500; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    .header { padding: 0 16px; }
+    .page { padding: 28px 16px 60px; }
+    .header-chip:last-child { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="logo-text">Super<em>m</em>om</div>
+    <div class="header-div"></div>
+    <div class="header-sub">Product Docs</div>
+  </div>
+  <div class="header-right">
+    <div class="header-chip">Internal use only</div>
+    <div class="header-chip">📁 Archive → SharePoint</div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-eyebrow">Documentation Portal</div>
+  <div class="page-title">Supermom Docs</div>
+  <div class="page-subtitle">WIP documents are not for development reference · Official versions in SharePoint</div>
+
+  <!-- Products -->
+  <div class="group">
+    <div class="group-label lbl-products">Products <span class="group-desc">· consumer &amp; client-facing</span></div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/supermom/2.0/overview.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">Supermom 2.0</div><div class="row-desc">Consumer-facing platform · current production version</div></div>
+        <div class="row-right"><span class="badge badge-active">Active</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/supermom/3.0/overview.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">Supermom 3.0</div><div class="row-desc">Next-generation consumer platform</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/supermom/app/overview.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Supermom App</div><div class="row-desc">Mobile app for end users</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/aima/overview.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">AIMA</div><div class="row-desc">AI chatbot for consumers · intent, topic &amp; interaction</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/pulse/overview.html')">
+        <div class="row-num">5</div>
+        <div class="row-body"><div class="row-name">Pulse</div><div class="row-desc">Standalone product · group data &amp; member signals</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/client-data-portal/overview.html')">
+        <div class="row-num">6</div>
+        <div class="row-body"><div class="row-name">Client Data Portal</div><div class="row-desc">Client-facing data distribution &amp; reporting platform</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row has-children" onclick="toggle('ag')">
+        <div class="row-num">7</div>
+        <div class="row-body"><div class="row-name">Audience Gallery</div><div class="row-desc">Audience intelligence, insights &amp; activation</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="toggle-icon" id="ag-icon">▶</span></div>
+      </div>
+      <div class="children" id="ag-children">
+        <div class="child-row" onclick="go('/ag/overview.html')">
+          <div class="child-dot"></div><div class="child-name">Overview</div>
+          <span class="badge badge-review">In Review</span><span class="child-arrow">→</span>
+        </div>
+        <div class="child-row" onclick="go('/architecture/ag-system-overview.html')">
+          <div class="child-dot"></div><div class="child-name">System Overview</div>
+          <span class="badge badge-wip">WIP</span><span class="child-arrow">→</span>
+        </div>
+        <div class="child-row" onclick="go('/ag/audience-insights/overview.html')">
+          <div class="child-dot"></div><div class="child-name">Audience Insights</div>
+          <span class="badge badge-wip">WIP</span><span class="child-arrow">→</span>
+        </div>
+        <div class="child-row" onclick="go('/ag/activation/overview.html')">
+          <div class="child-dot"></div><div class="child-name">Activation Planner</div>
+          <span class="badge badge-wip">WIP</span><span class="child-arrow">→</span>
+        </div>
+        <div class="child-row" onclick="go('/ag/PRD-IS-LID-XXX_Pulse_Signal_Extraction.html')">
+          <div class="child-dot"></div><div class="child-name">Signal Extraction (Pulse) </div>
+          <div class="row-right"><span class="badge badge-active">Active</span><span class="row-arrow">→</span></div>
+        </div>
+        <div class="child-row" onclick="go('/ag/PRD-IS-LID-XXX_Signal_Tag_Gallery.html')">
+          <div class="child-dot"></div><div class="child-name">Signal → Tag → Gallery</div>
+          <div class="row-right"><span class="badge badge-active">Active</span><span class="row-arrow">→</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Platform -->
+  <div class="group">
+    <div class="group-label lbl-platform">Platform <span class="group-desc">· internal capabilities</span></div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/admin-backend/overview.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">Admin Backend</div><div class="row-desc">Shared operations &amp; campaign management for 2.0, 3.0 &amp; MA</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/ma/overview.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">Marketing Automation</div><div class="row-desc">Flow builder, trigger engine, email &amp; WA actions</div></div>
+        <div class="row-right"><span class="badge badge-active">Active</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/chatwoot/overview.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Chatwoot · Conversation Platform</div><div class="row-desc">Unified inbox for business-initiated, MA-triggered &amp; bot conversations</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/lpa/overview.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">LPA System</div><div class="row-desc">eVoucher events &amp; loyalty programme actions</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Foundation -->
+  <div class="group">
+    <div class="group-label lbl-foundation">Foundation <span class="group-desc">· shared capabilities</span></div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/foundation/identity/overview.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">Identity &amp; Stitching</div><div class="row-desc">UID, Profile ID, LID, anonymous_id, GA4 Client ID mapping</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/foundation/tracking/overview.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">System Tracking / Event Pipeline</div><div class="row-desc">GTM, GA4, server-side tracking, event flow</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/foundation/signals/overview.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Signal Framework</div><div class="row-desc">Standardizes, classifies &amp; processes behavioral, semantic and interaction signals across all sources</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/foundation/tag-governance/overview.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">Tag Governance</div><div class="row-desc">Tag domains, score, TTL, lifecycle &amp; mapping rules</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/foundation/event-dictionary/overview.html')">
+        <div class="row-num">5</div>
+        <div class="row-body"><div class="row-name">Event Dictionary</div><div class="row-desc">Standard event names, parameters, ownership &amp; validation</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Integrations -->
+  <div class="group">
+    <div class="group-label lbl-integration">Integrations <span class="group-desc">· external systems</span></div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/integrations/whatsapp/overview.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">WhatsApp</div><div class="row-desc">Outbound WA message sending via MA triggers</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/community-monitoring/overview.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">Community Monitoring</div><div class="row-desc">Whapi (WA) &amp; MTProto / Userbot (Telegram) · group message monitoring &amp; analysis</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/meiro/overview.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Meiro</div><div class="row-desc">CDP integration · customer data platform</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/ga4-gtm/overview.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">GA4 / GTM</div><div class="row-desc">GA4 client ID, session ID, event collection</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/brevo/overview.html')">
+        <div class="row-num">5</div>
+        <div class="row-body"><div class="row-name">Brevo</div><div class="row-desc">Email API, campaign creation, template sending</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/stripe/overview.html')">
+        <div class="row-num">6</div>
+        <div class="row-body"><div class="row-name">Stripe</div><div class="row-desc">Payment integration · Stripe Connect &amp; webhook</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/integrations/client-api/overview.html')">
+        <div class="row-num">7</div>
+        <div class="row-body"><div class="row-name">Client API</div><div class="row-desc">Custom integrations for client-specific data needs</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Architecture & Flow -->
+  <div class="group">
+    <div class="group-label lbl-arch">Architecture &amp; Flow</div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/architecture/end-to-end-data-flow.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">End-to-End Data Flow</div><div class="row-desc">Event collection → audience activation → reporting</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/architecture/identity-flow.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">Identity Flow</div><div class="row-desc">How identity is resolved and propagated</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/architecture/tracking-flow.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Tracking Flow</div><div class="row-desc">GTM → GA4 → server-side event routing</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/architecture/signal-to-tag-flow.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">Signal-to-Tag Flow</div><div class="row-desc">Signal scoring and tag conversion logic</div></div>
+        <div class="row-right"><span class="badge badge-wip">WIP</span><span class="row-arrow">→</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Governance -->
+  <div class="group">
+    <div class="group-label lbl-governance">Governance</div>
+    <div class="group-list">
+
+      <div class="row" onclick="go('/governance/prd-template.html')">
+        <div class="row-num">1</div>
+        <div class="row-body"><div class="row-name">PRD Template</div><div class="row-desc">Standard template for all PRD documents</div></div>
+        <div class="row-right"><span class="badge badge-approved">Approved</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/governance/documentation-rules.html')">
+        <div class="row-num">2</div>
+        <div class="row-body"><div class="row-name">Documentation Rules</div><div class="row-desc">Language, structure &amp; Chinese summary guidelines</div></div>
+        <div class="row-right"><span class="badge badge-approved">Approved</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/governance/review-approval.html')">
+        <div class="row-num">3</div>
+        <div class="row-body"><div class="row-name">Review &amp; Approval Process</div><div class="row-desc">Review stages, sign-off &amp; escalation path</div></div>
+        <div class="row-right"><span class="badge badge-approved">Approved</span><span class="row-arrow">→</span></div>
+      </div>
+
+      <div class="row" onclick="go('/governance/snapshot-archive-rules.html')">
+        <div class="row-num">4</div>
+        <div class="row-body"><div class="row-name">PDF Snapshot &amp; SharePoint Archive</div><div class="row-desc">When and how to archive approved documents</div></div>
+        <div class="row-right"><span class="badge badge-approved">Approved</span><span class="row-arrow">→</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Live reading layer only · Official versions in <a href="#">SharePoint</a><br>
+  Last updated: [Date] · Internal use only
+</footer>
+
+<script>
+  function toggle(id) {
+    const children = document.getElementById(id + '-children');
+    const icon     = document.getElementById(id + '-icon');
+    const isOpen   = children.classList.contains('open');
+    children.classList.toggle('open', !isOpen);
+    icon.classList.toggle('open', !isOpen);
+  }
+  function go(url) {
+    if (window.location.protocol !== 'file:') {
+      window.location.href = url;
+    }
+  }
+</script>
+</body>
+</html>

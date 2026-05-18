@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-PLS-001 | Pulse 信号提取规范</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>:root {
+  --bg: #f7f6f2; --surface: #fff; --border: #e2e0d8; --border-strong: #c8c5ba;
+  --text-primary: #1a1917; --text-secondary: #5c5a54; --text-muted: #9c9a93;
+  --accent-soft: #f0ede6; --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  --pink: #d63f7a; --pink-mid: #e8608a; --pink-light: #fce8f1; --pink-border: #f0b8d4; --pink-muted: #b83368;
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --red: #8b1a1a; --red-bg: #fdf0f0; --red-b: #f0b0b0;
+  --blue: #0f3a6e; --blue-bg: #edf3fb; --blue-b: #b0cef0;
+  --teal: #0a5a52; --teal-bg: #e8f7f5; --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+
+/* LANG BAR */
+.lang-bar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 9px 28px; }
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); font-weight: 500; border-left: 3px solid var(--pink); padding-left: 8px; }
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { padding: 3px 14px; border: none; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all .15s; letter-spacing: .05em; }
+.lang-btn.active { background: var(--pink); color: #fff; }
+
+/* LAYOUT */
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { position: sticky; top: 41px; height: calc(100vh - 41px); overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); padding: 0; }
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe { height: 4px; background: linear-gradient(90deg, var(--pink) 0%, #f06292 50%, #ff8a65 100%); }
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl { display: block; padding: 5px 20px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: all .12s; line-height: 1.4; }
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nl.active { color: var(--pink); background: var(--pink-light); border-left-color: var(--pink); font-weight: 500; }
+.nl.sub { padding-left: 32px; font-size: 11.5px; color: var(--text-muted); }
+.nl.sub:hover { color: var(--pink); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+
+/* MAIN */
+.main { padding: 48px 56px; max-width: 900px; }
+
+/* COVER */
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink-border); background: var(--pink-light); padding: 3px 10px; border-radius: 3px; margin-bottom: 14px; }
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+.cover .sub .en { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+/* META GRID */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+
+/* BADGES */
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-pink  { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); }
+.b-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-blue  { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.b-tbd   { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-p2    { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-p0    { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+
+/* TEAM CHIPS */
+.team { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+.team-id { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+.team-cn { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.team-shared { background: var(--accent-soft); color: var(--text-secondary); border: 1px solid var(--border); }
+
+/* SECTIONS */
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.section h2 .en { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+.sdesc .en { display: block; color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+hr.div { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+/* SUBSECTION */
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+.sub-h .en { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+
+/* BILINGUAL BLOCK */
+.bi { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 16px; background: var(--surface); }
+.bi-label { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); padding: 7px 16px 0; }
+.bi-zh { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; border-bottom: 1px solid var(--border); }
+.bi-en { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+/* TABLES */
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+td .en { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+.tag-f { font-family: var(--mono); font-size: 11px; color: var(--blue); font-weight: 500; }
+
+/* CODE */
+.code-wrap { border-radius: 6px; border: 1px solid var(--border); overflow: hidden; margin: 12px 0; }
+.code-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+.code-lang { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; }
+.code-label { font-family: var(--mono); font-size: 10px; color: var(--pink); }
+pre { background: #1c1b18; color: #d4d0c8; padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; }
+pre .k { color: #f48fb1; } pre .s { color: #a5d6a7; } pre .c { color: #6b7280; font-style: italic; } pre .n { color: #80cbc4; } pre .v { color: #ffcc80; }
+code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); border: 1px solid var(--border); }
+
+/* CALLOUTS */
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout .en { display: block; font-size: 12px; margin-top: 4px; opacity: .85; }
+.callout strong { font-weight: 500; }
+.c-pink  { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info  { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn  { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note  { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+
+/* FLOW STEPS */
+.flow { margin: 20px 0 24px; position: relative; }
+.flow::before { content: ''; position: absolute; left: 18px; top: 38px; bottom: 38px; width: 1px; background: var(--pink-border); }
+.flow-step { display: flex; gap: 16px; align-items: flex-start; padding: 14px 0; position: relative; }
+.step-num { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: var(--pink-light); border: 1px solid var(--pink-border); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--pink); position: relative; z-index: 1; }
+.step-body { flex: 1; padding-top: 4px; }
+.step-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.step-title .en { font-size: 11px; font-weight: 400; color: var(--text-muted); margin-left: 6px; }
+.step-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+.step-desc .en-line { display: block; color: var(--text-muted); font-size: 11px; margin-top: 3px; }
+.step-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+/* DIAGRAM */
+.diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; text-align: center; overflow-x: auto; }
+.diagram-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--pink); margin-bottom: 14px; text-align: left; }
+.diagram-caption { font-size: 12px; color: var(--text-muted); margin-top: 12px; text-align: left; line-height: 1.6; }
+.diagram-img { max-width: 100%; height: auto; border-radius: 4px; }
+
+/* RESP BLOCKS */
+.resp-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+.resp-block { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+.resp-block.owns { border-top: 3px solid var(--pink); }
+.resp-block.excl  { border-top: 3px solid var(--border-strong); }
+.resp-block-title { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.resp-block.owns .resp-block-title { color: var(--pink); }
+.resp-item { font-size: 12.5px; color: var(--text-secondary); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; }
+.resp-item:last-child { border-bottom: none; }
+.rd { width: 4px; height: 4px; border-radius: 50%; background: var(--pink-border); flex-shrink: 0; margin-top: 9px; }
+.rd.on { background: var(--pink); }
+
+/* KEYWORD PILLS */
+.kw-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.kw { display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border-radius: 3px; background: var(--accent-soft); border: 1px solid var(--border); color: var(--text-secondary); }
+.kw.hi { background: var(--pink-light); border-color: var(--pink-border); color: var(--pink-muted); }
+
+/* CATEGORY CARDS */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
+.cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 15px; }
+.cat-name { font-size: 12.5px; font-weight: 500; color: var(--text-primary); margin-bottom: 5px; }
+.cat-output { font-family: var(--mono); font-size: 10px; color: var(--pink-muted); background: var(--pink-light); border: 1px solid var(--pink-border); padding: 2px 7px; border-radius: 3px; display: inline-block; margin-bottom: 8px; }
+
+/* PATTERN BOX */
+.pattern-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin-bottom: 10px; }
+.pattern-title { font-size: 12.5px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+.pattern-row { display: flex; gap: 10px; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; align-items: flex-start; }
+.pattern-lbl { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); width: 90px; flex-shrink: 0; padding-top: 3px; }
+.pattern-val { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* SOURCE GRID */
+.source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
+.source-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+.source-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.source-conf { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; font-family: var(--mono); }
+.conf-high { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.conf-med  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.conf-low  { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+.source-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+/* TTL GRID */
+.ttl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin: 14px 0; }
+.ttl-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+.ttl-type { font-size: 11px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.ttl-val  { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--pink); line-height: 1; }
+.ttl-unit { font-size: 11px; color: var(--text-muted); }
+.ttl-eg   { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+
+/* SHEET FLOW */
+.sf-flow { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+.sf-node { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 20px; min-width: 340px; text-align: center; }
+.sf-node.sf-p0  { border-color: var(--pink-border); background: var(--pink-light); }
+.sf-node.sf-ref { background: var(--accent-soft); }
+.sf-node.sf-src { border-color: var(--blue-b); background: var(--blue-bg); }
+.sf-node.sf-out { border-color: var(--green-b); background: var(--green-bg); }
+.sf-badge { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 3px; }
+.sf-node.sf-p0  .sf-badge { color: var(--pink); }
+.sf-node.sf-src .sf-badge { color: var(--blue); }
+.sf-node.sf-out .sf-badge { color: var(--green); }
+.sf-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.sf-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sf-arrow { font-size: 18px; color: var(--pink-border); padding: 4px 0; }
+
+/* SIGNOFF */
+.signoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.signoff-cell { background: var(--surface); padding: 14px 16px; }
+.signoff-role  { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--pink); margin-bottom: 8px; }
+.signoff-name  { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.signoff-line  { border-top: 1px solid var(--border-strong); margin: 20px 0 6px; }
+.signoff-label { font-size: 11px; color: var(--text-muted); }
+
+/* PILL */
+.pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: var(--mono); background: var(--pink-light); border: 1px solid var(--pink-border); color: var(--pink-muted); }
+
+/* LANG VISIBILITY — mirrors reference exactly */
+.zh-only { display: block; }
+.en-only { display: none; }
+body.lang-en .zh-only { display: none; }
+body.lang-en .en-only { display: block; }
+body.lang-en .bi-zh { display: none; }
+body.lang-en .bi-label.zh-lbl { display: none; }
+body.lang-zh .bi-en { display: none; }
+body.lang-zh .bi-label.en-lbl { display: none; }
+/* inline zh/en spans (used inside sentences) */
+span.zh-only { display: inline; }
+span.en-only { display: none; }
+body.lang-en span.zh-only { display: none; }
+body.lang-en span.en-only { display: inline; }
+
+/* FOOTER */
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .main { padding: 24px 20px; } .meta-grid { grid-template-columns: 1fr; } .signoff-grid { grid-template-columns: 1fr; } .source-grid { grid-template-columns: 1fr; } .resp-2col { grid-template-columns: 1fr; } }
+@media print { .lang-bar, .sidebar { display: none; } .main { max-width: 100%; } }
+</style>
+</head>
+<body class="lang-zh">
+
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <span class="lang-bar-logo">Pulse Module</span>
+    <span class="lang-bar-id">PRD-PLS-001 · Signal Extraction · v1.0</span>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-zh" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">Pulse Module</div>
+    <div class="sidebar-title zh-only">信号提取规范</div>
+    <div class="sidebar-title en-only">Signal Extraction PRD</div>
+    <div class="sidebar-ver">PRD-PLS-001 · v1.0</div>
+  </div>
+  <div class="ngl zh-only">文档导航</div>
+  <div class="ngl en-only">Navigation</div>
+  <a class="nl" href="#cover"><span class="zh-only">封面</span><span class="en-only">Cover</span></a>
+  <a class="nl" href="#s1"><span class="zh-only">01 · 背景</span><span class="en-only">01 · Background</span></a>
+  <a class="nl" href="#s2"><span class="zh-only">02 · 目标</span><span class="en-only">02 · Objective</span></a>
+  <a class="nl" href="#s3"><span class="zh-only">03 · 职责边界</span><span class="en-only">03 · Responsibility Boundary</span></a>
+  <a class="nl" href="#s4"><span class="zh-only">04 · Member 标识设计</span><span class="en-only">04 · Member Identity</span></a>
+  <a class="nl" href="#s5"><span class="zh-only">05 · 输出粒度</span><span class="en-only">05 · Output Granularity</span></a>
+  <a class="nl" href="#s6"><span class="zh-only">06 · 输出字段</span><span class="en-only">06 · Output Fields</span></a>
+  <a class="nl" href="#s7"><span class="zh-only">07 · 信号分类与关键词</span><span class="en-only">07 · Signal Categories</span></a>
+  <a class="nl" href="#s8"><span class="zh-only">08 · 关键词检测设计</span><span class="en-only">08 · Keyword Detection</span></a>
+  <a class="nl" href="#s9"><span class="zh-only">09 · 强信号检测（Phase 2）</span><span class="en-only">09 · Strong Signal (Ph.2)</span></a>
+  <a class="nl" href="#s10"><span class="zh-only">10 · 输出格式</span><span class="en-only">10 · Output Format</span></a>
+  <a class="nl" href="#s11"><span class="zh-only">11 · 分阶段交付</span><span class="en-only">11 · Delivery Phases</span></a>
+  <a class="nl" href="#s12"><span class="zh-only">12 · 成功标准</span><span class="en-only">12 · Success Criteria</span></a>
+  <div class="nav-div"></div>
+  <a class="nl" href="#signoff"><span class="zh-only">审批记录</span><span class="en-only">Sign-off</span></a>
+  <a class="nl" href="#revision"><span class="zh-only">版本历史</span><span class="en-only">Revision History</span></a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="doc-module-tag">PRD-PLS-001 · Pulse Module</div>
+  <h1><strong>Pulse → V2</strong><br><span class="zh-only">信号提取规范</span><span class="en-only">Signal Extraction Specification</span></h1>
+  <div class="sub">
+    <span class="zh-only">定义 Pulse 需要提取、聚合并交付给 V2 的信号规范，以支持 tag 生成和 Audience Gallery 用户画像。</span>
+    <span class="en-only">Defines what Pulse must extract, aggregate, and deliver to enable V2 tag generation and Audience Gallery profiling.</span>
+    <span class="en zh-only">Defines what Pulse must extract, aggregate, and deliver to V2.</span>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k zh-only">起草人</span><span class="k en-only">AUTHOR</span><span class="v">Abby</span></div>
+    <div class="meta-cell"><span class="k zh-only">审阅人</span><span class="k en-only">REVIEWER</span><span class="v">Zhijiang · Oliver</span></div>
+    <div class="meta-cell"><span class="k">OWNER</span><span class="v">Agus — ID Team (Pulse)</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.0 · 2026-04</span></div>
+    <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
+    <div class="meta-cell"><span class="k zh-only">相关系统</span><span class="k en-only">SYSTEMS</span><span class="v"><span class="badge b-blue">Pulse</span>&nbsp;<span class="badge b-blue">V2</span>&nbsp;<span class="badge b-blue">BigQuery</span>&nbsp;<span class="badge b-blue">WhatsApp</span>&nbsp;<span class="badge b-blue">Telegram</span></span></div>
+    <div class="meta-cell"><span class="k">PHASE 1</span><span class="v">WhatsApp · 30d · mention_count</span></div>
+    <div class="meta-cell"><span class="k">PHASE 2</span><span class="v">Telegram · 7d · strong signal</span></div>
+  </div>
+</div>
+
+<!-- S1 Background -->
+<section class="section" id="s1">
+  <div class="stag">01</div>
+  <h2><span class="zh-only">背景 <span class="en">Background</span></span><span class="en-only">Background</span></h2>
+  <div class="bi">
+    <div class="bi-label zh-lbl zh-only">中文</div>
+    <div class="bi-zh">Audience Gallery 最终需要分析的是 user-level insight，而 Pulse 当前可以从 WhatsApp / Telegram 群中获取到大量消息内容、群活动信息和 member 标识。<br><br>为了让这些数据被 Gallery 和 v2 tag system 使用，Pulse 需要提取可复用的<strong>用户行为信号（signals）</strong>并以结构化格式输出。V2 再统一完成 identity mapping、tag 生成和 Gallery 展示。</div>
+    <div class="bi-label en-lbl en-only">English</div>
+    <div class="bi-en">Audience Gallery requires user-level insight to power segmentation, MA triggers, and audience activation. Pulse currently collects message content, group activity, and member identifiers from WhatsApp and Telegram groups at scale.<br><br>To make this data usable by Gallery and the v2 tag system, Pulse must extract reusable <strong>member-level behavioral signals</strong> and deliver them in a structured format. V2 then handles identity mapping, tag generation, and Gallery display.</div>
+  </div>
+  <div class="callout c-info">
+    <span class="zh-only"><strong>核心原则：</strong>Pulse 负责观察和聚合，V2 负责解释和打标，两者职责必须清晰分离。</span>
+    <span class="en-only"><strong>Key principle:</strong> Pulse observes and aggregates. V2 interprets and tags. These responsibilities must stay clearly separated.</span>
+  </div>
+</section>
+
+<!-- S2 Objective -->
+<section class="section" id="s2">
+  <div class="stag">02</div>
+  <h2><span class="zh-only">目标 <span class="en">Objective</span></span><span class="en-only">Objective</span></h2>
+  <div class="sdesc">
+    <span class="zh-only">本需求目标不是让 Pulse 产出 tag，而是让 Pulse 提供以下三类产出。</span>
+    <span class="en-only">The goal is <strong>not</strong> for Pulse to generate tags. Pulse delivers three core outputs.</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th><span class="zh-only">产出</span><span class="en-only">Output</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="zh-only">member 维度聚合信号</span><span class="en-only">Member-level aggregated signals</span></td><td><span class="zh-only">每个滚动窗口的活跃度和关键词命中次数</span><span class="en-only">Activity counts and keyword mention counts per rolling window</span></td></tr>
+      <tr><td>2</td><td><span class="zh-only">外部身份信息</span><span class="en-only">External identity information</span></td><td><span class="zh-only">可映射到 V2 用户的外部身份标识</span><span class="en-only">Stable identifiers mappable to V2 user profiles</span></td></tr>
+      <tr><td>3</td><td><span class="zh-only">低成本结构化输出</span><span class="en-only">Low-cost structured output</span></td><td><span class="zh-only">不将 raw message 同步至 BQ，保持低运营成本</span><span class="en-only">No raw message sync to BigQuery — keeps operational cost low</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S3 Responsibility -->
+<section class="section" id="s3">
+  <div class="stag">03</div>
+  <h2><span class="zh-only">职责边界 <span class="en">Responsibility Boundary</span></span><span class="en-only">Responsibility Boundary</span></h2>
+  <div class="resp-2col">
+    <div class="resp-block owns">
+      <div class="resp-block-title zh-only">✓ Pulse 负责</div>
+      <div class="resp-block-title en-only">✓ Pulse Owns</div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">消息采集</span><span class="en-only">Message collection</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">member 维度基础聚合</span><span class="en-only">Member-level basic aggregation</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">关键词识别 / 信号提取</span><span class="en-only">Keyword matching / signal extraction</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">结构化聚合信号输出</span><span class="en-only">Structured aggregated signal output</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">保留外部标识（phone / lid / telegram_id）</span><span class="en-only">Preserving external identifiers (phone / lid / telegram_id)</span></div>
+    </div>
+    <div class="resp-block excl">
+      <div class="resp-block-title zh-only">✗ 不在 Pulse 范围</div>
+      <div class="resp-block-title en-only">✗ Not Pulse's Scope</div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">不生成正式 tag</span><span class="en-only">Generating official tags</span></div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">不判断用户是否真实拥有某资产</span><span class="en-only">Judging asset ownership</span></div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">不输出业务域字段（interest / intent / user_tier）</span><span class="en-only">Business domain output (interest / intent / user_tier)</span></div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">跨平台 identity 合并</span><span class="en-only">Cross-platform identity resolution</span></div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">Gallery 最终画像逻辑</span><span class="en-only">Gallery final profile logic</span></div>
+    </div>
+  </div>
+  <div class="callout c-warn">
+    <span class="zh-only"><strong>成本原则：</strong>raw message 保留在 Pulse 侧，BQ 只接收 member-level 聚合数据，不建议将 message 明细作为常规下游输入。</span>
+    <span class="en-only"><strong>Cost principle:</strong> Raw messages stay on the Pulse side. BigQuery only receives member-level aggregated data. Message-level detail must not become regular downstream input.</span>
+  </div>
+</section>
+
+<!-- S4 Identity -->
+<section class="section" id="s4">
+  <div class="stag">04</div>
+  <h2><span class="zh-only">Member 标识设计 <span class="en">Member Identity Design</span></span><span class="en-only">Member Identity Design</span></h2>
+  <div class="sdesc">
+    <span class="zh-only">Pulse 没有独立 user id，member 标识来源不统一。本阶段不要求 Pulse 解决跨平台合并，只需输出当前可获取的外部标识，V2 做后续 mapping。</span>
+    <span class="en-only">Pulse has no unified user ID. Member identifiers vary across platforms. Pulse only needs to output available external identifiers — V2 handles downstream mapping.</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th><span class="zh-only">字段</span><span class="en-only">Field</span></th><th><span class="zh-only">必填</span><span class="en-only">Required</span></th><th><span class="zh-only">说明 / Values</span><span class="en-only">Values / Notes</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">platform</td><td><span class="badge b-pink">Yes</span></td><td>whatsapp / telegram</td></tr>
+      <tr><td class="field">member_source_id</td><td><span class="badge b-pink">Yes</span></td><td><span class="zh-only">Pulse 可识别的唯一 member id</span><span class="en-only">Pulse's only stable member identifier for this platform</span></td></tr>
+      <tr><td class="field">member_source_id_type</td><td><span class="badge b-pink">Yes</span></td><td>phone / whatsapp_lid / telegram_id / alias / unknown</td></tr>
+      <tr><td class="field">normalized_phone</td><td><span class="badge b-tbd">Optional</span></td><td><span class="zh-only">标准化手机号（含国家码，如可获取）</span><span class="en-only">Standardized phone with country code if available</span></td></tr>
+      <tr><td class="field">first_seen_at</td><td><span class="badge b-tbd">Optional</span></td><td>ISO 8601 — <span class="zh-only">首次出现时间</span><span class="en-only">First appearance timestamp</span></td></tr>
+      <tr><td class="field">last_seen_at</td><td><span class="badge b-pink">Yes</span></td><td>ISO 8601 — <span class="zh-only">最近活跃时间</span><span class="en-only">Most recent activity timestamp</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-info">
+    <span class="zh-only">如存在 <code>normalized_phone</code>，则 phone 优先作为最强 identity signal。如没有 phone，则保留 lid / telegram_id 供 V2 后续 mapping 使用。Phase 1 不要求跨平台合并。</span>
+    <span class="en-only">If <code>normalized_phone</code> is available, treat it as the strongest identity signal. If not, preserve <code>lid</code> or <code>telegram_id</code> for V2 downstream mapping. Cross-platform merging is not required in Phase 1.</span>
+  </div>
+</section>
+
+<!-- S5 Granularity -->
+<section class="section" id="s5">
+  <div class="stag">05</div>
+  <h2><span class="zh-only">输出粒度 <span class="en">Output Granularity</span></span><span class="en-only">Output Granularity</span></h2>
+  <div class="sub-h"><span class="zh-only">Level A — 主输出层 <span class="en">Primary Output</span></span><span class="en-only">Level A — Primary Output</span></div>
+  <div class="bi">
+    <div class="bi-label zh-lbl zh-only">中文</div>
+    <div class="bi-zh">一条记录代表某 member 在某平台近 N 天的聚合结果。例：某 member 在 WhatsApp 近 30 天的汇总信号。</div>
+    <div class="bi-label en-lbl en-only">English</div>
+    <div class="bi-en">One record = one member's aggregated activity on one platform over N days. e.g. member X on WhatsApp over the last 30 days.</div>
+  </div>
+  <div class="sub-h"><span class="zh-only">Level B — 可选增强层 <span class="en">Optional Enhanced Layer</span></span><span class="en-only">Level B — Optional &nbsp;<span class="badge b-p2">Phase 2</span></span>&nbsp;<span class="badge b-p2 zh-only">Phase 2</span></div>
+  <div class="bi">
+    <div class="bi-label zh-lbl zh-only">中文</div>
+    <div class="bi-zh">如后续需要分析群画像可作为增强层（member × group × 窗口），Phase 1 不做。</div>
+    <div class="bi-label en-lbl en-only">English</div>
+    <div class="bi-en">Enhanced layer for group-level profile analysis (member × group × window). Not required in Phase 1.</div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th><span class="zh-only">窗口</span><span class="en-only">Window</span></th><th>Phase</th><th><span class="zh-only">说明</span><span class="en-only">Notes</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">30d</td><td><span class="badge b-green">Phase 1 Required</span></td><td><span class="zh-only">主窗口，优先实现</span><span class="en-only">Primary window — must implement first</span></td></tr>
+      <tr><td class="field">7d</td><td><span class="badge b-p2">Phase 2 Optional</span></td><td><span class="zh-only">短窗口活跃信号</span><span class="en-only">Short-window activity signal</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S6 Output Fields -->
+<section class="section" id="s6">
+  <div class="stag">06</div>
+  <h2><span class="zh-only">输出字段 <span class="en">Output Fields</span></span><span class="en-only">Output Fields</span></h2>
+
+  <div class="sub-h"><span class="zh-only">6.1 活跃度字段 <span class="en">Activity Fields</span></span><span class="en-only">6.1 Activity Fields</span></div>
+  <div class="tw"><table>
+    <thead><tr><th><span class="zh-only">字段</span><span class="en-only">Field</span></th><th><span class="zh-only">必填</span><span class="en-only">Required</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">group_count_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="zh-only">近 30 天活跃群数量</span><span class="en-only">Active groups in last 30 days</span></td></tr>
+      <tr><td class="field">message_count_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="zh-only">近 30 天发言次数</span><span class="en-only">Total messages sent in last 30 days</span></td></tr>
+      <tr><td class="field">active_days_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="zh-only">近 30 天活跃天数（至少发一条消息）</span><span class="en-only">Days with at least one message in last 30 days</span></td></tr>
+      <tr><td class="field">last_active_at</td><td><span class="badge b-pink">Yes</span></td><td><span class="zh-only">最近活跃时间戳</span><span class="en-only">Most recent activity timestamp</span></td></tr>
+      <tr><td class="field">group_count_7d</td><td><span class="badge b-p2">Phase 2</span></td><td><span class="zh-only">近 7 天活跃群数量</span><span class="en-only">Active groups in last 7 days</span></td></tr>
+      <tr><td class="field">message_count_7d</td><td><span class="badge b-p2">Phase 2</span></td><td><span class="zh-only">近 7 天发言次数</span><span class="en-only">Messages sent in last 7 days</span></td></tr>
+      <tr><td class="field">active_days_7d</td><td><span class="badge b-p2">Phase 2</span></td><td><span class="zh-only">近 7 天活跃天数</span><span class="en-only">Active days in last 7 days</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h"><span class="zh-only">6.2 信号字段 — mention_count 口径说明 <span class="en">Signal Fields & De-dup Rule</span></span><span class="en-only">6.2 Signal Fields — mention_count Convention</span></div>
+  <div class="callout c-warn">
+    <span class="zh-only"><strong>去重口径（关键）：</strong><code>mention_count</code> 以消息为粒度去重。同一条消息命中同一 category 的多个关键词，只算 <strong>1 次 mention</strong>，不是 N 次。</span>
+    <span class="en-only"><strong>De-duplication rule (critical):</strong> <code>mention_count</code> is de-duplicated at the <strong>message level</strong>. One message matching multiple keywords in the same category = <strong>1 mention</strong>, not N.</span>
+  </div>
+  <div class="callout c-green">
+    <span class="zh-only"><strong>Phase 1 约定：</strong><code>mention_count_30d = N</code> 等价于该 category 的 N 次 signal_count，1:1 映射，不做 confidence 计算。V2 直接以此触发 tag rule 判断。</span>
+    <span class="en-only"><strong>Phase 1 mapping:</strong> <code>mention_count_30d = N</code> → V2 treats this as N signal hits. 1:1 mapping, no confidence calculation applied.</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th><span class="zh-only">信号字段</span><span class="en-only">Signal Field</span></th><th><span class="zh-only">必填</span><span class="en-only">Required</span></th><th>Phase</th></tr></thead>
+    <tbody>
+      <tr><td class="field">automotive_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">insurance_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">healthcare_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">education_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">travel_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">baby_product_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">finance_investment_mentions_30d</td><td><span class="badge b-pink">Yes</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">lifestyle_premium_mentions_30d</td><td><span class="badge b-tbd">Optional</span></td><td><span class="badge b-green">Phase 1</span></td></tr>
+      <tr><td class="field">travel_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+      <tr><td class="field">insurance_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+      <tr><td class="field">education_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+      <tr><td class="field">automotive_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+      <tr><td class="field">finance_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+      <tr><td class="field">healthcare_strong_signal_count_30d</td><td><span class="badge b-tbd">—</span></td><td><span class="badge b-p2">Phase 2</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S7 Categories -->
+<section class="section" id="s7">
+  <div class="stag">07</div>
+  <h2><span class="zh-only">信号分类与关键词 <span class="en">Signal Categories & Keywords</span></span><span class="en-only">Signal Categories & Keywords</span></h2>
+  <div class="sdesc">
+    <span class="zh-only">以下关键词为初版参考词表，不要求一次性全部覆盖，可分阶段扩展。</span>
+    <span class="en-only">Keywords below are Phase 1 reference lists — not required to be fully covered in one pass, can be extended incrementally.</span>
+  </div>
+  <div class="callout c-warn">
+    <span class="zh-only"><strong>歧义处理（重要）：</strong><code>premium</code> 仅在 <code>lifestyle_premium</code> 中匹配，已从 insurance 词典移除，避免跨域误报。<code>agent</code> 在 insurance 类别中替换为短语 <code>insurance agent</code>。</span>
+    <span class="en-only"><strong>Disambiguation (important):</strong> <code>premium</code> is matched <em>only</em> under <code>lifestyle_premium</code> — removed from insurance to avoid cross-domain false matches. <code>agent</code> replaced with phrase <code>insurance agent</code> in the insurance category.</span>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card"><div class="cat-name">🚗 automotive</div><div class="cat-output">automotive_mentions_30d</div><div class="kw-wrap"><span class="kw">car</span><span class="kw">buy car</span><span class="kw">new car</span><span class="kw">COE</span><span class="kw">car loan</span><span class="kw">instalment</span><span class="kw">parking</span><span class="kw">petrol</span><span class="kw hi">Toyota</span><span class="kw hi">Honda</span><span class="kw hi">BMW</span><span class="kw hi">Mercedes</span><span class="kw hi">Tesla</span><span class="kw hi">BYD</span><span class="kw">SUV</span></div></div>
+    <div class="cat-card"><div class="cat-name">🛡️ insurance</div><div class="cat-output">insurance_mentions_30d</div><div class="kw-wrap"><span class="kw">insurance</span><span class="kw">policy</span><span class="kw">claim</span><span class="kw">coverage</span><span class="kw">renewal</span><span class="kw hi">insurance agent</span><span class="kw">whole life</span><span class="kw">term life</span><span class="kw">ILP</span><span class="kw">health insurance</span><span class="kw">car insurance</span><span class="kw">endowment</span><span class="kw hi">AIA</span><span class="kw hi">Prudential</span></div></div>
+    <div class="cat-card"><div class="cat-name">🏥 healthcare</div><div class="cat-output">healthcare_mentions_30d</div><div class="kw-wrap"><span class="kw">private hospital</span><span class="kw">specialist</span><span class="kw">pediatrician</span><span class="kw">gynae</span><span class="kw hi">Thomson Medical</span><span class="kw hi">Mount Elizabeth</span><span class="kw hi">Gleneagles</span><span class="kw hi">Raffles</span><span class="kw">checkup</span><span class="kw">appointment</span><span class="kw">vaccination</span></div></div>
+    <div class="cat-card"><div class="cat-name">📚 education</div><div class="cat-output">education_mentions_30d</div><div class="kw-wrap"><span class="kw">preschool</span><span class="kw">kindergarten</span><span class="kw">childcare</span><span class="kw">international school</span><span class="kw">Montessori</span><span class="kw">phonics</span><span class="kw">enrichment</span><span class="kw">tuition</span><span class="kw">school visit</span><span class="kw">apply school</span><span class="kw">enroll</span></div></div>
+    <div class="cat-card"><div class="cat-name">✈️ travel</div><div class="cat-output">travel_mentions_30d</div><div class="kw-wrap"><span class="kw">travel</span><span class="kw">trip</span><span class="kw">holiday</span><span class="kw">vacation</span><span class="kw">flight</span><span class="kw">hotel</span><span class="kw">booking</span><span class="kw">itinerary</span><span class="kw">visa</span><span class="kw hi">Japan</span><span class="kw hi">Tokyo</span><span class="kw hi">Osaka</span><span class="kw hi">Europe</span><span class="kw hi">Bali</span><span class="kw hi">London</span><span class="kw hi">Paris</span></div></div>
+    <div class="cat-card"><div class="cat-name">👶 baby_product</div><div class="cat-output">baby_product_mentions_30d</div><div class="kw-wrap"><span class="kw">diaper</span><span class="kw">formula milk</span><span class="kw">milk powder</span><span class="kw">stroller</span><span class="kw">car seat</span><span class="kw">baby lotion</span><span class="kw hi">Huggies</span><span class="kw hi">Pampers</span><span class="kw hi">Similac</span><span class="kw hi">Aptamil</span></div></div>
+    <div class="cat-card"><div class="cat-name">💹 finance_investment</div><div class="cat-output">finance_investment_mentions_30d</div><div class="kw-wrap"><span class="kw">investment</span><span class="kw">stock</span><span class="kw">ETF</span><span class="kw hi">REIT</span><span class="kw hi">dividend</span><span class="kw hi">portfolio</span><span class="kw hi">wealth</span><span class="kw hi">CPF</span><span class="kw hi">SRS</span><span class="kw">crypto</span><span class="kw">unit trust</span><span class="kw">net worth</span></div></div>
+    <div class="cat-card"><div class="cat-name">✨ lifestyle_premium</div><div class="cat-output">lifestyle_premium_mentions_30d</div><div class="kw-wrap"><span class="kw hi">premium</span><span class="kw">luxury</span><span class="kw">high-end</span><span class="kw">organic</span><span class="kw">designer</span><span class="kw">branded</span><span class="kw">private school</span></div></div>
+  </div>
+</section>
+
+<!-- S8 Detection -->
+<section class="section" id="s8">
+  <div class="stag">08</div>
+  <h2><span class="zh-only">关键词检测设计 <span class="en">Keyword Detection Design</span></span><span class="en-only">Keyword Detection Design</span></h2>
+  <div class="resp-2col">
+    <div class="resp-block owns">
+      <div class="resp-block-title zh-only">✓ Phase 1 必须实现</div>
+      <div class="resp-block-title en-only">✓ Required in Phase 1</div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">英文语言支持</span><span class="en-only">English language support</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">常见品牌 / 机构 / 实体名称</span><span class="en-only">Common brand / entity names</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">简单短语匹配（如 "insurance agent"）</span><span class="en-only">Simple phrase matching (e.g. "insurance agent")</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">不区分大小写</span><span class="en-only">Case-insensitive matching</span></div>
+      <div class="resp-item"><div class="rd on"></div><span class="zh-only">消息级去重（同 category）</span><span class="en-only">Message-level de-duplication per category</span></div>
+    </div>
+    <div class="resp-block excl">
+      <div class="resp-block-title zh-only">✗ Phase 1 不要求</div>
+      <div class="resp-block-title en-only">✗ Not required in Phase 1</div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">复杂分词</span><span class="en-only">Complex tokenization</span></div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">句法分析</span><span class="en-only">Syntactic analysis</span></div>
+      <div class="resp-item"><div class="rd"></div>Embedding / semantic search</div>
+      <div class="resp-item"><div class="rd"></div>LLM inference</div>
+      <div class="resp-item"><div class="rd"></div><span class="zh-only">confidence 计算</span><span class="en-only">Confidence scoring</span></div>
+    </div>
+  </div>
+  <div class="callout c-note">
+    <span class="zh-only">内部实现方式不强制（SQL / service / rule engine 均可），本文档只约束最终输出字段和基本口径。</span>
+    <span class="en-only">Internal implementation is flexible — SQL, service, or rule engine are all acceptable. Only output format and field definitions are constrained by this spec.</span>
+  </div>
+</section>
+
+<!-- S9 Strong Signal -->
+<section class="section" id="s9">
+  <div class="stag">09</div>
+  <h2><span class="zh-only">强信号检测 <span class="en">Strong Signal Detection</span></span><span class="en-only">Strong Signal Detection</span>&nbsp;<span class="badge b-p2">Phase 2</span></h2>
+  <div class="sdesc">
+    <span class="zh-only">通过关键词共现（co-occurrence）检测高置信度行为意图，不要求 NLP，只做轻量 pattern 匹配。V2 侧已预留对应 tag rule（T090–T095）。</span>
+    <span class="en-only">Rule-based co-occurrence patterns indicating high-confidence behavioral intent. No NLP required — lightweight pattern matching only. V2 has pre-defined tag rules T090–T095 ready for these fields.</span>
+  </div>
+  <div class="pattern-box">
+    <div class="pattern-title">✈️ Travel Strong Signal → <code>travel_strong_signal_count_30d</code></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">意图动词</span><span class="en-only">Intent verb</span></div><div class="pattern-val"><span class="kw">book</span><span class="kw">booked</span><span class="kw">booking</span><span class="kw">plan</span><span class="kw">planned</span></div></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">共现词</span><span class="en-only">Co-occurs with</span></div><div class="pattern-val"><span class="kw hi">flight</span><span class="kw hi">hotel</span><span class="kw hi">Japan</span><span class="kw hi">Tokyo</span><span class="kw hi">Osaka</span><span class="kw hi">visa</span><span class="kw hi">Europe</span></div></div>
+  </div>
+  <div class="pattern-box">
+    <div class="pattern-title">🛡️ Insurance Strong Signal → <code>insurance_strong_signal_count_30d</code></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">行动动词</span><span class="en-only">Action verb</span></div><div class="pattern-val"><span class="kw">renewal</span><span class="kw">claim</span><span class="kw">policy</span></div></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">共现词</span><span class="en-only">Co-occurs with</span></div><div class="pattern-val"><span class="kw hi">insurance</span><span class="kw hi">car insurance</span><span class="kw hi">health insurance</span></div></div>
+  </div>
+  <div class="pattern-box">
+    <div class="pattern-title">📚 Education Strong Signal → <code>education_strong_signal_count_30d</code></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">行动动词</span><span class="en-only">Action verb</span></div><div class="pattern-val"><span class="kw">apply</span><span class="kw">applied</span><span class="kw">enroll</span><span class="kw">school tour</span><span class="kw">school visit</span></div></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">共现词</span><span class="en-only">Co-occurs with</span></div><div class="pattern-val"><span class="kw hi">preschool</span><span class="kw hi">kindergarten</span><span class="kw hi">international school</span></div></div>
+  </div>
+  <div class="pattern-box">
+    <div class="pattern-title">🚗 Automotive Strong Signal → <code>automotive_strong_signal_count_30d</code></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">购买动词</span><span class="en-only">Purchase verb</span></div><div class="pattern-val"><span class="kw">buy</span><span class="kw">bought</span><span class="kw">loan</span><span class="kw">instalment</span><span class="kw">renewal</span></div></div>
+    <div class="pattern-row"><div class="pattern-lbl"><span class="zh-only">共现词</span><span class="en-only">Co-occurs with</span></div><div class="pattern-val"><span class="kw hi">car</span><span class="kw hi">COE</span><span class="kw hi">car insurance</span><span class="kw hi">BMW</span><span class="kw hi">Tesla</span></div></div>
+  </div>
+</section>
+
+<!-- S10 Output Format -->
+<section class="section" id="s10">
+  <div class="stag">10</div>
+  <h2><span class="zh-only">输出格式 <span class="en">Output Format</span></span><span class="en-only">Output Format</span></h2>
+  <div class="sdesc">
+    <span class="zh-only">Phase 1 推荐宽表（Flat JSON）格式，便于 BigQuery 消费。</span>
+    <span class="en-only">Phase 1 uses a flat wide-table JSON format — optimised for BigQuery consumption.</span>
+  </div>
+  <div class="code-wrap">
+    <div class="code-head">
+      <span class="code-lang">JSON</span>
+      <span class="code-label"><span class="zh-only">Phase 1 · 宽表格式 · 主输出</span><span class="en-only">Phase 1 · Flat Wide Table · Primary Output</span></span>
+    </div>
+    <pre>{
+  <span class="k">"platform"</span>:                       <span class="s">"whatsapp"</span>,
+  <span class="k">"member_source_id"</span>:               <span class="s">"1203xxx"</span>,
+  <span class="k">"member_source_id_type"</span>:          <span class="s">"whatsapp_lid"</span>,
+  <span class="k">"normalized_phone"</span>:               <span class="s">"+6591234567"</span>,
+  <span class="k">"first_seen_at"</span>:                  <span class="s">"2026-03-01T00:00:00Z"</span>,
+  <span class="k">"last_seen_at"</span>:                   <span class="s">"2026-04-20T08:00:00Z"</span>,
+  <span class="k">"group_count_30d"</span>:                <span class="n">4</span>,
+  <span class="k">"message_count_30d"</span>:              <span class="n">52</span>,
+  <span class="k">"active_days_30d"</span>:                <span class="n">9</span>,
+  <span class="k">"automotive_mentions_30d"</span>:         <span class="n">3</span>,
+  <span class="k">"insurance_mentions_30d"</span>:          <span class="n">5</span>,
+  <span class="k">"healthcare_mentions_30d"</span>:         <span class="n">2</span>,
+  <span class="k">"education_mentions_30d"</span>:          <span class="n">6</span>,
+  <span class="k">"travel_mentions_30d"</span>:             <span class="n">4</span>,
+  <span class="k">"baby_product_mentions_30d"</span>:       <span class="n">8</span>,
+  <span class="k">"finance_investment_mentions_30d"</span>: <span class="n">1</span>
+}</pre>
+  </div>
+  <div class="callout c-info">
+    <span class="zh-only"><strong>建议 Pulse 内部保留关键词命中日志：</strong>member_source_id · platform · signal_category · matched_keyword · signal_time。不同步到 BQ，仅 Pulse 内部使用。可在 Phase 2 升级时直接使用，无需重新采集历史数据。</span>
+    <span class="en-only"><strong>Internal keyword hit log (recommended):</strong> Pulse should maintain an internal log of each keyword hit — member_source_id, platform, signal_category, matched_keyword, signal_time. Keep on Pulse side only, NOT synced to BQ. Enables Phase 2 strong signal output without data re-collection.</span>
+  </div>
+</section>
+
+<!-- S11 Phases -->
+<section class="section" id="s11">
+  <div class="stag">11</div>
+  <h2><span class="zh-only">分阶段交付建议 <span class="en">Delivery Phases</span></span><span class="en-only">Delivery Phases</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Phase</th><th><span class="zh-only">范围</span><span class="en-only">Scope</span></th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 1</strong><br><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">MVP</span></td>
+        <td><span class="zh-only">Member 标识 + 活跃度字段 · 8 大类 mention_count_30d · 仅 WhatsApp · 30d 窗口 · 无强信号 · 无 group-level</span><span class="en-only">Member identity + activity fields · All 8 category mention_count_30d · WhatsApp only · 30d window · No strong signal · No group-level</span></td>
+        <td><span class="badge b-green">Now</span></td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2</strong><br><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Enhanced</span></td>
+        <td><span class="zh-only">新增 7d 窗口 · 强信号 count 字段 · Telegram 支持 · 子类信号（japan_travel / private_healthcare / car_insurance）</span><span class="en-only">Add 7d window · Strong signal count fields · Telegram support · Sub-category signals (japan_travel / private_healthcare / car_insurance)</span></td>
+        <td><span class="badge b-p2">Next</span></td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3</strong><br><span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Optimize</span></td>
+        <td><span class="zh-only">扩展关键词词典 · group-level enrichment · 更多垂直行业</span><span class="en-only">Expanded keyword dictionary · Group-level enrichment · More verticals</span></td>
+        <td><span class="badge b-tbd">Future</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S12 Success -->
+<section class="section" id="s12">
+  <div class="stag">12</div>
+  <h2><span class="zh-only">成功标准 <span class="en">Success Criteria</span></span><span class="en-only">Success Criteria</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th><span class="zh-only">标准</span><span class="en-only">Criterion</span></th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="zh-only">Pulse 能持续输出稳定的 member-level 聚合信号</span><span class="en-only">Pulse continuously outputs stable member-level aggregated signals</span></td></tr>
+      <tr><td>2</td><td><span class="zh-only">BQ 不需要保存全量 raw message 即可支持后续画像分析</span><span class="en-only">BQ does not need raw messages to support downstream profiling</span></td></tr>
+      <tr><td>3</td><td><span class="zh-only">V2 能基于这些 signals 做 identity mapping 和打标</span><span class="en-only">V2 can perform identity mapping and tag generation based on these signals</span></td></tr>
+      <tr><td>4</td><td><span class="zh-only">后续可逐步扩展词表与规则，而不需要大改 Pulse 架构</span><span class="en-only">Keyword dictionaries and rules can be extended without major Pulse architecture changes</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- SIGNOFF -->
+<section class="section" id="signoff">
+  <div class="stag">Sign-off</div>
+  <h2><span class="zh-only">审批记录 <span class="en">Document Sign-off</span></span><span class="en-only">Document Sign-off</span></h2>
+  <div class="sdesc zh-only">本文档须经以下角色审阅并签字确认后方可正式生效。</div>
+  <div class="sdesc en-only">This document requires review and sign-off from the following roles before becoming effective.</div>
+  <div class="signoff-grid">
+    <div class="signoff-cell">
+      <div class="signoff-role zh-only">起草人 / Prepared By</div>
+      <div class="signoff-role en-only">Prepared By</div>
+      <div class="signoff-name">Abby (Product)</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label zh-only">签字 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 日期</div>
+      <div class="signoff-label en-only">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role zh-only">技术审阅 / Reviewed By</div>
+      <div class="signoff-role en-only">Reviewed By</div>
+      <div class="signoff-name">Agus (ID Team)</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label zh-only">签字 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 日期</div>
+      <div class="signoff-label en-only">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role zh-only">批准人 / Approved By</div>
+      <div class="signoff-role en-only">Approved By</div>
+      <div class="signoff-name">Zhijiang / Oliver</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label zh-only">签字 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 日期</div>
+      <div class="signoff-label en-only">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVISION -->
+<section class="section" id="revision">
+  <div class="stag">Revision History</div>
+  <h2><span class="zh-only">版本历史 <span class="en">Revision History</span></span><span class="en-only">Revision History</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th><span class="zh-only">版本</span><span class="en-only">Version</span></th><th><span class="zh-only">日期</span><span class="en-only">Date</span></th><th><span class="zh-only">作者</span><span class="en-only">Author</span></th><th><span class="zh-only">变更说明</span><span class="en-only">Change Description</span></th></tr></thead>
+    <tbody>
+      <tr><td>v1.0</td><td>2026-04-23</td><td>Abby</td><td><span class="zh-only">初始版本。含完整信号提取规范：标识设计、输出字段、8 大信号分类、关键词检测规则、强信号 pattern（Phase 2）、输出格式、分阶段交付计划。</span><span class="en-only">Initial draft. Full signal extraction spec: identity design, output fields, 8 signal categories, keyword detection rules, strong signal patterns (Phase 2), output format, delivery phases.</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="doc-footer">
+  <span>PRD-PLS-001 · v1.0 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>© 2026 Supermom Product Team</span>
+</div>
+
+</main>
+</div>
+<script>
+function setLang(lang) {
+  document.body.className = 'lang-' + lang;
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+}
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.nl').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + entry.target.id) item.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
