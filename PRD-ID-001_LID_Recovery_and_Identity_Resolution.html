@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-ID-001 | Tracking Context Initialization & Login Identity Tracking</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2;
+  --surface: #fff;
+  --border: #e2e0d8;
+  --border-strong: #c8c5ba;
+  --text-primary: #1a1917;
+  --text-secondary: #5c5a54;
+  --text-muted: #9c9a93;
+  --accent-soft: #f0ede6;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  /* Tracking Module — Teal Accent */
+  --pink: #0f7a6e;
+  --pink-mid: #1a9e8f;
+  --pink-light: #e8f7f5;
+  --pink-border: #8dd4cc;
+  --pink-muted: #0a5a52;
+
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --red: #8b1a1a;   --red-bg: #fdf0f0;   --red-b: #f0b0b0;
+  --blue: #0f3a6e;  --blue-bg: #edf3fb;  --blue-b: #b0cef0;
+  --teal: #0a5a52;  --teal-bg: #e8f7f5;  --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+
+.lang-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 28px;
+}
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pink); font-weight: 500;
+  border-left: 3px solid var(--pink); padding-left: 8px;
+}
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn {
+  padding: 3px 14px; border: none; border-radius: 3px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  cursor: pointer; background: transparent; color: var(--text-muted);
+  transition: all .15s; letter-spacing: .05em;
+}
+.lang-btn.active { background: var(--pink); color: #fff; }
+
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+.sidebar {
+  position: sticky; top: 41px; height: calc(100vh - 41px);
+  overflow-y: auto; background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--pink) 0%, #1a9e8f 50%, #26c6b8 100%);
+}
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl {
+  display: block; padding: 5px 20px; font-size: 12.5px;
+  color: var(--text-secondary); text-decoration: none;
+  border-left: 2px solid transparent; transition: all .12s; line-height: 1.4;
+}
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nl.active { color: var(--pink); background: var(--pink-light); border-left-color: var(--pink); font-weight: 500; }
+.nl.sub { padding-left: 32px; font-size: 11.5px; color: var(--text-muted); }
+.nl.sub:hover { color: var(--pink); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+
+.main { padding: 48px 56px; max-width: 900px; }
+
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pink);
+  border: 1px solid var(--pink-border); background: var(--pink-light);
+  padding: 3px 10px; border-radius: 3px; margin-bottom: 14px;
+}
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+.cover .sub .en { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+.meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+}
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-pink   { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); }
+.b-green  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-blue   { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.b-tbd    { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-red    { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+
+.team { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+.team-fe  { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+.team-be  { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.team-gtm { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.team-shared { background: var(--accent-soft); color: var(--text-secondary); border: 1px solid var(--border); }
+
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.section h2 .en { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+hr.div { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+.sub-h .en { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+
+.bi { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 16px; background: var(--surface); }
+.bi-label { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); padding: 7px 16px 0; }
+.bi-zh { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; border-bottom: 1px solid var(--border); }
+.bi-en { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+td .en { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+
+.code-wrap { border-radius: 6px; border: 1px solid var(--border); overflow: hidden; margin: 12px 0; }
+.code-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+.code-lang { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; }
+.code-label { font-family: var(--mono); font-size: 10px; color: var(--pink); }
+pre { background: #1c1b18; color: #d4d0c8; padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; }
+pre .k { color: #80cbc4; } pre .s { color: #a5d6a7; } pre .c { color: #6b7280; font-style: italic; } pre .n { color: #f48fb1; } pre .v { color: #ffcc80; }
+code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); border: 1px solid var(--border); }
+
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout strong { font-weight: 500; }
+.c-pink   { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info   { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn   { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green  { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note   { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.c-red    { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+
+.diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin: 16px 0; overflow-x: auto; }
+.diagram-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--pink); margin-bottom: 16px; }
+
+.pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: var(--mono); background: var(--pink-light); border: 1px solid var(--pink-border); color: var(--pink-muted); }
+
+.signoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.signoff-cell { background: var(--surface); padding: 14px 16px; }
+.signoff-role { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--pink); margin-bottom: 8px; }
+.signoff-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.signoff-line { border-top: 1px solid var(--border-strong); margin: 20px 0 6px; }
+.signoff-label { font-size: 11px; color: var(--text-muted); }
+
+.sev-h { color: var(--red); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-m { color: var(--amber); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-l { color: var(--green); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+
+/* Chinese column in tables */
+td.zh { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; border-left: 1px dashed var(--border); background: #fafaf8; }
+th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; border-left: 1px dashed var(--pink-border); }
+
+/* Chinese summary block */
+.zh-summary {
+  background: var(--pink-light); border: 1px solid var(--pink-border);
+  border-radius: 6px; padding: 12px 16px; margin: 16px 0;
+  font-size: 12.5px; color: var(--pink-muted); line-height: 1.7;
+}
+.zh-summary-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--pink); margin-bottom: 6px; display: block;
+}
+
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main { padding: 24px 20px; }
+  .meta-grid { grid-template-columns: 1fr; }
+  .signoff-grid { grid-template-columns: 1fr; }
+}
+@media print { .lang-bar, .sidebar { display: none; } .main { max-width: 100%; } }
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <span class="lang-bar-logo">Tracking Foundation</span>
+    <span class="lang-bar-id">PRD-ID-001 · v1.0 · 2026-05-25</span>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">Tracking Foundation</div>
+    <div class="sidebar-title">Tracking Context Initialization &amp; Login Identity Tracking</div>
+    <div class="sidebar-ver">PRD-ID-001 · v1.0</div>
+  </div>
+
+  <div class="ngl">Navigation</div>
+  <a class="nl" href="#cover">Cover &amp; Doc Info</a>
+  <a class="nl" href="#s1">1. Background</a>
+  <a class="nl" href="#s2">2. Core Identity Design</a>
+  <a class="nl sub" href="#s2-anon">2.1 anonymous_id</a>
+  <a class="nl sub" href="#s2-uid">2.2 hashed_uid</a>
+  <a class="nl sub" href="#s2-hash">2.3 Hashed UID Spec</a>
+  <a class="nl" href="#s3">3. Identity Architecture</a>
+  <a class="nl" href="#s4">4. Tracking Flows</a>
+  <a class="nl sub" href="#s4-flow1">4.1 Anonymous Visit</a>
+  <a class="nl sub" href="#s4-flow2">4.2 Already Logged In</a>
+  <a class="nl sub" href="#s4-flow3">4.3 Login During Session</a>
+  <a class="nl" href="#s5">5. GA4 Client ID Spec</a>
+  <a class="nl" href="#s6">6. GA4 Session ID Spec</a>
+  <a class="nl" href="#s7">7. Error &amp; Fallback</a>
+  <a class="nl" href="#s8">8. Multi-tab Handling</a>
+  <a class="nl" href="#s9">9. Responsibility Matrix</a>
+  <a class="nl" href="#s10">10. Privacy &amp; Compliance</a>
+  <a class="nl" href="#s11">11. Acceptance Criteria</a>
+  <a class="nl" href="#s12">12. Risks &amp; Mitigations</a>
+  <div class="nav-div"></div>
+  <a class="nl" href="#glossary">Glossary</a>
+  <a class="nl" href="#signoff">Sign-off</a>
+  <a class="nl" href="#revision">Revision History</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- COVER -->
+<div class="cover" id="cover">
+  <div class="doc-module-tag">PRD · Tracking Foundation Module</div>
+  <h1><strong>Tracking Context Initialization</strong> &amp; Login Identity Tracking</h1>
+  <div class="sub">
+    Unified User Identity Tracking — Product Requirement Document
+    <span class="en">Establishing standardized anonymous + logged-in identity tracking for GA4, GTM, TikTok, Meta, and internal analytics.</span>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k">DOC ID</span><span class="v" style="font-family:var(--mono);color:var(--pink);font-size:12px;">PRD-ID-001</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.0</span></div>
+    <div class="meta-cell"><span class="k">TYPE</span><span class="v">PRD / Frontend + Identity</span></div>
+    <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
+    <div class="meta-cell"><span class="k">OWNER</span><span class="v">Product Team</span></div>
+    <div class="meta-cell"><span class="k">UPDATED</span><span class="v">2026-05-25</span></div>
+    <div class="meta-cell"><span class="k">SYSTEM</span><span class="v"><span class="badge b-pink">Tracking Foundation</span></span></div>
+    <div class="meta-cell"><span class="k">SYSTEMS</span><span class="v">
+      <span class="badge b-blue">GA4</span>&nbsp;<span class="badge b-blue">GTM</span>&nbsp;<span class="badge b-blue">TikTok</span>&nbsp;<span class="badge b-blue">Meta</span>&nbsp;<span class="badge b-blue">Audience Gallery</span>
+    </span></div>
+  </div>
+</div>
+
+<!-- S1 Background -->
+<section class="section" id="s1">
+  <div class="stag">01</div>
+  <h2>Background</h2>
+  <div class="sdesc">The system currently lacks a unified Identity Tracking Flow, resulting in fragmented user identity across platforms and preventing reliable behavioral attribution.</div>
+
+  <div class="bi">
+    <div class="bi-label">Problem Statement</div>
+    <div class="bi-en">Anonymous users cannot be stably identified across sessions. Pre-login and post-login behaviors cannot be linked. GA4 identity and internal system identity are misaligned. Audience Gallery cannot accumulate a complete user behavioral chain. Multi-platform tracking standardization is blocked.</div>
+  </div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">核心问题 · Key Problem</span>
+    当前系统缺少统一的 Identity Tracking Flow：匿名用户无法稳定识别，登录前后行为无法关联，GA4 与内部系统 identity 无法统一，导致 Audience Gallery 与多平台 tracking 无法落地。
+  </div>
+
+  <div class="sub-h">What This Document Establishes</div>
+  <div class="tw"><table>
+    <thead><tr><th>Capability</th><th class="zh">能力说明</th><th>Description</th><th class="zh">详情</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Tracking Context Initialization</td><td class="zh">Tracking 上下文初始化</td><td>Standardized event push on every page load, capturing anonymous_id and session context</td><td class="zh">每次页面加载时推送标准化事件，采集 anonymous_id 和 session 上下文</td></tr>
+      <tr><td class="field">Login Identity Synchronization</td><td class="zh">登录身份同步</td><td>Pushing hashed_uid on login, linking anonymous and logged-in identities</td><td class="zh">登录时推送 hashed_uid，将匿名身份与登录身份关联</td></tr>
+      <tr><td class="field">Identity Stitching Foundation</td><td class="zh">身份关联基础能力</td><td>Backend layer connecting anonymous_id ↔ hashed_uid for unified user graph</td><td class="zh">Backend 层建立 anonymous_id ↔ hashed_uid 关联，形成统一用户图谱</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-info">
+    <strong>Industry Standard Reference:</strong> This design is based on established CDP / analytics standards — Google Analytics client_id model, Segment anonymousId + userId stitching, Mixpanel distinct_id merge, Amplitude anonymous → identified merge, and Meta / TikTok Pixel identity matching best practices.
+  </div>
+</section>
+
+<!-- S2 Core Identity Design -->
+<section class="section" id="s2">
+  <div class="stag">02</div>
+  <h2>Core Identity Design</h2>
+  <div class="sdesc">The system operates with two distinct identity types that must never be conflated.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Identity Type</th><th>Purpose</th><th class="zh">用途说明</th><th>Source</th><th class="zh">来源</th><th>Lifecycle</th><th class="zh">生命周期</th></tr></thead>
+    <tbody>
+      <tr><td class="field">anonymous_id</td><td>Anonymous user identity, pre-login behavior tracking</td><td class="zh">匿名用户身份标识，用于登录前行为追踪</td><td>GA4 client_id</td><td class="zh">复用 GA4 client_id</td><td>Stable across login — never regenerated</td><td class="zh">登录后保持不变，绝不重新生成</td></tr>
+      <tr><td class="field">hashed_uid</td><td>Logged-in user identity, cross-platform consistency</td><td class="zh">登录用户身份标识，用于跨平台 identity 一致性</td><td>Backend — login API response</td><td class="zh">后端登录接口返回</td><td>Present only when user is authenticated</td><td class="zh">仅在用户已登录时存在</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-red">
+    <strong>Core Rule:</strong> Anonymous Identity and Logged-in Identity must be maintained separately. anonymous_id must remain stable. After login, anonymous_id must NOT change. Identity stitching is exclusively a Backend responsibility.
+  </div>
+
+  <!-- 2.1 anonymous_id -->
+  <div class="sub-h" id="s2-anon">2.1 anonymous_id</div>
+  <div class="sdesc">Used for anonymous user behavior tracking, pre-login signal accumulation, and anonymous → uid stitching.</div>
+  <div class="tw"><table>
+    <thead><tr><th>Rule</th><th>Detail</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Source</td><td>Must reuse GA4 <code>client_id</code> — corresponds to GA4 <code>user_pseudo_id</code></td><td class="zh">必须复用 GA4 client_id，对应 GA4 的 user_pseudo_id</td></tr>
+      <tr><td class="field">Generation</td><td>Frontend must NOT self-generate a UUID as anonymous_id</td><td class="zh">前端不允许自行生成 UUID 作为 anonymous_id</td></tr>
+      <tr><td class="field">Stability</td><td>Must NOT change after login — identity chain would break if regenerated</td><td class="zh">登录后不得变化，否则匿名行为链路断裂</td></tr>
+    </tbody>
+  </table></div>
+  <div class="sub-h" id="s2-uid">2.2 hashed_uid</div>
+  <div class="sdesc">Used for logged-in identity, internal identity mapping, and cross-platform identity consistency.</div>
+  <div class="tw"><table>
+    <thead><tr><th>Rule</th><th>Detail</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Raw UID Exposure</td><td>Original v2 uid must NEVER be uploaded to any third-party tracking platform</td><td class="zh">原始 v2 uid 严禁上传至任何第三方 tracking 平台</td></tr>
+      <tr><td class="field">Consistency</td><td>Same uid must always produce the same hashed_uid</td><td class="zh">同一个 uid 必须始终生成相同的 hashed_uid</td></tr>
+      <tr><td class="field">Mapping</td><td>Backend maintains <code>v2 uid ↔ hashed_uid</code> mapping exclusively</td><td class="zh">mapping 关系由 Backend 独立维护，前端不介入</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">为什么必须用 Hashed UID</span>
+    真实 uid 是内部主键，不能暴露给 GA4、GTM、TikTok、Meta 等第三方平台。使用 SHA-256 对 uid 直接哈希生成 hashed_uid，既能防止 identity leakage，又符合行业最佳实践（hashed email / hashed internal id），同时支持稳定的跨平台 identity matching。
+  </div>
+
+  <!-- 2.3 Hashed UID Spec -->
+  <div class="sub-h" id="s2-hash">2.3 Hashed UID Specification</div>
+  <div class="tw"><table>
+    <thead><tr><th>Property</th><th>Specification</th><th class="zh">规范说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Algorithm</td><td><code>SHA-256( uid )</code> — deterministic hash of the raw uid, no SALT applied</td><td class="zh">对原始 uid 直接进行 SHA-256 哈希，无 SALT，同一 uid 结果始终一致</td></tr>
+      <tr><td class="field">Delivery</td><td>Returned directly in login API response — Frontend does NOT compute hash</td><td class="zh">由登录接口直接返回，前端不自行计算</td></tr>
+      <tr><td class="field">Storage</td><td>Memory or <code>sessionStorage</code> only — must NOT write to <code>localStorage</code></td><td class="zh">仅存于内存或 sessionStorage，禁止写入 localStorage</td></tr>
+      <tr><td class="field">On Logout</td><td>hashed_uid must be cleared immediately upon logout</td><td class="zh">用户登出后立即清除 hashed_uid</td></tr>
+      <tr><td class="field">On Refresh</td><td>Re-fetched from session restore API — not persisted client-side</td><td class="zh">刷新后从 session 恢复接口重新获取，不在客户端持久化</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JSON</span><span class="code-label">Login API Response — hashed_uid field</span></div>
+    <pre>{
+  <span class="n">"token"</span>: <span class="s">"eyJhbGci..."</span>,
+  <span class="n">"user"</span>: {
+    <span class="n">"hashed_uid"</span>: <span class="s">"a3f8c2d91b..."</span>,  <span class="c">// SHA-256(uid), generated by Backend</span>
+    <span class="c">// raw uid is NEVER returned to Frontend for tracking purposes</span>
+  }
+}</pre>
+  </div>
+</section>
+
+<!-- S3 Identity Architecture Diagram -->
+<section class="section" id="s3">
+  <div class="stag">03</div>
+  <h2>Identity Architecture</h2>
+  <div class="sdesc">End-to-end view of how anonymous and logged-in identities flow through the system into a unified identity graph.</div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">架构核心逻辑</span>
+    整个 identity 体系分三层：Frontend 负责采集和推送 GA4 client_id 与 hashed_uid；Backend Identity Layer 负责 stitching 和 mapping；下游 Audience Gallery / Analytics 消费统一的 identity graph。登录前后 anonymous_id 必须保持不变，这是整个链路能通的关键。
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">Unified Identity Architecture — Frontend → Backend → Downstream</div>
+    <svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="arr-teal" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/>
+        </marker>
+        <marker id="arr-gray" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#9c9a93"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/>
+        </marker>
+        <marker id="arr-green" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/>
+        </marker>
+      </defs>
+
+      <!-- Layer labels -->
+      <text x="12" y="22" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93" letter-spacing="1">FRONTEND LAYER</text>
+      <text x="12" y="168" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93" letter-spacing="1">BACKEND IDENTITY LAYER</text>
+      <text x="12" y="298" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93" letter-spacing="1">DOWNSTREAM</text>
+
+      <!-- Frontend zone -->
+      <rect x="10" y="28" width="800" height="120" rx="8" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.2" stroke-dasharray="5,3"/>
+
+      <!-- GA4 -->
+      <rect x="30" y="48" width="120" height="84" rx="6" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
+      <text x="90" y="72" text-anchor="middle" font-size="11" font-weight="500" fill="#0f7a6e">GA4</text>
+      <text x="90" y="89" text-anchor="middle" font-size="9.5" fill="#5c5a54">client_id</text>
+      <text x="90" y="103" text-anchor="middle" font-size="9.5" fill="#5c5a54">ga_session_id</text>
+      <text x="90" y="120" text-anchor="middle" font-size="8.5" fill="#9c9a93">source of truth</text>
+
+      <!-- Arrow GA4 → anonymous_id -->
+      <line x1="150" y1="90" x2="188" y2="90" stroke="#0f7a6e" stroke-width="1.4" marker-end="url(#arr-teal)"/>
+
+      <!-- anonymous_id node -->
+      <rect x="190" y="58" width="130" height="64" rx="6" fill="#fff" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="255" y="82" text-anchor="middle" font-size="11" font-weight="500" fill="#0f7a6e">anonymous_id</text>
+      <text x="255" y="98" text-anchor="middle" font-size="9.5" fill="#5c5a54">= GA4 client_id</text>
+      <text x="255" y="111" text-anchor="middle" font-size="8.5" fill="#9c9a93">stable · never changes</text>
+
+      <!-- tracking_initialized push -->
+      <rect x="370" y="38" width="160" height="50" rx="5" fill="#e8f7f5" stroke="#0f7a6e" stroke-width="1"/>
+      <text x="450" y="58" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">tracking_initialized</text>
+      <text x="450" y="73" text-anchor="middle" font-size="9" fill="#5c5a54">anonymous_id + session_id</text>
+      <text x="450" y="84" text-anchor="middle" font-size="8.5" fill="#9c9a93">± hashed_uid if logged in</text>
+
+      <!-- login event push -->
+      <rect x="370" y="98" width="160" height="42" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1"/>
+      <text x="450" y="117" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">login event</text>
+      <text x="450" y="130" text-anchor="middle" font-size="9" fill="#5c5a54">same ids + hashed_uid</text>
+
+      <!-- arrow anon → events -->
+      <line x1="320" y1="82" x2="368" y2="68" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#arr-teal)"/>
+      <line x1="320" y1="95" x2="368" y2="115" stroke="#b0cef0" stroke-width="1.2" marker-end="url(#arr-blue)"/>
+
+      <!-- GTM / dataLayer node -->
+      <rect x="580" y="48" width="110" height="84" rx="6" fill="#fef7e6" stroke="#f5d080" stroke-width="1.2"/>
+      <text x="635" y="72" text-anchor="middle" font-size="11" font-weight="500" fill="#7a4f00">GTM</text>
+      <text x="635" y="88" text-anchor="middle" font-size="9" fill="#5c5a54">dataLayer</text>
+      <text x="635" y="101" text-anchor="middle" font-size="8.5" fill="#9c9a93">GA4 · TikTok</text>
+      <text x="635" y="114" text-anchor="middle" font-size="8.5" fill="#9c9a93">Meta · Internal</text>
+
+      <line x1="530" y1="68" x2="578" y2="68" stroke="#e6a817" stroke-width="1.2" marker-end="url(#arr-gray)"/>
+      <line x1="530" y1="118" x2="578" y2="108" stroke="#b0cef0" stroke-width="1.2" marker-end="url(#arr-gray)"/>
+
+      <!-- Login trigger on frontend -->
+      <rect x="716" y="58" width="86" height="44" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1"/>
+      <text x="759" y="76" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f7a6e">hashed_uid</text>
+      <text x="759" y="90" text-anchor="middle" font-size="8.5" fill="#9c9a93">from login API</text>
+      <line x1="690" y1="82" x2="714" y2="82" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#arr-teal)"/>
+
+      <!-- Backend zone -->
+      <rect x="10" y="176" width="800" height="100" rx="8" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2" stroke-dasharray="5,3"/>
+
+      <rect x="30" y="196" width="140" height="60" rx="6" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
+      <text x="100" y="221" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Identity Layer</text>
+      <text x="100" y="237" text-anchor="middle" font-size="9" fill="#5c5a54">uid ↔ hashed_uid</text>
+      <text x="100" y="249" text-anchor="middle" font-size="8.5" fill="#9c9a93">SHA-256 + SALT</text>
+
+      <rect x="218" y="196" width="160" height="60" rx="6" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
+      <text x="298" y="218" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Identity Stitching</text>
+      <text x="298" y="234" text-anchor="middle" font-size="9" fill="#5c5a54">anonymous_id → hashed_uid</text>
+      <text x="298" y="248" text-anchor="middle" font-size="8.5" fill="#9c9a93">cross-device resolution</text>
+
+      <rect x="426" y="196" width="150" height="60" rx="6" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
+      <text x="501" y="218" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Identity Graph</text>
+      <text x="501" y="234" text-anchor="middle" font-size="9" fill="#5c5a54">Unified User Profile</text>
+      <text x="501" y="248" text-anchor="middle" font-size="8.5" fill="#9c9a93">all identifiers resolved</text>
+
+      <line x1="170" y1="226" x2="216" y2="226" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#arr-blue)"/>
+      <line x1="378" y1="226" x2="424" y2="226" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#arr-blue)"/>
+
+      <!-- Arrow from Frontend GTM down to Backend -->
+      <line x1="635" y1="132" x2="635" y2="168" stroke="#9c9a93" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr-gray)"/>
+      <line x1="635" y1="168" x2="500" y2="176" stroke="#9c9a93" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Downstream zone -->
+      <rect x="10" y="306" width="800" height="60" rx="8" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2" stroke-dasharray="5,3"/>
+
+      <rect x="30" y="318" width="110" height="36" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="85" y="340" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Audience Gallery</text>
+
+      <rect x="160" y="318" width="90" height="36" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="205" y="340" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Analytics</text>
+
+      <rect x="270" y="318" width="100" height="36" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="320" y="340" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Attribution</text>
+
+      <rect x="390" y="318" width="90" height="36" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="435" y="340" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">CDP</text>
+
+      <rect x="500" y="318" width="120" height="36" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="560" y="340" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">AI Personalization</text>
+
+      <!-- Arrow identity graph → downstream -->
+      <line x1="501" y1="256" x2="320" y2="306" stroke="#1a6b45" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-green)"/>
+    </svg>
+  </div>
+</section>
+
+<!-- S4 Tracking Flows -->
+<section class="section" id="s4">
+  <div class="stag">04</div>
+  <h2>Tracking Flows</h2>
+  <div class="sdesc">Three distinct flows cover all user entry states. The state machine below shows the complete decision logic — followed by per-flow detail.</div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">三种 Flow 核心要点</span>
+    无论哪种 Flow，anonymous_id 和 session_id 在整个 session 内必须保持不变。登录后只是新增 hashed_uid，绝不能重建 anonymous_id，否则行为链路断裂，stitching 失败。
+  </div>
+
+  <!-- State Machine Diagram -->
+  <div class="sub-h">Flow State Machine</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title">Three Flow State Machine — User Entry × Login State</div>
+    <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="sm-arr" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/>
+        </marker>
+        <marker id="sm-arr-b" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/>
+        </marker>
+        <marker id="sm-arr-g" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/>
+        </marker>
+      </defs>
+
+      <!-- Start node -->
+      <circle cx="80" cy="60" r="22" fill="#0f7a6e"/>
+      <text x="80" y="65" text-anchor="middle" font-size="10" fill="#fff" font-weight="500">START</text>
+      <text x="80" y="96" text-anchor="middle" font-size="9" fill="#5c5a54">User enters page</text>
+      <text x="80" y="108" text-anchor="middle" font-size="8.5" fill="#9c9a93">页面加载</text>
+
+      <!-- Decision diamond -->
+      <polygon points="230,35 290,60 230,85 170,60" fill="#fef7e6" stroke="#f5d080" stroke-width="1.4"/>
+      <text x="230" y="56" text-anchor="middle" font-size="9.5" font-weight="500" fill="#7a4f00">Logged</text>
+      <text x="230" y="69" text-anchor="middle" font-size="9.5" font-weight="500" fill="#7a4f00">in?</text>
+
+      <line x1="102" y1="60" x2="168" y2="60" stroke="#0f7a6e" stroke-width="1.4" marker-end="url(#sm-arr)"/>
+
+      <!-- NO branch → Flow 1 -->
+      <line x1="230" y1="85" x2="230" y2="120" stroke="#e6a817" stroke-width="1.3" marker-end="url(#sm-arr)"/>
+      <text x="237" y="107" font-size="9" fill="#7a4f00">NO</text>
+
+      <rect x="150" y="120" width="160" height="56" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="230" y="141" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">FLOW 1</text>
+      <text x="230" y="155" text-anchor="middle" font-size="9" fill="#5c5a54">tracking_initialized</text>
+      <text x="230" y="167" text-anchor="middle" font-size="8.5" fill="#9c9a93">login_status: anonymous</text>
+
+      <!-- YES branch → Flow 2 -->
+      <line x1="290" y1="60" x2="400" y2="60" stroke="#e6a817" stroke-width="1.3" marker-end="url(#sm-arr-b)"/>
+      <text x="342" y="53" font-size="9" fill="#7a4f00">YES</text>
+
+      <rect x="400" y="34" width="175" height="56" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.4"/>
+      <text x="487" y="55" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">FLOW 2</text>
+      <text x="487" y="70" text-anchor="middle" font-size="9" fill="#5c5a54">tracking_initialized</text>
+      <text x="487" y="82" text-anchor="middle" font-size="8.5" fill="#9c9a93">login_status: logged_in + hashed_uid</text>
+
+      <!-- Flow 1 → decision: login during session? -->
+      <line x1="230" y1="176" x2="230" y2="220" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#sm-arr)"/>
+
+      <polygon points="230,220 295,248 230,276 165,248" fill="#fef7e6" stroke="#f5d080" stroke-width="1.4"/>
+      <text x="230" y="244" text-anchor="middle" font-size="9" font-weight="500" fill="#7a4f00">Login</text>
+      <text x="230" y="257" text-anchor="middle" font-size="9" font-weight="500" fill="#7a4f00">during session?</text>
+
+      <!-- NO → remain anonymous -->
+      <line x1="165" y1="248" x2="60" y2="248" stroke="#9c9a93" stroke-width="1.2" marker-end="url(#sm-arr)"/>
+      <text x="110" y="240" font-size="9" fill="#9c9a93">NO</text>
+      <rect x="10" y="232" width="50" height="32" rx="4" fill="#f7f6f2" stroke="#e2e0d8" stroke-width="1"/>
+      <text x="35" y="252" text-anchor="middle" font-size="8.5" fill="#9c9a93">stays</text>
+      <text x="35" y="263" text-anchor="middle" font-size="8" fill="#9c9a93">anonymous</text>
+
+      <!-- YES → Flow 3 -->
+      <line x1="295" y1="248" x2="430" y2="248" stroke="#e6a817" stroke-width="1.3" marker-end="url(#sm-arr-g)"/>
+      <text x="360" y="240" font-size="9" fill="#7a4f00">YES</text>
+
+      <rect x="430" y="220" width="180" height="58" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.4"/>
+      <text x="520" y="242" text-anchor="middle" font-size="10" font-weight="500" fill="#1a6b45">FLOW 3</text>
+      <text x="520" y="257" text-anchor="middle" font-size="9" fill="#5c5a54">login event</text>
+      <text x="520" y="269" text-anchor="middle" font-size="8.5" fill="#9c9a93">same anonymous_id + hashed_uid</text>
+
+      <!-- Critical note -->
+      <rect x="620" y="220" width="168" height="58" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1"/>
+      <text x="704" y="241" text-anchor="middle" font-size="9" font-weight="500" fill="#8b1a1a">⚠ Critical Rule</text>
+      <text x="704" y="255" text-anchor="middle" font-size="8.5" fill="#8b1a1a">anonymous_id must NOT</text>
+      <text x="704" y="267" text-anchor="middle" font-size="8.5" fill="#8b1a1a">change after login</text>
+      <text x="704" y="277" text-anchor="middle" font-size="8" fill="#9c9a93">登录后 ID 不能变</text>
+
+      <!-- Flow 2 + Flow 3 → Backend -->
+      <line x1="487" y1="90" x2="650" y2="130" stroke="#9c9a93" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="520" y1="278" x2="650" y2="300" stroke="#9c9a93" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="620" y="130" width="168" height="60" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1"/>
+      <text x="704" y="153" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Backend Stitching</text>
+      <text x="704" y="167" text-anchor="middle" font-size="8.5" fill="#5c5a54">anonymous_id → hashed_uid</text>
+      <text x="704" y="180" text-anchor="middle" font-size="8" fill="#9c9a93">Identity Graph built</text>
+    </svg>
+  </div>
+
+  <!-- Flow 1 Detail -->
+  <div class="sub-h" id="s4-flow1">4.1 Flow 1 — Anonymous User Visit</div>
+  <div class="sdesc">User arrives at the page without an active session. Tracking context is initialized with anonymous identity only.</div>
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">dataLayer push — tracking_initialized (anonymous)</span></div>
+    <pre>dataLayer.push({
+  <span class="n">event</span>: <span class="s">"tracking_initialized"</span>,
+  <span class="n">anonymous_id</span>: <span class="s">"&lt;GA4 client_id&gt;"</span>,   <span class="c">// from gtag('get', ..., 'client_id')</span>
+  <span class="n">session_id</span>: <span class="s">"&lt;GA4 ga_session_id&gt;"</span>, <span class="c">// from gtag('get', ..., 'session_id')</span>
+  <span class="n">login_status</span>: <span class="s">"anonymous"</span>
+  <span class="c">// hashed_uid is omitted — user not logged in</span>
+});</pre>
+  </div>
+  <div class="callout c-note">System records <code>anonymous_id</code>, <code>session_id</code>, and all anonymous behavior events. No UID stitching is triggered at this stage.</div>
+
+  <!-- Flow 2 Detail -->
+  <div class="sub-h" id="s4-flow2">4.2 Flow 2 — User Already Logged In on Arrival</div>
+  <div class="sdesc">User enters the page with an active session. Both anonymous identity and hashed_uid are included in the initialization event.</div>
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">dataLayer push — tracking_initialized (logged_in)</span></div>
+    <pre>dataLayer.push({
+  <span class="n">event</span>: <span class="s">"tracking_initialized"</span>,
+  <span class="n">anonymous_id</span>: <span class="s">"&lt;GA4 client_id&gt;"</span>,
+  <span class="n">session_id</span>: <span class="s">"&lt;GA4 ga_session_id&gt;"</span>,
+  <span class="n">hashed_uid</span>: <span class="s">"&lt;hashed_uid from login API&gt;"</span>,
+  <span class="n">login_status</span>: <span class="s">"logged_in"</span>
+});</pre>
+  </div>
+  <div class="callout c-green">Backend can immediately establish the <code>anonymous_id → hashed_uid</code> identity relationship on receiving this event.</div>
+
+  <!-- Flow 3 Detail -->
+  <div class="sub-h" id="s4-flow3">4.3 Flow 3 — Anonymous User Logs In During Session</div>
+  <div class="sdesc">User was anonymous on arrival but completes login during the session. A login event is pushed — using the exact same IDs from initialization.</div>
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">dataLayer push — login event</span></div>
+    <pre>dataLayer.push({
+  <span class="n">event</span>: <span class="s">"login"</span>,
+  <span class="n">anonymous_id</span>: <span class="s">"&lt;SAME GA4 client_id as tracking_initialized&gt;"</span>, <span class="c">// ← must be identical</span>
+  <span class="n">session_id</span>: <span class="s">"&lt;SAME GA4 ga_session_id&gt;"</span>,                       <span class="c">// ← must be identical</span>
+  <span class="n">hashed_uid</span>: <span class="s">"&lt;hashed_uid from login API response&gt;"</span>,
+  <span class="n">login_status</span>: <span class="s">"logged_in"</span>
+});</pre>
+  </div>
+  <div class="callout c-red">
+    <strong>Critical — never regenerate IDs after login:</strong> Do NOT re-fetch <code>anonymous_id</code> or <code>session_id</code> after login. Regenerating either ID will break the anonymous behavior chain, cause identity stitching to fail, corrupt attribution, and rupture Audience Gallery behavioral history.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#b83332;">⚠ 登录后绝不能重新生成 anonymous_id / session_id，否则匿名行为链路断裂，stitching 失败，attribution 错误。</span>
+  </div>
+</section>
+
+<!-- S5 GA4 Client ID Spec -->
+<section class="section" id="s5">
+  <div class="stag">05</div>
+  <h2>GA4 Client ID — Retrieval Specification</h2>
+  <div class="sdesc">GA4 client_id is retrieved asynchronously. The following spec defines timeout handling, fallback strategy, and timing requirements.</div>
+
+  <!-- Timing Diagram -->
+  <div class="sub-h">Retrieval Timing &amp; Timeout Flow</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title">GA4 Client ID Async Retrieval — Timeout &amp; Fallback Decision</div>
+    <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="t-arr" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/>
+        </marker>
+        <marker id="t-arr-r" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#8b1a1a"/>
+        </marker>
+        <marker id="t-arr-g" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/>
+        </marker>
+        <marker id="t-arr-gray" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#9c9a93"/>
+        </marker>
+      </defs>
+
+      <!-- Timeline bar -->
+      <rect x="20" y="50" width="740" height="6" rx="3" fill="#e2e0d8"/>
+      <rect x="20" y="50" width="740" height="6" rx="3" fill="url(#tl-grad)"/>
+      <defs>
+        <linearGradient id="tl-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0f7a6e"/>
+          <stop offset="50%" stop-color="#8dd4cc"/>
+          <stop offset="100%" stop-color="#e2e0d8"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Page load marker -->
+      <line x1="20" y1="30" x2="20" y2="66" stroke="#0f7a6e" stroke-width="1.5"/>
+      <text x="20" y="22" text-anchor="middle" font-size="9" font-weight="500" fill="#0f7a6e">Page Load</text>
+      <text x="20" y="82" text-anchor="middle" font-size="8" fill="#9c9a93">t=0</text>
+
+      <!-- gtag request -->
+      <line x1="60" y1="44" x2="60" y2="66" stroke="#7a4f00" stroke-width="1"/>
+      <text x="60" y="38" text-anchor="middle" font-size="8.5" fill="#7a4f00">gtag.js</text>
+      <text x="60" y="28" text-anchor="middle" font-size="8" fill="#9c9a93">request</text>
+
+      <!-- Timeout marker at 3000ms -->
+      <line x1="420" y1="30" x2="420" y2="66" stroke="#8b1a1a" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="420" y="22" text-anchor="middle" font-size="9" font-weight="500" fill="#8b1a1a">Timeout</text>
+      <text x="420" y="82" text-anchor="middle" font-size="8" fill="#9c9a93">t=3000ms</text>
+
+      <!-- Normal return zone -->
+      <rect x="60" y="95" width="320" height="42" rx="5" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1"/>
+      <text x="220" y="113" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">✓ GA4 returns client_id</text>
+      <text x="220" y="127" text-anchor="middle" font-size="8.5" fill="#5c5a54">Use as anonymous_id — proceed normally</text>
+
+      <!-- Timeout zone -->
+      <rect x="420" y="95" width="320" height="42" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1"/>
+      <text x="580" y="113" text-anchor="middle" font-size="10" font-weight="500" fill="#8b1a1a">✗ Timeout / GA4 not loaded</text>
+      <text x="580" y="127" text-anchor="middle" font-size="8.5" fill="#5c5a54">anonymous_id = undefined — DO NOT generate UUID</text>
+
+      <!-- Both converge to push -->
+      <line x1="220" y1="137" x2="380" y2="175" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#t-arr)"/>
+      <line x1="580" y1="137" x2="420" y2="175" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#t-arr-r)"/>
+
+      <rect x="270" y="175" width="230" height="50" rx="6" fill="#e8f7f5" stroke="#0f7a6e" stroke-width="1.5"/>
+      <text x="385" y="197" text-anchor="middle" font-size="10.5" font-weight="500" fill="#0f7a6e">push tracking_initialized</text>
+      <text x="385" y="212" text-anchor="middle" font-size="9" fill="#5c5a54">always executes — never blocks page</text>
+      <text x="385" y="224" text-anchor="middle" font-size="8" fill="#9c9a93">不管 GA4 是否加载成功，事件必须推送</text>
+    </svg>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">GA4 Client ID — Timeout-safe retrieval</span></div>
+    <pre><span class="k">const</span> <span class="n">getGA4ClientId</span> = () => <span class="k">new</span> Promise((resolve) => {
+  <span class="k">const</span> timer = setTimeout(() => resolve(<span class="k">null</span>), <span class="v">3000</span>); <span class="c">// 3s timeout</span>
+  gtag(<span class="s">'get'</span>, <span class="s">'G-XXXXXXX'</span>, <span class="s">'client_id'</span>, (clientId) => {
+    clearTimeout(timer);
+    resolve(clientId);
+  });
+});
+
+<span class="k">const</span> <span class="n">getGA4SessionId</span> = () => <span class="k">new</span> Promise((resolve) => {
+  <span class="k">const</span> timer = setTimeout(() => resolve(<span class="k">null</span>), <span class="v">3000</span>);
+  gtag(<span class="s">'get'</span>, <span class="s">'G-XXXXXXX'</span>, <span class="s">'session_id'</span>, (sessionId) => {
+    clearTimeout(timer);
+    resolve(sessionId);
+  });
+});
+
+<span class="k">async function</span> <span class="n">initTrackingContext</span>(hashedUid) {
+  <span class="k">try</span> {
+    <span class="k">const</span> [clientId, sessionId] = <span class="k">await</span> Promise.all([
+      getGA4ClientId(), getGA4SessionId()
+    ]);
+    dataLayer.push({
+      <span class="n">event</span>: <span class="s">"tracking_initialized"</span>,
+      <span class="n">anonymous_id</span>: clientId ?? <span class="k">undefined</span>,   <span class="c">// null → undefined, not UUID fallback</span>
+      <span class="n">session_id</span>: sessionId ?? <span class="k">undefined</span>,
+      ...(hashedUid && { <span class="n">hashed_uid</span>: hashedUid }),
+      <span class="n">login_status</span>: hashedUid ? <span class="s">"logged_in"</span> : <span class="s">"anonymous"</span>
+    });
+  } <span class="k">catch</span> (e) {
+    console.warn(<span class="s">'[Tracking] init failed'</span>, e); <span class="c">// silent fail — never block</span>
+  }
+}</pre>
+  </div>
+
+  <div class="callout c-warn">
+    <strong>Fallback rule:</strong> When GA4 is unavailable, <code>anonymous_id</code> is omitted (<code>undefined</code>). Frontend must NOT substitute a self-generated UUID — this would pollute the identity graph with phantom anonymous IDs that can never be stitched.
+  </div>
+</section>
+
+<!-- S6 GA4 Session ID Spec -->
+<section class="section" id="s6">
+  <div class="stag">06</div>
+  <h2>GA4 Session ID — Lifecycle Specification</h2>
+  <div class="sdesc">GA4 session_id is session-scoped and expires after 30 minutes of inactivity. The following rules govern its use across navigation patterns.</div>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th class="zh">场景说明</th><th>Rule</th><th class="zh">处理规则</th><th>Reason</th><th class="zh">原因</th></tr></thead>
+    <tbody>
+      <tr><td>Normal page visit</td><td class="zh">普通页面访问</td><td>Use current <code>ga_session_id</code> at initialization time</td><td class="zh">初始化时使用当前 ga_session_id</td><td>Standard case</td><td class="zh">标准场景</td></tr>
+      <tr><td>SPA route change</td><td class="zh">SPA 路由切换</td><td>Do NOT re-fetch session_id — reuse value from initialization</td><td class="zh">不重新获取，复用初始化时的值</td><td>Session continuity within same visit</td><td class="zh">同一次访问内保持 session 连续性</td></tr>
+      <tr><td>GA4 session timeout (30 min)</td><td class="zh">GA4 session 超时（30分钟）</td><td>GA4 auto-generates new session_id; used on next <code>tracking_initialized</code></td><td class="zh">GA4 自动生成新 session_id，下次初始化时使用</td><td>New session = new tracking context</td><td class="zh">新 session = 新的 tracking 上下文</td></tr>
+      <tr><td>Login during same session</td><td class="zh">同 session 内登录</td><td>login event uses <strong>exact same session_id</strong> as <code>tracking_initialized</code></td><td class="zh">login event 必须使用与初始化完全相同的 session_id</td><td>Required for identity stitching</td><td class="zh">identity stitching 的必要条件</td></tr>
+      <tr><td>Page refresh after session timeout</td><td class="zh">session 超时后刷新页面</td><td>New <code>tracking_initialized</code> with new session_id</td><td class="zh">以新 session_id 重新执行 tracking_initialized</td><td>Correct — session boundary respected</td><td class="zh">正确行为，session 边界已重置</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-note">
+    <strong>Core principle:</strong> <code>session_id</code> is captured once at <code>tracking_initialized</code> and held constant for that page lifecycle. It does not update mid-session even if GA4 internally refreshes.
+  </div>
+</section>
+
+<!-- S7 Error & Fallback -->
+<section class="section" id="s7">
+  <div class="stag">07</div>
+  <h2>Error Handling &amp; Fallback Strategy</h2>
+  <div class="sdesc">Tracking failures must never affect the primary business flow. All tracking logic is wrapped in error isolation.</div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">降级原则</span>
+    Tracking 是观测层，不是业务层。任何 tracking 异常都应静默失败（silent fail），不能阻塞页面渲染、登录流程、或其他核心功能。try/catch 是强制要求，不是可选项。
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th class="zh">场景说明</th><th>Fallback Behavior</th><th class="zh">降级处理</th><th>Notes</th><th class="zh">备注</th></tr></thead>
+    <tbody>
+      <tr><td>GA4 not loaded / timeout</td><td class="zh">GA4 未加载或超时</td><td><code>anonymous_id</code> omitted; <code>tracking_initialized</code> still pushed</td><td class="zh">anonymous_id 留空，但 tracking_initialized 仍正常推送</td><td>Do NOT generate UUID replacement</td><td class="zh">禁止用 UUID 替代，否则污染 identity graph</td></tr>
+      <tr><td>hashed_uid API timeout</td><td class="zh">hashed_uid 接口超时</td><td>Push <code>login_status: logged_in</code> without hashed_uid; push supplemental login event when API resolves</td><td class="zh">先推送不含 hashed_uid 的事件；接口返回后补发 login event</td><td>Eventual consistency acceptable</td><td class="zh">最终一致性可接受</td></tr>
+      <tr><td><code>dataLayer</code> not initialized</td><td class="zh">dataLayer 未初始化</td><td>Initialize <code>window.dataLayer = window.dataLayer || []</code> before any push</td><td class="zh">push 前先确保 dataLayer 初始化</td><td>Standard GTM pattern</td><td class="zh">GTM 标准做法</td></tr>
+      <tr><td>GTM not loaded</td><td class="zh">GTM 未加载</td><td><code>dataLayer.push</code> executes normally — GTM consumes queue on load</td><td class="zh">正常执行 push，GTM 加载后自动消费队列</td><td>dataLayer is decoupled from GTM</td><td class="zh">dataLayer 与 GTM 解耦，互不阻塞</td></tr>
+      <tr><td>Network unavailable</td><td class="zh">网络不可用</td><td>Silent fail — no retry, no block</td><td class="zh">静默失败，不重试，不阻塞</td><td>Tracking is best-effort</td><td class="zh">tracking 是尽力而为，非强依赖</td></tr>
+      <tr><td>Cookie consent denied</td><td class="zh">用户拒绝 Cookie 授权</td><td>Skip all tracking — do not push any event</td><td class="zh">跳过所有 tracking，不推送任何事件</td><td>See Section 10 for consent rules</td><td class="zh">详见第 10 节合规规范</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S8 Multi-tab -->
+<section class="section" id="s8">
+  <div class="stag">08</div>
+  <h2>Multi-tab Handling</h2>
+  <div class="sdesc">When a user has multiple tabs open and logs in from one tab, the identity state in other tabs is not immediately synchronized.</div>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th class="zh">场景说明</th><th>Behavior</th><th class="zh">系统行为</th><th>Rationale</th><th class="zh">设计原因</th></tr></thead>
+    <tbody>
+      <tr><td>Tab A (anonymous) open; user logs in via Tab B</td><td class="zh">Tab A 匿名浏览中，用户在 Tab B 完成登录</td><td>Tab A retains anonymous tracking — no real-time sync</td><td class="zh">Tab A 保持匿名 tracking 状态，不实时同步</td><td>Avoids BroadcastChannel complexity</td><td class="zh">避免跨 Tab 通信的实现复杂度</td></tr>
+      <tr><td>User refreshes Tab A after login in Tab B</td><td class="zh">Tab B 登录后，用户刷新 Tab A</td><td>Tab A re-executes <code>tracking_initialized</code> as <code>logged_in</code> with hashed_uid</td><td class="zh">Tab A 以登录态重新执行 tracking_initialized，包含 hashed_uid</td><td>Page refresh is the sync boundary</td><td class="zh">以页面刷新作为 identity 同步的边界</td></tr>
+      <tr><td>Real-time cross-tab push</td><td class="zh">实时跨 Tab 状态同步</td><td>Not implemented — out of scope for v1.0</td><td class="zh">v1.0 不实现，超出本期范围</td><td>Identity stitching handles historical attribution</td><td class="zh">历史行为归因由 Backend identity stitching 处理</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-note">Multi-tab identity sync uses page refresh as the boundary. Real-time cross-tab synchronization via <code>BroadcastChannel</code> is deferred to a future phase.</div>
+</section>
+
+<!-- S9 Responsibility Matrix -->
+<section class="section" id="s9">
+  <div class="stag">09</div>
+  <h2>Responsibility Matrix</h2>
+
+  <div class="sub-h">Frontend Responsibilities</div>
+  <div class="tw"><table>
+    <thead><tr><th>Responsibility</th><th class="zh">职责说明</th><th>Detail</th><th class="zh">详情</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>Retrieve anonymous_id</td><td class="zh">获取 anonymous_id</td><td>Fetch GA4 client_id with timeout + fallback</td><td class="zh">含超时处理与降级策略地获取 GA4 client_id</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Retrieve session_id</td><td class="zh">获取 session_id</td><td>Fetch GA4 ga_session_id with timeout + fallback</td><td class="zh">含超时处理与降级策略地获取 GA4 ga_session_id</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Push tracking_initialized</td><td class="zh">推送初始化事件</td><td>On every page load, after consent check</td><td class="zh">每次页面加载时推送，需先通过 consent 检查</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Push login event</td><td class="zh">推送登录事件</td><td>On successful login, with same IDs + hashed_uid</td><td class="zh">登录成功后推送，使用相同 ID + hashed_uid</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Identity stability</td><td class="zh">身份 ID 稳定性</td><td>Guarantee anonymous_id and session_id unchanged post-login</td><td class="zh">保证登录后 anonymous_id 和 session_id 不变</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Consent gate</td><td class="zh">授权检查门控</td><td>Check Cookie consent before any tracking push</td><td class="zh">推送任何 tracking 事件前先确认用户已授权 Cookie</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Error isolation</td><td class="zh">错误隔离</td><td>Wrap all tracking in try/catch — never block business flow</td><td class="zh">所有 tracking 逻辑包裹 try/catch，不阻塞业务主流程</td><td><span class="team team-fe">Frontend</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">Frontend — Explicitly Out of Scope</div>
+  <div class="pill-list">
+    <span class="pill">UUID generation</span>
+    <span class="pill">Session lifecycle management</span>
+    <span class="pill">Identity stitching logic</span>
+    <span class="pill">Profile merge</span>
+    <span class="pill">hashed_uid computation</span>
+  </div>
+
+  <div class="sub-h">Backend Responsibilities</div>
+  <div class="tw"><table>
+    <thead><tr><th>Responsibility</th><th class="zh">职责说明</th><th>Detail</th><th class="zh">详情</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>anonymous ↔ logged-in stitching</td><td class="zh">匿名与登录身份关联</td><td>Link identity on receiving login event</td><td class="zh">收到 login event 时建立身份关联</td><td><span class="team team-be">Backend</span></td></tr>
+      <tr><td>uid ↔ hashed_uid mapping</td><td class="zh">uid 与哈希 ID 映射</td><td>SHA-256 generation and storage</td><td class="zh">SHA-256 哈希生成与存储管理</td><td><span class="team team-be">Backend</span></td></tr>
+      <tr><td>hashed_uid delivery</td><td class="zh">hashed_uid 下发</td><td>Return in login API response</td><td class="zh">通过登录接口 response 返回给前端</td><td><span class="team team-be">Backend</span></td></tr>
+      <tr><td>Multiple anonymous merge</td><td class="zh">多匿名 ID 合并</td><td>Resolve same user across multiple anonymous IDs</td><td class="zh">将同一用户的多个匿名 ID 合并归因</td><td><span class="team team-be">Backend</span></td></tr>
+      <tr><td>Cross-device identity resolution</td><td class="zh">跨设备身份归因</td><td>Multi-device attribution in identity graph</td><td class="zh">在 identity graph 中完成多设备归因</td><td><span class="team team-be">Backend</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">GTM / GA4 Responsibilities</div>
+  <div class="tw"><table>
+    <thead><tr><th>Responsibility</th><th class="zh">职责说明</th><th>Detail</th><th class="zh">详情</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>Event ingestion</td><td class="zh">事件接收</td><td>Receive tracking_initialized and login events from dataLayer</td><td class="zh">从 dataLayer 接收 tracking_initialized 和 login 事件</td><td><span class="team team-gtm">GTM</span></td></tr>
+      <tr><td>Identity parameter mapping</td><td class="zh">身份参数映射</td><td>Map anonymous_id, hashed_uid to GA4 user properties</td><td class="zh">将 anonymous_id、hashed_uid 映射到 GA4 用户属性</td><td><span class="team team-gtm">GTM</span></td></tr>
+      <tr><td>Multi-platform forwarding</td><td class="zh">多平台转发</td><td>Route to TikTok, Meta, internal analytics</td><td class="zh">转发至 TikTok、Meta 及内部分析系统</td><td><span class="team team-gtm">GTM</span></td></tr>
+      <tr><td>Validation</td><td class="zh">验证调试</td><td>DebugView and GA4 reporting verification</td><td class="zh">使用 DebugView 和 GA4 报表进行数据验证</td><td><span class="team team-gtm">GTM</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S10 Privacy & Compliance -->
+<section class="section" id="s10">
+  <div class="stag">10</div>
+  <h2>Privacy &amp; Compliance</h2>
+
+  <div class="sub-h">Cookie Consent Gate</div>
+  <div class="sdesc">All tracking initialization must be gated behind explicit user cookie consent.</div>
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">Consent gate — tracking must not fire before consent</span></div>
+    <pre><span class="c">// Tracking module listens for consent grant from CMP</span>
+onConsentGranted(<span class="k">async</span> () => {
+  <span class="k">await</span> initTrackingContext(currentHashedUid);
+});
+
+<span class="c">// If user denies consent — no events are pushed, no IDs are retrieved</span></pre>
+  </div>
+
+  <div class="sub-h">GDPR &amp; Data Compliance</div>
+  <div class="tw"><table>
+    <thead><tr><th>Rule</th><th class="zh">规则说明</th><th>Detail</th><th class="zh">详情</th></tr></thead>
+    <tbody>
+      <tr><td>hashed_uid is not PII</td><td class="zh">hashed_uid 不属于 PII</td><td>Qualifies as pseudonymized data under GDPR — SHA-256 hash of uid is not directly reversible to the original uid</td><td class="zh">符合 GDPR 假名化要求，SHA-256 哈希结果无法直接逆推原始 uid</td></tr>
+      <tr><td>No raw PII in dataLayer</td><td class="zh">dataLayer 中禁止出现原始 PII</td><td>uid, email, phone must never appear in any dataLayer event payload</td><td class="zh">uid、email、手机号等 PII 严禁出现在任何 dataLayer 事件中</td></tr>
+      <tr><td>GA4 data retention</td><td class="zh">GA4 数据保留周期</td><td>Recommended 14 months — configured in GA4 admin settings</td><td class="zh">建议设置 14 个月，在 GA4 管理后台配置</td></tr>
+      <tr><td>Consent denial</td><td class="zh">用户拒绝授权</td><td>Zero tracking — no client_id fetch, no dataLayer push, no GTM tags fired</td><td class="zh">完全停止 tracking：不获取 client_id，不推送事件，不触发 GTM</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S11 Acceptance Criteria -->
+<section class="section" id="s11">
+  <div class="stag">11</div>
+  <h2>Acceptance Criteria</h2>
+
+  <div class="sub-h">Tracking Initialization</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Criterion</th><th class="zh">验收条件说明</th><th>Expected Result</th><th class="zh">预期结果</th></tr></thead>
+    <tbody>
+      <tr><td>AC-01</td><td>Anonymous user visits page</td><td class="zh">匿名用户访问页面</td><td><code>tracking_initialized</code> pushed with <code>login_status: anonymous</code></td><td class="zh">推送 tracking_initialized，login_status 为 anonymous</td></tr>
+      <tr><td>AC-02</td><td>Logged-in user visits page</td><td class="zh">已登录用户访问页面</td><td><code>tracking_initialized</code> pushed with <code>hashed_uid</code> and <code>login_status: logged_in</code></td><td class="zh">推送 tracking_initialized，包含 hashed_uid，login_status 为 logged_in</td></tr>
+      <tr><td>AC-03</td><td>GA4 client_id not returned within 3000ms</td><td class="zh">GA4 client_id 3000ms 内未返回</td><td><code>tracking_initialized</code> still fires; <code>anonymous_id</code> is <code>undefined</code>; page unaffected</td><td class="zh">事件仍然推送，anonymous_id 为空，页面不受影响</td></tr>
+      <tr><td>AC-04</td><td>User has denied cookie consent</td><td class="zh">用户拒绝 Cookie 授权</td><td>No tracking events pushed; no GA4 IDs retrieved</td><td class="zh">不推送任何事件，不获取 GA4 ID</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">Login Identity Synchronization</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Criterion</th><th class="zh">验收条件说明</th><th>Expected Result</th><th class="zh">预期结果</th></tr></thead>
+    <tbody>
+      <tr><td>AC-05</td><td>User logs in during session</td><td class="zh">用户在 session 中登录</td><td><code>login</code> event pushed with <code>hashed_uid</code></td><td class="zh">推送 login event，包含 hashed_uid</td></tr>
+      <tr><td>AC-06</td><td>anonymous_id before and after login</td><td class="zh">登录前后的 anonymous_id</td><td>Identical — must not change</td><td class="zh">完全一致，登录后不得变化</td></tr>
+      <tr><td>AC-07</td><td>session_id before and after login</td><td class="zh">登录前后的 session_id</td><td>Identical — must not change</td><td class="zh">完全一致，登录后不得变化</td></tr>
+      <tr><td>AC-08</td><td>hashed_uid source</td><td class="zh">hashed_uid 的来源</td><td>Fetched from login API response — never computed by frontend</td><td class="zh">从登录接口 response 获取，前端不自行计算</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">Identity Standard</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Criterion</th><th class="zh">验收条件说明</th><th>Expected Result</th><th class="zh">预期结果</th></tr></thead>
+    <tbody>
+      <tr><td>AC-09</td><td>anonymous_id source</td><td class="zh">anonymous_id 的来源</td><td>Always equals GA4 client_id — never a frontend-generated UUID</td><td class="zh">始终等于 GA4 client_id，前端不自行生成 UUID</td></tr>
+      <tr><td>AC-10</td><td>Raw v2 uid presence in events</td><td class="zh">事件中是否含原始 uid</td><td>Never appears in any dataLayer event</td><td class="zh">任何 dataLayer 事件中均不出现原始 uid</td></tr>
+      <tr><td>AC-11</td><td>hashed_uid algorithm</td><td class="zh">hashed_uid 算法</td><td>SHA-256(uid), consistent for same uid across all platforms</td><td class="zh">SHA-256 直接哈希 uid，同一 uid 在所有平台结果一致</td></tr>
+      <tr><td>AC-12</td><td>Tracking failure impact on business</td><td class="zh">tracking 异常对业务的影响</td><td>Zero — all tracking exceptions are silently caught</td><td class="zh">无影响，所有 tracking 异常静默捕获</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S12 Risks -->
+<section class="section" id="s12">
+  <div class="stag">12</div>
+  <h2>Risks &amp; Mitigations</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Risk</th><th class="zh">风险说明</th><th>Severity</th><th>Mitigation</th><th class="zh">缓解措施</th></tr></thead>
+    <tbody>
+      <tr><td>GA4 client_id retrieval delay blocks tracking_initialized</td><td class="zh">GA4 client_id 获取延迟导致初始化事件被阻塞</td><td><span class="sev-h">HIGH</span></td><td>3000ms timeout + fallback; tracking_initialized always fires</td><td class="zh">3000ms 超时兜底，保证初始化事件必然推送</td></tr>
+      <tr><td>hashed_uid not returned in login API</td><td class="zh">登录接口未返回 hashed_uid</td><td><span class="sev-h">HIGH</span></td><td>Agree delivery contract with Backend before dev; push login event without hashed_uid then supplement</td><td class="zh">开发前与 Backend 对齐接口约定；先推送事件后补发</td></tr>
+      <tr><td>Frontend regenerates anonymous_id post-login</td><td class="zh">前端在登录后重新生成 anonymous_id</td><td><span class="sev-h">HIGH</span></td><td>Enforce via code review gate; add unit test for ID stability</td><td class="zh">通过 Code Review 和单元测试强制校验 ID 稳定性</td></tr>
+      <tr><td>GA4 session_id changes mid-session (30-min timeout)</td><td class="zh">GA4 session_id 在 session 中途变化（30分钟超时）</td><td><span class="sev-m">MEDIUM</span></td><td>Cache session_id at tracking_initialized time; do not re-fetch within same page lifecycle</td><td class="zh">初始化时缓存 session_id，同一页面生命周期内不重新获取</td></tr>
+      <tr><td>dataLayer events pushed without consent</td><td class="zh">未获取 Cookie 授权就推送 dataLayer 事件</td><td><span class="sev-m">MEDIUM</span></td><td>Consent gate enforced in tracking module; QA test with consent denied</td><td class="zh">tracking 模块强制 consent 门控；QA 需覆盖拒绝授权场景</td></tr>
+      <tr><td>Multi-tab login state desync</td><td class="zh">多 Tab 场景下登录状态不同步</td><td><span class="sev-l">LOW</span></td><td>Accepted for v1.0 — tab refresh resolves; v2 may add BroadcastChannel</td><td class="zh">v1.0 可接受，刷新页面即可同步；v2 考虑 BroadcastChannel</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- GLOSSARY -->
+<section class="section" id="glossary">
+  <div class="stag">Glossary</div>
+  <h2>Glossary</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Term</th><th>Definition</th><th class="zh">中文释义</th></tr></thead>
+    <tbody>
+      <tr><td class="field">anonymous_id</td><td>The stable anonymous identity used to track pre-login user behavior. Always equals the GA4 <code>client_id</code>. Must not change after login.</td><td class="zh">用于追踪登录前用户行为的稳定匿名标识，始终等于 GA4 client_id，登录后不得变化</td></tr>
+      <tr><td class="field">hashed_uid</td><td>A pseudonymized representation of the logged-in user's internal uid, generated by Backend using SHA-256. Safe for use in third-party platforms.</td><td class="zh">登录用户内部 uid 的 SHA-256 哈希表示，由 Backend 生成，可安全用于第三方平台</td></tr>
+      <tr><td class="field">tracking_initialized</td><td>The standardized dataLayer event pushed on every page load, containing identity context and login state.</td><td class="zh">每次页面加载时推送的标准化 dataLayer 事件，包含身份上下文和登录状态</td></tr>
+      <tr><td class="field">login event</td><td>The dataLayer event pushed immediately after a successful login, adding hashed_uid to the existing anonymous context.</td><td class="zh">登录成功后立即推送的 dataLayer 事件，在匿名上下文中补充 hashed_uid</td></tr>
+      <tr><td class="field">Identity Stitching</td><td>The Backend process of linking anonymous_id to hashed_uid to form a unified user identity across sessions and devices.</td><td class="zh">将 anonymous_id 与 hashed_uid 关联的后端过程，形成跨 session 和设备的统一用户身份</td></tr>
+      <tr><td class="field">GA4 client_id</td><td>Google Analytics 4's persistent cookie-based identifier for an anonymous browser session. Used as the source of truth for anonymous_id.</td><td class="zh">GA4 基于 Cookie 的持久化匿名标识符，是 anonymous_id 的唯一来源</td></tr>
+      <tr><td class="field">ga_session_id</td><td>GA4's session-scoped identifier, resets after 30 minutes of inactivity. Used as session_id in tracking events.</td><td class="zh">GA4 的 session 级标识符，30分钟无操作后重置，用作 tracking 事件中的 session_id</td></tr>
+      <tr><td class="field">Identity Graph</td><td>The Backend-maintained graph connecting all known identity signals (anonymous_id, hashed_uid, device_id, etc.) for a single real user.</td><td class="zh">Backend 维护的身份关系图，连接同一真实用户的所有已知身份信号</td></tr>
+      <tr><td class="field">CMP</td><td>Consent Management Platform — the system that gates tracking based on user cookie consent choices.</td><td class="zh">授权管理平台，根据用户的 Cookie 授权选择决定是否允许 tracking</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- SIGN-OFF -->
+<section class="section" id="signoff">
+  <div class="stag">Sign-off</div>
+  <h2>Document Sign-off</h2>
+  <div class="sdesc">This document requires review and sign-off from the following roles before becoming effective.</div>
+  <div class="signoff-grid">
+    <div class="signoff-cell">
+      <div class="signoff-role">Prepared By</div>
+      <div class="signoff-name">Product Team</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role">Reviewed By</div>
+      <div class="signoff-name">Tech Lead</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role">Approved By</div>
+      <div class="signoff-name">Engineering Manager</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVISION -->
+<section class="section" id="revision">
+  <div class="stag">Revision History</div>
+  <h2>Revision History</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
+    <tbody>
+      <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full tracking flow spec, 3 SVG diagrams, GA4 retrieval spec, error handling, multi-tab rules, responsibility matrix, acceptance criteria, risk matrix, glossary.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="doc-footer">
+  <span>PRD-ID-001 · v1.0 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>© 2026 Supermom Product Team</span>
+</div>
+
+</main>
+</div>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.nl').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + entry.target.id) item.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-MA-REENTRY-xxx | Re-entry & Time-based Condition Trigger</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2;
+  --surface: #fff;
+  --border: #e2e0d8;
+  --border-strong: #c8c5ba;
+  --text-primary: #1a1917;
+  --text-secondary: #5c5a54;
+  --text-muted: #9c9a93;
+  --accent-soft: #f0ede6;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  /* MA Module — Rose/Pink Accent */
+  --pink: #c0385a;
+  --pink-mid: #d9547a;
+  --pink-light: #fdf0f4;
+  --pink-border: #f0b0c0;
+  --pink-muted: #8a2040;
+
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --red: #8b1a1a;   --red-bg: #fdf0f0;   --red-b: #f0b0b0;
+  --blue: #0f3a6e;  --blue-bg: #edf3fb;  --blue-b: #b0cef0;
+  --teal: #0a5a52;  --teal-bg: #e8f7f5;  --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+
+/* ── LANG BAR ── */
+.lang-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 28px;
+}
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pink); font-weight: 500;
+  border-left: 3px solid var(--pink); padding-left: 8px;
+}
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-bar-proto {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .05em;
+  color: var(--pink); text-decoration: none;
+  border: 1px solid var(--pink-border); background: var(--pink-light);
+  padding: 3px 10px; border-radius: 3px;
+  transition: background .15s;
+}
+.lang-bar-proto:hover { background: #fce0ea; }
+.lang-bar-proto::before { content: '⬡'; font-size: 10px; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn {
+  padding: 3px 14px; border: none; border-radius: 3px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  cursor: pointer; background: transparent; color: var(--text-muted);
+  transition: all .15s; letter-spacing: .05em;
+}
+.lang-btn.active { background: var(--pink); color: #fff; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+.sidebar {
+  position: sticky; top: 41px; height: calc(100vh - 41px);
+  overflow-y: auto; background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--pink) 0%, #d9547a 50%, #f07090 100%);
+}
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl {
+  display: block; padding: 5px 20px; font-size: 12.5px;
+  color: var(--text-secondary); text-decoration: none;
+  border-left: 2px solid transparent; transition: all .12s; line-height: 1.4;
+}
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nl.active { color: var(--pink); background: var(--pink-light); border-left-color: var(--pink); font-weight: 500; }
+.nl.sub { padding-left: 32px; font-size: 11.5px; color: var(--text-muted); }
+.nl.sub:hover { color: var(--pink); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+
+.main { padding: 48px 56px; max-width: 900px; }
+
+/* ── COVER ── */
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pink);
+  border: 1px solid var(--pink-border); background: var(--pink-light);
+  padding: 3px 10px; border-radius: 3px; margin-bottom: 14px;
+}
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+.cover .sub .en { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+.meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+}
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+
+/* ── BADGES ── */
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-pink   { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); }
+.b-green  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-blue   { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.b-tbd    { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-red    { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+.b-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-b); }
+
+/* ── SECTION ── */
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.section h2 .en { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+hr.div { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+.sub-h .en { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+
+/* ── BILINGUAL BLOCK ── */
+.bi { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 16px; background: var(--surface); }
+.bi-label { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); padding: 7px 16px 0; }
+.bi-zh { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; border-bottom: 1px solid var(--border); }
+.bi-en { padding: 8px 16px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+/* ── TABLE ── */
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+td .en { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+td.zh { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; border-left: 1px dashed var(--border); background: #fafaf8; }
+th.zh { color: var(--pink-muted); background: #f5e0e8; letter-spacing: .04em; border-left: 1px dashed var(--pink-border); }
+
+/* ── CALLOUTS ── */
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout strong { font-weight: 500; }
+.c-pink   { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info   { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn   { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green  { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note   { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.c-red    { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.c-purple { background: var(--purple-bg); border-color: var(--purple); color: var(--purple); }
+
+/* ── ZH SUMMARY ── */
+.zh-summary {
+  background: var(--pink-light); border: 1px solid var(--pink-border);
+  border-radius: 6px; padding: 12px 16px; margin: 16px 0;
+  font-size: 12.5px; color: var(--pink-muted); line-height: 1.7;
+}
+.zh-summary-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--pink); margin-bottom: 6px; display: block;
+}
+
+/* ── UI SPEC BLOCK ── */
+.ui-spec { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
+.ui-spec-head { background: var(--accent-soft); padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.ui-spec-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-secondary); }
+.ui-spec-body { padding: 16px; background: var(--surface); }
+
+/* ── FLOW DIAGRAM (CSS-based) ── */
+.flow-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin: 16px 0; overflow-x: auto; }
+.flow-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--pink); margin-bottom: 20px; }
+.flow-row { display: flex; align-items: flex-start; gap: 0; justify-content: center; }
+.flow-node {
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface);
+  padding: 10px 16px; font-size: 12px; text-align: center; min-width: 120px;
+  position: relative;
+}
+.flow-node.start { background: var(--pink); color: #fff; border-color: var(--pink); font-weight: 500; }
+.flow-node.branch { background: #f5a623; color: #fff; border-color: #e09010; font-weight: 500; }
+.flow-node.else-node { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.flow-node.end-node { background: #444; color: #fff; border-color: #333; border-radius: 50px; padding: 8px 20px; }
+.flow-node small { display: block; font-size: 10px; opacity: .8; margin-top: 3px; }
+.flow-arrow { display: flex; align-items: center; color: var(--text-muted); font-size: 18px; padding: 0 4px; }
+.flow-arrow-down { text-align: center; color: var(--text-muted); font-size: 18px; margin: 4px 0; }
+.flow-branches { display: flex; gap: 16px; justify-content: center; margin-top: 8px; }
+.flow-branch-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+/* ── SEVERITY ── */
+.sev-h { color: var(--red); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-m { color: var(--amber); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-l { color: var(--green); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+
+/* ── SIGN-OFF ── */
+.signoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.signoff-cell { background: var(--surface); padding: 14px 16px; }
+.signoff-role { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--pink); margin-bottom: 8px; }
+.signoff-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.signoff-line { border-top: 1px solid var(--border-strong); margin: 20px 0 6px; }
+.signoff-label { font-size: 11px; color: var(--text-muted); }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: var(--pink-border); border-radius: 2px; }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot { position: absolute; left: -24px; top: 4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--pink); background: var(--surface); }
+.tl-dot.active { background: var(--pink); }
+.tl-dot.blocked { border-color: var(--text-muted); background: var(--accent-soft); }
+.tl-dot.complete { border-color: var(--green); background: var(--green); }
+.tl-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; margin-bottom: 2px; }
+.tl-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+.tl-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.tl-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; }
+.tl-tag-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.tl-tag-block { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+.tl-tag-run { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.tl-tag-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+
+/* ── USER STORY CARD ── */
+.story-card { border: 1px solid var(--pink-border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
+.story-card-head { background: var(--pink); color: #fff; padding: 10px 18px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.story-card-head .story-icon { font-size: 16px; }
+.story-card-body { padding: 16px 18px; background: var(--surface); font-size: 13px; color: var(--text-secondary); line-height: 1.75; }
+.story-card-body strong { color: var(--text-primary); }
+
+/* ── NOT-TRIGGER BOX ── */
+.not-trigger { border: 1px solid var(--red-b); border-radius: 6px; background: var(--red-bg); padding: 14px 16px; margin: 12px 0; }
+.not-trigger-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--red); margin-bottom: 8px; }
+.not-trigger ul { padding-left: 18px; font-size: 13px; color: var(--red); line-height: 1.8; }
+
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+
+/* ── EXECUTIVE SUMMARY PAGE ── */
+.exec-page {
+  background: linear-gradient(135deg, #fff 0%, var(--pink-light) 100%);
+  border: 2px solid var(--pink-border);
+  border-radius: 12px; padding: 36px 40px; margin-bottom: 52px;
+  position: relative; overflow: hidden;
+}
+.exec-page::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--pink) 0%, #d9547a 50%, #f07090 100%);
+}
+.exec-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--pink);
+  border: 1px solid var(--pink-border); background: #fff;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 16px;
+}
+.exec-title { font-size: 20px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3; }
+.exec-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+.exec-summary-text {
+  font-size: 14px; line-height: 1.85; color: var(--text-secondary);
+  margin-bottom: 28px; max-width: 640px;
+}
+.exec-summary-text strong { color: var(--text-primary); }
+.exec-3col { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.exec-card {
+  background: #fff; border: 1px solid var(--pink-border);
+  border-radius: 8px; padding: 16px; text-align: center;
+}
+.exec-card-icon { font-size: 24px; margin-bottom: 8px; }
+.exec-card-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.exec-card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+.exec-visual {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; padding: 24px; margin-bottom: 20px;
+}
+.exec-visual-title {
+  font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--pink); margin-bottom: 20px; text-align: center;
+}
+.exec-flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0; }
+.exec-stage {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.exec-stage-box {
+  width: 100px; padding: 10px 8px; border-radius: 8px;
+  font-size: 11px; font-weight: 500; line-height: 1.4;
+}
+.exec-stage-box.s-wait { background: var(--accent-soft); border: 1.5px solid var(--border-strong); color: var(--text-secondary); }
+.exec-stage-box.s-fire { background: var(--pink); border: 1.5px solid var(--pink); color: #fff; }
+.exec-stage-box.s-branch { background: #f5a623; border: 1.5px solid #e09010; color: #fff; }
+.exec-stage-box.s-done { background: var(--green-bg); border: 1.5px solid var(--green-b); color: var(--green); }
+.exec-stage-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; max-width: 100px; line-height: 1.4; }
+.exec-arrow { font-size: 18px; color: var(--pink-border); padding: 0 6px; margin-bottom: 20px; }
+.exec-rule-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.exec-rule-pill {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px; flex: 1; min-width: 180px;
+}
+.exec-rule-icon { font-size: 16px; flex-shrink: 0; }
+.exec-rule-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.exec-rule-text strong { color: var(--text-primary); display: block; margin-bottom: 2px; }
+.exec-footer-note {
+  font-size: 11px; color: var(--text-muted); font-style: italic;
+  border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── DECISION BOX ── */
+.decision-box {
+  border: 1px solid var(--green-b); border-radius: 6px;
+  background: var(--green-bg); padding: 14px 16px; margin: 14px 0;
+}
+.decision-box-title {
+  font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--green); margin-bottom: 8px; display: block;
+}
+.decision-box ul { padding-left: 18px; font-size: 13px; color: var(--green); line-height: 1.85; }
+
+/* ── LANG TOGGLE LOGIC ── */
+[data-lang="zh"] { display: none; }
+body.zh-mode [data-lang="en"] { display: none; }
+body.zh-mode [data-lang="zh"] { display: block; }
+body.zh-mode [data-lang="zh"].inline { display: inline; }
+[data-lang="zh"].inline { display: none; }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main { padding: 24px 20px; }
+  .meta-grid { grid-template-columns: 1fr; }
+  .signoff-grid { grid-template-columns: 1fr; }
+}
+@media print { .lang-bar, .sidebar { display: none; } .main { max-width: 100%; } }
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <span class="lang-bar-logo">Marketing Automation</span>
+    <span class="lang-bar-id">PRD-MA-REENTRY-xxx · v1.2 · 2026-05-25</span>
+    <a class="lang-bar-proto" href="https://flow-cycle-comeback.lovable.app" target="_blank" rel="noopener">原型参考 Prototype →</a>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">Marketing Automation</div>
+    <div class="sidebar-title">Re-entry &amp; Time-based Condition Trigger</div>
+    <div class="sidebar-ver">PRD-MA-REENTRY-xxx · v1.0</div>
+  </div>
+  <div class="ngl">Navigation</div>
+  <a class="nl" href="#exec">⭐ 业务摘要 Executive Summary</a>
+  <div class="nav-div"></div>
+  <a class="nl" href="#cover">Cover &amp; Doc Info</a>
+  <a class="nl" href="#s1">1. Background</a>
+  <a class="nl" href="#s1b">2. User Story &amp; Examples</a>
+  <a class="nl sub" href="#s1b-story">2.1 User Story</a>
+  <a class="nl sub" href="#s1b-timeline">2.2 EDD Timeline</a>
+  <a class="nl sub" href="#s1b-concurrency">2.3 Concurrency Examples</a>
+  <a class="nl sub" href="#s1b-nottrigger">2.4 What Won't Trigger</a>
+  <a class="nl" href="#s2">3. Workflow List</a>
+  <a class="nl sub" href="#s2-fields">3.1 Field Definitions</a>
+  <a class="nl sub" href="#s2-entries">3.2 Entries (max) Logic</a>
+  <a class="nl" href="#s3">4. Flow Settings (Popup)</a>
+  <a class="nl sub" href="#s3-allow">4.1 Allow Re-entry</a>
+  <a class="nl sub" href="#s3-trigger">4.2 Re-entry Trigger Basis</a>
+  <a class="nl sub" href="#s3-repeated">4.3 Repeated Condition Match</a>
+  <a class="nl sub" href="#s3-concurrency">4.4 Concurrency Control</a>
+  <a class="nl sub" href="#s3-copy">4.5 UI Copy</a>
+  <a class="nl" href="#s4">5. Start Point (Canvas)</a>
+  <a class="nl sub" href="#s4-trigger">5.1 Trigger Category</a>
+  <a class="nl sub" href="#s4-branches">5.2 Branch Logic</a>
+  <a class="nl" href="#s5">6. Flow Detail Performance</a>
+  <a class="nl" href="#s6">7. Enrollment History</a>
+  <a class="nl" href="#s7">8. User Journey</a>
+  <a class="nl" href="#s8">9. Metrics System</a>
+  <a class="nl" href="#s9">10. Acceptance Criteria</a>
+  <a class="nl" href="#s10">11. Risks &amp; Mitigations</a>
+  <div class="nav-div"></div>
+  <a class="nl" href="#s-backend">Appendix: Backend Ref</a>
+  <a class="nl sub" href="#s-backend-model">A.1 Data Model</a>
+  <a class="nl sub" href="#s-backend-eval">A.2 Daily Evaluation</a>
+  <a class="nl sub" href="#s-backend-r2">A.3 R2 Judgment</a>
+  <a class="nl sub" href="#s-backend-overlap">A.4 Overlap Validation</a>
+  <a class="nl sub" href="#s-backend-else">A.5 Else Branch</a>
+  <a class="nl sub" href="#s-backend-queries">A.6 Key Queries</a>
+  <a class="nl" href="#glossary">Glossary</a>
+  <a class="nl" href="#signoff">Sign-off</a>
+  <a class="nl" href="#revision">Revision History</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="exec-page" id="exec">
+  <div class="exec-badge">⭐ 业务摘要 · Executive Summary</div>
+  <div class="exec-title">
+    <span data-lang="en">Re-entry — What It Is &amp; Why It Matters</span>
+    <span data-lang="zh">Re-entry（重入）— 这个功能是什么，为什么要做</span>
+  </div>
+  <div class="exec-subtitle">
+    <span data-lang="en">For business stakeholders · Read this page only if you're short on time</span>
+    <span data-lang="zh">写给业务方 · 时间紧张只看这一页就够了</span>
+  </div>
+
+  <div class="exec-summary-text">
+    <span data-lang="en">
+      Currently, once a user enters a Marketing Automation flow, <strong>she can never enter it again</strong> — even if her situation changes. For a pregnancy app, this means a user who received "third trimester" messages at 100 days before her due date will <strong>never automatically receive</strong> "final countdown" messages at 80 days — the system has already marked her as "done".<br><br>
+      This feature introduces <strong>Re-entry</strong>: the ability for the same user to re-enter a flow when her EDD (Estimated Due Date) moves into a new configured range. The system evaluates every user's EDD <strong>every day</strong> and automatically triggers the right messages at the right time — with no manual intervention required.
+    </span>
+    <span data-lang="zh">
+      目前，用户一旦进入 Marketing Automation Flow，<strong>就再也无法进入同一个 Flow</strong>——即使她的情况发生了变化。对于母婴 App 来说，这意味着一个在预产期前 100 天收到"孕晚期"内容的用户，<strong>永远不会自动收到</strong>预产期前 80 天的"最后冲刺"内容——系统已经认为她"走完了"。<br><br>
+      这个功能引入了 <strong>Re-entry（重入）</strong>：当用户的 EDD（预产期）进入新的配置区间时，系统允许她再次进入 Flow。系统<strong>每天</strong>评估所有用户的 EDD，在正确的时间自动触发正确的消息——无需运营手动干预。
+    </span>
+  </div>
+
+  <!-- 3 Cards -->
+  <div class="exec-3col">
+    <div class="exec-card">
+      <div class="exec-card-icon">😓</div>
+      <div class="exec-card-title">
+        <span data-lang="en">Before Re-entry</span>
+        <span data-lang="zh">没有 Re-entry 之前</span>
+      </div>
+      <div class="exec-card-desc">
+        <span data-lang="en">User enters once, receives one batch of messages. Miss every milestone after that. Operator must manually re-enroll her.</span>
+        <span data-lang="zh">用户只进入一次，只收到一批消息。之后所有里程碑全部错过，运营需要手动重新加入。</span>
+      </div>
+    </div>
+    <div class="exec-card" style="border-color:var(--pink);background:var(--pink-light);">
+      <div class="exec-card-icon">🎯</div>
+      <div class="exec-card-title" style="color:var(--pink);">
+        <span data-lang="en">With Re-entry</span>
+        <span data-lang="zh">有了 Re-entry 之后</span>
+      </div>
+      <div class="exec-card-desc">
+        <span data-lang="en">User automatically re-enters when EDD hits a new range. Right message, right time, zero manual work.</span>
+        <span data-lang="zh">用户 EDD 进入新区间时自动重入，在正确的时间收到正确的消息，运营零干预。</span>
+      </div>
+    </div>
+    <div class="exec-card">
+      <div class="exec-card-icon">🛡️</div>
+      <div class="exec-card-title">
+        <span data-lang="en">Safe by Design</span>
+        <span data-lang="zh">内置防护机制</span>
+      </div>
+      <div class="exec-card-desc">
+        <span data-lang="en">Users won't receive duplicate messages. The system blocks re-entry until the previous journey completes.</span>
+        <span data-lang="zh">用户不会收到重复消息。前一次旅程完成前，系统自动阻断新的进入。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual Flow -->
+  <div class="exec-visual">
+    <div class="exec-visual-title">
+      <span data-lang="en">How It Works — User A's Journey (EDD: Sep 1)</span>
+      <span data-lang="zh">运作方式 — 用户 A 的旅程（EDD：9月1日）</span>
+    </div>
+    <div class="exec-flow">
+      <div class="exec-stage">
+        <div class="exec-stage-box s-wait">
+          <span data-lang="en">Apr 1<br>153 days out</span>
+          <span data-lang="zh">4月1日<br>距今153天</span>
+        </div>
+        <div class="exec-stage-label">
+          <span data-lang="en">Not in any range yet · waiting</span>
+          <span data-lang="zh">不在任何区间 · 等待</span>
+        </div>
+      </div>
+      <div class="exec-arrow">→</div>
+      <div class="exec-stage">
+        <div class="exec-stage-box s-fire">
+          <span data-lang="en">May 4<br>120 days out</span>
+          <span data-lang="zh">5月4日<br>距今120天</span>
+        </div>
+        <div class="exec-stage-label" style="color:var(--pink);font-weight:500;">
+          <span data-lang="en">✅ Entry #1 fires<br>Branch 1 (86–120 days)</span>
+          <span data-lang="zh">✅ 触发进入 #1<br>Branch 1（86–120天）</span>
+        </div>
+      </div>
+      <div class="exec-arrow">→</div>
+      <div class="exec-stage">
+        <div class="exec-stage-box s-branch">
+          <span data-lang="en">May 4–20<br>Running</span>
+          <span data-lang="zh">5月4–20日<br>运行中</span>
+        </div>
+        <div class="exec-stage-label">
+          <span data-lang="en">Receiving "3rd trimester" messages · no re-entry yet</span>
+          <span data-lang="zh">收到"孕晚期"内容 · 暂不重入</span>
+        </div>
+      </div>
+      <div class="exec-arrow">→</div>
+      <div class="exec-stage">
+        <div class="exec-stage-box s-done">
+          <span data-lang="en">May 20<br>Completed</span>
+          <span data-lang="zh">5月20日<br>完成</span>
+        </div>
+        <div class="exec-stage-label">
+          <span data-lang="en">Journey #1 done · system keeps watching EDD</span>
+          <span data-lang="zh">旅程 #1 完成 · 系统继续监控 EDD</span>
+        </div>
+      </div>
+      <div class="exec-arrow">→</div>
+      <div class="exec-stage">
+        <div class="exec-stage-box s-fire">
+          <span data-lang="en">Jun 7<br>85 days out</span>
+          <span data-lang="zh">6月7日<br>距今85天</span>
+        </div>
+        <div class="exec-stage-label" style="color:var(--pink);font-weight:500;">
+          <span data-lang="en">✅ Entry #2 fires<br>Branch 2 (75–85 days)</span>
+          <span data-lang="zh">✅ 触发进入 #2<br>Branch 2（75–85天）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 Simple Rules -->
+  <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;">
+    <span data-lang="en">3 Rules Business Needs to Know</span>
+    <span data-lang="zh">业务需要知道的 3 条规则</span>
+  </div>
+  <div class="exec-rule-row">
+    <div class="exec-rule-pill">
+      <div class="exec-rule-icon">🔄</div>
+      <div class="exec-rule-text">
+        <strong>
+          <span data-lang="en">New range = new entry</span>
+          <span data-lang="zh">新区间 = 新进入</span>
+        </strong>
+        <span data-lang="en">Re-entry only fires when EDD enters a range the user has never been in before (within this flow).</span>
+        <span data-lang="zh">只有当 EDD 进入该用户在此 Flow 中从未进入过的区间，才触发重入。</span>
+      </div>
+    </div>
+    <div class="exec-rule-pill">
+      <div class="exec-rule-icon">⏸️</div>
+      <div class="exec-rule-text">
+        <strong>
+          <span data-lang="en">Wait for previous to finish</span>
+          <span data-lang="zh">等前一次走完再进</span>
+        </strong>
+        <span data-lang="en">If a user is mid-journey, no new entry is created until she finishes. No double messaging.</span>
+        <span data-lang="zh">用户旅程进行中时不会创建新进入，不会重复收到消息。</span>
+      </div>
+    </div>
+    <div class="exec-rule-pill">
+      <div class="exec-rule-icon">📅</div>
+      <div class="exec-rule-text">
+        <strong>
+          <span data-lang="en">Daily evaluation</span>
+          <span data-lang="zh">每天自动评估</span>
+        </strong>
+        <span data-lang="en">The system checks every user's EDD every day. Messages arrive within 24 hours of entering a range.</span>
+        <span data-lang="zh">系统每天检查所有用户的 EDD，进入区间后 24 小时内收到消息。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="exec-footer-note">
+    <span>📌</span>
+    <span data-lang="en">Technical details, field definitions, and acceptance criteria are in the sections below — this page is a business summary only.</span>
+    <span data-lang="zh">技术细节、字段定义和验收标准见下方各章节——本页仅为业务摘要。</span>
+  </div>
+</div>
+
+<!-- COVER -->
+
+<div class="cover" id="cover">
+  <div class="doc-module-tag">PRD · Marketing Automation Module</div>
+  <h1>
+    <span data-lang="en"><strong>Re-entry</strong> &amp; Time-based Condition Trigger</span>
+    <span data-lang="zh"><strong>Re-entry（重入）</strong> 与 Time-based Condition 触发机制</span>
+  </h1>
+  <div class="sub">
+    <span data-lang="en">Defines the Re-entry feature for Marketing Automation flows — including Time-based Condition trigger, branch logic, concurrency control, and all related UI field definitions.</span>
+    <span data-lang="zh">定义 Marketing Automation Flow 中 Re-entry（重入）功能的完整规范——包含 Time-based Condition 触发机制、分支逻辑、并发控制及全部 UI 字段定义。</span>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k">DOC ID</span><span class="v" style="font-family:var(--mono);color:var(--pink);font-size:12px;">PRD-MA-REENTRY-xxx</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.0</span></div>
+    <div class="meta-cell"><span class="k">TYPE</span><span class="v">PRD / Product + Frontend</span></div>
+    <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
+    <div class="meta-cell"><span class="k">OWNER</span><span class="v">Product Team</span></div>
+    <div class="meta-cell"><span class="k">UPDATED</span><span class="v">2026-05-25</span></div>
+    <div class="meta-cell"><span class="k">PROTOTYPE</span><span class="v"><a href="https://flow-cycle-comeback.lovable.app" target="_blank" rel="noopener" style="color:var(--pink);font-family:var(--mono);font-size:11px;text-decoration:none;">flow-cycle-comeback.lovable.app ↗</a></span></div>
+    <div class="meta-cell"><span class="k">PHASE</span><span class="v"><span class="badge b-blue">Phase 1</span></span></div>
+  </div>
+</div>
+
+<!-- S1 Background -->
+<section class="section" id="s1">
+  <div class="stag">01</div>
+  <h2>
+    <span data-lang="en">Background <span class="en">背景</span></span>
+    <span data-lang="zh">背景</span>
+  </h2>
+
+  <div data-lang="en" class="sdesc">Marketing Automation flows currently support single-entry only. Once a user completes, exits, or fails a flow, they cannot re-enter — even if they later meet the trigger condition again. This limits the ability to deliver timely, condition-driven communications to users at different lifecycle stages.</div>
+  <div data-lang="zh" class="sdesc">Marketing Automation Flow 目前仅支持单次进入。用户完成、退出或失败后，即使再次满足触发条件，也无法重新进入 Flow，导致无法在用户不同生命周期阶段持续进行精准触达。</div>
+
+  <div class="bi">
+    <div class="bi-label">Problem Statement / 问题描述</div>
+    <div class="bi-en" data-lang="en">Users who meet a condition again (e.g. EDD range re-entry) cannot be automatically re-enrolled. Operators must manually intervene. Single-entry flows cannot support multi-stage pregnancy journey communications or recurring lifecycle triggers.</div>
+    <div class="bi-zh" data-lang="zh">用户再次满足条件（如 EDD 区间重入）时无法被自动重新加入 Flow，运营人员需手动干预。单次进入无法支持多阶段妊娠旅程通讯或周期性生命周期触发需求。</div>
+  </div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">核心目标 · Objective</span>
+    <span data-lang="en">Introduce a Re-entry mechanism driven by Time-based Condition evaluation, allowing users to re-enter a flow when they newly meet a time-based condition (e.g. EDD falls into a configured day range), with full concurrency control to prevent over-messaging.</span>
+    <span data-lang="zh">引入基于 Time-based Condition 评估的 Re-entry 机制，当用户新满足时间条件（如 EDD 进入配置的天数区间）时自动重新进入 Flow，并通过并发控制防止过度触达。</span>
+  </div>
+
+  <div class="sub-h">
+    <span data-lang="en">What This Document Covers</span>
+    <span data-lang="zh">本文档覆盖范围</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Area <span data-lang="zh" class="inline">/ 领域</span></th>
+      <th class="zh">说明</th>
+      <th>Detail <span data-lang="zh" class="inline">/ 详情</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Workflow List</td>
+        <td class="zh">工作流列表</td>
+        <td data-lang="en">New field: Entries (per user, max)</td>
+        <td data-lang="zh">新增字段：每用户最大进入次数</td>
+      </tr>
+      <tr>
+        <td class="field">Flow Settings Popup</td>
+        <td class="zh">创建弹窗 Re-entry 配置</td>
+        <td data-lang="en">Allow Re-entry toggle, Time-based Condition trigger, Concurrency Control</td>
+        <td data-lang="zh">Allow Re-entry 开关、Time-based Condition 触发、并发控制</td>
+      </tr>
+      <tr>
+        <td class="field">Start Point Canvas</td>
+        <td class="zh">画板 Start Point 节点</td>
+        <td data-lang="en">Trigger category display, EDD branch configuration</td>
+        <td data-lang="zh">Trigger 类型展示、EDD 分支区间配置</td>
+      </tr>
+      <tr>
+        <td class="field">Flow Detail Performance</td>
+        <td class="zh">Flow 详情性能指标</td>
+        <td data-lang="en">New enrollment metrics in summary header</td>
+        <td data-lang="zh">Summary Header 新增 enrollment 指标</td>
+      </tr>
+      <tr>
+        <td class="field">Enrollment History</td>
+        <td class="zh">进入历史记录</td>
+        <td data-lang="en">Per-entry record fields</td>
+        <td data-lang="zh">每次进入的记录字段定义</td>
+      </tr>
+      <tr>
+        <td class="field">User Journey</td>
+        <td class="zh">用户旅程</td>
+        <td data-lang="en">All entry records for a user in a flow, shown chronologically</td>
+        <td data-lang="zh">用户在 Flow 中所有进入记录，按时间顺序展示</td>
+      </tr>
+      <tr>
+        <td class="field">Metrics System</td>
+        <td class="zh">指标体系</td>
+        <td data-lang="en">Enrolled Total, Unique Users, Avg Entries, Entries (max) definitions</td>
+        <td data-lang="zh">Enrolled Total、Unique Users、Avg Entries、Entries (max) 定义</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+</section>
+
+<!-- S1B User Story & Examples -->
+<section class="section" id="s1b">
+  <div class="stag">02</div>
+  <h2>
+    <span data-lang="en">User Story &amp; Worked Examples</span>
+    <span data-lang="zh">用户故事与场景举例</span>
+  </h2>
+  <div data-lang="en" class="sdesc">This section walks through real business scenarios to help non-technical readers understand exactly when Re-entry fires, when it is blocked, and why.</div>
+  <div data-lang="zh" class="sdesc">本节通过真实业务场景，帮助非技术读者直观理解 Re-entry 在什么情况下触发、什么情况下被阻断，以及背后的原因。</div>
+
+  <!-- 2.1 User Story -->
+  <div class="sub-h" id="s1b-story">
+    <span data-lang="en">2.1 User Story</span>
+    <span data-lang="zh">2.1 用户故事</span>
+  </div>
+
+  <div class="story-card">
+    <div class="story-card-head"><span class="story-icon">🤰</span>
+      <span data-lang="en">As a Marketing Operator, I want to automatically send different messages to a pregnant user as her EDD approaches different milestone ranges — without having to manually re-enroll her each time.</span>
+      <span data-lang="zh">作为运营人员，我希望随着孕妈 EDD 不断临近不同里程碑区间，系统能自动发送对应阶段的消息——无需每次手动重新加入。</span>
+    </div>
+    <div class="story-card-body">
+      <span data-lang="en">
+        <strong>Background:</strong> A pregnancy app has a Flow called "Prenatal Journey". It has three EDD-based branches:<br>
+        &nbsp;&nbsp;• Branch 1: EDD 86–120 days from now → send "Prepare for your third trimester" content<br>
+        &nbsp;&nbsp;• Branch 2: EDD 75–85 days from now → send "Your baby is almost here" content<br>
+        &nbsp;&nbsp;• Else: No content sent (user not yet in any range)<br><br>
+        <strong>Without Re-entry:</strong> A user who enters Branch 1 at 90 days out can never enter Branch 2 at 80 days out — she only ever receives the first batch of messages, missing the second milestone entirely.<br><br>
+        <strong>With Re-entry (Time-based Condition):</strong> When the user's EDD naturally falls into a new range she hasn't been enrolled in before, the system automatically creates a new entry for her — she receives the right message at the right time, automatically.
+      </span>
+      <span data-lang="zh">
+        <strong>背景：</strong>某母婴 App 有一个名为"产前旅程"的 Flow，包含三个 EDD 分支：<br>
+        &nbsp;&nbsp;• Branch 1：EDD 距今 86–120 天 → 发送"备战孕晚期"内容<br>
+        &nbsp;&nbsp;• Branch 2：EDD 距今 75–85 天 → 发送"宝宝快来了"内容<br>
+        &nbsp;&nbsp;• Else：不在任何区间，不发送内容<br><br>
+        <strong>无 Re-entry 时：</strong>用户在 EDD 还有 90 天时进入 Branch 1，之后即便 EDD 缩短到 80 天进入 Branch 2 的范围，系统也不会再次触达——她永远只收到第一批消息，错过第二个里程碑。<br><br>
+        <strong>启用 Re-entry（Time-based Condition）后：</strong>当用户的 EDD 自然落入她尚未进入过的新区间时，系统自动为她创建新的进入记录——在正确的时间，自动发送正确的消息。
+      </span>
+    </div>
+  </div>
+
+  <!-- 2.2 EDD Timeline -->
+  <div class="sub-h" id="s1b-timeline">
+    <span data-lang="en">2.2 EDD Timeline — When Does Re-entry Fire?</span>
+    <span data-lang="zh">2.2 EDD 时间轴 — 什么时候触发 Re-entry？</span>
+  </div>
+
+  <div class="callout c-note">
+    <span data-lang="en"><strong>Scenario:</strong> User A's EDD is September 1. Today is April 1. The flow has Branch 1 (86–120 days) and Branch 2 (75–85 days).</span>
+    <span data-lang="zh"><strong>场景：</strong>用户 A 的 EDD 为 9月1日，今天是 4月1日。Flow 包含 Branch 1（86–120 天）和 Branch 2（75–85 天）。</span>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="flow-title">
+      <span data-lang="en">EDD Timeline — User A (EDD: Sep 1)</span>
+      <span data-lang="zh">EDD 时间轴 — 用户 A（EDD：9月1日）</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot blocked"></div>
+        <div class="tl-date">Apr 1 &nbsp;|&nbsp; <span data-lang="en">EDD 153 days away</span><span data-lang="zh">距 EDD 153 天</span></div>
+        <div class="tl-title">
+          <span data-lang="en">No trigger <span class="tl-tag tl-tag-block">NOT IN ANY RANGE</span></span>
+          <span data-lang="zh">不触发 <span class="tl-tag tl-tag-block">不在任何区间</span></span>
+        </div>
+        <div class="tl-desc">
+          <span data-lang="en">153 days is outside all configured ranges. User sits in Else — no enrollment created.</span>
+          <span data-lang="zh">153 天不在任何已配置区间内，用户落入 Else 分支，不创建进入记录。</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot active"></div>
+        <div class="tl-date">May 4 &nbsp;|&nbsp; <span data-lang="en">EDD 120 days away</span><span data-lang="zh">距 EDD 120 天</span></div>
+        <div class="tl-title">
+          <span data-lang="en">✅ Entry #1 triggered — Branch 1 <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
+          <span data-lang="zh">✅ 触发进入 #1 — Branch 1 <span class="tl-tag tl-tag-ok">新进入</span></span>
+        </div>
+        <div class="tl-desc">
+          <span data-lang="en">User A newly enters the 86–120 day range. Condition: "not met → newly met". Re-entry fires. User is routed to Branch 1 and receives "Prepare for your third trimester" messages.</span>
+          <span data-lang="zh">用户 A 首次进入 86–120 天区间。条件从"不满足" → "新满足"，触发 Re-entry，路由至 Branch 1，收到"备战孕晚期"内容。</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot blocked"></div>
+        <div class="tl-date">May 10 &nbsp;|&nbsp; <span data-lang="en">EDD 114 days away · Entry #1 still Running</span><span data-lang="zh">距 EDD 114 天 · 进入 #1 仍 Running</span></div>
+        <div class="tl-title">
+          <span data-lang="en">❌ No new entry — previous run still active <span class="tl-tag tl-tag-block">BLOCKED R1</span></span>
+          <span data-lang="zh">❌ 不触发 — 前次仍在运行 <span class="tl-tag tl-tag-block">并发规则 R1</span></span>
+        </div>
+        <div class="tl-desc">
+          <span data-lang="en">Still within Branch 1 range (114 days). Entry #1 is Running. Concurrency Rule R1 blocks any new enrollment until Entry #1 completes.</span>
+          <span data-lang="zh">仍在 Branch 1 区间（114 天），进入 #1 仍为 Running。并发规则 R1 阻断新进入，直至 #1 完成。</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot complete"></div>
+        <div class="tl-date">May 20 &nbsp;|&nbsp; <span data-lang="en">Entry #1 Completed</span><span data-lang="zh">进入 #1 已完成</span></div>
+        <div class="tl-title">
+          <span data-lang="en">Entry #1 reaches terminal state <span class="tl-tag tl-tag-done">COMPLETED</span></span>
+          <span data-lang="zh">进入 #1 达到终态 <span class="tl-tag tl-tag-done">已完成</span></span>
+        </div>
+        <div class="tl-desc">
+          <span data-lang="en">User A has finished the Branch 1 journey. The system now monitors for her next condition change.</span>
+          <span data-lang="zh">用户 A 完成 Branch 1 旅程，系统继续监控下一次条件变化。</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot active"></div>
+        <div class="tl-date">Jun 7 &nbsp;|&nbsp; <span data-lang="en">EDD 86 days away · enters Branch 2 range</span><span data-lang="zh">距 EDD 86 天 · 进入 Branch 2 区间</span></div>
+        <div class="tl-title">
+          <span data-lang="en">✅ Entry #2 triggered — Branch 2 <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
+          <span data-lang="zh">✅ 触发进入 #2 — Branch 2 <span class="tl-tag tl-tag-ok">新进入</span></span>
+        </div>
+        <div class="tl-desc">
+          <span data-lang="en">User A newly enters the 75–85 day range (a different condition from Entry #1). Entry #1 is Completed. Re-entry fires. User receives "Your baby is almost here" messages.</span>
+          <span data-lang="zh">用户 A 首次进入 75–85 天区间（与进入 #1 的条件不同），进入 #1 已完成，触发 Re-entry，收到"宝宝快来了"内容。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.3 Concurrency Examples -->
+  <div class="sub-h" id="s1b-concurrency">
+    <span data-lang="en">2.3 Concurrency Control — Scenario Walkthrough</span>
+    <span data-lang="zh">2.3 并发控制 — 场景逐条说明</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th>
+      <th><span data-lang="en">Scenario</span><span data-lang="zh">场景</span></th>
+      <th class="zh">说明</th>
+      <th><span data-lang="en">Result</span><span data-lang="zh">结果</span></th>
+      <th><span data-lang="en">Rule</span><span data-lang="zh">规则</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">①</td>
+        <td>
+          <span data-lang="en">User has Entry #1 Running. EDD moves deeper into the same Branch 1 range.</span>
+          <span data-lang="zh">用户进入 #1 仍 Running，EDD 继续在 Branch 1 区间内变化。</span>
+        </td>
+        <td class="zh">相同区间 Running 中</td>
+        <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
+        <td><span class="badge b-blue">R1</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">②</td>
+        <td>
+          <span data-lang="en">User's Entry #1 (Branch 1) is Completed. EDD is still in the Branch 1 range — same condition as before.</span>
+          <span data-lang="zh">进入 #1（Branch 1）已完成，EDD 仍在 Branch 1 区间——与前次条件相同。</span>
+        </td>
+        <td class="zh">相同条件 + 已完成</td>
+        <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
+        <td><span class="badge b-blue">R2</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">③</td>
+        <td>
+          <span data-lang="en">User's Entry #1 (Branch 1) is Completed. EDD now falls into the Branch 2 range — a new condition.</span>
+          <span data-lang="zh">进入 #1（Branch 1）已完成，EDD 进入 Branch 2 区间——新条件。</span>
+        </td>
+        <td class="zh">新条件 + 已完成</td>
+        <td><span style="color:var(--green);font-weight:600;">✅ Entry #2 created</span></td>
+        <td><span class="badge b-green">R3</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">④</td>
+        <td>
+          <span data-lang="en">User's Entry #1 (Branch 1) Failed. EDD enters Branch 2 range.</span>
+          <span data-lang="zh">进入 #1（Branch 1）已 Failed，EDD 进入 Branch 2 区间。</span>
+        </td>
+        <td class="zh">新条件 + 已 Failed</td>
+        <td><span style="color:var(--green);font-weight:600;">✅ Entry #2 created</span></td>
+        <td><span class="badge b-green">R3</span></td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">⑤</td>
+        <td>
+          <span data-lang="en">User's Entry #1 is Running. EDD moves from Branch 1 into Branch 2 range mid-run.</span>
+          <span data-lang="zh">进入 #1 仍 Running，EDD 从 Branch 1 范围变化进入 Branch 2 范围。</span>
+        </td>
+        <td class="zh">Running 中跨区间</td>
+        <td><span style="color:var(--red);font-weight:600;">❌ Blocked until #1 completes</span></td>
+        <td><span class="badge b-blue">R1</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- 2.4 What Won't Trigger -->
+  <div class="sub-h" id="s1b-nottrigger">
+    <span data-lang="en">2.4 What Will NOT Trigger Re-entry</span>
+    <span data-lang="zh">2.4 什么情况下不会触发 Re-entry</span>
+  </div>
+
+  <div class="not-trigger">
+    <div class="not-trigger-title">
+      <span data-lang="en">❌ These scenarios will NOT create a new enrollment</span>
+      <span data-lang="zh">❌ 以下场景不会创建新的进入记录</span>
+    </div>
+    <ul>
+      <li>
+        <span data-lang="en"><strong>Same branch condition within this flow, regardless of run state</strong> — If a user already entered via "EDD 86–120 days" in this flow, she won't re-enter that same branch even after Entry #1 Completes. Only entering a new branch range (e.g. "EDD 75–85 days") triggers re-entry. Note: entering the same flow via the same condition in a different flow is allowed.</span>
+        <span data-lang="zh"><strong>此 Flow 内相同分支条件，无论运行状态</strong> — 用户已通过此 Flow 中的"EDD 86–120 天"分支进入过，即使进入 #1 已完成，该分支也不会再次触发。只有进入新的分支区间（如"EDD 75–85 天"）才触发重入。注意：在不同 Flow 中通过相同条件进入不受此限制。</span>
+      </li>
+      <li>
+        <span data-lang="en"><strong>EDD outside all branch ranges</strong> — If the user's EDD falls into the Else range (e.g. 200 days away), no enrollment is created. Else catches the user but does not trigger re-entry.</span>
+        <span data-lang="zh"><strong>EDD 不在任何分支区间内</strong> — 用户 EDD 落入 Else 区间（如距今 200 天），不创建进入记录。Else 捕获用户但不触发重入。</span>
+      </li>
+      <li>
+        <span data-lang="en"><strong>Previous run is still Running</strong> — No new enrollment until the current run reaches Completed / Exited / Failed.</span>
+        <span data-lang="zh"><strong>前次运行仍在 Running</strong> — 在当前运行达到 Completed / Exited / Failed 之前，不创建新进入。</span>
+      </li>
+      <li>
+        <span data-lang="en"><strong>Allow Re-entry is OFF</strong> — The flow behaves as single-entry. No re-entry logic is evaluated.</span>
+        <span data-lang="zh"><strong>Allow Re-entry 未开启</strong> — Flow 保持单次进入行为，不执行任何重入评估逻辑。</span>
+      </li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- S2 Workflow List -->
+<section class="section" id="s2">
+  <div class="stag">02</div>
+  <h2>
+    <span data-lang="en">Workflow List Page</span>
+    <span data-lang="zh">Workflow List 页面</span>
+  </h2>
+  <div data-lang="en" class="sdesc">The Workflow List page displays an overview of all flows. Re-entry introduces a new column to surface per-user maximum entry count.</div>
+  <div data-lang="zh" class="sdesc">Workflow List 页面展示所有 Flow 的概览。Re-entry 功能引入新列，展示单用户最大进入次数。</div>
+
+  <!-- 2.1 Field Definitions -->
+  <div class="sub-h" id="s2-fields">
+    <span data-lang="en">2.1 Field Definitions</span>
+    <span data-lang="zh">2.1 字段定义</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Field <span data-lang="zh" class="inline">/ 字段</span></th>
+      <th class="zh">中文名</th>
+      <th>Description <span data-lang="zh" class="inline">/ 说明</span></th>
+      <th>Type <span data-lang="zh" class="inline">/ 类型</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Flow Name</td>
+        <td class="zh">Flow 名称</td>
+        <td data-lang="en">Name of the workflow</td>
+        <td data-lang="zh">工作流名称</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td class="field">Status</td>
+        <td class="zh">状态</td>
+        <td data-lang="en">Active / Paused / Draft</td>
+        <td data-lang="zh">活跃 / 暂停 / 草稿</td>
+        <td>Enum</td>
+      </tr>
+      <tr>
+        <td class="field">Enrolled Total</td>
+        <td class="zh">总进入次数</td>
+        <td data-lang="en">Total enrollment events across all users (counts re-entries)</td>
+        <td data-lang="zh">所有用户的总进入次数（含重入）</td>
+        <td>Integer</td>
+      </tr>
+      <tr>
+        <td class="field">Unique Users</td>
+        <td class="zh">去重用户数</td>
+        <td data-lang="en">Distinct user count enrolled in this flow</td>
+        <td data-lang="zh">进入过此 Flow 的去重用户数</td>
+        <td>Integer</td>
+      </tr>
+      <tr>
+        <td class="field">Entries (per user, max) <span class="badge b-pink" style="margin-left:4px;">NEW</span></td>
+        <td class="zh">单用户最大进入次数（新）</td>
+        <td data-lang="en">Maximum number of times any single user has entered this flow</td>
+        <td data-lang="zh">当前 Flow 中进入次数最多的单个用户的进入次数</td>
+        <td>Integer</td>
+      </tr>
+      <tr>
+        <td class="field">Created By</td>
+        <td class="zh">创建人</td>
+        <td data-lang="en">Creator of the flow</td>
+        <td data-lang="zh">Flow 创建者</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td class="field">Created Time</td>
+        <td class="zh">创建时间</td>
+        <td data-lang="en">Timestamp of flow creation</td>
+        <td data-lang="zh">Flow 创建时间戳</td>
+        <td>DateTime</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- 2.2 Entries (max) Calculation -->
+  <div class="sub-h" id="s2-entries">
+    <span data-lang="en">2.2 Entries (per user, max) — Calculation Logic</span>
+    <span data-lang="zh">2.2 Entries (per user, max) — 计算逻辑</span>
+  </div>
+
+  <div class="callout c-pink">
+    <strong data-lang="en">Business Definition:</strong><span data-lang="en"> The highest number of times any single user has entered the current flow.</span>
+    <strong data-lang="zh">业务定义：</strong><span data-lang="zh"> 当前 Flow 中，进入次数最多的用户的进入次数。</span>
+  </div>
+
+  <div class="bi">
+    <div class="bi-label">SQL — Calculation / 计算方式</div>
+    <div class="bi-en">
+      <pre>SELECT MAX(entry_count)
+FROM (
+  SELECT user_id, COUNT(*) AS entry_count
+  FROM enrollment
+  WHERE flow_id = X
+  GROUP BY user_id
+)</pre>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Rule <span data-lang="zh" class="inline">/ 规则</span></th>
+      <th class="zh">说明</th>
+      <th>Detail <span data-lang="zh" class="inline">/ 详情</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Scope</td>
+        <td class="zh">范围</td>
+        <td data-lang="en">Counts all enrollment records for the flow, including re-entries</td>
+        <td data-lang="zh">统计该 Flow 的所有 enrollment 记录，含重入</td>
+      </tr>
+      <tr>
+        <td class="field">Granularity</td>
+        <td class="zh">粒度</td>
+        <td data-lang="en">Per user — grouped by user_id</td>
+        <td data-lang="zh">按用户维度，以 user_id 分组</td>
+      </tr>
+      <tr>
+        <td class="field">Display</td>
+        <td class="zh">展示</td>
+        <td data-lang="en">Shows the single maximum value, e.g. <code>5</code></td>
+        <td data-lang="zh">展示单一最大值，例如 <code>5</code></td>
+      </tr>
+      <tr>
+        <td class="field">Legacy Flows</td>
+        <td class="zh">旧版 Flow</td>
+        <td data-lang="en">Flows without Re-entry enabled will always show <code>1</code></td>
+        <td data-lang="zh">未开启 Re-entry 的旧 Flow 始终显示 <code>1</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S3 Flow Settings Popup -->
+<section class="section" id="s3">
+  <div class="stag">03</div>
+  <h2>
+    <span data-lang="en">Create Flow Popup — Re-entry Settings</span>
+    <span data-lang="zh">创建 Flow 弹窗 — Re-entry 配置</span>
+  </h2>
+  <div data-lang="en" class="sdesc">When creating or editing a flow, the Flow Settings popup contains a Re-entry Settings section. This section is only active when the flow type supports condition-based triggers.</div>
+  <div data-lang="zh" class="sdesc">创建或编辑 Flow 时，Flow Settings 弹窗包含 Re-entry Settings 配置区。该区域仅在 Flow 类型支持条件触发时可用。</div>
+
+  <!-- 3.1 Allow Re-entry -->
+  <div class="sub-h" id="s3-allow">
+    <span data-lang="en">3.1 Allow Re-entry Toggle</span>
+    <span data-lang="zh">3.1 Allow Re-entry 开关</span>
+  </div>
+
+  <div class="ui-spec">
+    <div class="ui-spec-head">
+      <span class="ui-spec-title">UI Component — Toggle</span>
+      <span class="badge b-pink">Re-entry Settings</span>
+    </div>
+    <div class="ui-spec-body">
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Property <span data-lang="zh" class="inline">/ 属性</span></th>
+          <th class="zh">说明</th>
+          <th>Value / Behavior <span data-lang="zh" class="inline">/ 值与行为</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="field">Label</td>
+            <td class="zh">标签</td>
+            <td><code>Allow Re-entry</code></td>
+          </tr>
+          <tr>
+            <td class="field">Type</td>
+            <td class="zh">类型</td>
+            <td data-lang="en">Toggle switch (ON / OFF)</td>
+            <td data-lang="zh">切换开关（开 / 关）</td>
+          </tr>
+          <tr>
+            <td class="field">Default</td>
+            <td class="zh">默认值</td>
+            <td data-lang="en"><strong>OFF</strong> — legacy flows remain single-entry by default</td>
+            <td data-lang="zh"><strong>关</strong> — 历史 Flow 默认保持单次进入</td>
+          </tr>
+          <tr>
+            <td class="field">Helper Text</td>
+            <td class="zh">说明文案</td>
+            <td data-lang="en">When enabled, this flow can be entered multiple times by the same user when they newly meet the time-based condition.</td>
+            <td data-lang="zh">开启后，同一用户在新满足 time-based 条件时，可多次进入此 Flow。</td>
+          </tr>
+          <tr>
+            <td class="field">Behavior when OFF</td>
+            <td class="zh">关闭时行为</td>
+            <td data-lang="en">Re-entry trigger basis section is hidden</td>
+            <td data-lang="zh">Re-entry trigger basis 区域隐藏</td>
+          </tr>
+          <tr>
+            <td class="field">Behavior when ON</td>
+            <td class="zh">开启时行为</td>
+            <td data-lang="en">Re-entry trigger basis, Concurrency Control sections become visible</td>
+            <td data-lang="zh">Re-entry trigger basis 和 Concurrency Control 区域显示</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- 3.2 Re-entry Trigger Basis -->
+  <div class="sub-h" id="s3-trigger">
+    <span data-lang="en">3.2 Re-entry Trigger Basis</span>
+    <span data-lang="zh">3.2 Re-entry 触发方式</span>
+  </div>
+
+  <div class="callout c-pink">
+    <strong data-lang="en">Business Rule:</strong><span data-lang="en"> A new entry is created only when the user newly meets the time-based condition — i.e. transitions from "not meeting the condition" → "newly meeting the condition". Repeated matches of the same condition do not trigger re-entry.</span>
+    <strong data-lang="zh">业务规则：</strong><span data-lang="zh"> 只有当用户从"不满足条件" → "新满足条件"时，才触发新的进入。重复满足同一条件不触发 Re-entry。</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Option <span data-lang="zh" class="inline">/ 选项</span></th>
+      <th class="zh">说明</th>
+      <th>Description <span data-lang="zh" class="inline">/ 描述</span></th>
+      <th>Phase <span data-lang="zh" class="inline">/ 阶段</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Time-based Condition</td>
+        <td class="zh">基于时间条件</td>
+        <td data-lang="en">A new entry is created only when the user newly meets the condition based on time evaluation (recommended). Evaluated continuously — does not rely on list updates.</td>
+        <td data-lang="zh">仅当用户新满足基于时间评估的条件时创建新进入（推荐）。持续评估，不依赖列表更新。</td>
+        <td><span class="badge b-green">Phase 1</span></td>
+      </tr>
+      <tr>
+        <td class="field">Repeated condition match</td>
+        <td class="zh">重复条件匹配</td>
+        <td data-lang="en">Triggers re-entry every time the condition is met. <strong>Disabled in Phase 1</strong> — would risk over-messaging users.</td>
+        <td data-lang="zh">每次满足条件都触发重入。<strong>Phase 1 禁用</strong>——否则会导致用户被重复触达（over-messaging）。</td>
+        <td><span class="badge b-tbd">Phase 2</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="ui-spec">
+    <div class="ui-spec-head">
+      <span class="ui-spec-title">UI Component — Radio Group</span>
+      <span class="badge b-blue">Re-entry trigger basis</span>
+    </div>
+    <div class="ui-spec-body">
+      <div class="tw"><table>
+        <thead><tr>
+          <th>Property <span data-lang="zh" class="inline">/ 属性</span></th>
+          <th class="zh">说明</th>
+          <th>Value <span data-lang="zh" class="inline">/ 值</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="field">Component</td>
+            <td class="zh">组件类型</td>
+            <td data-lang="en">Radio group — single selection</td>
+            <td data-lang="zh">单选组</td>
+          </tr>
+          <tr>
+            <td class="field">Default selected</td>
+            <td class="zh">默认选中</td>
+            <td><code>Time-based Condition</code></td>
+          </tr>
+          <tr>
+            <td class="field">Disabled option</td>
+            <td class="zh">禁用项</td>
+            <td data-lang="en"><code>Repeated condition match</code> — greyed out with label "Disabled in Phase 1 — would risk over-messaging users."</td>
+            <td data-lang="zh"><code>Repeated condition match</code> 置灰，显示说明文案"Phase 1 禁用，否则导致用户被重复触达"</td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- 3.3 Repeated Condition Match -->
+  <div class="sub-h" id="s3-repeated">
+    <span data-lang="en">3.3 Repeated Condition Match (Phase 1 Disabled)</span>
+    <span data-lang="zh">3.3 Repeated Condition Match（Phase 1 禁用）</span>
+  </div>
+
+  <div class="callout c-warn">
+    <strong data-lang="en">⚠ Phase 1 Restriction:</strong><span data-lang="en"> This option is disabled in Phase 1. Enabling repeated condition match would cause users to be re-enrolled every evaluation cycle, leading to over-messaging and degraded user experience.</span>
+    <strong data-lang="zh">⚠ Phase 1 限制：</strong><span data-lang="zh"> Phase 1 不支持此选项。启用重复条件匹配会导致用户在每次评估周期都被重新加入，造成过度触达，影响用户体验。</span>
+  </div>
+
+  <!-- 3.4 Concurrency Control -->
+  <div class="sub-h" id="s3-concurrency">
+    <span data-lang="en">3.4 Concurrency Control</span>
+    <span data-lang="zh">3.4 并发控制</span>
+  </div>
+
+  <div data-lang="en" class="sdesc">Three immutable concurrency rules govern how re-entry interacts with existing active runs. These rules cannot be configured by the operator.</div>
+  <div data-lang="zh" class="sdesc">三条固定并发控制规则，定义 Re-entry 与现有运行中记录的交互方式。运营人员无法修改这些规则。</div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th>
+      <th>Rule <span data-lang="zh" class="inline">/ 规则</span></th>
+      <th class="zh">说明</th>
+      <th>Behavior <span data-lang="zh" class="inline">/ 行为</span></th>
+      <th>Example <span data-lang="zh" class="inline">/ 举例</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);font-weight:600;">R1</td>
+        <td>
+          <span data-lang="en">Do not re-enter while previous run is still Running</span>
+          <span data-lang="zh">上一次运行中时不重入</span>
+        </td>
+        <td class="zh">前次 Running 时禁止重入</td>
+        <td data-lang="en">If a user has an active Running enrollment, any new trigger is blocked until the run completes.</td>
+        <td data-lang="zh">用户有 Running 状态的进入记录时，新触发被阻断，直至该次运行结束。</td>
+        <td data-lang="en">4/1 → Entry #1 (Running) · 4/5 → trigger fires → ❌ blocked</td>
+        <td data-lang="zh">4/1 → 进入 #1（Running）· 4/5 → 触发条件 → ❌ 不进入</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);font-weight:600;">R2</td>
+        <td>
+          <span data-lang="en">Do not re-enter for the same condition (Flow-level)</span>
+          <span data-lang="zh">相同条件不重入（Flow 级别）</span>
+        </td>
+        <td class="zh">同一 Flow 内同一 Branch 只进入一次</td>
+        <td data-lang="en">Within the same flow, if a user has already entered via a specific branch condition (e.g. "EDD 86–120 days"), she will not re-enter that same branch again — regardless of run state. Only entering a <em>different</em> branch condition triggers re-entry. <strong>Scope: Flow-level only.</strong> Cross-flow re-entry is not restricted.</td>
+        <td data-lang="zh">在同一 Flow 内，用户已通过某个分支条件进入过（如"EDD 86–120 天"），则不再重入该分支——无论前次运行状态如何。只有进入<em>不同</em>分支条件才触发重入。<strong>范围：仅限 Flow 级别。</strong>跨 Flow 不受限制。</td>
+        <td data-lang="en">Entry for "EDD 86–120 days" already exists in this flow → same branch → ❌ blocked · Entry for "EDD 75–85 days" (different branch) → ✅ allowed</td>
+        <td data-lang="zh">此 Flow 内已有"EDD 86–120 天"的进入记录 → 同一分支 → ❌ 不进入 · "EDD 75–85 天"（不同分支）→ ✅ 允许</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);font-weight:600;">R3</td>
+        <td>
+          <span data-lang="en">Allow re-entry after Completed / Exited / Failed</span>
+          <span data-lang="zh">Completed / Exited / Failed 后允许重入</span>
+        </td>
+        <td class="zh">终态后新条件可重入</td>
+        <td data-lang="en">Once a previous run reaches a terminal state (Completed, Exited, or Failed), and the user newly meets a condition, re-entry is permitted.</td>
+        <td data-lang="zh">当前次运行达到终态（Completed / Exited / Failed），且用户新满足条件时，允许重入。</td>
+        <td data-lang="en">Entry #1 Completed · user enters "EDD 75–85 days" range → ✅ new entry created</td>
+        <td data-lang="zh">进入 #1 已完成 · 用户进入"EDD 75–85 天"区间 → ✅ 创建新进入</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-info">
+    <strong data-lang="en">No parallel runs:</strong><span data-lang="en"> A user can only have one Running enrollment at a time in any given flow. Concurrent active entries are not permitted.</span>
+    <strong data-lang="zh">无并行运行：</strong><span data-lang="zh"> 同一用户在同一 Flow 中，同一时间只能有一条 Running 状态的进入记录，不允许并发活跃进入。</span>
+  </div>
+
+  <!-- Decisions -->
+  <div class="decision-box">
+    <span class="decision-box-title">✅ Phase 1 Confirmed Decisions · 已确认决策</span>
+    <ul>
+      <li>
+        <strong data-lang="en">R2 scope — Flow-level:</strong>
+        <span data-lang="en"> Same user, same flow, same branch condition = blocked. Cross-flow entries are always independent and unrestricted.</span>
+        <strong data-lang="zh">R2 范围 — Flow 级别：</strong>
+        <span data-lang="zh"> 同一用户在同一 Flow 内，同一分支条件只进入一次。跨 Flow 的进入完全独立，不受限制。</span>
+      </li>
+      <li>
+        <strong data-lang="en">Else branch behavior:</strong>
+        <span data-lang="en"> Else does NOT create an enrollment record. A user in Else is in a "waiting" state. When her EDD subsequently enters any branch range, re-entry fires normally — this transition (Else → Branch) counts as "newly meeting the condition".</span>
+        <strong data-lang="zh">Else 分支行为：</strong>
+        <span data-lang="zh"> Else 不创建 enrollment 记录，用户落入 Else 相当于"等待区"。当 EDD 随后进入任何分支区间时，正常触发重入——Else → Branch 的转变视为"新满足条件"。</span>
+      </li>
+      <li>
+        <strong data-lang="en">Evaluation frequency — Daily:</strong>
+        <span data-lang="en"> The system evaluates all users' EDD conditions once per day (daily batch, UTC+8 00:00–02:00). Users may receive messages up to 24 hours after entering a range. This is not real-time.</span>
+        <strong data-lang="zh">评估频率 — 每日：</strong>
+        <span data-lang="zh"> 系统每天评估一次所有用户的 EDD 条件（每日批量，UTC+8 00:00–02:00）。用户进入区间后最多 24 小时内收到消息，非实时触发。</span>
+      </li>
+      <li>
+        <strong data-lang="en">Branch range overlap — Save-time validation:</strong>
+        <span data-lang="en"> If two branches have overlapping EDD day ranges, the system shows a warning on save. First-match-wins evaluation order is applied (Branch 1 evaluated first). Operators must resolve overlaps before publishing.</span>
+        <strong data-lang="zh">分支区间重叠 — 保存时校验：</strong>
+        <span data-lang="zh"> 若两个分支的 EDD 天数区间重叠，系统在保存时展示警告弹窗。评估顺序为第一匹配优先（Branch 1 最先评估）。运营人员需在发布前解决重叠问题。</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 3.5 UI Copy -->
+  <div class="sub-h" id="s3-copy">
+    <span data-lang="en">3.5 UI Copy (Required)</span>
+    <span data-lang="zh">3.5 UI 提示文案（必须保留）</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th>
+      <th>Location <span data-lang="zh" class="inline">/ 位置</span></th>
+      <th class="zh">位置说明</th>
+      <th>Copy (EN)</th>
+      <th class="zh">文案（中文）</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">①</td>
+        <td data-lang="en">Re-entry Settings section header</td>
+        <td data-lang="zh">Re-entry Settings 区头部</td>
+        <td class="zh">Re-entry Settings 区头部</td>
+        <td data-lang="en">A user is enrolled each time they newly meet the condition based on time evaluation (e.g. entering the defined EDD range). This trigger is evaluated continuously and does not rely on list updates.</td>
+        <td data-lang="zh">用户每次新满足基于时间评估的条件时（如进入设定的 EDD 区间），即被加入 Flow。该触发持续评估，不依赖列表更新。</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">②</td>
+        <td data-lang="en">Allow Re-entry toggle helper</td>
+        <td data-lang="zh">Allow Re-entry 开关说明</td>
+        <td class="zh">Allow Re-entry 开关说明</td>
+        <td data-lang="en">When enabled, this flow can be entered multiple times by the same user when they newly meet the time-based condition.</td>
+        <td data-lang="zh">开启后，同一用户在新满足 time-based 条件时，可多次进入此 Flow。</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">③</td>
+        <td data-lang="en">Footer note ①</td>
+        <td data-lang="zh">底部注释 ①</td>
+        <td class="zh">底部注释 ①</td>
+        <td data-lang="en">Default OFF for legacy flows; historical flows remain single-entry.</td>
+        <td data-lang="zh">旧版 Flow 默认关闭，历史 Flow 保持单次进入。</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">④</td>
+        <td data-lang="en">Footer note ②</td>
+        <td data-lang="zh">底部注释 ②</td>
+        <td class="zh">底部注释 ②</td>
+        <td data-lang="en">Time-based only: Re-entry fires when the user newly meets the condition, not repeat matches.</td>
+        <td data-lang="zh">仅限时间条件：用户新满足条件时触发重入，重复满足不触发。</td>
+      </tr>
+      <tr>
+        <td style="font-family:var(--mono);color:var(--pink);">⑤</td>
+        <td data-lang="en">Footer note ③</td>
+        <td data-lang="zh">底部注释 ③</td>
+        <td class="zh">底部注释 ③</td>
+        <td data-lang="en">No parallel runs: A user can only have one Running enrollment at a time.</td>
+        <td data-lang="zh">不并行运行：用户同一时间只能有一条 Running 状态的进入记录。</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S4 Start Point Canvas -->
+<section class="section" id="s4">
+  <div class="stag">04</div>
+  <h2>
+    <span data-lang="en">Start Point — Flow Canvas</span>
+    <span data-lang="zh">Start Point — Flow 画板</span>
+  </h2>
+  <div data-lang="en" class="sdesc">When a Time-based Condition trigger is configured, the Start point node on the flow canvas reflects the trigger type and auto-generates EDD-based branches.</div>
+  <div data-lang="zh" class="sdesc">配置 Time-based Condition 触发后，画板上的 Start point 节点会显示触发类型，并自动生成基于 EDD 的分支结构。</div>
+
+  <!-- 4.1 Trigger Category -->
+  <div class="sub-h" id="s4-trigger">
+    <span data-lang="en">4.1 Trigger Category — Side Panel</span>
+    <span data-lang="zh">4.1 Trigger Category — 侧边面板</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Field <span data-lang="zh" class="inline">/ 字段</span></th>
+      <th class="zh">说明</th>
+      <th>Value / Behavior <span data-lang="zh" class="inline">/ 值与行为</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Trigger category</td>
+        <td class="zh">触发类别</td>
+        <td data-lang="en">Dropdown — selected value: <code>Time-based Condition</code></td>
+        <td data-lang="zh">下拉选择器 — 选中值：<code>Time-based Condition</code></td>
+      </tr>
+      <tr>
+        <td class="field">Trigger property</td>
+        <td class="zh">触发属性</td>
+        <td data-lang="en">Dropdown — e.g. <code>EDD</code> (Estimated Due Date)</td>
+        <td data-lang="zh">下拉选择器 — 例如：<code>EDD</code>（预产期）</td>
+      </tr>
+      <tr>
+        <td class="field">Canvas display</td>
+        <td class="zh">画板节点显示</td>
+        <td data-lang="en">Start point card shows: Trigger type label <strong>"Time-based Condition"</strong> (in pink) + condition summary e.g. "EDD is less than {min–max} from now"</td>
+        <td data-lang="zh">Start point 卡片显示：Trigger 类型标签 <strong>"Time-based Condition"</strong>（粉红色）+ 条件摘要，例如"EDD is less than {min–max} from now"</td>
+      </tr>
+      <tr>
+        <td class="field">Save behavior</td>
+        <td class="zh">保存行为</td>
+        <td data-lang="en">Saving auto-generates <strong>Branch 1</strong> and <strong>Else</strong> below the start point. EDD ranges are configured per branch.</td>
+        <td data-lang="zh">保存后自动生成 <strong>Branch 1</strong> 和 <strong>Else</strong> 分支。每个分支配置对应的 EDD 天数区间。</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-info">
+    <div class="bi-label" style="padding:0;margin-bottom:8px;">Re-entry trigger &amp; branches — Info Panel</div>
+    <div data-lang="en">
+      <strong>①</strong> <strong>Time-based Condition trigger</strong> — Re-entry fires when the user newly meets the time-based condition.<br>
+      <strong>②</strong> <strong>Auto-generated branches</strong> — Saving the trigger creates Branch 1 + Else by default.<br>
+      <strong>③</strong> <strong>Configurable min / max</strong> — Each branch defines an EDD day range.<br>
+      <strong>④</strong> <strong>Add Branch on connector</strong> — Use the connector action to insert more branches.<br>
+      <strong>⑤</strong> <strong>Else is permanent</strong> — Catches any user not matching a defined range.
+    </div>
+    <div data-lang="zh">
+      <strong>①</strong> <strong>Time-based Condition trigger</strong> — 用户新满足 time-based 条件时触发 Re-entry。<br>
+      <strong>②</strong> <strong>自动生成分支</strong> — 保存 trigger 后默认创建 Branch 1 + Else 分支。<br>
+      <strong>③</strong> <strong>可配置 min / max</strong> — 每个 Branch 定义 EDD 天数区间。<br>
+      <strong>④</strong> <strong>在连接器上添加分支</strong> — 通过连接器操作插入更多分支。<br>
+      <strong>⑤</strong> <strong>Else 永久保留</strong> — 捕获所有不匹配任何已定义区间的用户。
+    </div>
+  </div>
+
+  <!-- 4.2 Branch Logic -->
+  <div class="sub-h" id="s4-branches">
+    <span data-lang="en">4.2 Branch Configuration Logic</span>
+    <span data-lang="zh">4.2 Branch 配置逻辑</span>
+  </div>
+
+  <div class="flow-diagram">
+    <div class="flow-title">Flow Canvas — Time-based Condition with EDD Branches</div>
+    <div style="text-align:center;">
+      <div class="flow-node start" style="display:inline-block;">
+        🎯 Start point
+        <small>Trigger: Time-based Condition</small>
+        <small style="font-size:9px;opacity:.7;">EDD is less than {min–max} from now</small>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+    <div class="flow-branches">
+      <div class="flow-branch-col">
+        <div class="flow-node branch">
+          Branch 1
+          <small>EDD range</small>
+          <small style="font-size:10px;">86–120 days from now</small>
+        </div>
+        <div class="flow-arrow-down" style="color:#f5a623;">↓</div>
+        <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
+      </div>
+      <div class="flow-branch-col">
+        <div class="flow-node branch">
+          Branch 2
+          <small>EDD range</small>
+          <small style="font-size:10px;">75–85 days from now</small>
+        </div>
+        <div class="flow-arrow-down" style="color:#f5a623;">↓</div>
+        <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
+      </div>
+      <div class="flow-branch-col">
+        <div class="flow-node else-node">
+          Else
+          <small>No range matched</small>
+        </div>
+        <div class="flow-arrow-down">↓</div>
+        <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
+      </div>
+    </div>
+    <div class="flow-arrow-down">↓</div>
+    <div style="text-align:center;">
+      <div class="flow-node end-node" style="display:inline-block;">End</div>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Branch <span data-lang="zh" class="inline">/ 分支</span></th>
+      <th class="zh">说明</th>
+      <th>Condition <span data-lang="zh" class="inline">/ 条件</span></th>
+      <th>Configurable <span data-lang="zh" class="inline">/ 可配置</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Branch 1 … N</td>
+        <td class="zh">自定义分支</td>
+        <td data-lang="en">EDD is within [min, max] days from now. Operators configure min and max values per branch.</td>
+        <td data-lang="zh">EDD 距今在 [min, max] 天范围内，运营人员按分支配置 min 和 max 值。</td>
+        <td><span class="badge b-green">Yes</span></td>
+      </tr>
+      <tr>
+        <td class="field">Else</td>
+        <td class="zh">兜底分支</td>
+        <td data-lang="en">User does not match any configured branch range. Else is permanent and cannot be deleted.</td>
+        <td data-lang="zh">用户不匹配任何已配置的分支区间。Else 分支永久存在，不可删除。</td>
+        <td><span class="badge b-red">No</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn">
+    <strong data-lang="en">⚠ Range Overlap — Save-time Validation (Confirmed):</strong>
+    <span data-lang="en"> If a user's EDD falls into multiple branch ranges, the system evaluates branches in order (Branch 1 first) — first matching branch wins. <strong>On save, the system validates for overlapping ranges and shows a warning dialog.</strong> Operators must resolve overlaps before the flow can be published. This prevents silent mis-routing.</span>
+    <strong data-lang="zh">⚠ 区间重叠 — 保存时校验（已确认）：</strong>
+    <span data-lang="zh"> 若用户 EDD 同时落入多个分支区间，系统按顺序评估（Branch 1 优先），第一个匹配分支生效。<strong>保存时系统会检测区间重叠并弹出警告框，</strong>运营人员需在发布前解决重叠问题，防止静默路由错误。</span>
+  </div>
+</section>
+
+<!-- S5 Flow Detail Performance -->
+<section class="section" id="s5">
+  <div class="stag">05</div>
+  <h2>
+    <span data-lang="en">Flow Detail — Performance</span>
+    <span data-lang="zh">Flow Detail — 性能指标</span>
+  </h2>
+  <div data-lang="en" class="sdesc">The Flow Detail Performance page shows summary metrics in the header. Re-entry introduces new enrollment-related metrics.</div>
+  <div data-lang="zh" class="sdesc">Flow Detail 性能页面在顶部展示汇总指标。Re-entry 功能引入与进入次数相关的新指标。</div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Metric <span data-lang="zh" class="inline">/ 指标</span></th>
+      <th class="zh">中文名</th>
+      <th>Definition <span data-lang="zh" class="inline">/ 定义</span></th>
+      <th>NEW <span data-lang="zh" class="inline">/ 新增</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Enrolled Total</td>
+        <td class="zh">总进入次数</td>
+        <td data-lang="en">Total number of enrollment events, counting re-entries</td>
+        <td data-lang="zh">总进入事件数，含重入次数</td>
+        <td><span class="badge b-green">NEW</span></td>
+      </tr>
+      <tr>
+        <td class="field">Unique Users</td>
+        <td class="zh">去重用户数</td>
+        <td data-lang="en">Number of distinct users who have entered this flow</td>
+        <td data-lang="zh">进入过此 Flow 的去重用户数</td>
+        <td><span class="badge b-green">NEW</span></td>
+      </tr>
+      <tr>
+        <td class="field">Avg Entries / User</td>
+        <td class="zh">平均每用户进入次数</td>
+        <td data-lang="en">Enrolled Total ÷ Unique Users</td>
+        <td data-lang="zh">总进入次数 ÷ 去重用户数</td>
+        <td><span class="badge b-green">NEW</span></td>
+      </tr>
+      <tr>
+        <td class="field">Entries (per user, max)</td>
+        <td class="zh">单用户最大进入次数</td>
+        <td data-lang="en">Highest number of entries by any single user in this flow</td>
+        <td data-lang="zh">单个用户在此 Flow 中的最大进入次数</td>
+        <td><span class="badge b-green">NEW</span></td>
+      </tr>
+      <tr>
+        <td class="field">Completed</td>
+        <td class="zh">已完成</td>
+        <td data-lang="en">Number of enrollment records that reached Completed state</td>
+        <td data-lang="zh">达到 Completed 状态的进入记录数</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="field">Exited</td>
+        <td class="zh">已退出</td>
+        <td data-lang="en">Number of enrollment records that reached Exited state</td>
+        <td data-lang="zh">达到 Exited 状态的进入记录数</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="field">Failed</td>
+        <td class="zh">已失败</td>
+        <td data-lang="en">Number of enrollment records that reached Failed state</td>
+        <td data-lang="zh">达到 Failed 状态的进入记录数</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S6 Enrollment History -->
+<section class="section" id="s6">
+  <div class="stag">06</div>
+  <h2>
+    <span data-lang="en">Enrollment History</span>
+    <span data-lang="zh">进入历史记录</span>
+  </h2>
+  <div data-lang="en" class="sdesc">The Enrollment History table records each individual enrollment event, including re-entries. Each row represents one enrollment of one user.</div>
+  <div data-lang="zh" class="sdesc">Enrollment History 表格记录每一次进入事件，包含重入记录。每行代表一个用户的一次进入。</div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Field <span data-lang="zh" class="inline">/ 字段</span></th>
+      <th class="zh">中文名</th>
+      <th>Description <span data-lang="zh" class="inline">/ 说明</span></th>
+      <th>Type <span data-lang="zh" class="inline">/ 类型</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">User ID</td>
+        <td class="zh">用户 ID</td>
+        <td data-lang="en">Unique identifier of the enrolled user</td>
+        <td data-lang="zh">进入用户的唯一标识</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td class="field">Entry #</td>
+        <td class="zh">进入次数序号</td>
+        <td data-lang="en">Sequential entry number for this user in this flow (1, 2, 3 …)</td>
+        <td data-lang="zh">该用户在此 Flow 中的进入序号（1、2、3…）</td>
+        <td>Integer</td>
+      </tr>
+      <tr>
+        <td class="field">Enrolled At</td>
+        <td class="zh">进入时间</td>
+        <td data-lang="en">Timestamp when this enrollment was created</td>
+        <td data-lang="zh">本次进入创建的时间戳</td>
+        <td>DateTime</td>
+      </tr>
+      <tr>
+        <td class="field">Trigger Condition</td>
+        <td class="zh">触发条件</td>
+        <td data-lang="en">The specific condition that triggered this entry, e.g. "EDD 86–120 days"</td>
+        <td data-lang="zh">触发本次进入的具体条件，例如"EDD 86–120 天"</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td class="field">Branch</td>
+        <td class="zh">所属分支</td>
+        <td data-lang="en">The branch the user was routed to, e.g. "Branch 1"</td>
+        <td data-lang="zh">用户被路由到的分支，例如"Branch 1"</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td class="field">Status</td>
+        <td class="zh">状态</td>
+        <td data-lang="en">Current status of this enrollment: Running / Completed / Exited / Failed</td>
+        <td data-lang="zh">本次进入的当前状态：Running / Completed / Exited / Failed</td>
+        <td>Enum</td>
+      </tr>
+      <tr>
+        <td class="field">Completed At</td>
+        <td class="zh">完成时间</td>
+        <td data-lang="en">Timestamp when this enrollment reached a terminal state (nullable)</td>
+        <td data-lang="zh">本次进入达到终态的时间戳（可为空）</td>
+        <td>DateTime?</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S7 User Journey -->
+<section class="section" id="s7">
+  <div class="stag">07</div>
+  <h2>
+    <span data-lang="en">User Journey <span class="badge b-green" style="margin-left:6px;font-size:10px;">NEW</span></span>
+    <span data-lang="zh">用户旅程 <span class="badge b-green" style="margin-left:6px;font-size:10px;">新增</span></span>
+  </h2>
+  <div data-lang="en" class="sdesc">User Journey is a new view that shows all enrollment records for a single user in a given flow, displayed in chronological order. It provides operators with a full picture of a user's re-entry history.</div>
+  <div data-lang="zh" class="sdesc">User Journey 是新增视图，展示单个用户在指定 Flow 中的所有进入记录，按时间顺序排列，帮助运营人员全面了解用户的重入历史。</div>
+
+  <div class="sub-h">
+    <span data-lang="en">Business Definition</span>
+    <span data-lang="zh">业务定义</span>
+  </div>
+  <div class="callout c-pink">
+    <span data-lang="en">All enrollment records of a user in this flow, displayed in chronological order (oldest → newest).</span>
+    <span data-lang="zh">用户在该 Flow 中的所有进入记录，按时间顺序展示（最早 → 最新）。</span>
+  </div>
+
+  <div class="sub-h">
+    <span data-lang="en">Display Rules</span>
+    <span data-lang="zh">展示规则</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Rule <span data-lang="zh" class="inline">/ 规则</span></th>
+      <th class="zh">说明</th>
+      <th>Detail <span data-lang="zh" class="inline">/ 详情</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Sort Order</td>
+        <td class="zh">排序</td>
+        <td data-lang="en">Ascending by enrolled_at timestamp — oldest entry first</td>
+        <td data-lang="zh">按 enrolled_at 升序排列，最早进入在最上方</td>
+      </tr>
+      <tr>
+        <td class="field">Entry Label</td>
+        <td class="zh">进入标签</td>
+        <td data-lang="en">Each entry is labeled "Entry #1", "Entry #2" … in sequence</td>
+        <td data-lang="zh">每次进入标注序号"进入 #1"、"进入 #2"……</td>
+      </tr>
+      <tr>
+        <td class="field">Status Indicator</td>
+        <td class="zh">状态标识</td>
+        <td data-lang="en">Each entry card shows current status with color badge: Running (blue), Completed (green), Exited (amber), Failed (red)</td>
+        <td data-lang="zh">每个进入卡片展示当前状态色标：Running（蓝）、Completed（绿）、Exited（橙）、Failed（红）</td>
+      </tr>
+      <tr>
+        <td class="field">Condition Display</td>
+        <td class="zh">条件展示</td>
+        <td data-lang="en">Shows the trigger condition that created this entry, e.g. "Time-based Condition · EDD 86–120 days"</td>
+        <td data-lang="zh">展示触发本次进入的条件，例如"Time-based Condition · EDD 86–120 天"</td>
+      </tr>
+      <tr>
+        <td class="field">Scope</td>
+        <td class="zh">范围</td>
+        <td data-lang="en">Filtered to one specific flow — cross-flow journey is out of scope for Phase 1</td>
+        <td data-lang="zh">仅限单个 Flow 范围内 — 跨 Flow 旅程在 Phase 1 不在范围内</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S8 Metrics System -->
+<section class="section" id="s8">
+  <div class="stag">08</div>
+  <h2>
+    <span data-lang="en">Metrics System — Unified Definitions</span>
+    <span data-lang="zh">指标体系 — 统一说明</span>
+  </h2>
+  <div data-lang="en" class="sdesc">All Re-entry related metrics follow these unified definitions across Workflow List, Flow Detail Performance, and API responses.</div>
+  <div data-lang="zh" class="sdesc">所有 Re-entry 相关指标在 Workflow List、Flow Detail Performance 及 API 响应中均遵循以下统一定义。</div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Metric <span data-lang="zh" class="inline">/ 指标</span></th>
+      <th class="zh">中文名</th>
+      <th>Formula <span data-lang="zh" class="inline">/ 公式</span></th>
+      <th>Notes <span data-lang="zh" class="inline">/ 说明</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Enrolled Total</td>
+        <td class="zh">总进入次数</td>
+        <td><code>COUNT(enrollment records)</code></td>
+        <td data-lang="en">Counts every entry event, including re-entries. Not unique.</td>
+        <td data-lang="zh">统计所有进入事件，含重入。非去重。</td>
+      </tr>
+      <tr>
+        <td class="field">Unique Users</td>
+        <td class="zh">去重用户数</td>
+        <td><code>COUNT(DISTINCT user_id)</code></td>
+        <td data-lang="en">Distinct users who have entered this flow at least once.</td>
+        <td data-lang="zh">至少进入过一次的去重用户数。</td>
+      </tr>
+      <tr>
+        <td class="field">Avg Entries / User</td>
+        <td class="zh">平均每用户进入次数</td>
+        <td><code>Enrolled Total ÷ Unique Users</code></td>
+        <td data-lang="en">Average re-entry rate per user. Rounded to 1 decimal place.</td>
+        <td data-lang="zh">每用户平均重入率，保留 1 位小数。</td>
+      </tr>
+      <tr>
+        <td class="field">Entries (per user, max)</td>
+        <td class="zh">单用户最大进入次数</td>
+        <td><code>MAX(COUNT per user)</code></td>
+        <td data-lang="en">The single highest entry count for any user in this flow.</td>
+        <td data-lang="zh">该 Flow 中任一用户的最高进入次数。</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-note">
+    <strong data-lang="en">Relationship:</strong>
+    <code>Enrolled Total = Σ all entry events</code> &nbsp;·&nbsp;
+    <code>Unique Users = deduplicated user count</code> &nbsp;·&nbsp;
+    <code>Avg Entries = Enrolled Total / Unique Users</code> &nbsp;·&nbsp;
+    <code>Entries (max) = max single-user entry count</code>
+    <div data-lang="zh" style="margin-top:6px;">
+      <strong>关系说明：</strong>
+      总进入次数 = 所有进入事件之和 · 去重用户数 = 去重后的用户数 · 平均进入次数 = 总进入次数 / 去重用户数 · 最大进入次数 = 单用户最高进入次数
+    </div>
+  </div>
+</section>
+
+<!-- S9 Acceptance Criteria -->
+<section class="section" id="s9">
+  <div class="stag">09</div>
+  <h2>
+    <span data-lang="en">Acceptance Criteria</span>
+    <span data-lang="zh">验收标准</span>
+  </h2>
+
+  <div class="sub-h">
+    <span data-lang="en">Re-entry Trigger</span>
+    <span data-lang="zh">Re-entry 触发</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th>
+      <th>Criterion <span data-lang="zh" class="inline">/ 验收条件</span></th>
+      <th class="zh">说明</th>
+      <th>Expected Result <span data-lang="zh" class="inline">/ 预期结果</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">AC-01</td>
+        <td data-lang="en">Allow Re-entry is OFF (default)</td>
+        <td data-lang="zh">Allow Re-entry 默认关闭</td>
+        <td class="zh">默认关</td>
+        <td data-lang="en">Flow behaves as single-entry. Re-entry trigger basis section hidden.</td>
+        <td data-lang="zh">Flow 保持单次进入行为，Re-entry trigger basis 区域隐藏。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-02</td>
+        <td data-lang="en">User newly meets Time-based Condition (EDD enters configured range)</td>
+        <td data-lang="zh">用户新满足 Time-based Condition</td>
+        <td class="zh">EDD 进入配置区间</td>
+        <td data-lang="en">New enrollment record created. User routed to matching branch.</td>
+        <td data-lang="zh">创建新进入记录，用户路由至匹配分支。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-03</td>
+        <td data-lang="en">User already has a Running enrollment</td>
+        <td data-lang="zh">用户已有 Running 进入记录</td>
+        <td class="zh">已有 Running 进入</td>
+        <td data-lang="en">New trigger is blocked. No new enrollment created.</td>
+        <td data-lang="zh">新触发被阻断，不创建新进入记录。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-04</td>
+        <td data-lang="en">User triggers same condition again (no state change)</td>
+        <td data-lang="zh">同一条件重复触发</td>
+        <td class="zh">条件无变化</td>
+        <td data-lang="en">No new enrollment. Re-entry requires condition change.</td>
+        <td data-lang="zh">不创建新进入，Re-entry 需条件变化。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-05</td>
+        <td data-lang="en">Previous run is Completed / Exited / Failed, user meets new condition</td>
+        <td data-lang="zh">前次已终态，用户满足新条件</td>
+        <td class="zh">前次终态 + 新条件</td>
+        <td data-lang="en">New enrollment created. Re-entry allowed.</td>
+        <td data-lang="zh">创建新进入记录，允许重入。</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">
+    <span data-lang="en">UI &amp; Configuration</span>
+    <span data-lang="zh">UI 与配置</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>#</th>
+      <th>Criterion <span data-lang="zh" class="inline">/ 验收条件</span></th>
+      <th class="zh">说明</th>
+      <th>Expected Result <span data-lang="zh" class="inline">/ 预期结果</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">AC-06</td>
+        <td data-lang="en">Trigger category set to Time-based Condition</td>
+        <td data-lang="zh">Trigger category 选择 Time-based Condition</td>
+        <td class="zh">选择 Time-based Condition</td>
+        <td data-lang="en">Canvas Start point shows "Time-based Condition" label. Branch 1 + Else auto-generated on save.</td>
+        <td data-lang="zh">画板 Start point 显示"Time-based Condition"标签，保存后自动生成 Branch 1 + Else。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-07</td>
+        <td data-lang="en">Else branch deletion attempt</td>
+        <td data-lang="zh">尝试删除 Else 分支</td>
+        <td class="zh">删除 Else</td>
+        <td data-lang="en">Else branch cannot be deleted. Delete action is disabled.</td>
+        <td data-lang="zh">Else 分支不可删除，删除操作置灰。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-08</td>
+        <td data-lang="en">Repeated condition match option interaction</td>
+        <td data-lang="zh">Repeated condition match 选项交互</td>
+        <td class="zh">选项置灰</td>
+        <td data-lang="en">Option is visible but greyed out with Phase 1 disabled label. Cannot be selected.</td>
+        <td data-lang="zh">选项可见但置灰，显示 Phase 1 禁用说明，无法选中。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-09</td>
+        <td data-lang="en">Entries (per user, max) displayed in Workflow List</td>
+        <td data-lang="zh">Workflow List 展示 Entries (per user, max)</td>
+        <td class="zh">列表显示最大进入次数</td>
+        <td data-lang="en">New column shows correct MAX value per flow. Legacy flows show 1.</td>
+        <td data-lang="zh">新列正确显示各 Flow 的 MAX 值，历史 Flow 显示 1。</td>
+      </tr>
+      <tr>
+        <td class="field">AC-10</td>
+        <td data-lang="en">User Journey shows all entries in order</td>
+        <td data-lang="zh">User Journey 按序展示所有进入</td>
+        <td class="zh">时序展示</td>
+        <td data-lang="en">All enrollment records shown ascending by enrolled_at. Entry #1, #2, #3 labeled correctly.</td>
+        <td data-lang="zh">所有进入记录按 enrolled_at 升序展示，序号标注正确。</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S10 Risks & Mitigations -->
+<section class="section" id="s10">
+  <div class="stag">10</div>
+  <h2>
+    <span data-lang="en">Risks &amp; Mitigations</span>
+    <span data-lang="zh">风险与缓解措施</span>
+  </h2>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Risk <span data-lang="zh" class="inline">/ 风险</span></th>
+      <th class="zh">说明</th>
+      <th>Severity <span data-lang="zh" class="inline">/ 严重性</span></th>
+      <th>Mitigation <span data-lang="zh" class="inline">/ 缓解措施</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td data-lang="en">Over-messaging due to repeated condition match</td>
+        <td data-lang="zh">重复条件匹配导致过度触达</td>
+        <td class="zh">重复匹配 → 过度触达</td>
+        <td><span class="sev-h">HIGH</span></td>
+        <td data-lang="en">Repeated condition match disabled in Phase 1. Only Time-based Condition (new condition transition) is supported.</td>
+        <td data-lang="zh">Phase 1 禁用 Repeated condition match，仅支持 Time-based Condition（新条件转变）。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Concurrent active enrollments for same user</td>
+        <td data-lang="zh">同一用户并发活跃进入</td>
+        <td class="zh">并发进入</td>
+        <td><span class="sev-h">HIGH</span></td>
+        <td data-lang="en">Concurrency Rule R1: Block re-entry while previous run is Running. Enforced at enrollment creation time.</td>
+        <td data-lang="zh">并发控制规则 R1：前次 Running 时阻断重入，在进入记录创建时强制执行。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">EDD branch range overlap causing incorrect routing</td>
+        <td data-lang="zh">EDD 分支区间重叠导致路由错误</td>
+        <td class="zh">区间重叠 → 路由错误</td>
+        <td><span class="sev-m">MEDIUM</span></td>
+        <td data-lang="en">First-match-wins evaluation order. Validate for overlapping ranges on save and surface a warning to the operator.</td>
+        <td data-lang="zh">采用"第一匹配优先"的评估顺序，保存时校验区间重叠并向运营人员展示警告。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Legacy flow data disruption</td>
+        <td data-lang="zh">旧版 Flow 数据被破坏</td>
+        <td class="zh">旧 Flow 数据影响</td>
+        <td><span class="sev-m">MEDIUM</span></td>
+        <td data-lang="en">Allow Re-entry defaults to OFF. Legacy flows are unaffected unless explicitly enabled.</td>
+        <td data-lang="zh">Allow Re-entry 默认关闭，旧 Flow 不受影响，除非显式开启。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Metrics inflation misrepresenting flow performance</td>
+        <td data-lang="zh">指标膨胀影响 Flow 性能判断</td>
+        <td class="zh">指标膨胀</td>
+        <td><span class="sev-l">LOW</span></td>
+        <td data-lang="en">Clearly separate Enrolled Total (all events) from Unique Users (deduplicated). Document metric definitions prominently.</td>
+        <td data-lang="zh">明确区分 Enrolled Total（所有事件）与 Unique Users（去重），在 UI 中突出指标定义。</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- APPENDIX: Backend Implementation Reference -->
+<section class="section" id="s-backend">
+  <div class="stag">Appendix</div>
+  <h2>
+    <span data-lang="en">Backend Implementation Reference <span class="en">后端实现参考</span></span>
+    <span data-lang="zh">后端实现参考</span>
+  </h2>
+
+  <div class="callout c-note">
+    <strong data-lang="en">📌 Note:</strong>
+    <span data-lang="en"> This section is a <strong>reference only</strong> — it describes one reasonable way to implement the requirements. The actual data model, table structure, and implementation approach are at the backend team's discretion. What matters is that the behavior described in the PRD is correctly implemented and passes the Acceptance Criteria.</span>
+    <strong data-lang="zh">📌 说明：</strong>
+    <span data-lang="zh"> 本章节仅为<strong>实现参考</strong>，描述的是一种合理的实现思路。实际数据模型、表结构和实现方式由后端团队自行决定。关键是确保行为符合 PRD 描述，并通过验收标准。</span>
+  </div>
+
+  <!-- A.1 Data Model -->
+  <div class="sub-h" id="s-backend-model">
+    <span data-lang="en">A.1 Suggested Data Model</span>
+    <span data-lang="zh">A.1 建议数据模型</span>
+  </div>
+
+  <div data-lang="en" class="sdesc">The following tables illustrate the key fields needed to support Re-entry logic. Column names and types are illustrative — adapt to your stack.</div>
+  <div data-lang="zh" class="sdesc">以下表格展示支持 Re-entry 逻辑所需的关键字段，字段名和类型仅供参考，请根据实际技术栈调整。</div>
+
+  <div class="sub-h" style="font-size:13px;">
+    <span data-lang="en">flow_branch — Branch configuration per flow</span>
+    <span data-lang="zh">flow_branch — 每个 Flow 的分支配置</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Column <span data-lang="zh" class="inline">/ 字段</span></th>
+      <th>Type <span data-lang="zh" class="inline">/ 类型</span></th>
+      <th>Description <span data-lang="zh" class="inline">/ 说明</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="field">id</td><td>UUID</td>
+        <td data-lang="en">Branch unique identifier</td>
+        <td data-lang="zh">分支唯一标识</td>
+      </tr>
+      <tr><td class="field">flow_id</td><td>UUID</td>
+        <td data-lang="en">Parent flow reference</td>
+        <td data-lang="zh">所属 Flow 的引用</td>
+      </tr>
+      <tr><td class="field">branch_type</td><td>ENUM</td>
+        <td data-lang="en"><code>condition</code> | <code>else</code> — Else branch is permanent and cannot be deleted</td>
+        <td data-lang="zh"><code>condition</code> | <code>else</code> — Else 分支永久存在，不可删除</td>
+      </tr>
+      <tr><td class="field">edd_min_days</td><td>INT</td>
+        <td data-lang="en">Minimum EDD days from now (inclusive). NULL for Else branch.</td>
+        <td data-lang="zh">EDD 距今最小天数（含），Else 分支为 NULL</td>
+      </tr>
+      <tr><td class="field">edd_max_days</td><td>INT</td>
+        <td data-lang="en">Maximum EDD days from now (inclusive). NULL for Else branch.</td>
+        <td data-lang="zh">EDD 距今最大天数（含），Else 分支为 NULL</td>
+      </tr>
+      <tr><td class="field">sort_order</td><td>INT</td>
+        <td data-lang="en">Evaluation priority order — lower value evaluated first (first-match-wins)</td>
+        <td data-lang="zh">评估优先级顺序，值越小越先评估（第一匹配优先）</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h" style="font-size:13px;">
+    <span data-lang="en">enrollment — One record per user entry event</span>
+    <span data-lang="zh">enrollment — 每次用户进入事件一条记录</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Column <span data-lang="zh" class="inline">/ 字段</span></th>
+      <th>Type <span data-lang="zh" class="inline">/ 类型</span></th>
+      <th>Description <span data-lang="zh" class="inline">/ 说明</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="field">id</td><td>UUID</td>
+        <td data-lang="en">Enrollment unique identifier</td>
+        <td data-lang="zh">进入记录唯一标识</td>
+      </tr>
+      <tr><td class="field">flow_id</td><td>UUID</td>
+        <td data-lang="en">Which flow this enrollment belongs to</td>
+        <td data-lang="zh">所属 Flow</td>
+      </tr>
+      <tr><td class="field">user_id</td><td>UUID</td>
+        <td data-lang="en">The enrolled user</td>
+        <td data-lang="zh">进入的用户</td>
+      </tr>
+      <tr><td class="field">branch_id</td><td>UUID</td>
+        <td data-lang="en">Which branch the user was routed to. <strong>NULL for Else</strong> — Else does not create an enrollment record (see A.3)</td>
+        <td data-lang="zh">用户被路由到的分支。<strong>Else 不创建 enrollment 记录</strong>（见 A.3），此时为 NULL</td>
+      </tr>
+      <tr><td class="field">entry_number</td><td>INT</td>
+        <td data-lang="en">Sequential entry count for this user in this flow (1, 2, 3 …)</td>
+        <td data-lang="zh">该用户在此 Flow 中的进入序号（1、2、3…）</td>
+      </tr>
+      <tr><td class="field">status</td><td>ENUM</td>
+        <td data-lang="en"><code>running</code> | <code>completed</code> | <code>exited</code> | <code>failed</code></td>
+        <td data-lang="zh"><code>running</code> | <code>completed</code> | <code>exited</code> | <code>failed</code></td>
+      </tr>
+      <tr><td class="field">enrolled_at</td><td>TIMESTAMP</td>
+        <td data-lang="en">When this enrollment was created</td>
+        <td data-lang="zh">本次进入的创建时间</td>
+      </tr>
+      <tr><td class="field">completed_at</td><td>TIMESTAMP?</td>
+        <td data-lang="en">When this enrollment reached a terminal state. NULL if still running.</td>
+        <td data-lang="zh">本次进入达到终态的时间，仍运行中时为 NULL</td>
+      </tr>
+      <tr><td class="field">edd_snapshot</td><td>DATE?</td>
+        <td data-lang="en">The user's EDD value at the time of enrollment — recommended for audit purposes</td>
+        <td data-lang="zh">进入时用户的 EDD 快照值，建议记录以便审计</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- A.2 Daily Evaluation Pseudocode -->
+  <div class="sub-h" id="s-backend-eval">
+    <span data-lang="en">A.2 Daily Evaluation — Suggested Logic</span>
+    <span data-lang="zh">A.2 每日评估 — 建议逻辑</span>
+  </div>
+
+  <div data-lang="en" class="sdesc">Runs once per day as a batch job. The following pseudocode illustrates the evaluation sequence — the actual implementation may differ.</div>
+  <div data-lang="zh" class="sdesc">每日作为批量任务运行一次。以下伪代码展示评估顺序，实际实现方式可能不同。</div>
+
+  <div class="bi">
+    <div class="bi-label">Pseudocode — Daily Re-entry Evaluation / 每日 Re-entry 评估伪代码</div>
+    <div class="bi-en">
+<pre><span class="c">-- Runs daily, e.g. UTC+8 00:00–02:00
+-- 每日运行，如 UTC+8 00:00–02:00</span>
+
+FOR EACH flow WHERE allow_reentry = true AND status = 'active':
+
+  FOR EACH user IN flow.eligible_users:
+
+    today_edd_days = DATEDIFF(user.edd, TODAY)  <span class="c">-- days until EDD</span>
+
+    <span class="c">-- Step 1: Find the first matching branch (sort_order ASC)</span>
+    <span class="c">-- 步骤 1：找到第一个匹配的分支（按 sort_order 升序）</span>
+    matched_branch = NULL
+    FOR EACH branch IN flow.branches WHERE branch_type = 'condition'
+                                    ORDER BY sort_order ASC:
+      IF today_edd_days >= branch.edd_min_days
+         AND today_edd_days <= branch.edd_max_days:
+        matched_branch = branch
+        BREAK
+
+    <span class="c">-- Step 2: If no branch matched, user is in Else → skip, no enrollment</span>
+    <span class="c">-- 步骤 2：无匹配分支 → 用户在 Else 状态，跳过，不创建 enrollment</span>
+    IF matched_branch IS NULL: CONTINUE
+
+    <span class="c">-- Step 3: R1 — Block if user has a Running enrollment in this flow</span>
+    <span class="c">-- 步骤 3：R1 — 用户在此 Flow 有 Running 记录则阻断</span>
+    IF EXISTS enrollment WHERE flow_id = flow.id
+                          AND user_id = user.id
+                          AND status = 'running':
+      CONTINUE  <span class="c">-- blocked by R1</span>
+
+    <span class="c">-- Step 4: R2 — Block if user already entered this flow via this branch</span>
+    <span class="c">-- 步骤 4：R2 — 用户在此 Flow 内已通过该分支进入过则阻断</span>
+    IF EXISTS enrollment WHERE flow_id = flow.id
+                          AND user_id = user.id
+                          AND branch_id = matched_branch.id:
+      CONTINUE  <span class="c">-- blocked by R2 (flow-level, same branch)</span>
+
+    <span class="c">-- Step 5: R3 — Previous run must be in terminal state (or no prior run)</span>
+    <span class="c">-- 步骤 5：R3 — 前次运行需为终态（或无历史记录）</span>
+    last_enrollment = SELECT * FROM enrollment
+                      WHERE flow_id = flow.id AND user_id = user.id
+                      ORDER BY enrolled_at DESC LIMIT 1
+
+    IF last_enrollment IS NOT NULL
+       AND last_enrollment.status = 'running':
+      CONTINUE  <span class="c">-- already caught by R1, defensive check</span>
+
+    <span class="c">-- Step 6: All checks passed → create new enrollment</span>
+    <span class="c">-- 步骤 6：所有检查通过 → 创建新 enrollment</span>
+    CREATE enrollment:
+      flow_id      = flow.id
+      user_id      = user.id
+      branch_id    = matched_branch.id
+      entry_number = COUNT(existing enrollments for this user/flow) + 1
+      status       = 'running'
+      enrolled_at  = NOW()
+      edd_snapshot = user.edd</pre>
+    </div>
+  </div>
+
+  <div class="callout c-note">
+    <strong data-lang="en">EDD data source:</strong>
+    <span data-lang="en"> The evaluation uses the user's <strong>current EDD value</strong> at the time of the daily job — not a snapshot from a previous date. If a user updates her EDD, the new value takes effect in the next daily evaluation cycle.</span>
+    <strong data-lang="zh">EDD 数据来源：</strong>
+    <span data-lang="zh"> 评估使用每日任务执行时用户的<strong>当前 EDD 值</strong>，而非历史快照。如果用户更新了 EDD，新值在下一个每日评估周期生效。</span>
+  </div>
+
+  <!-- A.3 R2 Judgment Logic -->
+  <div class="sub-h" id="s-backend-r2">
+    <span data-lang="en">A.3 R2 Judgment — How "Same Branch" Is Determined</span>
+    <span data-lang="zh">A.3 R2 判断 — "相同分支"如何认定</span>
+  </div>
+
+  <div data-lang="en" class="sdesc">R2 blocks re-entry when a user has already been enrolled via the same branch within the same flow. The judgment is based on <code>branch_id</code> — not on day range string matching.</div>
+  <div data-lang="zh" class="sdesc">R2 在用户已通过同一 Flow 内同一分支进入过时阻断重入。判断依据是 <code>branch_id</code>，而非天数区间字符串匹配。</div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Scenario <span data-lang="zh" class="inline">/ 场景</span></th>
+      <th class="zh">说明</th>
+      <th>R2 Result <span data-lang="zh" class="inline">/ R2 判断</span></th>
+      <th>Reason <span data-lang="zh" class="inline">/ 原因</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td data-lang="en">User previously enrolled via Branch 1 (86–120 days). EDD still in 86–120 range.</td>
+        <td data-lang="zh">用户已通过 Branch 1（86–120天）进入过，EDD 仍在 86–120 天区间。</td>
+        <td class="zh">已通过 Branch 1 进入，EDD 未变</td>
+        <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
+        <td data-lang="en">Same <code>branch_id</code> already exists in enrollment table for this user + flow</td>
+        <td data-lang="zh">enrollment 表中已存在该用户 + 该 Flow + 相同 <code>branch_id</code> 的记录</td>
+      </tr>
+      <tr>
+        <td data-lang="en">User previously enrolled via Branch 1. EDD has now moved into Branch 2 range (75–85 days).</td>
+        <td data-lang="zh">用户已通过 Branch 1 进入，EDD 已进入 Branch 2 区间（75–85天）。</td>
+        <td class="zh">Branch 1 已进入，EDD 进入 Branch 2</td>
+        <td><span style="color:var(--green);font-weight:600;">✅ Allowed</span></td>
+        <td data-lang="en">Different <code>branch_id</code> — Branch 2 has never been enrolled in this flow</td>
+        <td data-lang="zh">不同 <code>branch_id</code>，Branch 2 在此 Flow 内从未进入过</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Operator edits Branch 1 day range from 86–120 to 80–120. User had already entered the old Branch 1.</td>
+        <td data-lang="zh">运营将 Branch 1 天数从 86–120 改为 80–120，用户已进入过旧的 Branch 1。</td>
+        <td class="zh">分支配置修改后，用户已进入过该分支</td>
+        <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
+        <td data-lang="en"><code>branch_id</code> is unchanged even if the range is edited — same branch ID = still blocked</td>
+        <td data-lang="zh"><code>branch_id</code> 不因区间修改而变化，同一 branch_id = 仍然阻断</td>
+      </tr>
+      <tr>
+        <td data-lang="en">User enrolled via Branch 1 in Flow A. Same user, same branch range configured in Flow B.</td>
+        <td data-lang="zh">用户在 Flow A 通过 Branch 1 进入，Flow B 中配置了相同天数区间的分支。</td>
+        <td class="zh">跨 Flow 相同区间</td>
+        <td><span style="color:var(--green);font-weight:600;">✅ Allowed</span></td>
+        <td data-lang="en">R2 is scoped to one flow. Cross-flow entries are always independent.</td>
+        <td data-lang="zh">R2 仅限 Flow 内，跨 Flow 进入完全独立。</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- A.4 Overlap Validation -->
+  <div class="sub-h" id="s-backend-overlap">
+    <span data-lang="en">A.4 Branch Range Overlap Validation</span>
+    <span data-lang="zh">A.4 分支区间重叠校验</span>
+  </div>
+
+  <div data-lang="en" class="sdesc">Triggered on flow save. Can be implemented on the frontend, backend, or both. Suggested logic:</div>
+  <div data-lang="zh" class="sdesc">在 Flow 保存时触发，可在前端、后端或两者同时实现。建议逻辑如下：</div>
+
+  <div class="bi">
+    <div class="bi-label">Pseudocode — Overlap Detection / 重叠检测伪代码</div>
+    <div class="bi-en">
+<pre><span class="c">-- Check all condition branches (exclude Else) for overlapping ranges
+-- 检查所有 condition 分支（排除 Else）是否有区间重叠</span>
+
+branches = GET all branches WHERE branch_type = 'condition'
+           ORDER BY edd_min_days ASC
+
+overlaps = []
+
+FOR i IN 0..len(branches)-2:
+  a = branches[i]
+  b = branches[i+1]
+
+  <span class="c">-- Two ranges overlap if one starts before the other ends</span>
+  <span class="c">-- 若一个区间在另一个结束前开始，则重叠</span>
+  IF a.edd_max_days >= b.edd_min_days:
+    overlaps.append({
+      branch_a: a.id,
+      branch_b: b.id,
+      overlap_range: [b.edd_min_days, a.edd_max_days]
+    })
+
+IF len(overlaps) > 0:
+  <span class="c">-- Return warning — do not block save, but surface to operator</span>
+  <span class="c">-- 返回警告——不阻断保存，但向运营人员展示警告弹窗</span>
+  RETURN { warning: true, overlaps: overlaps }</pre>
+    </div>
+  </div>
+
+  <div class="callout c-warn">
+    <strong data-lang="en">⚠ Warning vs Hard Block:</strong>
+    <span data-lang="en"> Overlap detection shows a <strong>warning dialog</strong> — it does not hard-block the save. Operators can acknowledge and save anyway (at their own risk). Publishing a flow with overlapping ranges is allowed, with first-match-wins applied at evaluation time. Consider adding a stronger warning or block at publish time.</span>
+    <strong data-lang="zh">⚠ 警告 vs 强制阻断：</strong>
+    <span data-lang="zh"> 重叠检测展示<strong>警告弹窗</strong>，不强制阻断保存。运营人员可确认后继续保存（风险自担）。存在重叠区间的 Flow 允许发布，评估时采用第一匹配优先原则。可考虑在发布时加强警告或设为强制阻断。</span>
+  </div>
+
+  <!-- A.5 Else Behavior -->
+  <div class="sub-h" id="s-backend-else">
+    <span data-lang="en">A.5 Else Branch — Implementation Note</span>
+    <span data-lang="zh">A.5 Else 分支 — 实现说明</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Behavior <span data-lang="zh" class="inline">/ 行为</span></th>
+      <th class="zh">说明</th>
+      <th>Implementation Note <span data-lang="zh" class="inline">/ 实现说明</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td data-lang="en">Else does NOT create an enrollment record</td>
+        <td data-lang="zh">Else 不创建 enrollment 记录</td>
+        <td class="zh">不写入 enrollment 表</td>
+        <td data-lang="en">When the daily evaluation finds no matching condition branch, the user is skipped entirely. No row is written to the enrollment table. The user remains in an implicit "waiting" state.</td>
+        <td data-lang="zh">每日评估未找到匹配的 condition 分支时，直接跳过该用户，不向 enrollment 表写入任何记录。用户处于隐式"等待"状态。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Else → Branch transition triggers re-entry</td>
+        <td data-lang="zh">Else → Branch 转变触发重入</td>
+        <td class="zh">视为新满足条件</td>
+        <td data-lang="en">Because no enrollment record exists for Else, the R2 check finds no prior entry for the matched branch — re-entry is allowed. No special "Else state" tracking is required.</td>
+        <td data-lang="zh">由于 Else 未创建 enrollment 记录，R2 检查找不到该分支的历史进入记录，重入被允许。无需额外追踪"Else 状态"。</td>
+      </tr>
+      <tr>
+        <td data-lang="en">Else branch cannot be deleted</td>
+        <td data-lang="zh">Else 分支不可删除</td>
+        <td class="zh">前端禁用删除操作</td>
+        <td data-lang="en">Enforced at the UI level — delete action is disabled for <code>branch_type = 'else'</code>. Can also add a backend guard to reject DELETE requests for Else branches.</td>
+        <td data-lang="zh">在 UI 层强制执行，<code>branch_type = 'else'</code> 的分支删除操作置灰。也可在后端添加防护，拒绝 Else 分支的 DELETE 请求。</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- A.6 Key Queries -->
+  <div class="sub-h" id="s-backend-queries">
+    <span data-lang="en">A.6 Key Query References</span>
+    <span data-lang="zh">A.6 关键查询参考</span>
+  </div>
+
+  <div class="bi">
+    <div class="bi-label">SQL — Entries (per user, max)</div>
+    <div class="bi-en">
+<pre><span class="c">-- Workflow List: Entries (per user, max) per flow</span>
+SELECT MAX(entry_count) AS entries_per_user_max
+FROM (
+  SELECT user_id, COUNT(*) AS entry_count
+  FROM enrollment
+  WHERE flow_id = :flow_id
+  GROUP BY user_id
+) sub</pre>
+    </div>
+  </div>
+
+  <div class="bi">
+    <div class="bi-label">SQL — Metrics Summary (Enrolled Total / Unique Users / Avg)</div>
+    <div class="bi-en">
+<pre>SELECT
+  COUNT(*)                          AS enrolled_total,
+  COUNT(DISTINCT user_id)           AS unique_users,
+  ROUND(COUNT(*) * 1.0
+        / NULLIF(COUNT(DISTINCT user_id), 0), 1)
+                                    AS avg_entries_per_user,
+  MAX(user_entry_counts.cnt)        AS entries_per_user_max
+FROM enrollment
+LEFT JOIN (
+  SELECT user_id, COUNT(*) AS cnt
+  FROM enrollment WHERE flow_id = :flow_id GROUP BY user_id
+) user_entry_counts USING (user_id)
+WHERE flow_id = :flow_id</pre>
+    </div>
+  </div>
+
+  <div class="bi">
+    <div class="bi-label">SQL — R1 Check (is user currently Running?)</div>
+    <div class="bi-en">
+<pre><span class="c">-- Returns true if user has a Running enrollment → block re-entry</span>
+SELECT EXISTS (
+  SELECT 1 FROM enrollment
+  WHERE flow_id = :flow_id
+    AND user_id  = :user_id
+    AND status   = 'running'
+) AS is_running</pre>
+    </div>
+  </div>
+
+  <div class="bi">
+    <div class="bi-label">SQL — R2 Check (has user entered this branch before?)</div>
+    <div class="bi-en">
+<pre><span class="c">-- Returns true if user already entered this branch → block re-entry</span>
+SELECT EXISTS (
+  SELECT 1 FROM enrollment
+  WHERE flow_id   = :flow_id
+    AND user_id   = :user_id
+    AND branch_id = :matched_branch_id
+) AS already_entered_branch</pre>
+    </div>
+  </div>
+
+</section>
+
+<hr class="div">
+
+<!-- Glossary -->
+<section class="section" id="glossary">
+  <h2>
+    <span data-lang="en">Glossary</span>
+    <span data-lang="zh">术语表</span>
+  </h2>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Term <span data-lang="zh" class="inline">/ 术语</span></th>
+      <th>Definition (EN)</th>
+      <th class="zh">定义（中文）</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Re-entry</td>
+        <td>The ability for a user to enter a flow more than once, triggered by meeting a new condition.</td>
+        <td class="zh">用户在满足新条件时，多次进入同一 Flow 的能力。</td>
+      </tr>
+      <tr>
+        <td class="field">Time-based Condition</td>
+        <td>A trigger type evaluated continuously based on time-sensitive attributes (e.g. EDD day range). Fires when a user newly meets the condition.</td>
+        <td class="zh">基于时间敏感属性（如 EDD 天数区间）持续评估的触发类型，用户新满足条件时触发。</td>
+      </tr>
+      <tr>
+        <td class="field">EDD</td>
+        <td>Estimated Due Date — the user's expected pregnancy delivery date, used as the primary time-based attribute.</td>
+        <td class="zh">预产期（Estimated Due Date）——用户预计分娩日期，用作主要的时间属性。</td>
+      </tr>
+      <tr>
+        <td class="field">Enrollment</td>
+        <td>A single entry event of a user into a flow. Multiple enrollments can exist per user if Re-entry is enabled.</td>
+        <td class="zh">用户进入 Flow 的单次事件。启用 Re-entry 后，同一用户可有多条进入记录。</td>
+      </tr>
+      <tr>
+        <td class="field">Concurrency Control</td>
+        <td>Rules that govern whether a new enrollment is allowed when a user already has an active run in the same flow.</td>
+        <td class="zh">控制同一用户在同一 Flow 已有活跃运行时，是否允许新进入的规则集。</td>
+      </tr>
+      <tr>
+        <td class="field">Branch</td>
+        <td>A conditional path in the flow, defined by an EDD day range. Users are routed to the first matching branch.</td>
+        <td class="zh">Flow 中由 EDD 天数区间定义的条件路径，用户被路由至第一个匹配的分支。</td>
+      </tr>
+      <tr>
+        <td class="field">Else Branch</td>
+        <td>The permanent fallback branch that catches users who do not match any configured EDD range. Cannot be deleted.</td>
+        <td class="zh">永久兜底分支，捕获不匹配任何已配置 EDD 区间的用户，不可删除。</td>
+      </tr>
+      <tr>
+        <td class="field">Running</td>
+        <td>The active state of an enrollment — the user is currently progressing through the flow.</td>
+        <td class="zh">进入记录的活跃状态，用户正在 Flow 中运行。</td>
+      </tr>
+      <tr>
+        <td class="field">Enrolled Total</td>
+        <td>Total count of all enrollment events for a flow, including re-entries. Not deduplicated.</td>
+        <td class="zh">Flow 的所有进入事件总数，含重入，非去重。</td>
+      </tr>
+      <tr>
+        <td class="field">Unique Users</td>
+        <td>Count of distinct users who have entered a flow at least once.</td>
+        <td class="zh">至少进入过一次 Flow 的去重用户数。</td>
+      </tr>
+      <tr>
+        <td class="field">User Journey</td>
+        <td>A chronological view of all enrollment records for a specific user in a specific flow.</td>
+        <td class="zh">特定用户在特定 Flow 中所有进入记录的时间顺序视图。</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- Sign-off -->
+<section class="section" id="signoff">
+  <h2>
+    <span data-lang="en">Sign-off</span>
+    <span data-lang="zh">审批签字</span>
+  </h2>
+  <div data-lang="en" class="sdesc">This document requires review and sign-off from the following roles before becoming effective.</div>
+  <div data-lang="zh" class="sdesc">本文档在生效前需经以下角色审阅并签字确认。</div>
+  <div class="signoff-grid">
+    <div class="signoff-cell">
+      <div class="signoff-role">Product</div>
+      <div class="signoff-name">——</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">
+        <span data-lang="en">Signature / Date</span>
+        <span data-lang="zh">签字 / 日期</span>
+      </div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role">Engineering</div>
+      <div class="signoff-name">——</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">
+        <span data-lang="en">Signature / Date</span>
+        <span data-lang="zh">签字 / 日期</span>
+      </div>
+    </div>
+    <div class="signoff-cell">
+      <div class="signoff-role">Design</div>
+      <div class="signoff-name">——</div>
+      <div class="signoff-line"></div>
+      <div class="signoff-label">
+        <span data-lang="en">Signature / Date</span>
+        <span data-lang="zh">签字 / 日期</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Revision History -->
+<section class="section" id="revision">
+  <h2>
+    <span data-lang="en">Revision History</span>
+    <span data-lang="zh">版本历史</span>
+  </h2>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Version <span data-lang="zh" class="inline">/ 版本</span></th>
+      <th>Date <span data-lang="zh" class="inline">/ 日期</span></th>
+      <th>Author <span data-lang="zh" class="inline">/ 作者</span></th>
+      <th>Changes <span data-lang="zh" class="inline">/ 变更说明</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">v1.0</td>
+        <td>2026-05-25</td>
+        <td>Product Team</td>
+        <td data-lang="en">Initial draft — Re-entry feature with Time-based Condition trigger, full UI field definitions, concurrency control, metrics system.</td>
+        <td data-lang="zh">初稿——Re-entry 功能，含 Time-based Condition 触发、完整 UI 字段定义、并发控制及指标体系。</td>
+      </tr>
+      <tr>
+        <td class="field">v1.2</td>
+        <td>2026-05-25</td>
+        <td>Product Team</td>
+        <td data-lang="en">Added Appendix: Backend Implementation Reference — suggested data model (flow_branch, enrollment tables), daily evaluation pseudocode, R2 judgment logic (branch_id based), overlap validation pseudocode, Else branch implementation note, and 4 key SQL query references. All marked as reference only.</td>
+        <td data-lang="zh">新增附录：后端实现参考——建议数据模型（flow_branch、enrollment 表）、每日评估伪代码、R2 判断逻辑（基于 branch_id）、重叠检测伪代码、Else 分支实现说明及 4 条关键 SQL 查询参考。全部标注为仅供参考。</td>
+      </tr>
+        <td data-lang="en">Added Executive Summary page. Confirmed 4 key decisions: R2 scope (Flow-level), Else branch behavior (no enrollment, triggers on new range), evaluation frequency (daily batch), branch overlap (save-time validation + warning). Updated concurrency rules and branch overlap callout accordingly.</td>
+        <td data-lang="zh">新增业务摘要（Executive Summary）页。确认 4 项关键决策：R2 范围（Flow 级别）、Else 分支行为（不创建 enrollment，进入新区间时触发）、评估频率（每日批量）、分支重叠（保存时校验 + 警告弹窗）。同步更新并发规则和区间重叠说明。</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="doc-footer">
+  <span>PRD-MA-REENTRY-xxx · v1.0</span>
+  <span>Marketing Automation · Re-entry &amp; Time-based Condition</span>
+  <span>2026-05-25</span>
+</div>
+
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.classList.toggle('zh-mode', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id], div[id="cover"]');
+const navLinks = document.querySelectorAll('.nl');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nl[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

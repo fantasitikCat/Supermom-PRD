@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTM Implementation Guide v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--border-strong:#c8c5ba;
+  --text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;
+  --accent-soft:#f0ede6;
+  --green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;
+  --amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;
+  --blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;
+  --purple:#4a1a7a;--purple-bg:#f5edf9;--purple-b:#d8b0f0;
+  --red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;
+  --teal:#0a5a52;--teal-bg:#e8f7f5;--teal-b:#8dd4cc;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text-primary);background:var(--bg)}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:26px 0}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.s-tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.s-name{font-size:13px;font-weight:500;line-height:1.3}
+.s-ver{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px}
+.nav-group{margin-bottom:4px}
+.ngl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 20px 3px}
+.nl{display:block;padding:5px 20px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nl:hover{color:var(--text-primary);background:var(--accent-soft);border-left-color:var(--text-primary)}
+.nl .zh{color:var(--text-muted);font-size:11px;margin-left:4px}
+.nl.back{color:var(--blue);font-family:var(--mono);font-size:11px}
+.nl.back:hover{background:var(--blue-bg);border-left-color:var(--blue)}
+
+/* Main */
+.main{padding:50px 58px;max-width:900px}
+
+/* Doc header */
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:2px solid var(--text-primary)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+h1{font-size:25px;font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:12px}
+h1 strong{font-weight:500}
+.desc{font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.65}
+.desc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+.mp{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.mp .l{color:var(--text-muted);font-family:var(--mono);font-size:10px}
+.mp .v{color:var(--text-primary);font-weight:500}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* Sections */
+.section{margin-bottom:60px;scroll-margin-top:28px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+h2{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px;line-height:1.3}
+h2 .zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+h3{font-size:14px;font-weight:500;margin:28px 0 10px}
+h3 .zh{font-size:12px;font-weight:400;color:var(--text-muted);margin-left:5px}
+h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin:20px 0 8px}
+.sdesc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65}
+.sdesc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+hr.div{border:none;border-top:1px solid var(--border);margin:52px 0}
+
+/* Callouts */
+.callout{padding:13px 16px;border-radius:5px;border-left:3px solid;margin:16px 0;font-size:13px;line-height:1.65}
+.callout .zh{display:block;font-size:12px;margin-top:4px;opacity:.85}
+.callout strong{font-weight:500}
+.c-info{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-note{background:var(--accent-soft);border-color:var(--border-strong);color:var(--text-secondary)}
+.c-warn{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-green{background:var(--green-bg);border-color:#2a9a65;color:var(--green)}
+
+/* Tables */
+.tw{overflow-x:auto;margin:14px 0;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--accent-soft)}
+th{padding:8px 13px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+td .zh{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+td .note{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf7}
+code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+
+/* Code blocks */
+pre{background:#1c1b18;color:#d4d0c8;padding:18px 22px;border-radius:6px;font-family:var(--mono);font-size:12px;line-height:1.8;overflow-x:auto;margin:14px 0}
+pre .k{color:#7dd3fc}
+pre .s{color:#86efac}
+pre .n{color:#fbbf24}
+pre .c{color:#6b7280;font-style:italic}
+pre .p{color:#f0abfc}
+pre .b{color:#fb923c}
+
+/* Step blocks */
+.step-list{margin:16px 0}
+.step{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;border:1px solid var(--border);border-radius:6px;background:var(--surface);margin-bottom:10px}
+.step-num{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-muted);flex-shrink:0;min-width:24px;margin-top:1px;background:var(--accent-soft);border:1px solid var(--border);border-radius:3px;padding:2px 6px;text-align:center}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:4px}
+.step-title .zh{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:6px}
+.step-desc{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.step-desc .zh{display:block;color:var(--text-muted);font-size:11px;margin-top:3px}
+
+/* Config blocks */
+.config-block{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:14px 0}
+.config-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border)}
+.config-name{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text-primary)}
+.config-type{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px}
+.ct-var{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-b)}
+.ct-trigger{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.ct-tag{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.ct-custom{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-b)}
+.config-body{padding:14px 16px;font-size:12.5px;color:var(--text-secondary)}
+.config-row{display:flex;gap:12px;margin-bottom:7px;align-items:flex-start}
+.config-row:last-child{margin-bottom:0}
+.config-label{font-family:var(--mono);font-size:10px;color:var(--text-muted);min-width:130px;flex-shrink:0;padding-top:1px}
+.config-val{color:var(--text-primary);font-size:12.5px}
+.config-val code{font-size:11.5px}
+
+/* Owner badges */
+.own{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px;white-space:nowrap;font-weight:500}
+.ofe{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.obe{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-b)}
+.ogtm{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.ocms{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+
+/* QA checklist */
+.qa-list{margin:14px 0}
+.qa-item{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:5px;background:var(--surface);margin-bottom:6px;font-size:12.5px}
+.qa-check{width:16px;height:16px;border:1.5px solid var(--border-strong);border-radius:3px;flex-shrink:0;margin-top:1px}
+.qa-text{color:var(--text-secondary);flex:1;line-height:1.55}
+.qa-text .zh{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+.qa-tag{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;flex-shrink:0}
+.qa-crit{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.qa-norm{background:var(--accent-soft);color:var(--text-muted);border:1px solid var(--border)}
+
+/* Naming table */
+.naming-example{font-family:var(--mono);font-size:11px;color:var(--green);background:var(--green-bg);padding:2px 7px;border-radius:3px;border:1px solid var(--green-b)}
+.naming-bad{font-family:var(--mono);font-size:11px;color:var(--red);background:var(--red-bg);padding:2px 7px;border-radius:3px;border:1px solid var(--red-b)}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:26px 18px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="s-tag">Tracking · GTM</div>
+    <div class="s-name">GTM Implementation Guide</div>
+    <div class="s-ver">v1.0 — May 2025</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="ngl">Setup 初始配置</div>
+    <a class="nl" href="#naming">Naming convention <span class="zh">命名规范</span></a>
+    <a class="nl" href="#variables">Variables <span class="zh">变量</span></a>
+    <a class="nl" href="#triggers">Triggers <span class="zh">触发器</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Tags 标签</div>
+    <a class="nl" href="#tags-overview">Tag overview <span class="zh">标签总览</span></a>
+    <a class="nl" href="#tag-ga4-config">GA4 Config Tag</a>
+    <a class="nl" href="#tag-dataLayer">dataLayer Tags <span class="zh">事件标签</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Custom HTML Tags 自定义代码</div>
+    <a class="nl" href="#impression-observer">Impression Observer</a>
+    <a class="nl" href="#chat-duration">Chat duration <span class="zh">聊天时长</span></a>
+    <a class="nl" href="#id-injection">ID injection <span class="zh">ID 注入</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">QA & Validation 验收</div>
+    <a class="nl" href="#qa-checklist">QA checklist <span class="zh">验收清单</span></a>
+    <a class="nl" href="#debugview">DebugView guide <span class="zh">调试指南</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Navigation 导航</div>
+    <a class="nl back" href="PRD-TRK-001_Tracking_System_Overview.html">← Back to Overview <span class="zh">返回总览</span></a>
+    <a class="nl back" href="tracking-master-prd-v3.1.html" style="color:var(--text-secondary)">← Tracking Master PRD</a>
+    <a class="nl back" href="tracking-dictionary.html" style="color:var(--text-secondary)">← Tracking Dictionary</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="eyebrow">Tracking · GTM · 配置指南</div>
+  <h1><strong>GTM Implementation Guide</strong> v1.0</h1>
+  <div class="desc">
+    Step-by-step GTM configuration for the Supermom v3 tracking system. Covers Variables, Triggers, Tags, Custom HTML implementations, and QA validation. This document is for GTM engineers only.
+    <span class="zh">Supermom v3 追踪系统的 GTM 配置指南，涵盖变量、触发器、标签、自定义代码实现和验收流程。本文档仅供 GTM 工程师使用。</span>
+  </div>
+  <div class="meta-pills">
+    <div class="mp"><span class="sdot"></span><span class="l">Status</span><span class="v">Canonical 正式版本</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">1.0</span></div>
+    <div class="mp"><span class="l">Updated</span><span class="v">May 2025</span></div>
+    <div class="mp"><span class="l">Audience</span><span class="v">GTM Engineers 工程师</span></div>
+    <div class="mp"><span class="l">Parent doc</span><span class="v"><a href="tracking-master-prd-v3.1.html" style="color:var(--blue);font-family:var(--mono);font-size:10px;">Tracking Master PRD v3.1</a></span></div>
+  </div>
+</div>
+
+<div class="callout c-warn">
+  <strong>Prerequisite / 前提条件：</strong> Before configuring GTM, you must have read the <a href="tracking-master-prd-v3.1.html" style="color:var(--amber)">Tracking Master PRD v3.1</a> in full. GTM is the implementation layer — it does not define what to track. All decisions about event names, field names, and values come from the PRD and the <a href="tracking-dictionary.html" style="color:var(--amber)">Tracking Dictionary</a>.
+  <span class="zh">配置 GTM 前，必须完整阅读《Tracking Master PRD v3.1》。GTM 是实施层，不定义追踪内容。所有事件名、字段名和枚举值的决策来自 PRD 和《Tracking Dictionary》。</span>
+</div>
+
+<hr class="div">
+
+<!-- §01 NAMING CONVENTION -->
+<section class="section" id="naming">
+  <div class="stag">§01</div>
+  <h2>Naming convention <span class="zh">命名规范</span></h2>
+  <p class="sdesc">All GTM entities must follow this naming convention. Consistent naming allows the workspace to remain auditable and maintainable as the team grows.
+    <span class="zh">所有 GTM 实体必须遵循以下命名规范。统一命名使工作区在团队扩张时保持可审计性和可维护性。</span>
+  </p>
+
+  <h3>Format pattern <span class="zh">格式规则</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Entity 实体</th><th>Pattern 格式</th><th>Example 示例</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Variable 变量</td>
+        <td><code>[Type] - [Description]</code></td>
+        <td><span class="naming-example">JS - GA4 Client ID</span><br><span class="naming-example">DLV - anonymous_id</span></td>
+      </tr>
+      <tr>
+        <td>Trigger 触发器</td>
+        <td><code>[EventType] - [Description]</code></td>
+        <td><span class="naming-example">CE - page_view</span><br><span class="naming-example">HistoryChange - SPA Navigation</span></td>
+      </tr>
+      <tr>
+        <td>Tag — GA4 Event</td>
+        <td><code>GA4 - [event_name]</code></td>
+        <td><span class="naming-example">GA4 - content_click</span><br><span class="naming-example">GA4 - form_submit</span></td>
+      </tr>
+      <tr>
+        <td>Tag — Custom HTML</td>
+        <td><code>CH - [Description]</code></td>
+        <td><span class="naming-example">CH - Impression Observer</span><br><span class="naming-example">CH - ID Injection</span></td>
+      </tr>
+      <tr>
+        <td>Tag — GA4 Config</td>
+        <td><code>GA4 - Config - [Property]</code></td>
+        <td><span class="naming-example">GA4 - Config - v3 Property</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>Prefix reference <span class="zh">前缀说明</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Prefix 前缀</th><th>Meaning 含义</th></tr></thead>
+    <tbody>
+      <tr><td><code>JS</code></td><td>JavaScript Variable — reads values from the page or cookie<span class="zh">JS 变量，从页面或 Cookie 读取值</span></td></tr>
+      <tr><td><code>DLV</code></td><td>Data Layer Variable — reads from <code>window.dataLayer</code><span class="zh">从 dataLayer 读取的变量</span></td></tr>
+      <tr><td><code>CE</code></td><td>Custom Event Trigger — fires on a specific <code>dataLayer.push</code> event name<span class="zh">自定义事件触发器，监听特定 dataLayer 事件名</span></td></tr>
+      <tr><td><code>CH</code></td><td>Custom HTML Tag — executes arbitrary JavaScript<span class="zh">自定义 HTML 标签，执行任意 JS 代码</span></td></tr>
+      <tr><td><code>GA4</code></td><td>Google Analytics 4 Tag or Config<span class="zh">GA4 标签或配置</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-note">
+    <strong>Never do this / 禁止这样命名：</strong><br>
+    <span class="naming-bad">Tag 1</span> &nbsp; <span class="naming-bad">New Tag</span> &nbsp; <span class="naming-bad">copy of GA4 event</span> &nbsp; <span class="naming-bad">test123</span><br>
+    <span class="zh" style="margin-top:6px;display:block;">不允许使用无意义名称或未删除的测试标签留在工作区中。</span>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §02 VARIABLES -->
+<section class="section" id="variables">
+  <div class="stag">§02</div>
+  <h2>Variables <span class="zh">变量配置</span></h2>
+  <p class="sdesc">Variables read values from the page, dataLayer, or cookies and make them available to Tags. The following variables are required for the v3 tracking system.
+    <span class="zh">变量从页面、dataLayer 或 Cookie 中读取值，供 Tag 使用。以下变量是 v3 追踪系统的必配变量。</span>
+  </p>
+
+  <h3>Group A — Identity variables <span class="zh">身份变量</span></h3>
+  <p class="sdesc">These variables resolve <code>anonymous_id</code> and <code>session_id</code> from GA4's native cookies. They must be configured before any GA4 event tag is created.
+    <span class="zh">这两个变量从 GA4 的原生 Cookie 读取匿名 ID 和会话 ID，必须在创建任何 GA4 事件 Tag 之前完成配置。</span>
+  </p>
+
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-name">JS - GA4 Client ID</span>
+      <span class="config-type ct-var">JavaScript Variable</span>
+    </div>
+    <div class="config-body">
+      <div class="config-row"><span class="config-label">Purpose 用途</span><span class="config-val">Reads GA4's <code>client_id</code> from the <code>_ga</code> cookie. This becomes <code>anonymous_id</code>.<span class="zh">从 _ga Cookie 读取 GA4 的 client_id，作为 anonymous_id 使用。</span></span></div>
+      <div class="config-row"><span class="config-label">Variable type</span><span class="config-val">Custom JavaScript</span></div>
+      <div class="config-row"><span class="config-label">Code</span><span class="config-val">See code block below</span></div>
+    </div>
+  </div>
+<pre><span class="c">// JS - GA4 Client ID</span>
+<span class="c">// Reads the _ga cookie and extracts the client_id portion</span>
+<span class="k">function</span>() {
+  <span class="k">var</span> cookie = {};
+  document.cookie.split(<span class="s">';'</span>).forEach(<span class="k">function</span>(c) {
+    <span class="k">var</span> parts = c.trim().split(<span class="s">'='</span>);
+    cookie[parts[0]] = parts.slice(1).join(<span class="s">'='</span>);
+  });
+  <span class="k">var</span> ga = cookie[<span class="s">'_ga'</span>];
+  <span class="k">if</span> (!ga) <span class="k">return</span> <span class="s">''</span>;
+  <span class="c">// _ga format: GA1.2.XXXXXXXXXX.XXXXXXXXXX → extract last two segments</span>
+  <span class="k">var</span> parts = ga.split(<span class="s">'.'</span>);
+  <span class="k">return</span> parts.slice(2).join(<span class="s">'.'</span>);
+}</pre>
+
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-name">JS - GA4 Session ID</span>
+      <span class="config-type ct-var">JavaScript Variable</span>
+    </div>
+    <div class="config-body">
+      <div class="config-row"><span class="config-label">Purpose 用途</span><span class="config-val">Reads GA4's <code>ga_session_id</code> from the measurement ID cookie. This becomes <code>session_id</code>.<span class="zh">从 GA4 测量 ID 对应的 Cookie 中读取 ga_session_id，作为 session_id 使用。</span></span></div>
+      <div class="config-row"><span class="config-label">Variable type</span><span class="config-val">Custom JavaScript</span></div>
+      <div class="config-row"><span class="config-label">Important 注意</span><span class="config-val">Replace <code>G-XXXXXXXX</code> with the actual GA4 Measurement ID before deploying.<span class="zh">部署前替换为实际的 GA4 测量 ID。</span></span></div>
+    </div>
+  </div>
+<pre><span class="c">// JS - GA4 Session ID</span>
+<span class="c">// Reads _ga_XXXXXXXX cookie and extracts ga_session_id</span>
+<span class="k">function</span>() {
+  <span class="k">var</span> measurementId = <span class="s">'G-XXXXXXXX'</span>; <span class="c">// ← replace with actual Measurement ID</span>
+  <span class="k">var</span> cookieName = <span class="s">'_ga_'</span> + measurementId.replace(<span class="s">'G-'</span>, <span class="s">''</span>);
+  <span class="k">var</span> cookie = {};
+  document.cookie.split(<span class="s">';'</span>).forEach(<span class="k">function</span>(c) {
+    <span class="k">var</span> parts = c.trim().split(<span class="s">'='</span>);
+    cookie[parts[0]] = parts.slice(1).join(<span class="s">'='</span>);
+  });
+  <span class="k">var</span> val = cookie[cookieName];
+  <span class="k">if</span> (!val) <span class="k">return</span> <span class="s">''</span>;
+  <span class="c">// Cookie format: GS1.1.SESSION_ID.1.1.TIMESTAMP.0.0.0</span>
+  <span class="k">var</span> parts = val.split(<span class="s">'.'</span>);
+  <span class="k">return</span> parts[2] || <span class="s">''</span>;
+}</pre>
+
+  <h3>Group B — dataLayer variables <span class="zh">dataLayer 变量</span></h3>
+  <p class="sdesc">These variables read fields that the frontend pushes into <code>window.dataLayer</code>. One variable per field.
+    <span class="zh">这些变量读取前端推送到 dataLayer 的字段，每个字段对应一个变量。</span>
+  </p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Variable name 变量名</th><th>Type</th><th>Data Layer Variable Name</th><th>Maps to field 对应字段</th></tr></thead>
+    <tbody>
+      <tr><td><code>DLV - event_name</code></td><td>Data Layer Variable</td><td><code>event</code></td><td><code>event_name</code></td></tr>
+      <tr><td><code>DLV - page_type</code></td><td>Data Layer Variable</td><td><code>page_type</code></td><td><code>page_type</code></td></tr>
+      <tr><td><code>DLV - page_path</code></td><td>Data Layer Variable</td><td><code>page_path</code></td><td><code>page_path</code></td></tr>
+      <tr><td><code>DLV - content_id</code></td><td>Data Layer Variable</td><td><code>content_id</code></td><td><code>content_id</code></td></tr>
+      <tr><td><code>DLV - content_type</code></td><td>Data Layer Variable</td><td><code>content_type</code></td><td><code>content_type</code></td></tr>
+      <tr><td><code>DLV - content_format</code></td><td>Data Layer Variable</td><td><code>content_format</code></td><td><code>content_format</code></td></tr>
+      <tr><td><code>DLV - content_category</code></td><td>Data Layer Variable</td><td><code>content_category</code></td><td><code>content_category</code></td></tr>
+      <tr><td><code>DLV - component_type</code></td><td>Data Layer Variable</td><td><code>component_type</code></td><td><code>component_type</code></td></tr>
+      <tr><td><code>DLV - v2_uid</code></td><td>Data Layer Variable</td><td><code>v2_uid</code></td><td><code>v2_uid</code></td></tr>
+      <tr><td><code>DLV - site_version</code></td><td>Data Layer Variable</td><td><code>site_version</code></td><td><code>site_version</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Group C — Auto-injected variables <span class="zh">自动注入变量</span></h3>
+  <p class="sdesc">These are built-in GTM variables. Enable them in GTM → Variables → Configure.
+    <span class="zh">这些是 GTM 内置变量，在 GTM → Variables → Configure 中启用。</span>
+  </p>
+  <div class="tw"><table>
+    <thead><tr><th>Variable name</th><th>GTM built-in name</th><th>Used for 用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>Page URL</code></td><td>Page URL</td><td>Full URL of current page<span class="zh">当前页面完整 URL</span></td></tr>
+      <tr><td><code>Page Path</code></td><td>Page Path</td><td>Path portion of URL<span class="zh">URL 路径部分</span></td></tr>
+      <tr><td><code>Page Hostname</code></td><td>Page Hostname</td><td>Domain — used to determine <code>site_version</code><span class="zh">域名，用于判断 site_version</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §03 TRIGGERS -->
+<section class="section" id="triggers">
+  <div class="stag">§03</div>
+  <h2>Triggers <span class="zh">触发器配置</span></h2>
+  <p class="sdesc">Triggers determine when a Tag fires. The following triggers are required for the v3 system.
+    <span class="zh">触发器决定 Tag 何时触发。以下触发器是 v3 系统的必配触发器。</span>
+  </p>
+
+  <h3>T-01 — History Change (SPA page_view) <span class="zh">SPA 页面浏览触发器</span></h3>
+  <p class="sdesc">React SPA navigation does not trigger a full browser reload. This trigger fires on every URL change inside the app, enabling GTM to detect page navigation.
+    <span class="zh">React SPA 页面跳转不会触发浏览器完整重载。此触发器在应用内每次 URL 变更时触发，使 GTM 能够检测到页面导航。</span>
+  </p>
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-name">HistoryChange - SPA Navigation</span>
+      <span class="config-type ct-trigger">History Change Trigger</span>
+    </div>
+    <div class="config-body">
+      <div class="config-row"><span class="config-label">Trigger type</span><span class="config-val">History Change</span></div>
+      <div class="config-row"><span class="config-label">Fire on</span><span class="config-val">All History Changes</span></div>
+      <div class="config-row"><span class="config-label">Why 原因</span><span class="config-val">Captures every React Router navigation event, including pushState and replaceState.<span class="zh">捕获所有 React Router 导航事件，包括 pushState 和 replaceState。</span></span></div>
+    </div>
+  </div>
+
+  <div class="callout c-warn">
+    <strong>Important / 注意：</strong> The History Change trigger fires <em>before</em> the new page's dataLayer push. Tags using this trigger will read the <em>previous</em> page's dataLayer values. Always use the <code>CE - page_view</code> Custom Event trigger (below) for <code>page_view</code> events instead.
+    <span class="zh">History Change 触发器在新页面的 dataLayer push 之前触发。使用此触发器的 Tag 会读取上一页的 dataLayer 值。page_view 事件请使用下方的 CE - page_view 自定义事件触发器。</span>
+  </div>
+
+  <h3>T-02 — Custom Event triggers <span class="zh">自定义事件触发器</span></h3>
+  <p class="sdesc">One Custom Event trigger per event name. Each trigger fires when the frontend pushes a matching <code>event</code> key to <code>window.dataLayer</code>.
+    <span class="zh">每个事件名对应一个自定义事件触发器。当前端向 dataLayer 推送对应 event 名称时触发。</span>
+  </p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Trigger name 触发器名</th><th>Event Name (exact match)</th><th>Used by Tag 对应标签</th></tr></thead>
+    <tbody>
+      <tr><td><code>CE - page_view</code></td><td><code>page_view</code></td><td>GA4 - page_view</td></tr>
+      <tr><td><code>CE - content_impression</code></td><td><code>content_impression</code></td><td>GA4 - content_impression</td></tr>
+      <tr><td><code>CE - content_click</code></td><td><code>content_click</code></td><td>GA4 - content_click</td></tr>
+      <tr><td><code>CE - content_view</code></td><td><code>content_view</code></td><td>GA4 - content_view</td></tr>
+      <tr><td><code>CE - button_click</code></td><td><code>button_click</code></td><td>GA4 - button_click</td></tr>
+      <tr><td><code>CE - form_view</code></td><td><code>form_view</code></td><td>GA4 - form_view</td></tr>
+      <tr><td><code>CE - form_start</code></td><td><code>form_start</code></td><td>GA4 - form_start</td></tr>
+      <tr><td><code>CE - form_submit</code></td><td><code>form_submit</code></td><td>GA4 - form_submit</td></tr>
+      <tr><td><code>CE - form_validation_error</code></td><td><code>form_validation_error</code></td><td>GA4 - form_validation_error</td></tr>
+      <tr><td><code>CE - otp_popup_view</code></td><td><code>otp_popup_view</code></td><td>GA4 - otp_popup_view</td></tr>
+      <tr><td><code>CE - otp_input_phone</code></td><td><code>otp_input_phone</code></td><td>GA4 - otp_input_phone</td></tr>
+      <tr><td><code>CE - otp_sent</code></td><td><code>otp_sent</code></td><td>GA4 - otp_sent</td></tr>
+      <tr><td><code>CE - login</code></td><td><code>login</code></td><td>GA4 - login</td></tr>
+      <tr><td><code>CE - sign_up</code></td><td><code>sign_up</code></td><td>GA4 - sign_up</td></tr>
+      <tr><td><code>CE - otp_verify_fail</code></td><td><code>otp_verify_fail</code></td><td>GA4 - otp_verify_fail</td></tr>
+      <tr><td><code>CE - search_submit</code></td><td><code>search_submit</code></td><td>GA4 - search_submit</td></tr>
+      <tr><td><code>CE - search_result_view</code></td><td><code>search_result_view</code></td><td>GA4 - search_result_view</td></tr>
+      <tr><td><code>CE - search_result_click</code></td><td><code>search_result_click</code></td><td>GA4 - search_result_click</td></tr>
+      <tr><td><code>CE - search_no_result</code></td><td><code>search_no_result</code></td><td>GA4 - search_no_result</td></tr>
+      <tr><td><code>CE - chat_open</code></td><td><code>chat_open</code></td><td>GA4 - chat_open</td></tr>
+      <tr><td><code>CE - chat_message_send</code></td><td><code>chat_message_send</code></td><td>GA4 - chat_message_send</td></tr>
+      <tr><td><code>CE - chat_close</code></td><td><code>chat_close</code></td><td>GA4 - chat_close</td></tr>
+      <tr><td><code>CE - qa_question_click</code></td><td><code>qa_question_click</code></td><td>GA4 - qa_question_click</td></tr>
+      <tr><td><code>CE - scroll_depth</code></td><td><code>scroll_depth</code></td><td>GA4 - scroll_depth</td></tr>
+      <tr><td><code>CE - page_engagement</code></td><td><code>page_engagement</code></td><td>GA4 - page_engagement</td></tr>
+      <tr><td><code>CE - video_play</code></td><td><code>video_play</code></td><td>GA4 - video_play</td></tr>
+      <tr><td><code>CE - video_progress</code></td><td><code>video_progress</code></td><td>GA4 - video_progress</td></tr>
+      <tr><td><code>CE - video_complete</code></td><td><code>video_complete</code></td><td>GA4 - video_complete</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>T-03 — All Pages trigger <span class="zh">所有页面触发器</span></h3>
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-name">AllPages - On Load</span>
+      <span class="config-type ct-trigger">Page View Trigger</span>
+    </div>
+    <div class="config-body">
+      <div class="config-row"><span class="config-label">Trigger type</span><span class="config-val">Page View — Window Loaded</span></div>
+      <div class="config-row"><span class="config-label">Fire on</span><span class="config-val">All Pages</span></div>
+      <div class="config-row"><span class="config-label">Used by 用于</span><span class="config-val">GA4 Config Tag, CH - ID Injection, CH - Impression Observer initialisation<span class="zh">GA4 配置标签、ID 注入、Impression Observer 初始化</span></span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §04 TAG OVERVIEW -->
+<section class="section" id="tags-overview">
+  <div class="stag">§04</div>
+  <h2>Tag overview <span class="zh">标签总览</span></h2>
+  <p class="sdesc">Complete list of all Tags in the GTM workspace. Every Tag must appear in this table.
+    <span class="zh">GTM 工作区中所有 Tag 的完整列表，每个 Tag 必须记录在此表中。</span>
+  </p>
+  <div class="tw"><table>
+    <thead><tr><th>Tag name 标签名</th><th>Type 类型</th><th>Trigger 触发器</th></tr></thead>
+    <tbody>
+      <tr><td><code>GA4 - Config - v3 Property</code></td><td>GA4 Configuration</td><td>AllPages - On Load</td></tr>
+      <tr><td><code>CH - ID Injection</code></td><td>Custom HTML</td><td>AllPages - On Load</td></tr>
+      <tr><td><code>CH - Impression Observer</code></td><td>Custom HTML</td><td>AllPages - On Load</td></tr>
+      <tr><td><code>CH - Chat Duration</code></td><td>Custom HTML</td><td>CE - chat_close</td></tr>
+      <tr><td><code>GA4 - page_view</code></td><td>GA4 Event</td><td>CE - page_view</td></tr>
+      <tr><td><code>GA4 - content_impression</code></td><td>GA4 Event</td><td>CE - content_impression</td></tr>
+      <tr><td><code>GA4 - content_click</code></td><td>GA4 Event</td><td>CE - content_click</td></tr>
+      <tr><td><code>GA4 - content_view</code></td><td>GA4 Event</td><td>CE - content_view</td></tr>
+      <tr><td><code>GA4 - button_click</code></td><td>GA4 Event</td><td>CE - button_click</td></tr>
+      <tr><td><code>GA4 - form_view</code></td><td>GA4 Event</td><td>CE - form_view</td></tr>
+      <tr><td><code>GA4 - form_start</code></td><td>GA4 Event</td><td>CE - form_start</td></tr>
+      <tr><td><code>GA4 - form_submit</code></td><td>GA4 Event</td><td>CE - form_submit</td></tr>
+      <tr><td><code>GA4 - form_validation_error</code></td><td>GA4 Event</td><td>CE - form_validation_error</td></tr>
+      <tr><td><code>GA4 - otp_popup_view</code></td><td>GA4 Event</td><td>CE - otp_popup_view</td></tr>
+      <tr><td><code>GA4 - otp_input_phone</code></td><td>GA4 Event</td><td>CE - otp_input_phone</td></tr>
+      <tr><td><code>GA4 - otp_sent</code></td><td>GA4 Event</td><td>CE - otp_sent</td></tr>
+      <tr><td><code>GA4 - login</code></td><td>GA4 Event</td><td>CE - login</td></tr>
+      <tr><td><code>GA4 - sign_up</code></td><td>GA4 Event</td><td>CE - sign_up</td></tr>
+      <tr><td><code>GA4 - otp_verify_fail</code></td><td>GA4 Event</td><td>CE - otp_verify_fail</td></tr>
+      <tr><td><code>GA4 - search_submit</code></td><td>GA4 Event</td><td>CE - search_submit</td></tr>
+      <tr><td><code>GA4 - search_result_view</code></td><td>GA4 Event</td><td>CE - search_result_view</td></tr>
+      <tr><td><code>GA4 - search_result_click</code></td><td>GA4 Event</td><td>CE - search_result_click</td></tr>
+      <tr><td><code>GA4 - search_no_result</code></td><td>GA4 Event</td><td>CE - search_no_result</td></tr>
+      <tr><td><code>GA4 - chat_open</code></td><td>GA4 Event</td><td>CE - chat_open</td></tr>
+      <tr><td><code>GA4 - chat_message_send</code></td><td>GA4 Event</td><td>CE - chat_message_send</td></tr>
+      <tr><td><code>GA4 - chat_close</code></td><td>GA4 Event</td><td>CE - chat_close</td></tr>
+      <tr><td><code>GA4 - qa_question_click</code></td><td>GA4 Event</td><td>CE - qa_question_click</td></tr>
+      <tr><td><code>GA4 - scroll_depth</code></td><td>GA4 Event</td><td>CE - scroll_depth</td></tr>
+      <tr><td><code>GA4 - page_engagement</code></td><td>GA4 Event</td><td>CE - page_engagement</td></tr>
+      <tr><td><code>GA4 - video_play</code></td><td>GA4 Event</td><td>CE - video_play</td></tr>
+      <tr><td><code>GA4 - video_progress</code></td><td>GA4 Event</td><td>CE - video_progress</td></tr>
+      <tr><td><code>GA4 - video_complete</code></td><td>GA4 Event</td><td>CE - video_complete</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §05 GA4 CONFIG TAG -->
+<section class="section" id="tag-ga4-config">
+  <div class="stag">§05</div>
+  <h2>GA4 Config Tag <span class="zh">GA4 配置标签</span></h2>
+  <p class="sdesc">The GA4 Configuration Tag initialises the GA4 measurement library and sets global parameters that apply to every subsequent event.
+    <span class="zh">GA4 配置标签初始化 GA4 测量库，并设置适用于所有后续事件的全局参数。</span>
+  </p>
+
+  <div class="config-block">
+    <div class="config-header">
+      <span class="config-name">GA4 - Config - v3 Property</span>
+      <span class="config-type ct-tag">GA4 Configuration Tag</span>
+    </div>
+    <div class="config-body">
+      <div class="config-row"><span class="config-label">Measurement ID</span><span class="config-val"><code>G-XXXXXXXX</code> — replace with actual v3 Property ID<span class="zh">替换为实际 v3 Property 的测量 ID</span></span></div>
+      <div class="config-row"><span class="config-label">Trigger 触发器</span><span class="config-val">AllPages - On Load</span></div>
+      <div class="config-row"><span class="config-label">Send page view</span><span class="config-val"><strong>OFF</strong> — page_view is fired manually via dataLayer push<span class="zh">关闭，page_view 由前端通过 dataLayer push 手动触发</span></span></div>
+    </div>
+  </div>
+
+  <h4>Global fields to set in Config Tag 全局字段</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Field name</th><th>Value 值</th><th>Why 原因</th></tr></thead>
+    <tbody>
+      <tr><td><code>anonymous_id</code></td><td><code>{{JS - GA4 Client ID}}</code></td><td>Sets anonymous_id on every event from GA4 client_id<span class="zh">将 anonymous_id 注入所有事件</span></td></tr>
+      <tr><td><code>session_id</code></td><td><code>{{JS - GA4 Session ID}}</code></td><td>Sets session_id on every event<span class="zh">将 session_id 注入所有事件</span></td></tr>
+      <tr><td><code>site_version</code></td><td><code>{{JS - Site Version}}</code></td><td>Identifies v2 or v3 based on hostname<span class="zh">根据域名区分 v2 / v3</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-info">
+    <strong>New GA4 Property / 新建 Property：</strong> A new GA4 Property must be created for v3. After creation, re-link BigQuery to the new Property. Register all Custom Dimensions against the 50-slot budget as defined in Tracking Master PRD §10 before going live.
+    <span class="zh">v3 需新建 GA4 Property。建好后重新链接 BigQuery。上线前按 PRD §10 在 50 个额度内注册所有 Custom Dimension。</span>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §06 CUSTOM HTML: IMPRESSION OBSERVER -->
+<section class="section" id="impression-observer">
+  <div class="stag">§06</div>
+  <h2>CH — Impression Observer <span class="zh">内容曝光观察器</span></h2>
+  <p class="sdesc">This Custom HTML Tag implements <code>content_impression</code> tracking using the browser's native <code>IntersectionObserver</code> API. It observes all DOM elements with a <code>data-track-impression</code> attribute and fires a dataLayer push when the element has been at least 50% visible for at least 1 second.
+    <span class="zh">此自定义 HTML 标签使用浏览器原生 IntersectionObserver API 实现 content_impression 追踪。它监听所有带有 data-track-impression 属性的 DOM 元素，当元素可见 ≥ 50% 且持续 ≥ 1 秒时，触发 dataLayer push。</span>
+  </p>
+
+  <div class="callout c-note">
+    <strong>Frontend requirement / 前端要求：</strong> Every trackable content card must have a <code>data-track-impression</code> attribute containing a JSON-stringified payload with the fields listed below. The GTM tag reads this attribute — it does not guess field values.
+    <span class="zh">每个需要追踪曝光的内容卡片必须带有 data-track-impression 属性，值为 JSON 字符串，包含以下字段。GTM 标签读取此属性，不自动猜测字段值。</span>
+  </div>
+
+  <h4>Required HTML attribute format 前端必须提供的属性格式</h4>
+<pre><span class="c">&lt;!-- Example content card markup / 内容卡片示例 --&gt;</span>
+&lt;<span class="k">div</span>
+  <span class="n">class</span>=<span class="s">"content-card"</span>
+  <span class="n">data-track-impression</span>=<span class="s">'{
+    "content_id": "article_123",
+    "content_type": "article",
+    "content_format": "mixed",
+    "content_category": "pregnancy_birth",
+    "component_type": "recommendation_widget",
+    "impression_position": 2
+  }'</span>
+&gt;
+  ...card content...
+&lt;/<span class="k">div</span>&gt;</pre>
+
+  <h4>Custom HTML Tag code — CH - Impression Observer</h4>
+<pre><span class="c">// CH - Impression Observer
+// Fires content_impression when element is ≥50% visible for ≥1s
+// Requires: data-track-impression attribute on content card elements</span>
+
+&lt;<span class="k">script</span>&gt;
+(<span class="k">function</span>() {
+  <span class="c">// Prevent duplicate initialisation on SPA navigation</span>
+  <span class="k">if</span> (window.__impressionObserverActive) <span class="k">return</span>;
+  window.__impressionObserverActive = <span class="b">true</span>;
+
+  <span class="k">var</span> timers = <span class="k">new</span> Map();
+  <span class="k">var</span> fired = <span class="k">new</span> Set();
+
+  <span class="k">var</span> observer = <span class="k">new</span> IntersectionObserver(<span class="k">function</span>(entries) {
+    entries.forEach(<span class="k">function</span>(entry) {
+      <span class="k">var</span> el = entry.target;
+      <span class="k">var</span> key = el.dataset.impressionKey;
+
+      <span class="k">if</span> (entry.isIntersecting && entry.intersectionRatio &gt;= 0.5) {
+        <span class="c">// Element entered viewport at ≥50% — start 1s timer</span>
+        <span class="k">if</span> (!timers.has(key) && !fired.has(key)) {
+          <span class="k">var</span> timer = setTimeout(<span class="k">function</span>() {
+            <span class="k">if</span> (fired.has(key)) <span class="k">return</span>;
+            fired.add(key);
+            timers.delete(key);
+
+            <span class="k">var</span> payload = {};
+            <span class="k">try</span> {
+              payload = JSON.parse(el.getAttribute(<span class="s">'data-track-impression'</span>));
+            } <span class="k">catch</span>(e) {
+              console.warn(<span class="s">'[Impression Observer] Invalid JSON on element'</span>, el);
+              <span class="k">return</span>;
+            }
+
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              event: <span class="s">'content_impression'</span>,
+              content_id:       payload.content_id       || <span class="b">null</span>,
+              content_type:     payload.content_type     || <span class="b">null</span>,
+              content_format:   payload.content_format   || <span class="b">null</span>,
+              content_category: payload.content_category || <span class="b">null</span>,
+              component_type:   payload.component_type   || <span class="b">null</span>,
+              impression_position: payload.impression_position || <span class="b">null</span>
+            });
+          }, 1000); <span class="c">// 1000ms = 1 second threshold</span>
+          timers.set(key, timer);
+        }
+      } <span class="k">else</span> {
+        <span class="c">// Element left viewport — cancel timer</span>
+        <span class="k">if</span> (timers.has(key)) {
+          clearTimeout(timers.get(key));
+          timers.delete(key);
+        }
+      }
+    });
+  }, { threshold: 0.5 }); <span class="c">// Trigger at 50% visibility</span>
+
+  <span class="k">function</span> observeElements() {
+    <span class="k">var</span> elements = document.querySelectorAll(<span class="s">'[data-track-impression]'</span>);
+    elements.forEach(<span class="k">function</span>(el, index) {
+      <span class="c">// Assign a unique key per element for deduplication</span>
+      <span class="k">if</span> (!el.dataset.impressionKey) {
+        el.dataset.impressionKey = <span class="s">'imp_'</span> + Date.now() + <span class="s">'_'</span> + index;
+      }
+      observer.observe(el);
+    });
+  }
+
+  <span class="c">// Initial observation on page load</span>
+  observeElements();
+
+  <span class="c">// Re-observe after SPA navigation — listen for page_view events</span>
+  window.dataLayer = window.dataLayer || [];
+  <span class="k">var</span> originalPush = window.dataLayer.push.bind(window.dataLayer);
+  window.dataLayer.push = <span class="k">function</span>(obj) {
+    originalPush(obj);
+    <span class="k">if</span> (obj && obj.event === <span class="s">'page_view'</span>) {
+      <span class="c">// Reset fired set on page navigation; re-observe new content</span>
+      fired.clear();
+      timers.forEach(<span class="k">function</span>(t) { clearTimeout(t); });
+      timers.clear();
+      window.__impressionObserverActive = <span class="b">false</span>;
+      setTimeout(observeElements, 300); <span class="c">// Wait for React to render new content</span>
+    }
+  };
+})();
+&lt;/<span class="k">script</span>&gt;</pre>
+</section>
+
+<hr class="div">
+
+<!-- §07 CUSTOM HTML: CHAT DURATION -->
+<section class="section" id="chat-duration">
+  <div class="stag">§07</div>
+  <h2>CH — Chat Duration <span class="zh">聊天时长计算</span></h2>
+  <p class="sdesc">This Custom HTML Tag calculates the <code>chat_duration_sec</code> field when the AIMA chat window is closed. It reads the <code>chat_open_time</code> timestamp set by a companion snippet on <code>chat_open</code>, and computes the elapsed time in seconds.
+    <span class="zh">此标签在 AIMA 聊天窗口关闭时计算 chat_duration_sec 字段。它读取 chat_open 时记录的 chat_open_time 时间戳，计算经过的秒数。</span>
+  </p>
+
+  <div class="callout c-note">
+    <strong>Two-tag pattern / 双标签模式：</strong> This requires two Tags — one fires on <code>chat_open</code> to record the start time, one fires on <code>chat_close</code> to calculate and inject duration.
+    <span class="zh">此功能需要两个标签配合：一个在 chat_open 时记录开始时间，一个在 chat_close 时计算并注入时长。</span>
+  </div>
+
+  <h4>Tag 1 of 2 — Record open time (fires on CE - chat_open)</h4>
+<pre><span class="c">// CH - Chat Open Timer
+// Fires on: CE - chat_open
+// Records the timestamp when chat window opens</span>
+
+&lt;<span class="k">script</span>&gt;
+  window.__chatOpenTime = Date.now();
+&lt;/<span class="k">script</span>&gt;</pre>
+
+  <h4>Tag 2 of 2 — Calculate duration and inject (fires on CE - chat_close)</h4>
+<pre><span class="c">// CH - Chat Duration
+// Fires on: CE - chat_close
+// Calculates chat_duration_sec and re-pushes to dataLayer</span>
+
+&lt;<span class="k">script</span>&gt;
+(<span class="k">function</span>() {
+  <span class="k">var</span> openTime = window.__chatOpenTime;
+  <span class="k">if</span> (!openTime) <span class="k">return</span>; <span class="c">// No open time recorded — skip</span>
+
+  <span class="k">var</span> durationMs  = Date.now() - openTime;
+  <span class="k">var</span> durationSec = Math.round(durationMs / 1000);
+
+  window.__chatOpenTime = <span class="b">null</span>; <span class="c">// Reset for next session</span>
+
+  <span class="c">// Inject chat_duration_sec into the dataLayer event</span>
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    chat_duration_sec: durationSec
+  });
+})();
+&lt;/<span class="k">script</span>&gt;</pre>
+</section>
+
+<hr class="div">
+
+<!-- §08 CUSTOM HTML: ID INJECTION -->
+<section class="section" id="id-injection">
+  <div class="stag">§08</div>
+  <h2>CH — ID Injection <span class="zh">身份 ID 注入</span></h2>
+  <p class="sdesc">This Custom HTML Tag reads <code>anonymous_id</code> and <code>session_id</code> from the GA4 cookies and writes them explicitly into <code>window.dataLayer</code>. This ensures that all subsequent event pushes have access to these values even before the GA4 library has fully initialised.
+    <span class="zh">此标签从 GA4 Cookie 读取 anonymous_id 和 session_id，并显式写入 dataLayer。确保所有后续事件 push 都能使用这两个值，即使在 GA4 库完全初始化之前。</span>
+  </p>
+  <div class="callout c-warn">
+    <strong>Trigger / 触发器：</strong> AllPages - On Load. Must fire <strong>before</strong> any GA4 event tag. Set Tag sequencing in GTM if needed.
+    <span class="zh">触发器：所有页面加载。必须在任何 GA4 事件标签之前触发。如有需要，在 GTM 中设置 Tag 顺序。</span>
+  </div>
+<pre><span class="c">// CH - ID Injection
+// Fires on: AllPages - On Load (must fire before GA4 event tags)
+// Writes anonymous_id and session_id into dataLayer</span>
+
+&lt;<span class="k">script</span>&gt;
+(<span class="k">function</span>() {
+  <span class="k">function</span> getCookieValue(name) {
+    <span class="k">var</span> match = document.cookie.match(<span class="k">new</span> RegExp(<span class="s">'(^| )'</span> + name + <span class="s">'=([^;]+)'</span>));
+    <span class="k">return</span> match ? match[2] : <span class="b">null</span>;
+  }
+
+  <span class="c">// Read GA4 client_id from _ga cookie</span>
+  <span class="k">var</span> ga = getCookieValue(<span class="s">'_ga'</span>);
+  <span class="k">var</span> anonymousId = <span class="b">null</span>;
+  <span class="k">if</span> (ga) {
+    <span class="k">var</span> parts = ga.split(<span class="s">'.'</span>);
+    anonymousId = parts.slice(2).join(<span class="s">'.'</span>);
+  }
+
+  <span class="c">// Read ga_session_id from _ga_MEASUREMENTID cookie</span>
+  <span class="k">var</span> measurementId = <span class="s">'G-XXXXXXXX'</span>; <span class="c">// ← replace with actual Measurement ID</span>
+  <span class="k">var</span> sessionCookieName = <span class="s">'_ga_'</span> + measurementId.replace(<span class="s">'G-'</span>, <span class="s">''</span>);
+  <span class="k">var</span> sessionCookie = getCookieValue(sessionCookieName);
+  <span class="k">var</span> sessionId = <span class="b">null</span>;
+  <span class="k">if</span> (sessionCookie) {
+    <span class="k">var</span> sParts = sessionCookie.split(<span class="s">'.'</span>);
+    sessionId = sParts[2] || <span class="b">null</span>;
+  }
+
+  <span class="c">// Write to dataLayer</span>
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    anonymous_id: anonymousId,
+    session_id:   sessionId
+  });
+})();
+&lt;/<span class="k">script</span>&gt;</pre>
+</section>
+
+<hr class="div">
+
+<!-- §09 QA CHECKLIST -->
+<section class="section" id="qa-checklist">
+  <div class="stag">§09</div>
+  <h2>QA checklist <span class="zh">验收清单</span></h2>
+  <p class="sdesc">Complete this checklist before publishing any GTM version to production. Items marked <span style="font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)">CRITICAL</span> must pass before any other items are checked.
+    <span class="zh">在将任何 GTM 版本发布到生产环境之前，完成此清单。标记为 CRITICAL 的项目必须首先通过。</span>
+  </p>
+
+  <h3>A — Identity 身份验证</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>anonymous_id</code> is present and non-empty on every GA4 event in DebugView<span class="zh">DebugView 中每个 GA4 事件都存在非空的 anonymous_id</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>session_id</code> is present and non-empty on every GA4 event in DebugView<span class="zh">DebugView 中每个 GA4 事件都存在非空的 session_id</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>anonymous_id</code> remains the same across multiple page navigations within one session<span class="zh">anonymous_id 在同一 session 内跨页面导航保持不变</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>anonymous_id</code> and <code>session_id</code> are NOT identical to each other<span class="zh">anonymous_id 与 session_id 值不相同</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+  </div>
+
+  <h3>B — Page view 页面浏览</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>page_view</code> fires exactly once on initial page load<span class="zh">初始加载时 page_view 触发且只触发一次</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>page_view</code> fires on every SPA route change (navigate between pages in the React app)<span class="zh">React 应用内每次路由切换都触发 page_view</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>page_view</code> does NOT double-fire — check that the GA4 Config Tag has "Send page view" turned OFF<span class="zh">page_view 不会重复触发，确认 GA4 Config Tag 的 Send page view 已关闭</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>page_type</code> and <code>page_path</code> are correct and match the new page after SPA navigation<span class="zh">page_type 和 page_path 在 SPA 导航后正确反映新页面</span></div>
+      <span class="qa-tag qa-norm">NORMAL</span>
+    </div>
+  </div>
+
+  <h3>C — Impression Observer 曝光观察器</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>content_impression</code> does NOT fire immediately on page load — verify it only fires after the element has been visible for ≥ 1 second<span class="zh">content_impression 不在页面加载时立即触发，必须等待元素可见 ≥ 1 秒</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">Scrolling away before 1 second cancels the impression — quickly scroll past a card and verify no event fires<span class="zh">在 1 秒内滚离取消曝光计时，快速滚过卡片时不触发事件</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">Each content card fires <code>content_impression</code> only once per page view — scrolling back to an already-seen card must not re-fire<span class="zh">每个卡片在每次页面浏览内只触发一次 content_impression，回滚到已看过的卡片不重复触发</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">After SPA navigation, the fired set resets — previously seen cards on the new page can fire again<span class="zh">SPA 导航后已触发记录重置，新页面上的卡片可以重新触发</span></div>
+      <span class="qa-tag qa-norm">NORMAL</span>
+    </div>
+  </div>
+
+  <h3>D — Form events 表单事件</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>form_submit</code> fires ONLY after backend returns a success response — not on button click<span class="zh">form_submit 只在后端返回成功响应后触发，不在点击提交按钮时触发</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>otp_popup_view</code> → <code>otp_sent</code> → <code>login</code> or <code>sign_up</code> fire in order — verify funnel sequence in DebugView<span class="zh">otp_popup_view → otp_sent → login / sign_up 按顺序触发，在 DebugView 中验证漏斗顺序</span></div>
+      <span class="qa-tag qa-norm">NORMAL</span>
+    </div>
+  </div>
+
+  <h3>E — Site version 版本区分</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">Events from <code>supermom.com</code> have <code>site_version: "v2"</code> and events from <code>v3.supermom.com</code> have <code>site_version: "v3"</code><span class="zh">supermom.com 的事件带有 site_version: "v2"，v3.supermom.com 的事件带有 site_version: "v3"</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+  </div>
+
+  <h3>F — Data integrity 数据完整性</h3>
+  <div class="qa-list">
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">No PII appears in any event payload — phone numbers, emails, OTP codes must never appear<span class="zh">任何事件 payload 中不含 PII — 手机号、邮箱、OTP 验证码严禁出现</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text"><code>search_topic</code> and <code>question_topic</code> contain AI-classified labels, not raw user input strings<span class="zh">search_topic 和 question_topic 为 AI 分类标签，不是用户原始输入</span></div>
+      <span class="qa-tag qa-crit">CRITICAL</span>
+    </div>
+    <div class="qa-item">
+      <div class="qa-check"></div>
+      <div class="qa-text">All <code>content_type</code> and <code>content_format</code> values match the official enums in the <a href="tracking-dictionary.html" style="color:var(--blue)">Tracking Dictionary</a><span class="zh">所有 content_type 和 content_format 值符合《Tracking Dictionary》中的官方枚举</span></div>
+      <span class="qa-tag qa-norm">NORMAL</span>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §10 DEBUGVIEW -->
+<section class="section" id="debugview">
+  <div class="stag">§10</div>
+  <h2>DebugView guide <span class="zh">DebugView 调试指南</span></h2>
+  <p class="sdesc">DebugView in GA4 shows real-time events from your browser session. Use it to validate that events are arriving correctly before publishing a GTM version.
+    <span class="zh">GA4 的 DebugView 实时显示来自你浏览器的事件。在发布 GTM 版本前，使用它验证事件是否正确到达。</span>
+  </p>
+
+  <div class="step-list">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Enable GTM Preview mode <span class="zh">启用 GTM 预览模式</span></div>
+        <div class="step-desc">In GTM, click <strong>Preview</strong>. Enter the URL of the site to debug. GTM will open the site with the preview container active.<span class="zh">在 GTM 中点击 Preview，输入需要调试的站点 URL，GTM 会以预览容器打开该站点。</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">Open GA4 DebugView <span class="zh">打开 GA4 DebugView</span></div>
+        <div class="step-desc">In GA4, go to <strong>Admin → DebugView</strong>. Your device should appear automatically once the preview session is active.<span class="zh">在 GA4 中进入 Admin → DebugView，预览会话激活后你的设备会自动出现。</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Verify event parameters <span class="zh">验证事件参数</span></div>
+        <div class="step-desc">Click any event in DebugView to expand it. Verify that all required fields are present, non-null, and contain valid enum values per the Tracking Dictionary.<span class="zh">点击 DebugView 中的任意事件展开查看，验证所有必填字段存在、非空，且枚举值符合《Tracking Dictionary》。</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">Check for duplicate events <span class="zh">检查重复事件</span></div>
+        <div class="step-desc">Perform each user action once and count events in DebugView. <code>page_view</code> must appear exactly once per navigation. <code>content_impression</code> must appear once per card per page view.<span class="zh">每个用户操作执行一次，在 DebugView 中计数事件。page_view 每次导航只能出现一次，content_impression 每张卡片每次页面浏览只能出现一次。</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <div class="step-title">Publish only after all CRITICAL items pass <span class="zh">所有 CRITICAL 项通过后再发布</span></div>
+        <div class="step-desc">Return to the QA checklist. All CRITICAL items must be checked before clicking Publish in GTM. Add a version description with the date and list of changes.<span class="zh">返回 QA 清单，所有 CRITICAL 项全部通过后，再在 GTM 中点击发布。发布时填写版本说明，包含日期和变更列表。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout c-green">
+    <strong>Version description format / 版本说明格式：</strong><br>
+    <code>YYYY-MM-DD | [Change summary] | Verified by [name]</code><br>
+    <span class="zh" style="margin-top:6px;display:block;">例：<code>2025-05-20 | Added form_submit tag for campaign pages | Verified by [engineer name]</code></span>
+  </div>
+</section>
+
+</main>
+</div>
+</body>
+</html>
