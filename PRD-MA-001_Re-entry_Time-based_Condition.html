@@ -364,7 +364,7 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Marketing Automation</span>
-    <span class="lang-bar-id">PRD-MA-REENTRY-xxx · v1.2 · 2026-05-25</span>
+    <span class="lang-bar-id">PRD-MA-REENTRY-xxx · v1.3 · 2026-05-25</span>
     <a class="lang-bar-proto" href="https://flow-cycle-comeback.lovable.app" target="_blank" rel="noopener">原型参考 Prototype →</a>
   </div>
   <div class="lang-toggle">
@@ -500,8 +500,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">4月1日<br>距今153天</span>
         </div>
         <div class="exec-stage-label">
-          <span data-lang="en">Not in any range yet · waiting</span>
-          <span data-lang="zh">不在任何区间 · 等待</span>
+          <span data-lang="en">No condition matched · not in flow</span>
+          <span data-lang="zh">未命中任何条件 · 不进入 Flow</span>
         </div>
       </div>
       <div class="exec-arrow">→</div>
@@ -511,8 +511,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">5月4日<br>距今120天</span>
         </div>
         <div class="exec-stage-label" style="color:var(--pink);font-weight:500;">
-          <span data-lang="en">✅ Entry #1 fires<br>Branch 1 (86–120 days)</span>
-          <span data-lang="zh">✅ 触发进入 #1<br>Branch 1（86–120天）</span>
+          <span data-lang="en">✅ Entry #1 fires<br>Condition: EDD 86–120 days</span>
+          <span data-lang="zh">✅ 触发进入 #1<br>条件：EDD 86–120天</span>
         </div>
       </div>
       <div class="exec-arrow">→</div>
@@ -544,8 +544,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">6月7日<br>距今85天</span>
         </div>
         <div class="exec-stage-label" style="color:var(--pink);font-weight:500;">
-          <span data-lang="en">✅ Entry #2 fires<br>Branch 2 (75–85 days)</span>
-          <span data-lang="zh">✅ 触发进入 #2<br>Branch 2（75–85天）</span>
+          <span data-lang="en">✅ Entry #2 fires<br>Condition: EDD 75–85 days</span>
+          <span data-lang="zh">✅ 触发进入 #2<br>条件：EDD 75–85天</span>
         </div>
       </div>
     </div>
@@ -728,20 +728,20 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
     </div>
     <div class="story-card-body">
       <span data-lang="en">
-        <strong>Background:</strong> A pregnancy app has a Flow called "Prenatal Journey". It has three EDD-based branches:<br>
-        &nbsp;&nbsp;• Branch 1: EDD 86–120 days from now → send "Prepare for your third trimester" content<br>
-        &nbsp;&nbsp;• Branch 2: EDD 75–85 days from now → send "Your baby is almost here" content<br>
-        &nbsp;&nbsp;• Else: No content sent (user not yet in any range)<br><br>
-        <strong>Without Re-entry:</strong> A user who enters Branch 1 at 90 days out can never enter Branch 2 at 80 days out — she only ever receives the first batch of messages, missing the second milestone entirely.<br><br>
-        <strong>With Re-entry (Time-based Condition):</strong> When the user's EDD naturally falls into a new range she hasn't been enrolled in before, the system automatically creates a new entry for her — she receives the right message at the right time, automatically.
+        <strong>Background:</strong> A pregnancy app has a Flow called "Prenatal Journey". The trigger is configured with two EDD condition ranges:<br>
+        &nbsp;&nbsp;• Condition 1: EDD 86–120 days from now → user enters flow, receives "Prepare for your third trimester" content<br>
+        &nbsp;&nbsp;• Condition 2: EDD 75–85 days from now → user enters flow, receives "Your baby is almost here" content<br>
+        &nbsp;&nbsp;• No match: user does not enter the flow at all<br><br>
+        <strong>Without Re-entry:</strong> A user who enters at 90 days out can never enter again at 80 days out — she only ever receives the first batch of messages, missing the second milestone entirely.<br><br>
+        <strong>With Re-entry (Time-based Condition):</strong> When the user's EDD naturally falls into a new condition range she hasn't been enrolled in before, the system automatically creates a new entry — she receives the right message at the right time, automatically.
       </span>
       <span data-lang="zh">
-        <strong>背景：</strong>某母婴 App 有一个名为"产前旅程"的 Flow，包含三个 EDD 分支：<br>
-        &nbsp;&nbsp;• Branch 1：EDD 距今 86–120 天 → 发送"备战孕晚期"内容<br>
-        &nbsp;&nbsp;• Branch 2：EDD 距今 75–85 天 → 发送"宝宝快来了"内容<br>
-        &nbsp;&nbsp;• Else：不在任何区间，不发送内容<br><br>
-        <strong>无 Re-entry 时：</strong>用户在 EDD 还有 90 天时进入 Branch 1，之后即便 EDD 缩短到 80 天进入 Branch 2 的范围，系统也不会再次触达——她永远只收到第一批消息，错过第二个里程碑。<br><br>
-        <strong>启用 Re-entry（Time-based Condition）后：</strong>当用户的 EDD 自然落入她尚未进入过的新区间时，系统自动为她创建新的进入记录——在正确的时间，自动发送正确的消息。
+        <strong>背景：</strong>某母婴 App 有一个名为"产前旅程"的 Flow，Trigger 配置了两个 EDD 条件区间：<br>
+        &nbsp;&nbsp;• 条件 1：EDD 距今 86–120 天 → 用户进入 Flow，收到"备战孕晚期"内容<br>
+        &nbsp;&nbsp;• 条件 2：EDD 距今 75–85 天 → 用户进入 Flow，收到"宝宝快来了"内容<br>
+        &nbsp;&nbsp;• 未命中任何条件：用户不进入 Flow<br><br>
+        <strong>无 Re-entry 时：</strong>用户在 EDD 还有 90 天时进入 Flow，之后即便 EDD 缩短到 80 天进入条件 2 的范围，系统也不会再次触达——她永远只收到第一批消息，错过第二个里程碑。<br><br>
+        <strong>启用 Re-entry（Time-based Condition）后：</strong>当用户的 EDD 自然落入她尚未进入过的新条件区间时，系统自动为她创建新的进入记录——在正确的时间，自动发送正确的消息。
       </span>
     </div>
   </div>
@@ -771,8 +771,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">不触发 <span class="tl-tag tl-tag-block">不在任何区间</span></span>
         </div>
         <div class="tl-desc">
-          <span data-lang="en">153 days is outside all configured ranges. User sits in Else — no enrollment created.</span>
-          <span data-lang="zh">153 天不在任何已配置区间内，用户落入 Else 分支，不创建进入记录。</span>
+          <span data-lang="en">153 days does not match any configured condition range. The user does not enter the flow — no enrollment created. The system re-evaluates tomorrow.</span>
+          <span data-lang="zh">153 天未命中任何已配置的条件区间，用户不进入 Flow，不创建进入记录。系统明天继续评估。</span>
         </div>
       </div>
 
@@ -780,12 +780,12 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
         <div class="tl-dot active"></div>
         <div class="tl-date">May 4 &nbsp;|&nbsp; <span data-lang="en">EDD 120 days away</span><span data-lang="zh">距 EDD 120 天</span></div>
         <div class="tl-title">
-          <span data-lang="en">✅ Entry #1 triggered — Branch 1 <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
-          <span data-lang="zh">✅ 触发进入 #1 — Branch 1 <span class="tl-tag tl-tag-ok">新进入</span></span>
+          <span data-lang="en">✅ Entry #1 triggered — Condition: EDD 86–120 days <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
+          <span data-lang="zh">✅ 触发进入 #1 — 条件：EDD 86–120 天 <span class="tl-tag tl-tag-ok">新进入</span></span>
         </div>
         <div class="tl-desc">
-          <span data-lang="en">User A newly enters the 86–120 day range. Condition: "not met → newly met". Re-entry fires. User is routed to Branch 1 and receives "Prepare for your third trimester" messages.</span>
-          <span data-lang="zh">用户 A 首次进入 86–120 天区间。条件从"不满足" → "新满足"，触发 Re-entry，路由至 Branch 1，收到"备战孕晚期"内容。</span>
+          <span data-lang="en">User A's EDD newly falls into the 86–120 day condition range. Trigger condition newly met → Re-entry fires. User enters the flow and receives "Prepare for your third trimester" messages.</span>
+          <span data-lang="zh">用户 A 的 EDD 首次进入 86–120 天条件区间，触发条件新满足 → 触发 Re-entry，用户进入 Flow，收到"备战孕晚期"内容。</span>
         </div>
       </div>
 
@@ -797,8 +797,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">❌ 不触发 — 前次仍在运行 <span class="tl-tag tl-tag-block">并发规则 R1</span></span>
         </div>
         <div class="tl-desc">
-          <span data-lang="en">Still within Branch 1 range (114 days). Entry #1 is Running. Concurrency Rule R1 blocks any new enrollment until Entry #1 completes.</span>
-          <span data-lang="zh">仍在 Branch 1 区间（114 天），进入 #1 仍为 Running。并发规则 R1 阻断新进入，直至 #1 完成。</span>
+          <span data-lang="en">Still within the 86–120 day condition range (114 days). Entry #1 is Running. Concurrency Rule R1 blocks any new enrollment until Entry #1 completes.</span>
+          <span data-lang="zh">仍在 86–120 天条件区间内（114 天），进入 #1 仍为 Running。并发规则 R1 阻断新进入，直至 #1 完成。</span>
         </div>
       </div>
 
@@ -810,21 +810,21 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
           <span data-lang="zh">进入 #1 达到终态 <span class="tl-tag tl-tag-done">已完成</span></span>
         </div>
         <div class="tl-desc">
-          <span data-lang="en">User A has finished the Branch 1 journey. The system now monitors for her next condition change.</span>
-          <span data-lang="zh">用户 A 完成 Branch 1 旅程，系统继续监控下一次条件变化。</span>
+          <span data-lang="en">User A has completed this entry. The system continues evaluating her EDD daily for the next condition match.</span>
+          <span data-lang="zh">用户 A 完成本次进入。系统继续每日评估她的 EDD，等待下一个条件命中。</span>
         </div>
       </div>
 
       <div class="tl-item">
         <div class="tl-dot active"></div>
-        <div class="tl-date">Jun 7 &nbsp;|&nbsp; <span data-lang="en">EDD 86 days away · enters Branch 2 range</span><span data-lang="zh">距 EDD 86 天 · 进入 Branch 2 区间</span></div>
+        <div class="tl-date">Jun 7 &nbsp;|&nbsp; <span data-lang="en">EDD 85 days away · newly matches Condition 2</span><span data-lang="zh">距 EDD 85 天 · 新命中条件 2</span></div>
         <div class="tl-title">
-          <span data-lang="en">✅ Entry #2 triggered — Branch 2 <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
-          <span data-lang="zh">✅ 触发进入 #2 — Branch 2 <span class="tl-tag tl-tag-ok">新进入</span></span>
+          <span data-lang="en">✅ Entry #2 triggered — Condition: EDD 75–85 days <span class="tl-tag tl-tag-ok">NEW ENTRY</span></span>
+          <span data-lang="zh">✅ 触发进入 #2 — 条件：EDD 75–85 天 <span class="tl-tag tl-tag-ok">新进入</span></span>
         </div>
         <div class="tl-desc">
-          <span data-lang="en">User A newly enters the 75–85 day range (a different condition from Entry #1). Entry #1 is Completed. Re-entry fires. User receives "Your baby is almost here" messages.</span>
-          <span data-lang="zh">用户 A 首次进入 75–85 天区间（与进入 #1 的条件不同），进入 #1 已完成，触发 Re-entry，收到"宝宝快来了"内容。</span>
+          <span data-lang="en">User A's EDD newly falls into the 75–85 day range — a different condition from Entry #1. Entry #1 is Completed. Re-entry fires. User receives "Your baby is almost here" messages.</span>
+          <span data-lang="zh">用户 A 的 EDD 首次进入 75–85 天区间——与进入 #1 的条件不同。进入 #1 已完成，触发 Re-entry，收到"宝宝快来了"内容。</span>
         </div>
       </div>
     </div>
@@ -848,18 +848,18 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
       <tr>
         <td style="font-family:var(--mono);color:var(--pink);">①</td>
         <td>
-          <span data-lang="en">User has Entry #1 Running. EDD moves deeper into the same Branch 1 range.</span>
-          <span data-lang="zh">用户进入 #1 仍 Running，EDD 继续在 Branch 1 区间内变化。</span>
+          <span data-lang="en">User has Entry #1 Running. EDD moves deeper within the same condition range (e.g. 110 days, still 86–120).</span>
+          <span data-lang="zh">用户进入 #1 仍 Running，EDD 在同一条件区间内继续变化（如 110 天，仍在 86–120 天）。</span>
         </td>
-        <td class="zh">相同区间 Running 中</td>
+        <td class="zh">同一条件区间 Running 中</td>
         <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
         <td><span class="badge b-blue">R1</span></td>
       </tr>
       <tr>
         <td style="font-family:var(--mono);color:var(--pink);">②</td>
         <td>
-          <span data-lang="en">User's Entry #1 (Branch 1) is Completed. EDD is still in the Branch 1 range — same condition as before.</span>
-          <span data-lang="zh">进入 #1（Branch 1）已完成，EDD 仍在 Branch 1 区间——与前次条件相同。</span>
+          <span data-lang="en">Entry #1 is Completed. EDD is still in the same condition range (86–120 days) — same condition as before.</span>
+          <span data-lang="zh">进入 #1 已完成，EDD 仍在同一条件区间（86–120 天）——与前次条件相同。</span>
         </td>
         <td class="zh">相同条件 + 已完成</td>
         <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
@@ -868,8 +868,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
       <tr>
         <td style="font-family:var(--mono);color:var(--pink);">③</td>
         <td>
-          <span data-lang="en">User's Entry #1 (Branch 1) is Completed. EDD now falls into the Branch 2 range — a new condition.</span>
-          <span data-lang="zh">进入 #1（Branch 1）已完成，EDD 进入 Branch 2 区间——新条件。</span>
+          <span data-lang="en">Entry #1 is Completed. EDD now falls into a different condition range (75–85 days) — newly met condition.</span>
+          <span data-lang="zh">进入 #1 已完成，EDD 进入不同条件区间（75–85 天）——新命中条件。</span>
         </td>
         <td class="zh">新条件 + 已完成</td>
         <td><span style="color:var(--green);font-weight:600;">✅ Entry #2 created</span></td>
@@ -878,8 +878,8 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
       <tr>
         <td style="font-family:var(--mono);color:var(--pink);">④</td>
         <td>
-          <span data-lang="en">User's Entry #1 (Branch 1) Failed. EDD enters Branch 2 range.</span>
-          <span data-lang="zh">进入 #1（Branch 1）已 Failed，EDD 进入 Branch 2 区间。</span>
+          <span data-lang="en">Entry #1 Failed. EDD enters a different condition range (75–85 days).</span>
+          <span data-lang="zh">进入 #1 已 Failed，EDD 进入不同条件区间（75–85 天）。</span>
         </td>
         <td class="zh">新条件 + 已 Failed</td>
         <td><span style="color:var(--green);font-weight:600;">✅ Entry #2 created</span></td>
@@ -888,10 +888,10 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
       <tr>
         <td style="font-family:var(--mono);color:var(--pink);">⑤</td>
         <td>
-          <span data-lang="en">User's Entry #1 is Running. EDD moves from Branch 1 into Branch 2 range mid-run.</span>
-          <span data-lang="zh">进入 #1 仍 Running，EDD 从 Branch 1 范围变化进入 Branch 2 范围。</span>
+          <span data-lang="en">Entry #1 is Running. EDD moves from the 86–120 day range into the 75–85 day range mid-run.</span>
+          <span data-lang="zh">进入 #1 仍 Running，EDD 从 86–120 天区间变化进入 75–85 天区间。</span>
         </td>
-        <td class="zh">Running 中跨区间</td>
+        <td class="zh">Running 中跨条件区间</td>
         <td><span style="color:var(--red);font-weight:600;">❌ Blocked until #1 completes</span></td>
         <td><span class="badge b-blue">R1</span></td>
       </tr>
@@ -911,12 +911,12 @@ body.zh-mode [data-lang="zh"].inline { display: inline; }
     </div>
     <ul>
       <li>
-        <span data-lang="en"><strong>Same branch condition within this flow, regardless of run state</strong> — If a user already entered via "EDD 86–120 days" in this flow, she won't re-enter that same branch even after Entry #1 Completes. Only entering a new branch range (e.g. "EDD 75–85 days") triggers re-entry. Note: entering the same flow via the same condition in a different flow is allowed.</span>
-        <span data-lang="zh"><strong>此 Flow 内相同分支条件，无论运行状态</strong> — 用户已通过此 Flow 中的"EDD 86–120 天"分支进入过，即使进入 #1 已完成，该分支也不会再次触发。只有进入新的分支区间（如"EDD 75–85 天"）才触发重入。注意：在不同 Flow 中通过相同条件进入不受此限制。</span>
+        <span data-lang="en"><strong>Same condition range within this flow, regardless of run state</strong> — If a user already entered via the "EDD 86–120 days" condition in this flow, that condition will not fire again even after the entry Completes. Only a newly matched condition range (e.g. "EDD 75–85 days") triggers re-entry. Cross-flow entries are always independent.</span>
+        <span data-lang="zh"><strong>此 Flow 内相同条件区间，无论运行状态</strong> — 用户已通过"EDD 86–120 天"条件进入过此 Flow，即使进入已完成，该条件也不会再次触发。只有新命中的条件区间（如"EDD 75–85 天"）才触发重入。跨 Flow 进入完全独立，不受此限制。</span>
       </li>
       <li>
-        <span data-lang="en"><strong>EDD outside all branch ranges</strong> — If the user's EDD falls into the Else range (e.g. 200 days away), no enrollment is created. Else catches the user but does not trigger re-entry.</span>
-        <span data-lang="zh"><strong>EDD 不在任何分支区间内</strong> — 用户 EDD 落入 Else 区间（如距今 200 天），不创建进入记录。Else 捕获用户但不触发重入。</span>
+        <span data-lang="en"><strong>EDD does not match any configured condition range</strong> — If the user's EDD (e.g. 200 days away) does not fall into any configured range, no enrollment is created and the user does not enter the flow. There is no Else concept — unmatched users are simply not enrolled.</span>
+        <span data-lang="zh"><strong>EDD 未命中任何已配置的条件区间</strong> — 用户 EDD（如距今 200 天）未落入任何已配置区间，不创建进入记录，用户不进入 Flow。没有 Else 的概念——未命中的用户就是不进入。</span>
       </li>
       <li>
         <span data-lang="en"><strong>Previous run is still Running</strong> — No new enrollment until the current run reaches Completed / Exited / Failed.</span>
@@ -1283,16 +1283,16 @@ FROM (
     <span class="decision-box-title">✅ Phase 1 Confirmed Decisions · 已确认决策</span>
     <ul>
       <li>
-        <strong data-lang="en">R2 scope — Flow-level:</strong>
-        <span data-lang="en"> Same user, same flow, same branch condition = blocked. Cross-flow entries are always independent and unrestricted.</span>
-        <strong data-lang="zh">R2 范围 — Flow 级别：</strong>
-        <span data-lang="zh"> 同一用户在同一 Flow 内，同一分支条件只进入一次。跨 Flow 的进入完全独立，不受限制。</span>
+        <strong data-lang="en">R2 scope — Flow-level, condition-range based:</strong>
+        <span data-lang="en"> Same user, same flow, same condition range = blocked. Each condition range is treated as a unique trigger. Cross-flow entries are always independent and unrestricted.</span>
+        <strong data-lang="zh">R2 范围 — Flow 级别，基于条件区间：</strong>
+        <span data-lang="zh"> 同一用户在同一 Flow 内，同一条件区间只触发一次进入。每个条件区间视为唯一触发器。跨 Flow 的进入完全独立，不受限制。</span>
       </li>
       <li>
-        <strong data-lang="en">Else branch behavior:</strong>
-        <span data-lang="en"> Else does NOT create an enrollment record. A user in Else is in a "waiting" state. When her EDD subsequently enters any branch range, re-entry fires normally — this transition (Else → Branch) counts as "newly meeting the condition".</span>
-        <strong data-lang="zh">Else 分支行为：</strong>
-        <span data-lang="zh"> Else 不创建 enrollment 记录，用户落入 Else 相当于"等待区"。当 EDD 随后进入任何分支区间时，正常触发重入——Else → Branch 的转变视为"新满足条件"。</span>
+        <strong data-lang="en">No Else concept — unmatched users do not enter the flow:</strong>
+        <span data-lang="en"> If a user's EDD does not match any configured condition range, she simply does not enter the flow. There is no Else branch, no fallback enrollment, no special state. The system re-evaluates the next day.</span>
+        <strong data-lang="zh">没有 Else 概念 — 未命中条件的用户不进入 Flow：</strong>
+        <span data-lang="zh"> 用户 EDD 未命中任何已配置条件区间时，直接不进入 Flow。没有 Else 分支，没有兜底进入，没有特殊状态。系统第二天继续评估。</span>
       </li>
       <li>
         <strong data-lang="en">Evaluation frequency — Daily:</strong>
@@ -1301,10 +1301,10 @@ FROM (
         <span data-lang="zh"> 系统每天评估一次所有用户的 EDD 条件（每日批量，UTC+8 00:00–02:00）。用户进入区间后最多 24 小时内收到消息，非实时触发。</span>
       </li>
       <li>
-        <strong data-lang="en">Branch range overlap — Save-time validation:</strong>
-        <span data-lang="en"> If two branches have overlapping EDD day ranges, the system shows a warning on save. First-match-wins evaluation order is applied (Branch 1 evaluated first). Operators must resolve overlaps before publishing.</span>
-        <strong data-lang="zh">分支区间重叠 — 保存时校验：</strong>
-        <span data-lang="zh"> 若两个分支的 EDD 天数区间重叠，系统在保存时展示警告弹窗。评估顺序为第一匹配优先（Branch 1 最先评估）。运营人员需在发布前解决重叠问题。</span>
+        <strong data-lang="en">Condition range overlap — Save-time validation:</strong>
+        <span data-lang="en"> If two condition ranges overlap, the system shows a warning on save. First-match-wins evaluation order is applied (Condition 1 evaluated first). Operators must resolve overlaps before publishing.</span>
+        <strong data-lang="zh">条件区间重叠 — 保存时校验：</strong>
+        <span data-lang="zh"> 若两个条件区间重叠，系统在保存时展示警告弹窗。评估顺序为第一匹配优先（条件 1 最先评估）。运营人员需在发布前解决重叠问题。</span>
       </li>
     </ul>
   </div>
@@ -1375,8 +1375,8 @@ FROM (
     <span data-lang="en">Start Point — Flow Canvas</span>
     <span data-lang="zh">Start Point — Flow 画板</span>
   </h2>
-  <div data-lang="en" class="sdesc">When a Time-based Condition trigger is configured, the Start point node on the flow canvas reflects the trigger type and auto-generates EDD-based branches.</div>
-  <div data-lang="zh" class="sdesc">配置 Time-based Condition 触发后，画板上的 Start point 节点会显示触发类型，并自动生成基于 EDD 的分支结构。</div>
+  <div data-lang="en" class="sdesc">The Time-based Condition trigger is configured exclusively on the Start point node in the flow canvas. It defines one or more EDD condition ranges. Users are evaluated daily — those who newly match a condition range enter the flow; those who do not match any range do not enter. There is no Else branch.</div>
+  <div data-lang="zh" class="sdesc">Time-based Condition 触发器仅在画板的 Start point 节点上配置，不支持其他节点。它定义一个或多个 EDD 条件区间。系统每日评估用户——新命中条件区间的用户进入 Flow，未命中任何区间的用户不进入。没有 Else 分支的概念。</div>
 
   <!-- 4.1 Trigger Category -->
   <div class="sub-h" id="s4-trigger">
@@ -1412,38 +1412,41 @@ FROM (
       <tr>
         <td class="field">Save behavior</td>
         <td class="zh">保存行为</td>
-        <td data-lang="en">Saving auto-generates <strong>Branch 1</strong> and <strong>Else</strong> below the start point. EDD ranges are configured per branch.</td>
-        <td data-lang="zh">保存后自动生成 <strong>Branch 1</strong> 和 <strong>Else</strong> 分支。每个分支配置对应的 EDD 天数区间。</td>
+        <td data-lang="en">Saving auto-generates <strong>Condition 1</strong> path below the start point. Additional condition ranges can be added. EDD min/max is configured per condition range.</td>
+        <td data-lang="zh">保存后自动在 Start point 下方生成 <strong>条件 1</strong> 路径，可继续添加更多条件区间。每个条件区间配置 EDD min/max 值。</td>
       </tr>
     </tbody>
   </table></div>
 
   <div class="callout c-info">
-    <div class="bi-label" style="padding:0;margin-bottom:8px;">Re-entry trigger &amp; branches — Info Panel</div>
+    <div class="bi-label" style="padding:0;margin-bottom:8px;">Re-entry trigger — Key behaviors / 触发器关键行为</div>
     <div data-lang="en">
-      <strong>①</strong> <strong>Time-based Condition trigger</strong> — Re-entry fires when the user newly meets the time-based condition.<br>
-      <strong>②</strong> <strong>Auto-generated branches</strong> — Saving the trigger creates Branch 1 + Else by default.<br>
-      <strong>③</strong> <strong>Configurable min / max</strong> — Each branch defines an EDD day range.<br>
-      <strong>④</strong> <strong>Add Branch on connector</strong> — Use the connector action to insert more branches.<br>
-      <strong>⑤</strong> <strong>Else is permanent</strong> — Catches any user not matching a defined range.
+      <strong>①</strong> <strong>Trigger-only configuration</strong> — Time-based Condition is set on the Start point trigger only. No other nodes support this configuration.<br>
+      <strong>②</strong> <strong>Re-entry fires when newly matched</strong> — A user enters the flow when her EDD newly falls into a condition range she hasn't been enrolled in before (within this flow).<br>
+      <strong>③</strong> <strong>Configurable min / max per condition</strong> — Each condition range defines an EDD day window (e.g. 86–120 days from now).<br>
+      <strong>④</strong> <strong>Multiple conditions supported</strong> — Operators can configure multiple EDD ranges; each acts as an independent trigger condition.<br>
+      <strong>⑤</strong> <strong>No match = no entry</strong> — If a user's EDD does not fall into any configured range, she does not enter the flow. There is no Else, no fallback.
     </div>
     <div data-lang="zh">
-      <strong>①</strong> <strong>Time-based Condition trigger</strong> — 用户新满足 time-based 条件时触发 Re-entry。<br>
-      <strong>②</strong> <strong>自动生成分支</strong> — 保存 trigger 后默认创建 Branch 1 + Else 分支。<br>
-      <strong>③</strong> <strong>可配置 min / max</strong> — 每个 Branch 定义 EDD 天数区间。<br>
-      <strong>④</strong> <strong>在连接器上添加分支</strong> — 通过连接器操作插入更多分支。<br>
-      <strong>⑤</strong> <strong>Else 永久保留</strong> — 捕获所有不匹配任何已定义区间的用户。
+      <strong>①</strong> <strong>仅限 Trigger 区域配置</strong> — Time-based Condition 仅在 Start point 的 Trigger 区域设置，其他节点不支持此配置。<br>
+      <strong>②</strong> <strong>新命中时触发 Re-entry</strong> — 用户 EDD 首次落入某个在此 Flow 中从未进入过的条件区间时，进入 Flow。<br>
+      <strong>③</strong> <strong>每个条件可配置 min / max</strong> — 每个条件区间定义 EDD 天数窗口（如距今 86–120 天）。<br>
+      <strong>④</strong> <strong>支持多个条件区间</strong> — 运营人员可配置多个 EDD 区间，每个区间作为独立的触发条件。<br>
+      <strong>⑤</strong> <strong>未命中 = 不进入</strong> — 用户 EDD 未落入任何已配置区间时，不进入 Flow。没有 Else，没有兜底。
     </div>
   </div>
 
-  <!-- 4.2 Branch Logic -->
+  <!-- 4.2 Condition Range Configuration -->
   <div class="sub-h" id="s4-branches">
-    <span data-lang="en">4.2 Branch Configuration Logic</span>
-    <span data-lang="zh">4.2 Branch 配置逻辑</span>
+    <span data-lang="en">4.2 Condition Range Configuration</span>
+    <span data-lang="zh">4.2 条件区间配置</span>
   </div>
 
   <div class="flow-diagram">
-    <div class="flow-title">Flow Canvas — Time-based Condition with EDD Branches</div>
+    <div class="flow-title">
+      <span data-lang="en">Flow Canvas — Time-based Condition Trigger with EDD Ranges</span>
+      <span data-lang="zh">Flow 画板 — Time-based Condition Trigger + EDD 条件区间</span>
+    </div>
     <div style="text-align:center;">
       <div class="flow-node start" style="display:inline-block;">
         🎯 Start point
@@ -1452,32 +1455,32 @@ FROM (
       </div>
     </div>
     <div class="flow-arrow-down">↓</div>
+    <div style="text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;">
+      <span data-lang="en">Daily evaluation — user enters via the first condition range her EDD matches</span>
+      <span data-lang="zh">每日评估 — 用户通过 EDD 首个命中的条件区间进入</span>
+    </div>
     <div class="flow-branches">
       <div class="flow-branch-col">
         <div class="flow-node branch">
-          Branch 1
-          <small>EDD range</small>
-          <small style="font-size:10px;">86–120 days from now</small>
+          <span data-lang="en">Condition 1</span><span data-lang="zh">条件 1</span>
+          <small>EDD 86–120 days from now</small>
         </div>
         <div class="flow-arrow-down" style="color:#f5a623;">↓</div>
         <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
       </div>
       <div class="flow-branch-col">
         <div class="flow-node branch">
-          Branch 2
-          <small>EDD range</small>
-          <small style="font-size:10px;">75–85 days from now</small>
+          <span data-lang="en">Condition 2</span><span data-lang="zh">条件 2</span>
+          <small>EDD 75–85 days from now</small>
         </div>
         <div class="flow-arrow-down" style="color:#f5a623;">↓</div>
         <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
       </div>
       <div class="flow-branch-col">
-        <div class="flow-node else-node">
-          Else
-          <small>No range matched</small>
+        <div class="flow-node" style="background:var(--accent-soft);border:1.5px dashed var(--border-strong);color:var(--text-muted);font-size:11px;min-width:110px;text-align:center;padding:10px 8px;">
+          <span data-lang="en">No match<br>→ not enrolled</span>
+          <span data-lang="zh">未命中<br>→ 不进入 Flow</span>
         </div>
-        <div class="flow-arrow-down">↓</div>
-        <div class="flow-node" style="font-size:11px;color:var(--text-muted);">... actions ...</div>
       </div>
     </div>
     <div class="flow-arrow-down">↓</div>
@@ -1488,34 +1491,34 @@ FROM (
 
   <div class="tw"><table>
     <thead><tr>
-      <th>Branch <span data-lang="zh" class="inline">/ 分支</span></th>
+      <th><span data-lang="en">Condition Range</span><span data-lang="zh">条件区间</span></th>
       <th class="zh">说明</th>
-      <th>Condition <span data-lang="zh" class="inline">/ 条件</span></th>
-      <th>Configurable <span data-lang="zh" class="inline">/ 可配置</span></th>
+      <th><span data-lang="en">Behavior</span><span data-lang="zh">行为</span></th>
+      <th><span data-lang="en">Configurable</span><span data-lang="zh">可配置</span></th>
     </tr></thead>
     <tbody>
       <tr>
-        <td class="field">Branch 1 … N</td>
-        <td class="zh">自定义分支</td>
-        <td data-lang="en">EDD is within [min, max] days from now. Operators configure min and max values per branch.</td>
-        <td data-lang="zh">EDD 距今在 [min, max] 天范围内，运营人员按分支配置 min 和 max 值。</td>
+        <td class="field">Condition 1 … N</td>
+        <td class="zh">自定义条件区间</td>
+        <td data-lang="en">EDD is within [min, max] days from now. User enters the flow when EDD newly matches this range. Operators configure min and max per condition.</td>
+        <td data-lang="zh">EDD 距今在 [min, max] 天范围内时，用户 EDD 新命中该区间则进入 Flow。运营人员按条件配置 min 和 max 值。</td>
         <td><span class="badge b-green">Yes</span></td>
       </tr>
       <tr>
-        <td class="field">Else</td>
-        <td class="zh">兜底分支</td>
-        <td data-lang="en">User does not match any configured branch range. Else is permanent and cannot be deleted.</td>
-        <td data-lang="zh">用户不匹配任何已配置的分支区间。Else 分支永久存在，不可删除。</td>
-        <td><span class="badge b-red">No</span></td>
+        <td class="field" style="color:var(--text-muted);">No match</td>
+        <td class="zh">未命中</td>
+        <td data-lang="en">User's EDD does not fall into any configured range → user does not enter the flow. No enrollment created. No Else, no fallback. System re-evaluates the next day.</td>
+        <td data-lang="zh">用户 EDD 未落入任何已配置区间 → 用户不进入 Flow，不创建进入记录。没有 Else，没有兜底。系统次日继续评估。</td>
+        <td><span class="badge b-tbd">N/A</span></td>
       </tr>
     </tbody>
   </table></div>
 
   <div class="callout c-warn">
-    <strong data-lang="en">⚠ Range Overlap — Save-time Validation (Confirmed):</strong>
-    <span data-lang="en"> If a user's EDD falls into multiple branch ranges, the system evaluates branches in order (Branch 1 first) — first matching branch wins. <strong>On save, the system validates for overlapping ranges and shows a warning dialog.</strong> Operators must resolve overlaps before the flow can be published. This prevents silent mis-routing.</span>
-    <strong data-lang="zh">⚠ 区间重叠 — 保存时校验（已确认）：</strong>
-    <span data-lang="zh"> 若用户 EDD 同时落入多个分支区间，系统按顺序评估（Branch 1 优先），第一个匹配分支生效。<strong>保存时系统会检测区间重叠并弹出警告框，</strong>运营人员需在发布前解决重叠问题，防止静默路由错误。</span>
+    <strong data-lang="en">⚠ Condition Range Overlap — Save-time Validation (Confirmed):</strong>
+    <span data-lang="en"> If a user's EDD falls into multiple condition ranges simultaneously, the system evaluates them in configuration order (Condition 1 first) — first match wins. <strong>On save, the system validates for overlapping ranges and shows a warning dialog.</strong> Operators must resolve overlaps before the flow can be published.</span>
+    <strong data-lang="zh">⚠ 条件区间重叠 — 保存时校验（已确认）：</strong>
+    <span data-lang="zh"> 若用户 EDD 同时落入多个条件区间，系统按配置顺序评估（条件 1 优先），第一个匹配生效。<strong>保存时系统会检测区间重叠并弹出警告框，</strong>运营人员需在发布前解决重叠问题。</span>
   </div>
 </section>
 
@@ -1993,8 +1996,8 @@ FROM (
   <div data-lang="zh" class="sdesc">以下表格展示支持 Re-entry 逻辑所需的关键字段，字段名和类型仅供参考，请根据实际技术栈调整。</div>
 
   <div class="sub-h" style="font-size:13px;">
-    <span data-lang="en">flow_branch — Branch configuration per flow</span>
-    <span data-lang="zh">flow_branch — 每个 Flow 的分支配置</span>
+    <span data-lang="en">flow_trigger_condition — EDD condition ranges per flow</span>
+    <span data-lang="zh">flow_trigger_condition — 每个 Flow 的 EDD 条件区间配置</span>
   </div>
   <div class="tw"><table>
     <thead><tr>
@@ -2004,28 +2007,24 @@ FROM (
     </tr></thead>
     <tbody>
       <tr><td class="field">id</td><td>UUID</td>
-        <td data-lang="en">Branch unique identifier</td>
-        <td data-lang="zh">分支唯一标识</td>
+        <td data-lang="en">Condition range unique identifier</td>
+        <td data-lang="zh">条件区间唯一标识</td>
       </tr>
       <tr><td class="field">flow_id</td><td>UUID</td>
         <td data-lang="en">Parent flow reference</td>
         <td data-lang="zh">所属 Flow 的引用</td>
       </tr>
-      <tr><td class="field">branch_type</td><td>ENUM</td>
-        <td data-lang="en"><code>condition</code> | <code>else</code> — Else branch is permanent and cannot be deleted</td>
-        <td data-lang="zh"><code>condition</code> | <code>else</code> — Else 分支永久存在，不可删除</td>
-      </tr>
       <tr><td class="field">edd_min_days</td><td>INT</td>
-        <td data-lang="en">Minimum EDD days from now (inclusive). NULL for Else branch.</td>
-        <td data-lang="zh">EDD 距今最小天数（含），Else 分支为 NULL</td>
+        <td data-lang="en">Minimum EDD days from now (inclusive)</td>
+        <td data-lang="zh">EDD 距今最小天数（含）</td>
       </tr>
       <tr><td class="field">edd_max_days</td><td>INT</td>
-        <td data-lang="en">Maximum EDD days from now (inclusive). NULL for Else branch.</td>
-        <td data-lang="zh">EDD 距今最大天数（含），Else 分支为 NULL</td>
+        <td data-lang="en">Maximum EDD days from now (inclusive)</td>
+        <td data-lang="zh">EDD 距今最大天数（含）</td>
       </tr>
       <tr><td class="field">sort_order</td><td>INT</td>
-        <td data-lang="en">Evaluation priority order — lower value evaluated first (first-match-wins)</td>
-        <td data-lang="zh">评估优先级顺序，值越小越先评估（第一匹配优先）</td>
+        <td data-lang="en">Evaluation priority — lower value evaluated first (first-match-wins). No Else row exists.</td>
+        <td data-lang="zh">评估优先级，值越小越先评估（第一匹配优先）。不存在 Else 行。</td>
       </tr>
     </tbody>
   </table></div>
@@ -2053,9 +2052,9 @@ FROM (
         <td data-lang="en">The enrolled user</td>
         <td data-lang="zh">进入的用户</td>
       </tr>
-      <tr><td class="field">branch_id</td><td>UUID</td>
-        <td data-lang="en">Which branch the user was routed to. <strong>NULL for Else</strong> — Else does not create an enrollment record (see A.3)</td>
-        <td data-lang="zh">用户被路由到的分支。<strong>Else 不创建 enrollment 记录</strong>（见 A.3），此时为 NULL</td>
+      <tr><td class="field">condition_id</td><td>UUID</td>
+        <td data-lang="en">References <code>flow_trigger_condition.id</code> — which condition range triggered this entry. Always populated; unmatched users are never enrolled so this is never NULL.</td>
+        <td data-lang="zh">引用 <code>flow_trigger_condition.id</code>——触发本次进入的条件区间。始终有值；未命中条件的用户不会创建 enrollment，因此不存在 NULL 的情况。</td>
       </tr>
       <tr><td class="field">entry_number</td><td>INT</td>
         <td data-lang="en">Sequential entry count for this user in this flow (1, 2, 3 …)</td>
@@ -2101,19 +2100,18 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
 
     today_edd_days = DATEDIFF(user.edd, TODAY)  <span class="c">-- days until EDD</span>
 
-    <span class="c">-- Step 1: Find the first matching branch (sort_order ASC)</span>
-    <span class="c">-- 步骤 1：找到第一个匹配的分支（按 sort_order 升序）</span>
-    matched_branch = NULL
-    FOR EACH branch IN flow.branches WHERE branch_type = 'condition'
-                                    ORDER BY sort_order ASC:
-      IF today_edd_days >= branch.edd_min_days
-         AND today_edd_days <= branch.edd_max_days:
-        matched_branch = branch
+    <span class="c">-- Step 1: Find the first matching condition range (sort_order ASC)</span>
+    <span class="c">-- 步骤 1：找到第一个匹配的条件区间（按 sort_order 升序）</span>
+    matched_condition = NULL
+    FOR EACH cond IN flow.trigger_conditions ORDER BY sort_order ASC:
+      IF today_edd_days >= cond.edd_min_days
+         AND today_edd_days <= cond.edd_max_days:
+        matched_condition = cond
         BREAK
 
-    <span class="c">-- Step 2: If no branch matched, user is in Else → skip, no enrollment</span>
-    <span class="c">-- 步骤 2：无匹配分支 → 用户在 Else 状态，跳过，不创建 enrollment</span>
-    IF matched_branch IS NULL: CONTINUE
+    <span class="c">-- Step 2: No condition matched → user does not enter the flow. No Else, no record.</span>
+    <span class="c">-- 步骤 2：无匹配条件 → 用户不进入 Flow。没有 Else，不创建任何记录。</span>
+    IF matched_condition IS NULL: CONTINUE
 
     <span class="c">-- Step 3: R1 — Block if user has a Running enrollment in this flow</span>
     <span class="c">-- 步骤 3：R1 — 用户在此 Flow 有 Running 记录则阻断</span>
@@ -2122,12 +2120,12 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
                           AND status = 'running':
       CONTINUE  <span class="c">-- blocked by R1</span>
 
-    <span class="c">-- Step 4: R2 — Block if user already entered this flow via this branch</span>
-    <span class="c">-- 步骤 4：R2 — 用户在此 Flow 内已通过该分支进入过则阻断</span>
-    IF EXISTS enrollment WHERE flow_id = flow.id
-                          AND user_id = user.id
-                          AND branch_id = matched_branch.id:
-      CONTINUE  <span class="c">-- blocked by R2 (flow-level, same branch)</span>
+    <span class="c">-- Step 4: R2 — Block if user already entered this flow via this condition</span>
+    <span class="c">-- 步骤 4：R2 — 用户在此 Flow 内已通过该条件区间进入过则阻断</span>
+    IF EXISTS enrollment WHERE flow_id    = flow.id
+                          AND user_id    = user.id
+                          AND condition_id = matched_condition.id:
+      CONTINUE  <span class="c">-- blocked by R2 (flow-level, same condition range)</span>
 
     <span class="c">-- Step 5: R3 — Previous run must be in terminal state (or no prior run)</span>
     <span class="c">-- 步骤 5：R3 — 前次运行需为终态（或无历史记录）</span>
@@ -2144,7 +2142,7 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
     CREATE enrollment:
       flow_id      = flow.id
       user_id      = user.id
-      branch_id    = matched_branch.id
+      condition_id = matched_condition.id
       entry_number = COUNT(existing enrollments for this user/flow) + 1
       status       = 'running'
       enrolled_at  = NOW()
@@ -2161,12 +2159,12 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
 
   <!-- A.3 R2 Judgment Logic -->
   <div class="sub-h" id="s-backend-r2">
-    <span data-lang="en">A.3 R2 Judgment — How "Same Branch" Is Determined</span>
-    <span data-lang="zh">A.3 R2 判断 — "相同分支"如何认定</span>
+    <span data-lang="en">A.3 R2 Judgment — How "Same Condition" Is Determined</span>
+    <span data-lang="zh">A.3 R2 判断 — "相同条件"如何认定</span>
   </div>
 
-  <div data-lang="en" class="sdesc">R2 blocks re-entry when a user has already been enrolled via the same branch within the same flow. The judgment is based on <code>branch_id</code> — not on day range string matching.</div>
-  <div data-lang="zh" class="sdesc">R2 在用户已通过同一 Flow 内同一分支进入过时阻断重入。判断依据是 <code>branch_id</code>，而非天数区间字符串匹配。</div>
+  <div data-lang="en" class="sdesc">R2 blocks re-entry when a user has already been enrolled via the same condition range within the same flow. The judgment is based on <code>condition_id</code> — not on day range string matching.</div>
+  <div data-lang="zh" class="sdesc">R2 在用户已通过同一 Flow 内相同条件区间进入过时阻断重入。判断依据是 <code>condition_id</code>，而非天数区间字符串匹配。</div>
 
   <div class="tw"><table>
     <thead><tr>
@@ -2177,32 +2175,32 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
     </tr></thead>
     <tbody>
       <tr>
-        <td data-lang="en">User previously enrolled via Branch 1 (86–120 days). EDD still in 86–120 range.</td>
-        <td data-lang="zh">用户已通过 Branch 1（86–120天）进入过，EDD 仍在 86–120 天区间。</td>
-        <td class="zh">已通过 Branch 1 进入，EDD 未变</td>
+        <td data-lang="en">User previously enrolled via Condition 1 (86–120 days). EDD still in 86–120 range.</td>
+        <td data-lang="zh">用户已通过条件 1（86–120天）进入过，EDD 仍在 86–120 天区间。</td>
+        <td class="zh">已通过条件 1 进入，EDD 未变</td>
         <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
-        <td data-lang="en">Same <code>branch_id</code> already exists in enrollment table for this user + flow</td>
-        <td data-lang="zh">enrollment 表中已存在该用户 + 该 Flow + 相同 <code>branch_id</code> 的记录</td>
+        <td data-lang="en">Same <code>condition_id</code> already exists in enrollment table for this user + flow</td>
+        <td data-lang="zh">enrollment 表中已存在该用户 + 该 Flow + 相同 <code>condition_id</code> 的记录</td>
       </tr>
       <tr>
-        <td data-lang="en">User previously enrolled via Branch 1. EDD has now moved into Branch 2 range (75–85 days).</td>
-        <td data-lang="zh">用户已通过 Branch 1 进入，EDD 已进入 Branch 2 区间（75–85天）。</td>
-        <td class="zh">Branch 1 已进入，EDD 进入 Branch 2</td>
+        <td data-lang="en">User previously enrolled via Condition 1. EDD has now moved into Condition 2 range (75–85 days).</td>
+        <td data-lang="zh">用户已通过条件 1 进入，EDD 已进入条件 2 区间（75–85天）。</td>
+        <td class="zh">条件 1 已进入，EDD 进入条件 2</td>
         <td><span style="color:var(--green);font-weight:600;">✅ Allowed</span></td>
-        <td data-lang="en">Different <code>branch_id</code> — Branch 2 has never been enrolled in this flow</td>
-        <td data-lang="zh">不同 <code>branch_id</code>，Branch 2 在此 Flow 内从未进入过</td>
+        <td data-lang="en">Different <code>condition_id</code> — Condition 2 has never been enrolled in this flow</td>
+        <td data-lang="zh">不同 <code>condition_id</code>，条件 2 在此 Flow 内从未进入过</td>
       </tr>
       <tr>
-        <td data-lang="en">Operator edits Branch 1 day range from 86–120 to 80–120. User had already entered the old Branch 1.</td>
-        <td data-lang="zh">运营将 Branch 1 天数从 86–120 改为 80–120，用户已进入过旧的 Branch 1。</td>
-        <td class="zh">分支配置修改后，用户已进入过该分支</td>
+        <td data-lang="en">Operator edits Condition 1 day range from 86–120 to 80–120. User had already entered the old Condition 1.</td>
+        <td data-lang="zh">运营将条件 1 天数从 86–120 改为 80–120，用户已进入过旧的条件 1。</td>
+        <td class="zh">条件配置修改后，用户已进入过该条件</td>
         <td><span style="color:var(--red);font-weight:600;">❌ Blocked</span></td>
-        <td data-lang="en"><code>branch_id</code> is unchanged even if the range is edited — same branch ID = still blocked</td>
-        <td data-lang="zh"><code>branch_id</code> 不因区间修改而变化，同一 branch_id = 仍然阻断</td>
+        <td data-lang="en"><code>condition_id</code> is unchanged even if the range is edited — same ID = still blocked</td>
+        <td data-lang="zh"><code>condition_id</code> 不因区间修改而变化，同一 condition_id = 仍然阻断</td>
       </tr>
       <tr>
-        <td data-lang="en">User enrolled via Branch 1 in Flow A. Same user, same branch range configured in Flow B.</td>
-        <td data-lang="zh">用户在 Flow A 通过 Branch 1 进入，Flow B 中配置了相同天数区间的分支。</td>
+        <td data-lang="en">User enrolled via Condition 1 in Flow A. Same user, same day range configured as Condition 1 in Flow B.</td>
+        <td data-lang="zh">用户在 Flow A 通过条件 1 进入，Flow B 中配置了相同天数区间的条件 1。</td>
         <td class="zh">跨 Flow 相同区间</td>
         <td><span style="color:var(--green);font-weight:600;">✅ Allowed</span></td>
         <td data-lang="en">R2 is scoped to one flow. Cross-flow entries are always independent.</td>
@@ -2213,34 +2211,34 @@ FOR EACH flow WHERE allow_reentry = true AND status = 'active':
 
   <!-- A.4 Overlap Validation -->
   <div class="sub-h" id="s-backend-overlap">
-    <span data-lang="en">A.4 Branch Range Overlap Validation</span>
-    <span data-lang="zh">A.4 分支区间重叠校验</span>
+    <span data-lang="en">A.4 Condition Range Overlap Validation</span>
+    <span data-lang="zh">A.4 条件区间重叠校验</span>
   </div>
 
-  <div data-lang="en" class="sdesc">Triggered on flow save. Can be implemented on the frontend, backend, or both. Suggested logic:</div>
-  <div data-lang="zh" class="sdesc">在 Flow 保存时触发，可在前端、后端或两者同时实现。建议逻辑如下：</div>
+  <div data-lang="en" class="sdesc">Triggered on flow save. Can be implemented on the frontend, backend, or both. Checks all configured condition ranges for overlaps.</div>
+  <div data-lang="zh" class="sdesc">在 Flow 保存时触发，可在前端、后端或两者同时实现。检查所有已配置条件区间是否有重叠。</div>
 
   <div class="bi">
     <div class="bi-label">Pseudocode — Overlap Detection / 重叠检测伪代码</div>
     <div class="bi-en">
-<pre><span class="c">-- Check all condition branches (exclude Else) for overlapping ranges
--- 检查所有 condition 分支（排除 Else）是否有区间重叠</span>
+<pre><span class="c">-- Check all trigger conditions for overlapping EDD ranges
+-- 检查所有触发条件是否有 EDD 区间重叠</span>
 
-branches = GET all branches WHERE branch_type = 'condition'
-           ORDER BY edd_min_days ASC
+conditions = GET all flow_trigger_conditions WHERE flow_id = :flow_id
+             ORDER BY edd_min_days ASC
 
 overlaps = []
 
-FOR i IN 0..len(branches)-2:
-  a = branches[i]
-  b = branches[i+1]
+FOR i IN 0..len(conditions)-2:
+  a = conditions[i]
+  b = conditions[i+1]
 
   <span class="c">-- Two ranges overlap if one starts before the other ends</span>
   <span class="c">-- 若一个区间在另一个结束前开始，则重叠</span>
   IF a.edd_max_days >= b.edd_min_days:
     overlaps.append({
-      branch_a: a.id,
-      branch_b: b.id,
+      condition_a: a.id,
+      condition_b: b.id,
       overlap_range: [b.edd_min_days, a.edd_max_days]
     })
 
@@ -2258,10 +2256,17 @@ IF len(overlaps) > 0:
     <span data-lang="zh"> 重叠检测展示<strong>警告弹窗</strong>，不强制阻断保存。运营人员可确认后继续保存（风险自担）。存在重叠区间的 Flow 允许发布，评估时采用第一匹配优先原则。可考虑在发布时加强警告或设为强制阻断。</span>
   </div>
 
-  <!-- A.5 Else Behavior -->
+  <!-- A.5 No-match Behavior -->
   <div class="sub-h" id="s-backend-else">
-    <span data-lang="en">A.5 Else Branch — Implementation Note</span>
-    <span data-lang="zh">A.5 Else 分支 — 实现说明</span>
+    <span data-lang="en">A.5 No Condition Match — Implementation Note</span>
+    <span data-lang="zh">A.5 未命中任何条件 — 实现说明</span>
+  </div>
+
+  <div class="callout c-note">
+    <strong data-lang="en">There is no Else and no special state to track.</strong>
+    <span data-lang="en"> When the daily evaluation finds no matching condition range for a user, it simply moves on. No record is written. No state is stored. The system re-evaluates the same user tomorrow with the latest EDD value. This means the "unmatched" behavior is a natural side-effect of the evaluation loop — not a feature that requires implementation.</span>
+    <strong data-lang="zh">没有 Else，也没有需要追踪的特殊状态。</strong>
+    <span data-lang="zh"> 每日评估未找到匹配条件区间时，直接跳过该用户，不写入任何记录，不存储任何状态。系统明天使用最新 EDD 值重新评估同一用户。"未命中"是评估循环的自然结果，不需要额外实现。</span>
   </div>
 
   <div class="tw"><table>
@@ -2272,25 +2277,18 @@ IF len(overlaps) > 0:
     </tr></thead>
     <tbody>
       <tr>
-        <td data-lang="en">Else does NOT create an enrollment record</td>
-        <td data-lang="zh">Else 不创建 enrollment 记录</td>
-        <td class="zh">不写入 enrollment 表</td>
-        <td data-lang="en">When the daily evaluation finds no matching condition branch, the user is skipped entirely. No row is written to the enrollment table. The user remains in an implicit "waiting" state.</td>
-        <td data-lang="zh">每日评估未找到匹配的 condition 分支时，直接跳过该用户，不向 enrollment 表写入任何记录。用户处于隐式"等待"状态。</td>
+        <td data-lang="en">No condition matched today</td>
+        <td data-lang="zh">今天未命中任何条件</td>
+        <td class="zh">直接跳过，不写入记录</td>
+        <td data-lang="en"><code>CONTINUE</code> in the daily loop. No DB write. Re-evaluated tomorrow.</td>
+        <td data-lang="zh">每日循环中 <code>CONTINUE</code>，不写入 DB，明天重新评估。</td>
       </tr>
       <tr>
-        <td data-lang="en">Else → Branch transition triggers re-entry</td>
-        <td data-lang="zh">Else → Branch 转变触发重入</td>
-        <td class="zh">视为新满足条件</td>
-        <td data-lang="en">Because no enrollment record exists for Else, the R2 check finds no prior entry for the matched branch — re-entry is allowed. No special "Else state" tracking is required.</td>
-        <td data-lang="zh">由于 Else 未创建 enrollment 记录，R2 检查找不到该分支的历史进入记录，重入被允许。无需额外追踪"Else 状态"。</td>
-      </tr>
-      <tr>
-        <td data-lang="en">Else branch cannot be deleted</td>
-        <td data-lang="zh">Else 分支不可删除</td>
-        <td class="zh">前端禁用删除操作</td>
-        <td data-lang="en">Enforced at the UI level — delete action is disabled for <code>branch_type = 'else'</code>. Can also add a backend guard to reject DELETE requests for Else branches.</td>
-        <td data-lang="zh">在 UI 层强制执行，<code>branch_type = 'else'</code> 的分支删除操作置灰。也可在后端添加防护，拒绝 Else 分支的 DELETE 请求。</td>
+        <td data-lang="en">User later enters a condition range</td>
+        <td data-lang="zh">用户之后命中某条件区间</td>
+        <td class="zh">R2 检查无历史记录，允许进入</td>
+        <td data-lang="en">R2 checks enrollment table for this user + flow + condition_id. Since no prior enrollment exists, R2 passes and a new enrollment is created.</td>
+        <td data-lang="zh">R2 查询 enrollment 表，该用户 + 该 Flow + 该 condition_id 无记录，R2 通过，创建新 enrollment。</td>
       </tr>
     </tbody>
   </table></div>
@@ -2348,15 +2346,15 @@ SELECT EXISTS (
   </div>
 
   <div class="bi">
-    <div class="bi-label">SQL — R2 Check (has user entered this branch before?)</div>
+    <div class="bi-label">SQL — R2 Check (has user entered this condition before?)</div>
     <div class="bi-en">
-<pre><span class="c">-- Returns true if user already entered this branch → block re-entry</span>
+<pre><span class="c">-- Returns true if user already entered via this condition → block re-entry</span>
 SELECT EXISTS (
   SELECT 1 FROM enrollment
-  WHERE flow_id   = :flow_id
-    AND user_id   = :user_id
-    AND branch_id = :matched_branch_id
-) AS already_entered_branch</pre>
+  WHERE flow_id      = :flow_id
+    AND user_id      = :user_id
+    AND condition_id = :matched_condition_id
+) AS already_entered_condition</pre>
     </div>
   </div>
 
@@ -2409,8 +2407,8 @@ SELECT EXISTS (
       </tr>
       <tr>
         <td class="field">Else Branch</td>
-        <td>The permanent fallback branch that catches users who do not match any configured EDD range. Cannot be deleted.</td>
-        <td class="zh">永久兜底分支，捕获不匹配任何已配置 EDD 区间的用户，不可删除。</td>
+        <td><em>Not applicable in this feature.</em> If a user's EDD does not match any configured condition range, she simply does not enter the flow. There is no Else branch concept.</td>
+        <td class="zh"><em>此功能不适用。</em>用户 EDD 未命中任何已配置条件区间时，直接不进入 Flow，没有 Else 分支的概念。</td>
       </tr>
       <tr>
         <td class="field">Running</td>
@@ -2497,9 +2495,12 @@ SELECT EXISTS (
         <td data-lang="zh">初稿——Re-entry 功能，含 Time-based Condition 触发、完整 UI 字段定义、并发控制及指标体系。</td>
       </tr>
       <tr>
-        <td class="field">v1.2</td>
+        <td class="field">v1.3</td>
         <td>2026-05-25</td>
         <td>Product Team</td>
+        <td data-lang="en">Major concept correction: removed all Else branch references throughout the document. Re-entry trigger is condition-only — unmatched users simply do not enter the flow. Updated: Executive Summary visual, user story, EDD timeline, concurrency table, not-trigger list, S4 canvas section, flow diagram, confirmed decisions, Appendix data model (flow_trigger_condition table, condition_id field), pseudocode, R2 judgment, overlap validation, A.5 replaced with no-match note, SQL queries, Glossary.</td>
+        <td data-lang="zh">重要概念修正：全文移除所有 Else 分支相关内容。Re-entry trigger 仅为条件触发——未命中条件的用户直接不进入 Flow。更新范围：Executive Summary 可视化、用户故事、EDD 时间轴、并发场景表、不触发反例、S4 画板章节、Flow 结构图、已确认决策、附录数据模型（flow_trigger_condition 表、condition_id 字段）、伪代码、R2 判断、重叠校验、A.5 改为未命中说明、SQL 查询、术语表。</td>
+      </tr>
         <td data-lang="en">Added Appendix: Backend Implementation Reference — suggested data model (flow_branch, enrollment tables), daily evaluation pseudocode, R2 judgment logic (branch_id based), overlap validation pseudocode, Else branch implementation note, and 4 key SQL query references. All marked as reference only.</td>
         <td data-lang="zh">新增附录：后端实现参考——建议数据模型（flow_branch、enrollment 表）、每日评估伪代码、R2 判断逻辑（基于 branch_id）、重叠检测伪代码、Else 分支实现说明及 4 条关键 SQL 查询参考。全部标注为仅供参考。</td>
       </tr>
