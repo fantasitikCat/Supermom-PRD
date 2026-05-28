@@ -159,7 +159,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-009 · v1.7 · 2026-05-28</span>
+    <span class="lang-bar-id">PRD-TRK-009 · v1.9 · 2026-05-28</span>
   </div>
   <div class="lang-toggle">
     <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
@@ -172,7 +172,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">Aima Link Tracking &amp; Attribution</div>
-    <div class="sidebar-ver">PRD-TRK-009 · v1.7</div>
+    <div class="sidebar-ver">PRD-TRK-009 · v1.9</div>
   </div>
   <div class="ngl">Navigation</div>
   <a class="nl" href="#exec">⭐ Executive Summary</a>
@@ -215,8 +215,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <a class="nl sub" href="#">UTM-GOV-001 — UTM Dictionary</a>
   <div class="nav-div"></div>
   <div class="ngl">Team</div>
-  <a class="nl sub" href="#s9">🤖 Aima — Aima Engineer</a>
-  <a class="nl sub" href="#s9">⚙️ Aima Backend — Aima Engineer</a>
+  <a class="nl sub" href="#s9">🤖 Aima Engineer</a>
   <a class="nl sub" href="#s9">🎯 Rec — Rec Engineer (Phase 1: none)</a>
   <a class="nl sub" href="#">PRD-TRK-008 — MA Identity Assoc.</a>
 </nav>
@@ -251,7 +250,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
       <rect x="20" y="150" width="720" height="60" rx="6" fill="#fdf0f4" opacity=".4"/>
       <rect x="20" y="220" width="720" height="30" rx="6" fill="#edf7f2" opacity=".5"/>
       <text x="34" y="28" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA SYSTEM</text>
-      <text x="34" y="98" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="34" y="98" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA ENGINEER</text>
       <text x="34" y="168" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">FRONTEND · GTM · GA4</text>
       <text x="34" y="234" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">USER</text>
       <!-- Step 1 -->
@@ -341,7 +340,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
           </div>
 
           <div style="font-size:12px;color:var(--text-muted);line-height:1.75;">
-            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--teal);font-weight:600;">Who generates:</span><span data-lang="en">Aima Backend — at message send time</span><span data-lang="zh">Aima Backend — 消息发送时</span></div>
+            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--teal);font-weight:600;">Who generates:</span><span data-lang="en">Aima Engineer — at message send time</span><span data-lang="zh">Aima 工程师 — 消息发送时</span></div>
             <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--teal);font-weight:600;">Contains:</span><span data-lang="en">conversation_id, message_id, user, runtime_source</span><span data-lang="zh">conversation_id, message_id, user, runtime_source</span></div>
             <div style="display:flex;gap:8px;"><span style="color:var(--teal);font-weight:600;">In link as:</span><span><code>?aima_ref=xxx</code></span></div>
           </div>
@@ -410,7 +409,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   &amp;<span style="color:#80cbc4;">utm_medium</span>=<span style="color:#a5d6a7;">whatsapp</span>
   &amp;<span style="color:#80cbc4;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_summer_promo</span>
   &amp;<span style="color:#f48fb1;">utm_term</span>=<span style="color:#ce93d8;">rec_001</span>          <span style="color:#6b7280;font-style:italic;">← rec_id (from Rec Engineer)</span>
-  &amp;<span style="color:#80cbc4;">aima_ref</span>=<span style="color:#ffcc80;">eyJjb252X2lkIjoi...</span>  <span style="color:#6b7280;font-style:italic;">← aima_ref (from Aima Backend)</span></pre>
+  &amp;<span style="color:#80cbc4;">aima_ref</span>=<span style="color:#ffcc80;">eyJjb252X2lkIjoi...</span>  <span style="color:#6b7280;font-style:italic;">← aima_ref (from Aima Engineer)</span></pre>
     </div>
 
     <!-- Not the same as ma_ref note -->
@@ -428,7 +427,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <p class="sub" data-lang="zh">定义 Aima 对话消息在 WhatsApp Native 和 Website Widget 渠道下的链接追踪、参数注入与归因框架。</p>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">Doc ID</span><span class="v">PRD-TRK-009</span></div>
-    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.7</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.9</span></div>
     <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
     <div class="meta-cell"><span class="k">Domain</span><span class="v">Foundation → Tracking</span></div>
     <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-28</span></div>
@@ -545,7 +544,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
       <line x1="350" y1="88" x2="350" y2="110" stroke="#c0385a" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#la1)"/>
       <!-- Layer 2 -->
       <rect x="30" y="112" width="640" height="78" rx="7" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.5"/>
-      <text x="48" y="132" font-size="8.5" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500" letter-spacing=".1em">LAYER 2 — AIMA BACKEND</text>
+      <text x="48" y="132" font-size="8.5" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500" letter-spacing=".1em">LAYER 2 — AIMA ENGINEER</text>
       <rect x="50" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="120" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Generate aima_ref</text><text x="120" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">JWT / opaque token</text>
       <rect x="220" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="290" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">UTM Decision</text><text x="290" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">based on runtime_source</text>
       <rect x="390" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="460" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Store Context</text><text x="460" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">conv_id / msg_id / user</text>
@@ -653,7 +652,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <div class="stag">07</div>
   <h2 data-lang="en">aima_ref Design</h2><h2 data-lang="zh">aima_ref 设计规范</h2>
   <div class="sub-h" id="s7a" data-lang="en">7.1 Field Structure</div><div class="sub-h" data-lang="zh">7.1 字段结构</div>
-  <p class="sdesc" data-lang="en"><code>aima_ref</code> is an opaque token generated by Aima Backend that maps to conversation context. No raw identity data is stored inside the token — identity is resolved server-side via a Backend lookup.</p>
+  <p class="sdesc" data-lang="en"><code>aima_ref</code> is an opaque token generated by Aima Engineer that maps to conversation context. No raw identity data is stored inside the token — identity is resolved server-side via a Backend lookup.</p>
   <p class="sdesc" data-lang="zh"><code>aima_ref</code> 是 Backend 生成的 opaque token，映射到对话上下文。token 内不存储原始 identity 数据——identity 通过 Backend lookup 在服务端解析。</p>
   <div class="tw"><table>
     <thead><tr>
@@ -722,7 +721,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
     <thead><tr><th><span data-lang="en">Rule</span><span data-lang="zh">规则</span></th><th><span data-lang="en">Detail</span><span data-lang="zh">说明</span></th></tr></thead>
     <tbody>
       <tr><td><span data-lang="en">One token per message</span><span data-lang="zh">每条消息一个 token</span></td><td><span data-lang="en">All links in the same Aima message share the same aima_ref, differentiated by link_id</span><span data-lang="zh">同一 Aima 消息中的所有链接共享同一个 aima_ref，通过 link_id 区分</span></td></tr>
-      <tr><td><span data-lang="en">Generated at send time</span><span data-lang="zh">发送时生成</span></td><td><span data-lang="en">Token generated by Aima Backend when Aima is about to send — not at conversation start</span><span data-lang="zh">Token 在 Aima 即将发送消息时由 Backend 生成，不在对话开始时生成</span></td></tr>
+      <tr><td><span data-lang="en">Generated at send time</span><span data-lang="zh">发送时生成</span></td><td><span data-lang="en">Token generated by Aima Engineer when Aima is about to send — not at conversation start</span><span data-lang="zh">Token 在 Aima 即将发送消息时由 Backend 生成，不在对话开始时生成</span></td></tr>
       <tr><td><span data-lang="en">No raw identity in token</span><span data-lang="zh">token 中不含原始 identity</span></td><td><span data-lang="en">Same principle as PRD-TRK-007 identity_token: raw user data stored in Backend only</span><span data-lang="zh">与 PRD-TRK-007 identity_token 同理：原始用户数据只存储在 Backend 中</span></td></tr>
       <tr><td><span data-lang="en">Filter external URLs</span><span data-lang="zh">过滤外部 URL</span></td><td><span data-lang="en">Aima MUST NOT append parameters to third-party URLs — only to own-domain links</span><span data-lang="zh">Aima 不得对第三方 URL 追加参数，只处理自有域名链接</span></td></tr>
     </tbody>
@@ -847,7 +846,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
     <tbody>
       <tr><td class="field" data-lang="en">Trigger</td><td class="field" data-lang="zh">触发方</td><td><span data-lang="en">User</span><span data-lang="zh">用户</span></td><td><span data-lang="en">MA System</span><span data-lang="zh">MA 系统</span></td></tr>
       <tr><td class="field" data-lang="en">Tracking token</td><td class="field" data-lang="zh">追踪 token</td><td><code>aima_ref</code></td><td><code>ma_ref</code></td></tr>
-      <tr><td class="field" data-lang="en">UTM owner</td><td class="field" data-lang="zh">UTM 负责方</td><td><span data-lang="en">Aima Backend (per S6)</span><span data-lang="zh">Aima Backend（按 S6）</span></td><td><span data-lang="en">MA System (passed to Aima)</span><span data-lang="zh">MA 系统（传给 Aima）</span></td></tr>
+      <tr><td class="field" data-lang="en">UTM owner</td><td class="field" data-lang="zh">UTM 负责方</td><td><span data-lang="en">Aima Engineer (per S6)</span><span data-lang="zh">Aima 工程师（按 S6）</span></td><td><span data-lang="en">MA System (passed to Aima)</span><span data-lang="zh">MA 系统（传给 Aima）</span></td></tr>
       <tr><td class="field" data-lang="en">PRD</td><td class="field" data-lang="zh">文档</td><td><span data-lang="en">This document (PRD-TRK-009)</span><span data-lang="zh">本文档（PRD-TRK-009）</span></td><td>PRD-TRK-007 S9</td></tr>
       <tr><td class="field" data-lang="en">Conflict?</td><td class="field" data-lang="zh">冲突？</td><td colspan="4" style="text-align:center;"><span class="badge b-green" data-lang="en">✅ No conflict — mutually exclusive paths, never overlap</span><span class="badge b-green" data-lang="zh">✅ 无冲突 — 互斥路径，永不重叠</span></td></tr>
     </tbody>
@@ -878,8 +877,8 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
       <rect x="20" y="212" width="725" height="60" rx="4" fill="#edf7f2" opacity=".5"/>
       <rect x="20" y="280" width="725" height="60" rx="4" fill="#fef7e6" opacity=".5"/>
       <!-- Lane labels -->
-      <text x="30" y="26" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA</text>
-      <text x="30" y="94" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="30" y="26" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA ENGINEER</text>
+      <text x="30" y="94" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA ENGINEER</text>
       <text x="30" y="162" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">WHATSAPP</text>
       <text x="30" y="230" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">USER BROWSER</text>
       <text x="30" y="298" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
@@ -964,7 +963,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
       <!-- Lane labels -->
       <text x="30" y="24" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">FRONTEND</text>
       <text x="30" y="84" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA WIDGET</text>
-      <text x="30" y="144" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="30" y="144" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA ENGINEER</text>
       <text x="30" y="204" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
       <text x="30" y="262" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">RESULT</text>
 
@@ -1023,38 +1022,43 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
   <p class="sdesc" data-lang="en">Each team has a clearly defined, non-overlapping role. The <strong>Why</strong> box explains the business reason for each assignment so everyone understands the logic, not just the rule.</p>
   <p class="sdesc" data-lang="zh">每个团队的职责明确且不重叠。每个卡片下的 <strong>Why</strong> 说明了分工的业务原因，让大家理解背后的逻辑，而不只是记住规则。</p>
   <div class="resp-grid">
-    <div class="resp-card">
-      <div class="resp-card-head aima">🤖 Aima System</div>
+    <div class="resp-card" style="border:2px solid var(--purple-b);">
+      <div class="resp-card-head" style="background:var(--purple-bg);color:var(--purple);border-bottom:1px solid var(--purple-b);">🎯 Recommendation Engineer</div>
       <div class="resp-card-body">
         <ul>
-          <li data-lang="en">Maintain <code>runtime_source</code> per conversation session</li><li data-lang="zh">维护每个对话 session 的 <code>runtime_source</code></li>
-          <li data-lang="en">Identify ALL links in outgoing messages (CTA buttons + body links)</li><li data-lang="zh">识别发出消息中的所有链接（CTA 按钮和正文链接）</li>
-          <li data-lang="en">Request <code>aima_ref</code> from Backend before sending each message</li><li data-lang="zh">每次发送消息前向 Backend 请求 <code>aima_ref</code></li>
-          <li data-lang="en">Append <code>aima_ref</code> (+ UTM if whatsapp_native) to own-domain links only</li><li data-lang="zh">仅对自有域名链接追加 <code>aima_ref</code>（+ UTM，如果是 whatsapp_native）</li>
-          <li data-lang="en">Receive <code>rec_id</code> from Recommendation Engineer and pass through to link parameters</li><li data-lang="zh">接收推荐引擎工程师提供的 <code>rec_id</code> 并透传到链接参数中</li>
+          <li data-lang="en">Analyse user profile → identify suitable activities</li>
+          <li data-lang="zh">分析用户画像 → 找到合适的活动</li>
+          <li data-lang="en">Generate a unique <code>rec_id</code> per recommendation instance</li>
+          <li data-lang="zh">每次推荐时生成唯一 <code>rec_id</code></li>
+          <li data-lang="en">Pass activity info + original link + <code>rec_id</code> to Aima — no extra params needed on the link itself</li>
+          <li data-lang="zh">将活动信息 + 原始链接 + <code>rec_id</code> 传给 Aima——链接本身不需要附加任何参数</li>
         </ul>
         <div class="why-box" style="margin-top:10px;">
-          <span class="why-label" data-lang="en">Why Aima owns this</span>
-          <span class="why-label" data-lang="zh">为什么由 Aima 负责</span>
-          <p data-lang="en">Aima is the only system with full conversation context (session, message, channel) at the exact moment of sending. No other system can inject the correct parameters — only the system that <em>holds</em> the conversation knows what to attach.</p>
-          <p data-lang="zh">Aima 是发送时唯一拥有完整对话上下文（session、消息、渠道）的系统。没有其他系统能注入正确的参数——只有<em>持有</em>对话的系统才知道要附加什么。</p>
+          <span class="why-label" data-lang="en">Why Rec Engineer owns this</span>
+          <span class="why-label" data-lang="zh">为什么由推荐工程师负责</span>
+          <p data-lang="en">Only the Recommendation Engine knows <em>why</em> an activity was recommended — which strategy, which ranking, which experiment. The rec_id must be generated at the moment of recommendation decision, not by Aima.</p>
+          <p data-lang="zh">只有推荐引擎知道<em>为什么</em>推荐这个活动——用了什么策略、什么排名、属于什么实验。rec_id 必须在推荐决策时生成，不能由 Aima 生成。</p>
         </div>
       </div>
     </div>
     <div class="resp-card">
-      <div class="resp-card-head be">⚙️ Aima Backend</div>
+      <div class="resp-card-head aima">🤖 Aima Engineer</div>
       <div class="resp-card-body">
         <ul>
-          <li data-lang="en">Generate <code>aima_ref</code> token (opaque, signed, no raw PII)</li><li data-lang="zh">生成 <code>aima_ref</code> token（opaque、签名、不含原始 PII）</li>
-          <li data-lang="en">Store context mapping: aima_ref → conv_id / msg_id / user / runtime_source</li><li data-lang="zh">存储上下文映射：aima_ref → conv_id / msg_id / user / runtime_source</li>
+          <li data-lang="en">Maintain <code>runtime_source</code> per conversation session</li><li data-lang="zh">维护每个对话 session 的 <code>runtime_source</code></li>
+          <li data-lang="en">Identify ALL links in outgoing messages (CTA buttons + body links)</li><li data-lang="zh">识别发出消息中的所有链接（CTA 按钮和正文链接）</li>
+          <li data-lang="en">Request and receive <code>aima_ref</code> token from backend before sending each message</li><li data-lang="zh">每次发送消息前向后端请求并接收 <code>aima_ref</code> token</li>
+          <li data-lang="en">Generate <code>aima_ref</code> server-side (opaque, signed, no raw PII) and store context mapping</li><li data-lang="zh">服务端生成 <code>aima_ref</code>（opaque、签名、不含原始 PII），存储上下文映射</li>
+          <li data-lang="en">Append <code>aima_ref</code> + UTM (if whatsapp_native) + <code>utm_term={rec_id}</code> (if provided) to own-domain links</li><li data-lang="zh">为自有域名链接附加 <code>aima_ref</code> + UTM（whatsapp_native）+ <code>utm_term={rec_id}</code>（如有）</li>
           <li data-lang="en">Enforce UTM decision: add UTM for whatsapp_native, suppress for website_widget</li><li data-lang="zh">执行 UTM 决策：whatsapp_native 加 UTM，website_widget 强制禁止</li>
-          <li data-lang="en">Resolve <code>aima_ref</code> when landing page calls Aima Backend resolve API</li><li data-lang="zh">当 landing page 调用 resolve API 时解析 <code>aima_ref</code></li>
+          <li data-lang="en">Resolve <code>aima_ref</code> when landing page calls resolve API</li><li data-lang="zh">当 landing page 调用 resolve API 时解析 <code>aima_ref</code></li>
+          <li data-lang="en">Detect missing <code>rec_id</code> and log warning — send with <code>aima_ref</code> only as fallback</li><li data-lang="zh">检测 <code>rec_id</code> 缺失并记录告警——回退到仅发送 <code>aima_ref</code></li>
         </ul>
         <div class="why-box" style="margin-top:10px;">
-          <span class="why-label" data-lang="en">Why Aima Backend owns this</span>
-          <span class="why-label" data-lang="zh">为什么由 Aima Backend 负责</span>
-          <p data-lang="en">Token generation MUST be server-side to prevent user tampering and ensure auditability. Backend is the only system that can safely map opaque tokens to real user identity without exposing PII to the browser or to Aima itself.</p>
-          <p data-lang="zh">Token 生成必须在服务端，防止用户篡改并确保可审计。Backend 是唯一能安全地将 opaque token 映射到真实用户 identity 的系统，而不向浏览器或 Aima 本身暴露 PII。</p>
+          <span class="why-label" data-lang="en">Why Aima Engineer owns this</span>
+          <span class="why-label" data-lang="zh">为什么由 Aima 工程师负责</span>
+          <p data-lang="en">Aima is the only system with full conversation context (session, message, channel) at send time. Token generation must be server-side to prevent tampering — no other system can safely combine conversation context with secure token generation.</p>
+          <p data-lang="zh">Aima 是发送时唯一拥有完整对话上下文（session、消息、渠道）的系统。Token 生成必须在服务端防止篡改——没有其他系统能安全地将对话上下文与 token 生成结合起来。</p>
         </div>
       </div>
     </div>
@@ -1096,36 +1100,19 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
     </div>
   </div>
 
-  <!-- Rec Engineer card -->
-  <div class="resp-card" style="margin:0 0 14px;">
-    <div class="resp-card-head" style="background:var(--purple-bg);color:var(--purple);border-bottom:1px solid var(--purple-b);">🎯 Recommendation Engineer</div>
-    <div class="resp-card-body">
-      <ul>
-        <li data-lang="en">Analyse user → identify suitable activities → pass activity info + <strong>original link (no extra params)</strong> to Aima</li>
-        <li data-lang="zh">分析用户画像 → 找到合适的活动 → 将活动信息和<strong>原始链接（不附加任何参数）</strong>传给 Aima</li>
-        <li data-lang="en"><strong>Phase 1: one new step required.</strong> When outputting a recommendation, generate a unique <code>rec_id</code> and pass it alongside the activity link to Aima. Work level: small.</li>
-        <li data-lang="zh"><strong>Phase 1：新增一步。</strong>输出推荐时，生成唯一 <code>rec_id</code> 并与活动链接一起传给 Aima。工作量：小。</li>
-        <li data-lang="en">Phase 2 (future): attach <code>rec_id</code> per recommended activity for recommendation attribution</li>
-        <li data-lang="zh">Phase 2（未来）：为每个推荐活动附带 <code>rec_id</code>，支持推荐策略归因</li>
-      </ul>
-      <div class="callout c-green" style="margin-top:10px;font-size:12.5px;">
-        <strong data-lang="en">✅ Industry Principle — Separation of Concerns:</strong><span data-lang="en"> Recommendation Engine decides what to recommend. Aima decides how to track it. These never overlap.</span>
-        <strong data-lang="zh">✅ 行业原则 — 关注点分离：</strong><span data-lang="zh">推荐引擎决定推什么。Aima 决定怎么追踪。两者职责不重叠。</span>
-      </div>
-    </div>
-  </div>
+
   <div class="sub-h" data-lang="en">Complete Responsibility Table</div>
   <div class="sub-h" data-lang="zh">完整职责表</div>
   <div class="tw"><table>
     <thead><tr><th><span data-lang="en">Responsibility</span><span data-lang="zh">职责</span></th><th><span data-lang="en">Owner</span><span data-lang="zh">负责方</span></th><th><span data-lang="en">Benefit / Why</span><span data-lang="zh">好处 / 原因</span></th></tr></thead>
     <tbody>
-      <tr><td><span data-lang="en">Maintain runtime_source per conversation</span><span data-lang="zh">维护每个对话的 runtime_source</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Single source of truth for channel context</td><td class="zh" data-lang="zh">渠道上下文的唯一可信来源</td></tr>
-      <tr><td><span data-lang="en">Identify links in outgoing messages</span><span data-lang="zh">识别发出消息中的链接</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Ensures no link is missed — both CTA and body</td><td class="zh" data-lang="zh">确保无遗漏，CTA 和正文链接均覆盖</td></tr>
-      <tr><td><span data-lang="en">Request aima_ref from Backend</span><span data-lang="zh">向 Backend 请求 aima_ref</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Separates concerns: Aima knows context, Backend holds security</td><td class="zh" data-lang="zh">分离关注点：Aima 知道上下文，Backend 持有安全性</td></tr>
-      <tr><td><span data-lang="en">Generate aima_ref token</span><span data-lang="zh">生成 aima_ref token</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Server-side generation prevents tampering; no PII in browser</td><td class="zh" data-lang="zh">服务端生成防止篡改；浏览器不暴露 PII</td></tr>
-      <tr><td><span data-lang="en">Store context mapping for aima_ref</span><span data-lang="zh">存储 aima_ref 上下文映射</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Enables future attribution queries and debugging</td><td class="zh" data-lang="zh">支持未来的归因查询和调试</td></tr>
-      <tr><td><span data-lang="en">Enforce UTM decision logic</span><span data-lang="zh">执行 UTM 决策逻辑</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Dual safety: even if Aima fails, Backend blocks wrong UTM</td><td class="zh" data-lang="zh">双重保障：即使 Aima 出错，Backend 也能阻止错误 UTM</td></tr>
-      <tr><td><span data-lang="en">Append params to links and send</span><span data-lang="zh">为链接追加参数并发送</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Automated — zero manual effort from business users</td><td class="zh" data-lang="zh">自动化——业务用户零手动工作</td></tr>
+      <tr><td><span data-lang="en">Maintain runtime_source per conversation</span><span data-lang="zh">维护每个对话的 runtime_source</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Single source of truth for channel context</td><td class="zh" data-lang="zh">渠道上下文的唯一可信来源</td></tr>
+      <tr><td><span data-lang="en">Identify links in outgoing messages</span><span data-lang="zh">识别发出消息中的链接</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Ensures no link is missed — both CTA and body</td><td class="zh" data-lang="zh">确保无遗漏，CTA 和正文链接均覆盖</td></tr>
+      <tr><td><span data-lang="en">Request aima_ref from Backend</span><span data-lang="zh">向 Backend 请求 aima_ref</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Separates concerns: Aima knows context, Backend holds security</td><td class="zh" data-lang="zh">分离关注点：Aima 知道上下文，Backend 持有安全性</td></tr>
+      <tr><td><span data-lang="en">Generate aima_ref token</span><span data-lang="zh">生成 aima_ref token</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Server-side generation prevents tampering; no PII in browser</td><td class="zh" data-lang="zh">服务端生成防止篡改；浏览器不暴露 PII</td></tr>
+      <tr><td><span data-lang="en">Store context mapping for aima_ref</span><span data-lang="zh">存储 aima_ref 上下文映射</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Enables future attribution queries and debugging</td><td class="zh" data-lang="zh">支持未来的归因查询和调试</td></tr>
+      <tr><td><span data-lang="en">Enforce UTM decision logic</span><span data-lang="zh">执行 UTM 决策逻辑</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Dual safety: even if Aima fails, Backend blocks wrong UTM</td><td class="zh" data-lang="zh">双重保障：即使 Aima 出错，Backend 也能阻止错误 UTM</td></tr>
+      <tr><td><span data-lang="en">Append params to links and send</span><span data-lang="zh">为链接追加参数并发送</span></td><td><span class="team team-aima">Aima Engineer</span></td><td class="zh" data-lang="en">Automated — zero manual effort from business users</td><td class="zh" data-lang="zh">自动化——业务用户零手动工作</td></tr>
       <tr><td><span data-lang="en">Pass runtime_source at Widget init</span><span data-lang="zh">Widget 初始化时传入 runtime_source</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Enables correct channel detection without guessing</td><td class="zh" data-lang="zh">确保准确的渠道检测，无需猜测</td></tr>
       <tr><td><span data-lang="en">Pass GA4 session context to Aima</span><span data-lang="zh">向 Aima 传入 GA4 session 上下文</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Links in-widget behaviour to existing GA4 session</td><td class="zh" data-lang="zh">将 Widget 内行为与现有 GA4 session 关联</td></tr>
       <tr><td><span data-lang="en">Fire in-widget GA4 events</span><span data-lang="zh">触发 Widget 内 GA4 events</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Tracks user behaviour without breaking session attribution</td><td class="zh" data-lang="zh">不中断 session 归因地追踪用户行为</td></tr>
@@ -1268,7 +1255,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
       <!-- Lane labels -->
       <text x="30" y="26" font-size="8" font-family="IBM Plex Mono" fill="#4a1a7a" font-weight="500">REC ENGINEER</text>
       <text x="30" y="92" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA (Aima Engineer)</text>
-      <text x="30" y="158" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND (Aima Engineer)</text>
+      <text x="30" y="158" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA ENGINEER</text>
       <text x="30" y="224" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
       <text x="30" y="286" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">ANALYTICS OUTPUT</text>
 
@@ -1354,15 +1341,15 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
         <td>2</td>
         <td><span class="team team-aima">Aima Engineer</span></td>
         <td><span class="team team-aima">Aima 工程师</span></td>
-        <td><span data-lang="en">Receive <code>rec_id</code> from Rec Engineer → pass through to link parameter → pass to Aima Backend with aima_ref request</span><span data-lang="zh">接收推荐工程师的 <code>rec_id</code> → 透传到链接参数 → 与 aima_ref 请求一起传给 Aima Backend</span></td>
+        <td><span data-lang="en">Receive <code>rec_id</code> from Rec Engineer → pass through to link parameter → pass to Aima Engineer with aima_ref request</span><span data-lang="zh">接收推荐工程师的 <code>rec_id</code> → 透传到链接参数 → 与 aima_ref 请求一起传给 Aima 工程师</span></td>
         <td class="zh" data-lang="en"><span style="color:var(--amber);font-weight:500;">Small — receive + passthrough only</span></td>
         <td class="zh" data-lang="zh"><span style="color:var(--amber);font-weight:500;">小 — 接收并透传</span></td>
       </tr>
       <tr>
         <td>3</td>
         <td>3</td>
-        <td><span class="team team-be">Aima Backend</span></td>
-        <td><span class="team team-be">Aima Backend</span></td>
+        <td><span class="team team-aima">Aima Engineer</span></td>
+        <td><span class="team team-aima">Aima Engineer</span></td>
         <td><span data-lang="en">Store <code>rec_id</code> alongside <code>aima_ref</code> context. Record Impression when message is sent. Append <code>rec_id</code> to link parameters.</span><span data-lang="zh">将 <code>rec_id</code> 与 <code>aima_ref</code> 上下文一起存储。消息发送时记录 Impression。将 <code>rec_id</code> 追加到链接参数。</span></td>
         <td class="zh" data-lang="en"><span style="color:var(--amber);font-weight:500;">Medium — store + impression logging</span></td>
         <td class="zh" data-lang="zh"><span style="color:var(--amber);font-weight:500;">中 — 存储 + Impression 记录</span></td>
@@ -1434,9 +1421,9 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
     <tbody>
       <tr><td><span data-lang="en">Aima appends params to external/third-party URLs</span><span data-lang="zh">Aima 向外部/第三方 URL 追加参数</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima maintains an allowlist of own-domain URLs; skips all external links unconditionally</span><span data-lang="zh">Aima 维护自有域名白名单；无条件跳过所有外部链接</span></td></tr>
       <tr><td><span data-lang="en">Frontend fails to pass runtime_source at Widget init</span><span data-lang="zh">Frontend 未在 Widget 初始化时传入 runtime_source</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima defaults to safest behaviour (website_widget → no UTM). Alert engineering team if runtime_source is missing.</span><span data-lang="zh">Aima 默认采用最安全策略（website_widget → 不加 UTM）。runtime_source 缺失时告警工程团队。</span></td></tr>
-      <tr><td><span data-lang="en">UTM appended in Website Widget context (breaks GA4 session)</span><span data-lang="zh">Website Widget 场景误加 UTM（破坏 GA4 session）</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima Backend enforces UTM suppression when runtime_source = website_widget. Dual-layer check: Aima + Backend both block.</span><span data-lang="zh">Backend 在 runtime_source = website_widget 时强制禁止 UTM。双层检查：Aima + Backend 均拦截。</span></td></tr>
-      <tr><td><span data-lang="en">aima_ref token tampered or forged</span><span data-lang="zh">aima_ref token 被篡改或伪造</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Token is signed server-side. Aima Backend verifies signature on resolve. Invalid tokens silently dropped.</span><span data-lang="zh">Token 在服务端签名。Backend 在 resolve 时验证签名。无效 token 静默丢弃。</span></td></tr>
-      <tr><td><span data-lang="en">rec_id not passed by Rec Engineer (missing field)</span><span data-lang="zh">推荐工程师未传入 rec_id</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Aima Backend detects missing rec_id and logs a warning. Link is still sent with aima_ref only. Attribution for that recommendation will be incomplete.</span><span data-lang="zh">Aima Backend 检测到 rec_id 缺失并记录告警。链接仍以仅含 aima_ref 的方式发送。该次推荐的归因数据将不完整。</span></td></tr>
+      <tr><td><span data-lang="en">UTM appended in Website Widget context (breaks GA4 session)</span><span data-lang="zh">Website Widget 场景误加 UTM（破坏 GA4 session）</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima Engineer enforces UTM suppression when runtime_source = website_widget. Dual-layer check: Aima + Backend both block.</span><span data-lang="zh">Aima 工程师在 runtime_source = website_widget 时强制禁止 UTM。双层检查：Aima + Backend 均拦截。</span></td></tr>
+      <tr><td><span data-lang="en">aima_ref token tampered or forged</span><span data-lang="zh">aima_ref token 被篡改或伪造</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Token is signed server-side. Aima Engineer verifies signature on resolve. Invalid tokens silently dropped.</span><span data-lang="zh">Token 在服务端签名。Aima 工程师在 resolve 时验证签名。无效 token 静默丢弃。</span></td></tr>
+      <tr><td><span data-lang="en">rec_id not passed by Rec Engineer (missing field)</span><span data-lang="zh">推荐工程师未传入 rec_id</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Aima Engineer detects missing rec_id and logs a warning. Link is still sent with aima_ref only. Attribution for that recommendation will be incomplete.</span><span data-lang="zh">Aima 工程师检测到 rec_id 缺失并记录告警。链接仍以仅含 aima_ref 的方式发送。该次推荐的归因数据将不完整。</span></td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1475,7 +1462,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
   <div class="tw"><table>
     <thead><tr><th><span data-lang="en">Term</span><span data-lang="zh">术语</span></th><th><span data-lang="en">Definition</span><span data-lang="zh">定义</span></th></tr></thead>
     <tbody>
-      <tr><td class="field">aima_ref</td><td class="field">aima_ref</td><td><span data-lang="en">Opaque tracking token generated by Aima Backend, appended to Aima-sent links. Represents a message attribution context (conversation + message + user + channel). NOT the same as ma_ref.</span><span data-lang="zh">Backend 生成的追踪 token，追加到 Aima 发送的链接。代表消息归因上下文（对话 + 消息 + 用户 + 渠道）。与 ma_ref 不同。</span></td></tr>
+      <tr><td class="field">aima_ref</td><td class="field">aima_ref</td><td><span data-lang="en">Opaque tracking token generated by Aima Engineer, appended to Aima-sent links. Represents a message attribution context (conversation + message + user + channel). NOT the same as ma_ref.</span><span data-lang="zh">Backend 生成的追踪 token，追加到 Aima 发送的链接。代表消息归因上下文（对话 + 消息 + 用户 + 渠道）。与 ma_ref 不同。</span></td></tr>
       <tr><td class="field">ma_ref</td><td class="field">ma_ref</td><td><span data-lang="en">Tracking token for MA System batch messages (Email / WhatsApp Templates). Defined in PRD-TRK-007/008. Completely separate from aima_ref.</span><span data-lang="zh">MA System 批量消息（Email / WA 模板）的追踪 token。由 PRD-TRK-007/008 定义。与 aima_ref 完全独立。</span></td></tr>
       <tr><td class="field">runtime_source</td><td class="field">runtime_source</td><td><span data-lang="en">The channel Aima is operating in for a given conversation. Enum: whatsapp_native | website_widget. Determines tracking strategy.</span><span data-lang="zh">Aima 在给定对话中的运行渠道。枚举值：whatsapp_native | website_widget。决定追踪策略。</span></td></tr>
       <tr><td class="field">rec_id</td><td class="field">rec_id</td><td><span data-lang="en">Recommendation Context ID. Generated by the Recommendation Engineer at the moment of recommending an activity. Unique per recommendation instance. Passed to Aima → Aima Backend → link parameter → GA4 event. Enables full funnel attribution: impression → click → conversion per recommended activity.</span><span data-lang="zh">推荐上下文 ID。由推荐工程师在推荐活动时生成，每次推荐行为唯一。传递路径：推荐引擎 → Aima → Aima Backend → 链接参数 → GA4 event。实现完整漏斗归因：展示 → 点击 → 转化。</span></td></tr>
@@ -1505,6 +1492,8 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th><span data-lang="en">Change Description</span><span data-lang="zh">变更说明</span></th></tr></thead>
     <tbody>
+      <tr><td>v1.9</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Merged "Aima System" and "Aima Backend" into single "Aima Engineer" card throughout. Updated all team badges, SVG lane labels, swimlane diagrams, table entries, and text references. Fixed broken HTML span tags. Fixed data flow SVG viewBox to prevent lane label clipping.</td><td data-lang="zh">将"Aima System"和"Aima Backend"全文合并为"Aima 工程师"单张卡片。更新所有 team badge、SVG lane 标签、泳道图、表格条目和文字引用。修复断裂的 HTML span 标签。修复数据流 SVG viewBox 防止 lane 标签被截断。</td></tr>
+      <tr><td>v1.8</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed Responsibility Matrix: Recommendation Engineer card moved to first position in the grid (was incorrectly placed as a standalone card after the grid). Added proper why-box explaining why rec_id must be generated by the Rec Engineer, not Aima.</td><td data-lang="zh">修复职责矩阵：推荐工程师卡片移至网格第一位（之前错误地放在网格之外作为独立卡片）。新增 Why 说明框，解释为什么 rec_id 必须由推荐工程师生成而非 Aima。</td></tr>
       <tr><td>v1.7</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed table layout bug: all doubled EN/ZH columns merged into single bilingual columns using inline span switching. Tables now render correctly in both languages without column collapse. Lang toggle JS updated to handle inline span elements.</td><td data-lang="zh">修复表格布局错误：所有双列 EN/ZH 列合并为单列双语列（使用内联 span 切换）。两种语言下表格均正确渲染，不再出现列塌陷。Lang toggle JS 更新以正确处理内联 span 元素。</td></tr>
       <tr><td>v1.6</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Added Core Concepts page (between Executive Summary and Cover): centralized definition of aima_ref and rec_id — what each is, what business question it answers, who generates it, how they work together, and a complete link example. Addresses feedback that definitions were scattered across multiple sections. Includes ma_ref differentiation note.</span><span data-lang="zh">新增核心概念页（位于 Executive Summary 和 Cover 之间）：集中定义 aima_ref 和 rec_id——各自是什么、回答什么业务问题、谁生成、如何配合，以及完整链接示例。解决了定义分散在多个章节的问题。包含 ma_ref 区分说明。</span></td></tr>
       <tr><td>v1.5</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Fixed all remaining errors per business confirmation: utm_source=aima (not whatsapp), utm_medium=whatsapp (not aima) corrected throughout all code examples. utm_campaign format updated to year_country_name per B2C UTM Advisory. utm_term={rec_id} added to WhatsApp Native parameter set. UTM-GOV-001 reference updated to v1.2. MA trigger section updated with confirmed MA values (crm + messaging).</span><span data-lang="zh">根据业务确认修正所有遗留错误：utm_source=aima（非 whatsapp），utm_medium=whatsapp（非 aima），所有代码示例已更正。utm_campaign 格式按 B2C UTM Advisory 更新为 year_country_name。utm_term={rec_id} 加入 WhatsApp Native 参数集。UTM-GOV-001 引用更新为 v1.2。MA 触发场景部分更新为确认的 MA 值（crm + messaging）。</span></td></tr>
