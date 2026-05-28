@@ -172,6 +172,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl" href="#s5">5. MA Link Structure</a>
   <a class="nl sub" href="#s5-payload">5.1 Payload Structure</a>
   <a class="nl sub" href="#s5-token">5.2 identity_token</a>
+  <a class="nl sub" href="#s5-jwt">5.3 JWT HS256 Signing Spec</a>
   <a class="nl" href="#s6">6. Email Tracking</a>
   <a class="nl sub" href="#s6-flow">6.1 Send Processing Flow</a>
   <a class="nl sub" href="#s6-pertiming">6.2 Per-recipient Token Timing</a>
@@ -320,9 +321,9 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="callout c-note">Business users only configure the <strong>landing page URL</strong>. The system appends <code>?ma_ref=</code> automatically at send time. No manual parameter configuration is required or permitted.</div>
 
   <div class="sub-h" id="s5-payload">5.1 Payload Structure</div>
-  <div class="sdesc">The internal payload encoded into <code>ma_ref</code> contains the following fields. The payload is encrypted and signed — the URL token is opaque.</div>
+  <div class="sdesc">The internal payload signed into <code>ma_ref</code> contains the following fields. The payload is JWT HS256 signed — the token is opaque and tamper-proof.</div>
   <div class="code-wrap">
-    <div class="code-head"><span class="code-lang">JSON</span><span class="code-label">Internal Payload — encoded into ma_ref</span></div>
+    <div class="code-head"><span class="code-lang">JSON</span><span class="code-label">Internal Payload — signed into ma_ref (JWT HS256)</span></div>
     <pre>{
   <span class="n">"identity_token"</span>: <span class="s">"uuid-v4-token"</span>,  <span class="c">// opaque token — no raw identity</span>
   <span class="n">"ma_flow_id"</span>:      <span class="s">"FLOW_001"</span>,
@@ -348,7 +349,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     <tbody>
       <tr><td class="field">Format</td><td>UUID v4 — randomly generated per send</td><td class="zh">每次发送时随机生成的 UUID v4</td></tr>
       <tr><td class="field">Storage</td><td>Redis: <code>ma_token:{token_value}</code> → identity + attribution context</td><td class="zh">存入 Redis，key 为 token，value 为 identity 和 attribution 信息</td></tr>
-      <tr><td class="field">TTL</td><td>30 days — aligned to Email open window</td><td class="zh">30 天有效期，对齐 Email 打开窗口</td></tr>
+      <tr><td class="field">Expiry</td><td>30 days — governed by JWT <code>exp</code> field (issued_at + 2592000s). Redis TTL is set to 30 days as a cleanup mechanism only.</td><td class="zh">30 天有效期，由 JWT exp 字段控制；Redis TTL 仅用于清理，不作为主要过期判断</td></tr>
       <tr><td class="field">Reuse</td><td>Unlimited — same token valid for multiple opens of the same message</td><td class="zh">可多次使用，同一封邮件多次打开均有效</td></tr>
       <tr><td class="field">Content</td><td>No raw identity — opaque to any party who intercepts the URL</td><td class="zh">不含原始 identity，URL 被转发也不暴露用户信息</td></tr>
       <tr><td class="field">Uniqueness</td><td>Per flow_id + node_id + recipient — different nodes generate different tokens</td><td class="zh">按 flow + node + 用户维度唯一，不同 node 天然生成不同 token</td></tr>
@@ -365,7 +366,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <span class="n">"ma_channel"</span>:  <span class="s">"email"</span>,
   <span class="n">"created_at"</span>:  <span class="v">1748131200</span>
 }
-<span class="c">// TTL: 30 days — managed by Redis key expiry</span></pre>
+<span class="c">// Redis TTL: 30 days — cleanup mechanism only</span>
+<span class="c">// Expiry is governed by JWT exp field, not Redis TTL</span></pre>
   </div>
 </section>
 
@@ -379,6 +381,79 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="callout c-green">
     <strong>Business user input:</strong> <code>https://www.welovesupermom.com/campaign/123</code><br>
     <strong>System sends:</strong> <code>https://www.welovesupermom.com/campaign/123?ma_ref=abcxyz123</code>
+  </div>
+
+  <div class="sub-h" id="s5-jwt">5.3 ma_ref Signing Specification — JWT HS256</div>
+  <div class="sdesc">
+    <code>ma_ref</code> is a JWT signed with HMAC-SHA256. The payload is <strong>not encrypted</strong> — it contains only opaque tokens and attribution IDs, none of which are raw user identity. Signing prevents forgery and tampering. This follows industry-standard practice for MA tracking tokens (Braze, Klaviyo, Iterable).
+  </div>
+
+  <div class="callout c-info">
+    <strong>Why JWT HS256 and not AES encryption?</strong> The payload contains only an opaque UUID (<code>identity_token</code>) and attribution IDs — no raw uid, phone, or email. Even if decoded, the payload reveals nothing sensitive. Signing (HS256) is sufficient to prevent forgery and tampering, and is significantly simpler to implement and maintain than symmetric encryption.
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Property</th><th>Specification</th><th class="zh">规范说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Algorithm</td><td>JWT HS256 (HMAC-SHA256)</td><td class="zh">签名算法：HMAC-SHA256</td></tr>
+      <tr><td class="field">Signing secret</td><td>Server-side environment variable — never hardcoded, never exposed to Frontend or GTM</td><td class="zh">签名密钥存于服务端环境变量，不写入代码，不暴露给 Frontend 或 GTM</td></tr>
+      <tr><td class="field">Payload fields</td><td><code>identity_token</code> · <code>ma_flow_id</code> · <code>ma_node_id</code> · <code>ma_channel</code> · <code>exp</code> (expiry timestamp)</td><td class="zh">payload 包含四个追踪字段 + exp 过期时间戳</td></tr>
+      <tr><td class="field">exp field</td><td>Unix timestamp = issued_at + 2592000 (30 days). Backend verifies <code>exp</code> directly — no Redis TTL needed for expiry check.</td><td class="zh">exp = 签发时间 + 30 天（Unix 时间戳）。Backend 直接验证 exp，不依赖 Redis TTL 判断过期</td></tr>
+      <tr><td class="field">Verification</td><td>Backend verifies signature on every <code>resolve-ma-ref</code> call. Invalid signature → reject immediately, return <code>ma_ref_invalid: true</code>. Expired token → return <code>ma_ref_expired: true</code>.</td><td class="zh">每次 resolve 调用都验签。签名无效返回 invalid；token 过期返回 expired</td></tr>
+      <tr><td class="field">Secret rotation</td><td>On secret rotation, previously issued tokens become invalid. Coordinate rotation timing to minimise user impact (e.g. rotate outside peak send windows).</td><td class="zh">密钥轮换后历史 token 失效，需在非高峰期执行轮换</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JWT</span><span class="code-label">ma_ref — JWT HS256 structure</span></div>
+    <pre><span class="c">// Header (standard JWT header)</span>
+{
+  <span class="n">"alg"</span>: <span class="s">"HS256"</span>,
+  <span class="n">"typ"</span>: <span class="s">"JWT"</span>
+}
+
+<span class="c">// Payload</span>
+{
+  <span class="n">"identity_token"</span>: <span class="s">"a1B2c3D4e5F6g7H8"</span>,  <span class="c">// opaque UUID — no raw identity</span>
+  <span class="n">"ma_flow_id"</span>:      <span class="s">"FLOW_001"</span>,
+  <span class="n">"ma_node_id"</span>:      <span class="s">"NODE_003"</span>,
+  <span class="n">"ma_channel"</span>:      <span class="s">"email"</span>,
+  <span class="n">"exp"</span>:             <span class="v">1750723200</span>        <span class="c">// Unix timestamp — issued_at + 30 days</span>
+}
+
+<span class="c">// Signature: HMAC-SHA256(base64url(header) + "." + base64url(payload), secret)</span>
+<span class="c">// Final ma_ref = base64url(header).base64url(payload).signature</span>
+<span class="c">// Example: eyJhbGciOiJIUzI1NiJ9.eyJpZGVudGl0eV90b2tlbiI6Ii4uLiJ9.xK9mPqR2vL</span></pre>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">Backend</span><span class="code-label">resolve-ma-ref — verification logic (pseudocode)</span></div>
+    <pre><span class="k">function</span> resolveMARef(ma_ref):
+  <span class="c">// Step 1: verify signature</span>
+  payload = JWT.verify(ma_ref, SECRET_KEY, algorithm=<span class="s">"HS256"</span>)
+  <span class="k">if</span> verification fails:
+    <span class="k">return</span> { <span class="n">ma_ref_invalid</span>: <span class="k">true</span> }
+
+  <span class="c">// Step 2: check expiry (exp field in payload)</span>
+  <span class="k">if</span> payload.exp &lt; now():
+    <span class="k">return</span> { <span class="n">ma_ref_expired</span>: <span class="k">true</span> }
+
+  <span class="c">// Step 3: lookup identity from Redis using identity_token</span>
+  identity = Redis.GET(<span class="s">"ma_token:"</span> + payload.identity_token)
+  <span class="k">if</span> identity is null:
+    <span class="k">return</span> { <span class="n">ma_ref_invalid</span>: <span class="k">true</span> }  <span class="c">// token not found or Redis evicted</span>
+
+  <span class="c">// Step 4: proceed with identity association</span>
+  <span class="k">return</span> {
+    profile_id:   identity.profile_id,
+    ma_flow_id:   payload.ma_flow_id,
+    ma_node_id:   payload.ma_node_id,
+    ma_channel:   payload.ma_channel
+  }</pre>
+  </div>
+
+  <div class="callout c-note">
+    <strong>exp vs Redis TTL:</strong> The JWT <code>exp</code> field handles expiry — Backend checks <code>exp</code> directly without querying Redis. Redis TTL on <code>ma_token:{uuid}</code> is set to 30 days as a cleanup mechanism only, not as the primary expiry gate. This keeps the expiry logic self-contained in the token itself.
   </div>
 
   <div class="sub-h" id="s6-flow">6.1 Email Send Processing Flow</div>
@@ -451,8 +526,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <line x1="325" y1="187" x2="337" y2="187" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#ab)"/>
 
       <rect x="455" y="163" width="110" height="48" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="510" y="183" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Encode ma_ref</text>
-      <text x="510" y="198" text-anchor="middle" font-size="9" fill="#5c5a54">opaque token</text>
+      <text x="510" y="183" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Sign JWT</text>
+      <text x="510" y="198" text-anchor="middle" font-size="9" fill="#5c5a54">HS256 → ma_ref</text>
 
       <line x1="445" y1="187" x2="457" y2="187" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#ab)"/>
 
@@ -487,7 +562,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td class="field">1</td><td>MA Flow triggers send — identify all active links in Email body</td><td><span class="team team-ma">MA System</span></td><td class="zh">识别邮件正文中所有需要追踪的活动链接</td></tr>
       <tr><td class="field">2</td><td>Generate <strong>one UUID v4 identity_token per recipient</strong> — write each to Redis with TTL 30d. A batch of 1,000 recipients produces 1,000 Redis writes.</td><td><span class="team team-be">Backend</span></td><td class="zh">每个收件人生成独立 UUID token 并写入 Redis。1000 个收件人 = 1000 次 Redis 写入</td></tr>
       <tr><td class="field">3</td><td>Build payload: identity_token + ma_flow_id + ma_node_id + ma_channel</td><td><span class="team team-be">Backend</span></td><td class="zh">组装 payload 四字段</td></tr>
-      <tr><td class="field">4</td><td>Encode payload → ma_ref token string</td><td><span class="team team-be">Backend</span></td><td class="zh">将 payload encode 为不透明 token 字符串</td></tr>
+      <tr><td class="field">4</td><td>Sign payload → ma_ref JWT token (HS256)</td><td><span class="team team-be">Backend</span></td><td class="zh">将 payload 签名为 JWT HS256 token</td></tr>
       <tr><td class="field">5</td><td>Append <code>?ma_ref=xxx</code> to each active link</td><td><span class="team team-ma">MA System</span></td><td class="zh">将 ma_ref 追加到所有活动链接</td></tr>
       <tr><td class="field">6</td><td>Send Email to recipient</td><td><span class="team team-ma">MA System</span></td><td class="zh">发送邮件</td></tr>
     </tbody>
@@ -912,7 +987,7 @@ Meta API:   variables[
     <tbody>
       <tr><td>Generate identity_token (UUID v4)</td><td><span class="team team-be">Backend</span></td><td class="zh">生成 UUID v4 token 并写入 Redis</td></tr>
       <tr><td>Write token to Redis with TTL</td><td><span class="team team-be">Backend</span></td><td class="zh">写入 Redis，设置 30 天 TTL</td></tr>
-      <tr><td>Build and encode ma_ref payload</td><td><span class="team team-be">Backend</span></td><td class="zh">组装 payload 并 encode 为 ma_ref</td></tr>
+      <tr><td>Build and sign ma_ref payload (JWT HS256)</td><td><span class="team team-be">Backend</span></td><td class="zh">组装 payload 并签名为 JWT HS256 ma_ref</td></tr>
       <tr><td>Identify active links in Email / WA template</td><td><span class="team team-ma">MA System</span></td><td class="zh">识别模板中的活动链接</td></tr>
       <tr><td>Append <code>?ma_ref=xxx</code> to Email links</td><td><span class="team team-ma">MA System</span></td><td class="zh">Email 链接追加 ma_ref</td></tr>
       <tr><td>Convert WA Fixed URL → Dynamic URL</td><td><span class="team team-ma">MA System</span></td><td class="zh">WhatsApp 固定 URL 转换为 Dynamic URL</td></tr>
@@ -1003,7 +1078,7 @@ Meta API:   variables[
       <tr><td>AC-01</td><td>Email sent with active link</td><td class="zh">发送含活动链接的 Email</td><td>Link contains <code>?ma_ref=</code> — appended automatically</td><td class="zh">链接自动附带 ma_ref 参数</td></tr>
       <tr><td>AC-02</td><td>Business user does not configure tracking params</td><td class="zh">业务用户未配置任何 tracking 参数</td><td>System appends ma_ref without user action</td><td class="zh">系统自动追加，无需用户操作</td></tr>
       <tr><td>AC-03</td><td>identity_token written to Redis at send time</td><td class="zh">发送时 identity_token 写入 Redis</td><td>Redis key <code>ma_token:{token}</code> exists with correct TTL and payload</td><td class="zh">Redis 中存在对应 key，TTL 和 payload 正确</td></tr>
-      <tr><td>AC-04</td><td>ma_ref contains no raw identity</td><td class="zh">ma_ref 不含原始 identity</td><td>Decoded ma_ref contains no uid, profile_id, phone, or email</td><td class="zh">解码后不含任何原始 identity 字段</td></tr>
+      <tr><td>AC-04</td><td>ma_ref contains no raw identity</td><td class="zh">ma_ref 不含原始 identity</td><td>JWT payload contains no uid, profile_id, phone, or email — only opaque identity_token and attribution IDs</td><td class="zh">JWT payload 中不含任何原始 identity 字段</td></tr>
       <tr><td>AC-05</td><td>Two different nodes in same flow</td><td class="zh">同一 Flow 的两个不同 Node</td><td>Each node generates a distinct ma_ref value</td><td class="zh">每个 Node 生成不同的 ma_ref</td></tr>
     </tbody>
   </table></div>
@@ -1027,7 +1102,7 @@ Meta API:   variables[
   <div class="tw"><table>
     <thead><tr><th>Term</th><th>Definition</th><th class="zh">中文释义</th></tr></thead>
     <tbody>
-      <tr><td class="field">ma_ref</td><td>The opaque URL parameter appended to all MA message links. Encodes identity_token + flow + node + channel context.</td><td class="zh">追加到所有 MA 消息链接的不透明 URL 参数，encode 了 identity token 和 attribution 信息</td></tr>
+      <tr><td class="field">ma_ref</td><td>The opaque URL parameter appended to all MA message links. A JWT HS256 signed token carrying identity_token + flow + node + channel + exp. Tamper-proof — invalid signatures are rejected by Backend.</td><td class="zh">追加到所有 MA 消息链接的 JWT HS256 签名 token，包含 identity_token、归因信息和过期时间戳</td></tr>
       <tr><td class="field">identity_token</td><td>A UUID v4 token generated at send time. Stored in Redis as a lookup key to resolve profile_id / v2_uid. Contains no raw identity.</td><td class="zh">发送时生成的 UUID v4 token，存入 Redis，用于 lookup 真实 identity，不含原始 identity 信息</td></tr>
       <tr><td class="field">ma_flow_id</td><td>The MA Flow identifier. Used for flow-level attribution analysis.</td><td class="zh">MA Flow 标识，用于 Flow 层归因分析</td></tr>
       <tr><td class="field">ma_node_id</td><td>The MA Node identifier. Different nodes in the same flow generate distinct ma_ref tokens.</td><td class="zh">MA Node 标识，同一 Flow 内不同 Node 生成不同的 ma_ref</td></tr>
@@ -1071,6 +1146,7 @@ Meta API:   variables[
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.4</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 5.3 JWT HS256 Signing Specification with full payload structure, verification pseudocode, and secret rotation guidance. Replaced all "encode/decode" terminology with "sign/verify" across both documents. Clarified Redis TTL as cleanup mechanism only — expiry governed by JWT exp field.</td></tr>
       <tr><td>v1.3</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 7.3.1 Variable Index edge cases: non-consecutive indices (max+1 rule) and Meta 10-variable limit enforcement (UI + Backend dual validation). Added Phase 1 limitation for Meta review failure handling. Updated Redis write volume callout: constraints defined, implementation approach delegated to Backend engineering.</td></tr>
       <tr><td>v1.2</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 6.2 Per-recipient Token Timing, Section 6.3 Email vs WhatsApp comparison table. Clarified Step 2 in Email Send Flow: one token per recipient, N recipients = N Redis writes. Added batch write optimization note.</td></tr>
       <tr><td>v1.1</td><td>2026-05-26</td><td>Product Team</td><td>Added WhatsApp Button Config UI mockup (7.2), Variable Index Management spec (7.3), Sample Token Specification (7.4) with mR8xKz2pLqNv. Updated governance rules to reflect dynamic ma_ref index and system-injected sample. Updated submission flow to 7.5.</td></tr>

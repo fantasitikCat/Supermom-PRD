@@ -292,131 +292,48 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sdesc">When a user visits a page via a MA link, the following sequence executes on every page load.</div>
 
   <div class="diagram-wrap">
-    <div class="diagram-title">Fig 3 — Page Initialization Sequence — Swimlane (Frontend / Backend / Redis / GTM)</div>
-    <svg viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+    <div class="diagram-title">MA Link Visit — Page Initialization Sequence</div>
+    <svg viewBox="0 0 780 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
       <defs>
-        <marker id="pfe" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
-        <marker id="pbe" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
-        <marker id="pre" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7a4f00"/></marker>
-        <marker id="pgt" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
+        <marker id="arr-t" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
+        <marker id="arr-b" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+        <marker id="arr-g" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
       </defs>
 
-      <!-- Title bar -->
-      <rect x="0" y="0" width="780" height="30" fill="#0f7a6e"/>
-      <text x="390" y="19" text-anchor="middle" font-size="11" font-weight="500" fill="#fff" font-family="IBM Plex Mono">PAGE INITIALIZATION SEQUENCE — MA LINK VISIT</text>
+      <!-- Step labels left -->
+      <text x="18" y="62" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93">STEP 1</text>
+      <text x="18" y="122" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93">STEP 2</text>
+      <text x="18" y="182" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93">STEP 3</text>
+      <text x="18" y="242" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93">STEP 4</text>
+      <text x="18" y="302" font-size="9" font-family="IBM Plex Mono" fill="#9c9a93">STEP 5</text>
 
-      <!-- Lane BGs -->
-      <rect x="0" y="30" width="780" height="110" fill="#e8f7f5" opacity="0.5"/>
-      <rect x="0" y="140" width="780" height="120" fill="#edf3fb" opacity="0.5"/>
-      <rect x="0" y="260" width="780" height="100" fill="#fef7e6" opacity="0.5"/>
-      <rect x="0" y="360" width="780" height="110" fill="#edf7f2" opacity="0.5"/>
+      <!-- Step 1 -->
+      <rect x="70" y="44" width="640" height="36" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1"/>
+      <text x="390" y="66" text-anchor="middle" font-size="11" font-weight="500" fill="#0f7a6e">User visits: welovesupermom.com/campaign/123?ma_ref=abcxyz</text>
+      <line x1="390" y1="80" x2="390" y2="104" stroke="#0f7a6e" stroke-width="1.3" marker-end="url(#arr-t)"/>
 
-      <!-- Lane labels -->
-      <rect x="0" y="30"  width="90" height="110" fill="#d0eeea"/>
-      <text x="45" y="82" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52" font-family="IBM Plex Mono">Frontend</text>
+      <!-- Step 2 -->
+      <rect x="70" y="104" width="640" height="36" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1"/>
+      <text x="390" y="126" text-anchor="middle" font-size="11" font-weight="500" fill="#0f7a6e">Frontend init (PRD-TRK-006) — read ma_ref · get GA4 client_id · get GA4 session_id</text>
+      <line x1="390" y1="140" x2="390" y2="164" stroke="#0f7a6e" stroke-width="1.3" marker-end="url(#arr-t)"/>
 
-      <rect x="0" y="140" width="90" height="120" fill="#d6e8f7"/>
-      <text x="45" y="197" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e" font-family="IBM Plex Mono">Backend</text>
+      <!-- Step 3 -->
+      <rect x="70" y="164" width="640" height="36" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1"/>
+      <text x="390" y="186" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Frontend pushes tracking_initialized event to dataLayer</text>
+      <line x1="390" y1="200" x2="390" y2="224" stroke="#0f3a6e" stroke-width="1.3" marker-end="url(#arr-b)"/>
 
-      <rect x="0" y="260" width="90" height="100" fill="#faecd4"/>
-      <text x="45" y="308" text-anchor="middle" font-size="9.5" font-weight="500" fill="#7a4f00" font-family="IBM Plex Mono">Redis</text>
+      <!-- Step 4 -->
+      <rect x="70" y="224" width="640" height="36" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1"/>
+      <text x="390" y="246" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Frontend calls POST /tracking/resolve-ma-ref (ma_ref + anonymous_id + session_id + page_url)</text>
+      <line x1="390" y1="260" x2="390" y2="284" stroke="#0f3a6e" stroke-width="1.3" marker-end="url(#arr-b)"/>
 
-      <rect x="0" y="360" width="90" height="110" fill="#c8e8d4"/>
-      <text x="45" y="412" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1a6b45" font-family="IBM Plex Mono">GTM</text>
-
-      <!-- Lane dividers -->
-      <line x1="90" y1="30" x2="90" y2="470" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="30"  x2="780" y2="30"  stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="140" x2="780" y2="140" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="260" x2="780" y2="260" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="360" x2="780" y2="360" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="470" x2="780" y2="470" stroke="#c8c5ba" stroke-width="0.8"/>
-
-      <!-- FE Step 1: user visits -->
-      <rect x="100" y="46" width="140" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="170" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">User visits MA link</text>
-      <text x="170" y="76" text-anchor="middle" font-size="8.5" fill="#5c5a54">?ma_ref=abcxyz</text>
-
-      <!-- FE Step 2: read ma_ref + GA4 -->
-      <rect x="280" y="46" width="150" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="355" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">Read ma_ref</text>
-      <text x="355" y="76" text-anchor="middle" font-size="8.5" fill="#5c5a54">get GA4 client_id + session_id</text>
-
-      <line x1="240" y1="66" x2="278" y2="66" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#pfe)"/>
-
-      <!-- FE Step 3: push tracking_initialized -->
-      <rect x="470" y="46" width="150" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="545" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">Push dataLayer</text>
-      <text x="545" y="76" text-anchor="middle" font-size="8.5" fill="#5c5a54">tracking_initialized</text>
-
-      <line x1="430" y1="66" x2="468" y2="66" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#pfe)"/>
-
-      <!-- FE → GTM for tracking_initialized -->
-      <line x1="545" y1="86" x2="545" y2="374" stroke="#0f7a6e" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#pfe)"/>
-
-      <!-- GTM: receive tracking_initialized -->
-      <rect x="480" y="376" width="160" height="40" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1.2"/>
-      <text x="560" y="392" text-anchor="middle" font-size="10" font-weight="500" fill="#1a6b45">Receive + report GA4</text>
-      <text x="560" y="406" text-anchor="middle" font-size="8.5" fill="#5c5a54">tracking_initialized</text>
-
-      <!-- FE: call resolve API -->
-      <rect x="100" y="96" width="150" height="32" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="175" y="116" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">POST resolve-ma-ref</text>
-
-      <line x1="170" y1="86" x2="170" y2="96" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#pfe)"/>
-      <line x1="175" y1="128" x2="175" y2="154" stroke="#0f7a6e" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#pbe)"/>
-      <text x="183" y="145" font-size="8" fill="#0f3a6e" font-family="IBM Plex Mono">ma_ref+anon_id+session_id</text>
-
-      <!-- BE: decode + lookup Redis -->
-      <rect x="105" y="156" width="130" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="170" y="172" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Decode ma_ref</text>
-      <text x="170" y="186" text-anchor="middle" font-size="8.5" fill="#5c5a54">extract identity_token</text>
-
-      <!-- BE → Redis -->
-      <line x1="170" y1="196" x2="170" y2="272" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#pre)"/>
-      <text x="178" y="240" font-size="8" fill="#7a4f00" font-family="IBM Plex Mono">GET ma_token:{uuid}</text>
-
-      <!-- Redis response -->
-      <rect x="105" y="274" width="130" height="40" rx="5" fill="#fff" stroke="#f5d080" stroke-width="1.2"/>
-      <text x="170" y="290" text-anchor="middle" font-size="10" font-weight="500" fill="#7a4f00">Lookup token</text>
-      <text x="170" y="304" text-anchor="middle" font-size="8.5" fill="#5c5a54">profile_id + flow + node</text>
-
-      <line x1="235" y1="294" x2="278" y2="294" stroke="#7a4f00" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#pre)"/>
-
-      <!-- BE: execute association -->
-      <rect x="280" y="156" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="350" y="172" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Execute association</text>
-      <text x="350" y="186" text-anchor="middle" font-size="8.5" fill="#5c5a54">Case A / B / C logic</text>
-
-      <line x1="237" y1="176" x2="278" y2="176" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#pbe)"/>
-
-      <!-- BE: write tables -->
-      <rect x="460" y="156" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="530" y="172" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Write DB tables</text>
-      <text x="530" y="186" text-anchor="middle" font-size="8.5" fill="#5c5a54">current + event_log</text>
-
-      <line x1="420" y1="176" x2="458" y2="176" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#pbe)"/>
-
-      <!-- BE → FE: return response -->
-      <line x1="530" y1="156" x2="530" y2="112" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="4,2"/>
-      <line x1="530" y1="112" x2="330" y2="112" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#pbe)"/>
-      <text x="428" y="106" text-anchor="middle" font-size="8" fill="#0f3a6e" font-family="IBM Plex Mono">response: status + flow + node</text>
-
-      <!-- FE: push ma_identity_associated -->
-      <rect x="280" y="96" width="150" height="32" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="355" y="116" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Push ma_identity_associated</text>
-
-      <!-- FE → GTM for ma_identity_associated -->
-      <line x1="355" y1="128" x2="355" y2="374" stroke="#0f7a6e" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#pfe)"/>
-
-      <!-- GTM: receive ma_identity_associated -->
-      <rect x="105" y="376" width="180" height="40" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1.2"/>
-      <text x="195" y="392" text-anchor="middle" font-size="10" font-weight="500" fill="#1a6b45">Receive + report GA4</text>
-      <text x="195" y="406" text-anchor="middle" font-size="8.5" fill="#5c5a54">ma_identity_associated</text>
+      <!-- Step 5 -->
+      <rect x="70" y="284" width="640" height="36" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="390" y="306" text-anchor="middle" font-size="11" font-weight="500" fill="#1a6b45">Backend resolves → executes association → Frontend pushes ma_identity_associated event</text>
     </svg>
   </div>
 
-    <div class="code-wrap">
+  <div class="code-wrap">
     <div class="code-head"><span class="code-lang">HTTP</span><span class="code-label">POST /tracking/resolve-ma-ref — Request</span></div>
     <pre>{
   <span class="n">"ma_ref"</span>:       <span class="s">"abcxyz123"</span>,
@@ -436,7 +353,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Responsibility</th><th class="zh">说明</th></tr></thead>
     <tbody>
-      <tr><td>Decode ma_ref → extract identity_token</td><td class="zh">解码 ma_ref，提取 identity_token</td></tr>
+      <tr><td>Verify JWT signature → extract payload (identity_token + attribution)</td><td class="zh">验证 JWT 签名，提取 payload 中的 identity_token 和归因信息</td></tr>
       <tr><td>Lookup Redis: <code>ma_token:{token}</code> → profile_id / v2_uid / flow / node / channel</td><td class="zh">查询 Redis 获取 identity 与归因信息</td></tr>
       <tr><td>Validate token TTL — return <code>ma_ref_expired: true</code> if expired</td><td class="zh">校验 token 是否过期，过期时返回 expired 标志</td></tr>
       <tr><td>Determine current active identity from session / auth token / cookie</td><td class="zh">基于 session / auth token / cookie 判断当前 active identity</td></tr>
@@ -444,6 +361,10 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td>Write to identity_association_current and identity_association_event_log</td><td class="zh">写入两张数据表</td></tr>
     </tbody>
   </table></div>
+
+  <div class="callout c-info">
+    <strong>JWT verification is the first step of every resolve-ma-ref call.</strong> Backend must verify the JWT HS256 signature before any identity lookup. Requests with invalid signatures are rejected immediately with <code>ma_ref_invalid: true</code> — no Redis lookup is performed. See PRD-TRK-007 Section 5.3 for the full JWT specification.
+  </div>
 
   <div class="callout c-note">
     Frontend must NOT transmit <code>active uid</code> to Backend. Active identity determination is exclusively Backend responsibility based on server-side session state.
@@ -453,10 +374,11 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Rule</th><th>Specification</th><th class="zh">规范说明</th></tr></thead>
     <tbody>
-      <tr><td class="field">TTL</td><td>30 days — managed by Redis key expiry</td><td class="zh">30 天有效期，由 Redis key 过期机制控制</td></tr>
+      <tr><td class="field">TTL</td><td>30 days — governed by JWT <code>exp</code> field. Redis TTL is set to 30 days as a cleanup mechanism only, not the primary expiry gate.</td><td class="zh">30 天有效期，由 JWT exp 字段控制；Redis TTL 仅作清理用途，不是主要过期判断依据</td></tr>
       <tr><td class="field">Reuse</td><td>Unlimited — Email may be opened multiple times</td><td class="zh">可多次使用，同一封邮件多次打开均有效</td></tr>
-      <tr><td class="field">Expiry behavior</td><td>Return <code>ma_ref_expired: true</code>; association skipped; page loads normally; attribution context not recorded</td><td class="zh">过期时返回 expired 标志，association 不执行，页面正常访问</td></tr>
+      <tr><td class="field">Expiry behavior</td><td>Backend checks JWT <code>exp</code> field — if expired, return <code>ma_ref_expired: true</code>; association skipped; page loads normally; attribution context not recorded</td><td class="zh">过期时返回 expired 标志，association 不执行，页面正常访问</td></tr>
       <tr><td class="field">Content</td><td>Opaque token only — no raw uid, profile_id, phone, or email</td><td class="zh">不透明 token，不含任何原始 identity 信息</td></tr>
+      <tr><td class="field">Signing</td><td>JWT HS256 — signed by Backend using server-side secret. Invalid signatures rejected immediately. See PRD-TRK-007 Section 5.3 for full spec.</td><td class="zh">JWT HS256 签名，服务端密钥签发，签名无效立即拒绝。完整规范见 PRD-TRK-007 Section 5.3</td></tr>
       <tr><td class="field">Forwarding risk</td><td>Accepted — TTL limits exposure window</td><td class="zh">接受转发风险，通过 TTL 控制暴露窗口</td></tr>
     </tbody>
   </table></div>
@@ -478,117 +400,6 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <section class="section" id="s7">
   <div class="stag">07</div>
   <h2>Identity Association Rules <span class="en">Identity 关联规则</span></h2>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Fig 4 — Identity Association Decision Tree (Case A / B / C)</div>
-    <svg viewBox="0 0 780 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
-      <defs>
-        <marker id="da" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5c5a54"/></marker>
-        <marker id="dg" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
-        <marker id="db" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
-        <marker id="dr" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b1a1a"/></marker>
-        <marker id="dt" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
-      </defs>
-
-      <!-- Start: resolve ma_ref -->
-      <rect x="290" y="20" width="200" height="44" rx="6" fill="#0f7a6e" stroke="#0a5a52" stroke-width="1.2"/>
-      <text x="390" y="38" text-anchor="middle" font-size="11" font-weight="500" fill="#fff">Resolve ma_ref</text>
-      <text x="390" y="54" text-anchor="middle" font-size="9.5" fill="#8dd4cc">lookup identity_token in Redis</text>
-
-      <!-- Token expired? diamond -->
-      <polygon points="390,88 470,116 390,144 310,116" fill="#fef7e6" stroke="#f5d080" stroke-width="1.2"/>
-      <text x="390" y="112" text-anchor="middle" font-size="9.5" font-weight="500" fill="#7a4f00">Token expired?</text>
-      <text x="390" y="126" text-anchor="middle" font-size="8.5" fill="#7a4f00">(TTL check)</text>
-
-      <line x1="390" y1="64" x2="390" y2="88" stroke="#5c5a54" stroke-width="1.2" marker-end="url(#da)"/>
-
-      <!-- Yes: expired -->
-      <line x1="470" y1="116" x2="620" y2="116" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#dr)"/>
-      <text x="540" y="110" text-anchor="middle" font-size="9" fill="#8b1a1a">YES</text>
-      <rect x="622" y="96" width="140" height="40" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
-      <text x="692" y="112" text-anchor="middle" font-size="10" font-weight="500" fill="#8b1a1a">Return expired</text>
-      <text x="692" y="126" text-anchor="middle" font-size="8.5" fill="#5c5a54">ma_ref_expired: true</text>
-
-      <!-- No: check existing association -->
-      <line x1="390" y1="144" x2="390" y2="178" stroke="#5c5a54" stroke-width="1.2" marker-end="url(#da)"/>
-      <text x="398" y="166" font-size="9" fill="#5c5a54">NO</text>
-
-      <!-- Query diamond -->
-      <polygon points="390,178 490,210 390,242 290,210" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="390" y="206" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f7a6e">Query identity_</text>
-      <text x="390" y="220" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f7a6e">association_current</text>
-
-      <!-- Record exists? diamond -->
-      <line x1="390" y1="242" x2="390" y2="276" stroke="#5c5a54" stroke-width="1.2" marker-end="url(#da)"/>
-
-      <polygon points="390,276 475,304 390,332 305,304" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="390" y="300" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Record exists?</text>
-      <text x="390" y="314" text-anchor="middle" font-size="8.5" fill="#5c5a54">(anonymous_id lookup)</text>
-
-      <!-- NO branch → Case A -->
-      <line x1="305" y1="304" x2="140" y2="304" stroke="#1a6b45" stroke-width="1.2" marker-end="url(#dg)"/>
-      <text x="220" y="298" text-anchor="middle" font-size="9" fill="#1a6b45">NO</text>
-
-      <rect x="50" y="284" width="88" height="40" rx="5" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.5"/>
-      <text x="94" y="300" text-anchor="middle" font-size="10" font-weight="500" fill="#1a6b45">Case A</text>
-      <text x="94" y="314" text-anchor="middle" font-size="8.5" fill="#5c5a54">no prior assoc.</text>
-
-      <line x1="94" y1="324" x2="94" y2="358" stroke="#1a6b45" stroke-width="1.2" marker-end="url(#dg)"/>
-      <rect x="30" y="360" width="128" height="52" rx="5" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
-      <text x="94" y="378" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1a6b45">Create association</text>
-      <text x="94" y="392" text-anchor="middle" font-size="8.5" fill="#5c5a54">anon → profile_id</text>
-      <text x="94" y="404" text-anchor="middle" font-size="8.5" fill="#5c5a54">status: associated</text>
-
-      <!-- YES branch → same identity? diamond -->
-      <line x1="390" y1="332" x2="390" y2="366" stroke="#5c5a54" stroke-width="1.2" marker-end="url(#da)"/>
-      <text x="398" y="354" font-size="9" fill="#5c5a54">YES</text>
-
-      <polygon points="390,366 480,394 390,422 300,394" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="390" y="390" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Same identity?</text>
-      <text x="390" y="404" text-anchor="middle" font-size="8.5" fill="#5c5a54">existing == ma_ref identity</text>
-
-      <!-- YES → Case B -->
-      <line x1="300" y1="394" x2="210" y2="394" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#db)"/>
-      <text x="252" y="388" text-anchor="middle" font-size="9" fill="#0f3a6e">YES</text>
-
-      <rect x="118" y="374" width="88" height="40" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.5"/>
-      <text x="162" y="390" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Case B</text>
-      <text x="162" y="404" text-anchor="middle" font-size="8.5" fill="#5c5a54">same identity</text>
-
-      <line x1="162" y1="414" x2="162" y2="448" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#db)"/>
-      <rect x="98" y="450" width="128" height="52" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="162" y="468" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Update last_seen_at</text>
-      <text x="162" y="482" text-anchor="middle" font-size="8.5" fill="#5c5a54">log attribution event</text>
-      <text x="162" y="494" text-anchor="middle" font-size="8.5" fill="#5c5a54">status: matched</text>
-
-      <!-- NO → Case C -->
-      <line x1="480" y1="394" x2="580" y2="394" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#dr)"/>
-      <text x="528" y="388" text-anchor="middle" font-size="9" fill="#8b1a1a">NO</text>
-
-      <rect x="582" y="374" width="88" height="40" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.5"/>
-      <text x="626" y="390" text-anchor="middle" font-size="10" font-weight="500" fill="#8b1a1a">Case C</text>
-      <text x="626" y="404" text-anchor="middle" font-size="8.5" fill="#5c5a54">conflict</text>
-
-      <line x1="626" y1="414" x2="626" y2="448" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#dr)"/>
-      <rect x="558" y="450" width="136" height="64" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
-      <text x="626" y="468" text-anchor="middle" font-size="9.5" font-weight="500" fill="#8b1a1a">No overwrite</text>
-      <text x="626" y="482" text-anchor="middle" font-size="8.5" fill="#5c5a54">log attribution_identity</text>
-      <text x="626" y="494" text-anchor="middle" font-size="8.5" fill="#5c5a54">identity_conflict: true</text>
-      <text x="626" y="506" text-anchor="middle" font-size="8.5" fill="#5c5a54">status: conflict</text>
-
-      <!-- All three merge to: write DB + return response -->
-      <line x1="94" y1="412" x2="94" y2="540" stroke="#1a6b45" stroke-width="1" stroke-dasharray="3,2"/>
-      <line x1="94" y1="540" x2="310" y2="540" stroke="#1a6b45" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#dg)"/>
-      <line x1="162" y1="502" x2="162" y2="540" stroke="#0f3a6e" stroke-width="1" stroke-dasharray="3,2"/>
-      <line x1="162" y1="540" x2="310" y2="540" stroke="#0f3a6e" stroke-width="1" stroke-dasharray="3,2"/>
-      <line x1="626" y1="514" x2="626" y2="540" stroke="#8b1a1a" stroke-width="1" stroke-dasharray="3,2"/>
-      <line x1="626" y1="540" x2="470" y2="540" stroke="#8b1a1a" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#dr)"/>
-
-      <rect x="312" y="524" width="156" height="40" rx="5" fill="#0f7a6e" stroke="#0a5a52" stroke-width="1.2"/>
-      <text x="390" y="540" text-anchor="middle" font-size="10" font-weight="500" fill="#fff">Write DB + Return</text>
-      <text x="390" y="554" text-anchor="middle" font-size="8.5" fill="#8dd4cc">response → FE push dataLayer</text>
-    </svg>
-  </div>
 
   <div class="sub-h" id="s7-a">7.1 Case A — No existing association</div>
   <div class="case-block case-a">
@@ -640,112 +451,6 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="stag">08</div>
   <h2>Login Re-association Flow <span class="en">登录后 Re-association</span></h2>
   <div class="sdesc">When an anonymous MA visitor logs in during the same GA4 session, Backend upgrades the identity association.</div>
-
-  <div class="diagram-wrap">
-    <div class="diagram-title">Fig 5 — Login Re-association Flow — Swimlane (Frontend / Backend / DB)</div>
-    <svg viewBox="0 0 780 440" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
-      <defs>
-        <marker id="lfe" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
-        <marker id="lbe" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
-        <marker id="ldb" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7a4f00"/></marker>
-        <marker id="lgn" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
-        <marker id="lrd" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b1a1a"/></marker>
-      </defs>
-
-      <!-- Title bar -->
-      <rect x="0" y="0" width="780" height="30" fill="#0f7a6e"/>
-      <text x="390" y="19" text-anchor="middle" font-size="11" font-weight="500" fill="#fff" font-family="IBM Plex Mono">LOGIN RE-ASSOCIATION FLOW — SAME GA4 SESSION</text>
-
-      <!-- Lane BGs -->
-      <rect x="0" y="30" width="780" height="100" fill="#e8f7f5" opacity="0.5"/>
-      <rect x="0" y="130" width="780" height="280" fill="#edf3fb" opacity="0.5"/>
-      <rect x="0" y="410" width="780" height="0"   fill="#fef7e6" opacity="0.5"/>
-
-      <!-- Lane labels -->
-      <rect x="0" y="30"  width="90" height="100" fill="#d0eeea"/>
-      <text x="45" y="78" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52" font-family="IBM Plex Mono">Frontend</text>
-
-      <rect x="0" y="130" width="90" height="280" fill="#d6e8f7"/>
-      <text x="45" y="268" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e" font-family="IBM Plex Mono">Backend</text>
-
-      <!-- Lane dividers -->
-      <line x1="90" y1="30"  x2="90" y2="410" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="30"   x2="780" y2="30"  stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="130"  x2="780" y2="130" stroke="#c8c5ba" stroke-width="0.8"/>
-      <line x1="0" y1="410"  x2="780" y2="410" stroke="#c8c5ba" stroke-width="0.8"/>
-
-      <!-- FE: user logs in -->
-      <rect x="100" y="46" width="140" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="170" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">User logs in</text>
-      <text x="170" y="76" text-anchor="middle" font-size="8.5" fill="#5c5a54">same GA4 session</text>
-
-      <!-- FE push login event -->
-      <rect x="290" y="46" width="160" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/>
-      <text x="370" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#0f7a6e">Push login event</text>
-      <text x="370" y="76" text-anchor="middle" font-size="8.5" fill="#5c5a54">PRD-006 Flow 3 + hashed_uid</text>
-
-      <line x1="240" y1="66" x2="288" y2="66" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#lfe)"/>
-
-      <!-- FE → BE -->
-      <line x1="370" y1="86" x2="370" y2="144" stroke="#0f7a6e" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#lbe)"/>
-      <text x="378" y="120" font-size="8" fill="#0f3a6e" font-family="IBM Plex Mono">login + hashed_uid</text>
-
-      <!-- BE: check pending MA -->
-      <rect x="100" y="146" width="170" height="44" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="185" y="163" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Check session</text>
-      <text x="185" y="177" text-anchor="middle" font-size="8.5" fill="#5c5a54">pending MA association?</text>
-
-      <!-- Diamond: has MA assoc? -->
-      <polygon points="370,214 450,242 370,270 290,242" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="370" y="238" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">MA assoc</text>
-      <text x="370" y="252" text-anchor="middle" font-size="8.5" fill="#5c5a54">in session?</text>
-
-      <line x1="272" y1="168" x2="290" y2="242" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#lbe)"/>
-
-      <!-- NO: skip -->
-      <line x1="450" y1="242" x2="620" y2="242" stroke="#5c5a54" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#lbe)"/>
-      <text x="534" y="236" text-anchor="middle" font-size="9" fill="#5c5a54">NO</text>
-      <rect x="622" y="222" width="130" height="40" rx="5" fill="#f1efe8" stroke="#c8c5ba" stroke-width="1.2"/>
-      <text x="687" y="238" text-anchor="middle" font-size="10" fill="#5c5a54">Skip re-assoc</text>
-      <text x="687" y="252" text-anchor="middle" font-size="8.5" fill="#9c9a93">normal login flow</text>
-
-      <!-- YES: check conflict? -->
-      <line x1="370" y1="270" x2="370" y2="304" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#lbe)"/>
-      <text x="378" y="292" font-size="9" fill="#0f3a6e">YES</text>
-
-      <polygon points="370,304 455,332 370,360 285,332" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
-      <text x="370" y="328" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Was conflict?</text>
-      <text x="370" y="342" text-anchor="middle" font-size="8.5" fill="#5c5a54">(status = conflict)</text>
-
-      <!-- NO: upgrade associated → hashed_uid -->
-      <line x1="285" y1="332" x2="160" y2="332" stroke="#1a6b45" stroke-width="1.2" marker-end="url(#lgn)"/>
-      <text x="220" y="326" text-anchor="middle" font-size="9" fill="#1a6b45">NO</text>
-
-      <rect x="80" y="312" width="78" height="40" rx="5" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
-      <text x="119" y="328" text-anchor="middle" font-size="9.5" font-weight="500" fill="#1a6b45">Upgrade</text>
-      <text x="119" y="342" text-anchor="middle" font-size="8.5" fill="#5c5a54">→ hashed_uid</text>
-
-      <line x1="119" y1="352" x2="119" y2="380" stroke="#1a6b45" stroke-width="1.2" marker-end="url(#lgn)"/>
-      <rect x="55" y="382" width="128" height="18" rx="4" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
-      <text x="119" y="394" text-anchor="middle" font-size="8.5" fill="#1a6b45">source: MA+Login · updated_at</text>
-
-      <!-- YES: conflict resolved append -->
-      <line x1="455" y1="332" x2="570" y2="332" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#lrd)"/>
-      <text x="510" y="326" text-anchor="middle" font-size="9" fill="#8b1a1a">YES</text>
-
-      <rect x="572" y="312" width="160" height="40" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
-      <text x="652" y="328" text-anchor="middle" font-size="9.5" font-weight="500" fill="#8b1a1a">Append conflict_resolved</text>
-      <text x="652" y="342" text-anchor="middle" font-size="8.5" fill="#5c5a54">event log (append-only)</text>
-
-      <line x1="652" y1="352" x2="652" y2="380" stroke="#8b1a1a" stroke-width="1.2" marker-end="url(#lrd)"/>
-      <rect x="590" y="382" width="124" height="18" rx="4" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1"/>
-      <text x="652" y="394" text-anchor="middle" font-size="8.5" fill="#8b1a1a">hashed_uid now authoritative</text>
-
-      <!-- Session boundary note -->
-      <rect x="100" y="420" width="580" height="14" rx="3" fill="#fef7e6" stroke="#f5d080" stroke-width="0.8"/>
-      <text x="390" y="430" text-anchor="middle" font-size="8.5" fill="#7a4f00">⚠ Scope: same GA4 session only — cross-session re-association handled by Backend Identity Graph</text>
-    </svg>
-  </div>
   <div class="zh-summary">
     <span class="zh-summary-label">触发机制</span>
     由 PRD-TRK-006 Flow 3 的 login event 驱动。Frontend push login event 后，Backend 在处理登录时检查当前 session 内是否有 pending MA association 记录，并执行相应升级逻辑。
@@ -845,7 +550,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <span class="n">"ma_flow_id"</span>:             <span class="s">"FLOW_001"</span>,
   <span class="n">"ma_node_id"</span>:             <span class="s">"NODE_003"</span>,
   <span class="n">"ma_channel"</span>:             <span class="s">"email"</span>,      <span class="c">// email | whatsapp</span>
-  <span class="n">"ma_ref_expired"</span>:         <span class="k">false</span>
+  <span class="n">"ma_ref_expired"</span>:         <span class="k">false</span>,
+  <span class="n">"ma_ref_invalid"</span>:         <span class="k">false</span>   <span class="c">// true when JWT signature verification fails</span>
 }</pre>
   </div>
   <div class="callout c-note">Frontend uses the response fields to construct the <code>ma_identity_associated</code> dataLayer event. No identity values (profile_id / v2_uid) are exposed to Frontend in this response.</div>
@@ -878,7 +584,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     </tbody>
   </table></div>
   <div class="callout c-warn">
-    <strong>Do NOT push <code>ma_identity_associated</code> when:</strong> resolve-ma-ref API fails or times out · ma_ref_expired = true · Cookie consent not granted.
+    <strong>Do NOT push <code>ma_identity_associated</code> when:</strong> resolve-ma-ref API fails or times out · ma_ref_expired = true · ma_ref_invalid = true · Cookie consent not granted.
   </div>
 </section>
 
@@ -895,6 +601,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td>ma_ref_expired = true</td><td class="zh">token 已过期</td><td>Silent skip — page loads normally</td><td class="zh">静默跳过，页面正常访问</td></tr>
       <tr><td>anonymous_id unavailable (GA4 timeout)</td><td class="zh">GA4 超时获取不到 anonymous_id</td><td>Still call API with anonymous_id = undefined; Backend uses session_id as fallback</td><td class="zh">仍调用 API，anonymous_id 传 undefined，Backend 以 session_id 做 fallback</td></tr>
       <tr><td>Cookie consent not granted</td><td class="zh">用户未授权 Cookie</td><td>Do not call resolve-ma-ref; no association; no event push</td><td class="zh">不调用 API，不执行 association，不 push 任何 event</td></tr>
+      <tr><td>ma_ref_invalid = true (JWT signature failed)</td><td class="zh">JWT 签名验证失败</td><td>Silent skip — same as timeout; no ma_identity_associated push</td><td class="zh">静默跳过，不 push event，页面正常访问</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -907,7 +614,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     <thead><tr><th>Responsibility</th><th>Status</th><th class="zh">说明</th></tr></thead>
     <tbody>
       <tr><td>Listen to <code>ma_identity_associated</code> dataLayer event → forward to GA4</td><td><span class="badge b-green">Required</span></td><td class="zh">监听 event 并上报 GA4</td></tr>
-      <tr><td>Parse or decode ma_ref</td><td><span class="badge b-red">Forbidden</span></td><td class="zh">禁止解析 ma_ref</td></tr>
+      <tr><td>Verify, parse, or decode ma_ref</td><td><span class="badge b-red">Forbidden</span></td><td class="zh">禁止验证、解析或 decode ma_ref</td></tr>
       <tr><td>Resolve identity or execute stitching</td><td><span class="badge b-red">Forbidden</span></td><td class="zh">禁止执行 identity 操作</td></tr>
     </tbody>
   </table></div>
@@ -956,7 +663,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td>Push tracking_initialized event</td><td><span class="team team-fe">Frontend</span></td><td class="zh">推送初始化 event</td></tr>
       <tr><td>Call POST /tracking/resolve-ma-ref</td><td><span class="team team-fe">Frontend</span></td><td class="zh">调用 resolve API</td></tr>
       <tr><td>Push ma_identity_associated event</td><td><span class="team team-fe">Frontend</span></td><td class="zh">resolve 完成后 push event</td></tr>
-      <tr><td>Decode ma_ref → extract identity_token</td><td><span class="team team-be">Backend</span></td><td class="zh">解码 ma_ref 提取 token</td></tr>
+      <tr><td>Verify JWT signature → extract payload (identity_token + attribution)</td><td><span class="team team-be">Backend</span></td><td class="zh">验证 JWT 签名，提取 payload</td></tr>
       <tr><td>Lookup Redis for identity + attribution context</td><td><span class="team team-be">Backend</span></td><td class="zh">查询 Redis 获取 identity 与归因信息</td></tr>
       <tr><td>Determine active identity from server-side session</td><td><span class="team team-be">Backend</span></td><td class="zh">基于服务端 session 判断 active identity</td></tr>
       <tr><td>Execute Case A / B / C association logic</td><td><span class="team team-be">Backend</span></td><td class="zh">执行三种 case 的关联逻辑</td></tr>
@@ -977,9 +684,9 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     <tbody>
       <tr><td>GA4 client_id retrieval timeout blocks resolve API call</td><td class="zh">GA4 client_id 获取超时导致 resolve API 调用缺少 anonymous_id</td><td><span class="sev-h">HIGH</span></td><td>Call API with anonymous_id = undefined; Backend uses session_id as stitching fallback</td><td class="zh">传 undefined，Backend 以 session_id 做 fallback</td></tr>
       <tr><td>Redis unavailable — token lookup fails</td><td class="zh">Redis 不可用导致 token lookup 失败</td><td><span class="sev-h">HIGH</span></td><td>Return graceful error; Frontend silently skips; page loads normally; fallback to DB lookup</td><td class="zh">Frontend 静默跳过；Backend 降级查 DB</td></tr>
-      <tr><td>identity_token TTL expires before user clicks link</td><td class="zh">用户在 TTL 过期后才点击链接</td><td><span class="sev-m">MEDIUM</span></td><td>Return ma_ref_expired = true; Frontend skips gracefully; page loads normally</td><td class="zh">返回 expired 标志，Frontend 静默跳过，页面正常访问</td></tr>
+      <tr><td>JWT exp expires before user clicks link</td><td class="zh">用户在 JWT exp 过期后才点击链接</td><td><span class="sev-m">MEDIUM</span></td><td>Backend checks JWT exp — return ma_ref_expired = true; Frontend skips gracefully; page loads normally</td><td class="zh">返回 expired 标志，Frontend 静默跳过，页面正常访问</td></tr>
       <tr><td>GA4 session expires between MA link visit and login</td><td class="zh">MA 访问到登录之间 GA4 session 超时</td><td><span class="sev-m">MEDIUM</span></td><td>Accepted — re-association scoped to same session; cross-session handled by Identity Graph</td><td class="zh">接受此限制，re-association 仅覆盖同 session，跨 session 由 Identity Graph 处理</td></tr>
-      <tr><td>MA link URL shared or forwarded to another user</td><td class="zh">MA 链接被转发给其他用户</td><td><span class="sev-l">LOW</span></td><td>identity_token is opaque — no identity leakage; TTL limits exposure window; conflict detection flags anomaly</td><td class="zh">token 不透明无 identity 泄露；TTL 限制暴露窗口；冲突检测标记异常</td></tr>
+      <tr><td>MA link URL shared or forwarded to another user</td><td class="zh">MA 链接被转发给其他用户</td><td><span class="sev-l">LOW</span></td><td>identity_token is opaque — no identity leakage; JWT exp limits exposure window; conflict detection flags anomaly</td><td class="zh">token 不透明无 identity 泄露；JWT exp 限制暴露窗口；冲突检测标记异常</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1020,8 +727,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Term</th><th>Definition</th><th class="zh">中文释义</th></tr></thead>
     <tbody>
-      <tr><td class="field">ma_ref</td><td>The opaque URL parameter appended to all MA message links. Encodes identity_token + flow + node + channel context.</td><td class="zh">MA 消息链接中的不透明追踪参数</td></tr>
-      <tr><td class="field">identity_token</td><td>A UUID v4 token stored in Redis at send time. Backend uses it to lookup profile_id / v2_uid. Contains no raw identity.</td><td class="zh">发送时写入 Redis 的 UUID token，用于 lookup 真实 identity</td></tr>
+      <tr><td class="field">ma_ref</td><td>The opaque URL parameter appended to all MA message links. A JWT HS256 signed token carrying identity_token + flow + node + channel + exp. Tamper-proof — invalid signatures are rejected by Backend.</td><td class="zh">MA 消息链接中的 JWT HS256 签名 token，包含 identity_token、归因信息和过期时间戳</td></tr>
+      <tr><td class="field">identity_token</td><td>A UUID v4 token stored in Redis at send time, referenced inside the JWT payload. Backend uses it to lookup profile_id / v2_uid via Redis. Contains no raw identity.</td><td class="zh">发送时写入 Redis 的 UUID token，用于 lookup 真实 identity</td></tr>
       <tr><td class="field">association_status</td><td>Result of the identity association attempt. Enum: associated / matched / conflict / conflict_resolved.</td><td class="zh">identity association 的结果状态</td></tr>
       <tr><td class="field">attribution_identity</td><td>The identity resolved from ma_ref (message recipient). May differ from the current active website identity.</td><td class="zh">ma_ref 解析出的 identity，代表消息接收者，不一定等于当前 active identity</td></tr>
       <tr><td class="field">conflict_resolved</td><td>Event log status appended when a Case C conflict is resolved after login. Original conflict record is never modified (append-only).</td><td class="zh">Case C 冲突在登录后消解时追加的 event log 状态，原记录不修改</td></tr>
@@ -1065,6 +772,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.1</td><td>2026-05-26</td><td>Product Team</td><td>Updated terminology: replaced decode/encode with JWT verify/sign throughout. Added JWT signature verification note to Backend Responsibilities. Added ma_ref_invalid field to API response schema and Frontend error handling. Updated Token Security Spec to reference JWT HS256. Updated Risks table to reference JWT exp instead of Redis TTL. Updated Glossary.</td></tr>
       <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full MA link identity association spec: Case A/B/C, login re-association, token security, API contract, data tables, downstream data rules, error handling, acceptance criteria, glossary.</td></tr>
     </tbody>
   </table></div>
