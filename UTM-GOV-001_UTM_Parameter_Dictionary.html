@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTM-GOV-001 | UTM Parameter Dictionary</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #fff; --border: #e2e0d8; --border-strong: #c8c5ba;
+  --text-primary: #1a1917; --text-secondary: #5c5a54; --text-muted: #9c9a93;
+  --accent-soft: #f0ede6; --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  --pink: #c0385a; --pink-mid: #d9547a; --pink-light: #fdf0f4; --pink-border: #f0b0c0; --pink-muted: #8a2040;
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --red: #8b1a1a; --red-bg: #fdf0f0; --red-b: #f0b0b0;
+  --blue: #0f3a6e; --blue-bg: #edf3fb; --blue-b: #b0cef0;
+  --teal: #0a5a52; --teal-bg: #e8f7f5; --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+.lang-bar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 9px 28px; }
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); font-weight: 500; border-left: 3px solid var(--pink); padding-left: 8px; }
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { padding: 3px 14px; border: none; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all .15s; letter-spacing: .05em; }
+.lang-btn.active { background: var(--pink); color: #fff; }
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { position: sticky; top: 41px; height: calc(100vh - 41px); overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); }
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe { height: 4px; background: linear-gradient(90deg, var(--pink) 0%, #d9547a 50%, #f07090 100%); }
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl { display: block; padding: 5px 20px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: all .12s; line-height: 1.4; }
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nl.active { color: var(--pink); background: var(--pink-light); border-left-color: var(--pink); font-weight: 500; }
+.nl.sub { padding-left: 32px; font-size: 11.5px; color: var(--text-muted); }
+.nl.sub:hover { color: var(--pink); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+.main { padding: 48px 56px; max-width: 900px; }
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink-border); background: var(--pink-light); padding: 3px 10px; border-radius: 3px; margin-bottom: 14px; }
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-blue  { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.b-tbd   { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-red   { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+.b-pink  { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); }
+.b-purple{ background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-b); }
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.section h2 .en { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout strong { font-weight: 500; }
+.c-pink   { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info   { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn   { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green  { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note   { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.c-red    { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.tbd-box { background: var(--amber-bg); border: 2px dashed var(--amber-b); border-radius: 8px; padding: 20px 24px; margin: 16px 0; }
+.tbd-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: var(--amber); margin-bottom: 8px; display: block; }
+.tbd-box p { font-size: 13px; color: var(--amber); line-height: 1.75; }
+.owner-box { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; padding: 3px 10px; border-radius: 4px; font-weight: 500; }
+.owner-product { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+.owner-marketing { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-b); }
+.owner-eng { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.param-card { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
+.param-head { padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; }
+.param-head.fixed { background: var(--pink-light); border-bottom: 1px solid var(--pink-border); }
+.param-head.dynamic { background: var(--blue-bg); border-bottom: 1px solid var(--blue-b); }
+.param-head.optional { background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+.param-head.tbd { background: var(--amber-bg); border-bottom: 1px solid var(--amber-b); }
+.param-name { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+.param-name.fixed { color: var(--pink-muted); }
+.param-name.dynamic { color: var(--blue); }
+.param-name.optional { color: var(--text-secondary); }
+.param-name.tbd { color: var(--amber); }
+.param-body { padding: 16px 18px; background: var(--surface); }
+.param-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; margin-bottom: 10px; font-size: 12.5px; }
+.param-row:last-child { margin-bottom: 0; }
+.param-key { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding-top: 1px; }
+.param-val { color: var(--text-secondary); line-height: 1.65; }
+.param-val code { font-family: var(--mono); font-size: 11px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-primary); }
+.value-pill { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; margin: 2px; background: var(--accent-soft); border: 1px solid var(--border); color: var(--text-primary); }
+.value-pill.new { background: var(--teal-bg); border-color: var(--teal-b); color: var(--teal); }
+.signoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.signoff-cell { background: var(--surface); padding: 14px 16px; }
+.signoff-role { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--pink); margin-bottom: 8px; }
+.signoff-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.signoff-line { border-top: 1px solid var(--border-strong); margin: 20px 0 6px; }
+.signoff-label { font-size: 11px; color: var(--text-muted); }
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); border: 1px solid var(--border); }
+pre { background: #1c1b18; color: #d4d0c8; padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; border-radius: 0 0 6px 6px; }
+[data-lang="zh"] { display: none; }
+body.zh-mode [data-lang="en"] { display: none; }
+body.zh-mode [data-lang="zh"] { display: block; }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .main { padding: 24px 20px; } .meta-grid, .signoff-grid { grid-template-columns: 1fr; } .param-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <span class="lang-bar-logo">Tracking Governance</span>
+    <span class="lang-bar-id">UTM-GOV-001 · v1.2 · 2026-05-28</span>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">Tracking Governance</div>
+    <div class="sidebar-title">UTM Parameter Dictionary</div>
+    <div class="sidebar-ver">UTM-GOV-001 · v1.2</div>
+  </div>
+  <div class="ngl">Navigation</div>
+  <a class="nl" href="#purpose">1. Purpose &amp; Boundary</a>
+  <a class="nl" href="#ownership">2. Who Owns What</a>
+  <a class="nl" href="#params">3. Parameter Definitions</a>
+  <a class="nl sub" href="#p-source">utm_source</a>
+  <a class="nl sub" href="#p-medium">utm_medium</a>
+  <a class="nl sub" href="#p-campaign">utm_campaign</a>
+  <a class="nl sub" href="#p-content">utm_content</a>
+  <a class="nl sub" href="#p-term">utm_term</a>
+  <a class="nl" href="#scope">4. Scope — All Systems</a>
+  <a class="nl" href="#override">5. Override Rules</a>
+  <a class="nl" href="#example">6. Filled Example</a>
+  <a class="nl" href="#tbd">7. Resolved Decisions</a>
+  <a class="nl" href="#signoff">Sign-off</a>
+  <a class="nl" href="#revision">Revision History</a>
+  <div class="nav-div"></div>
+  <div class="ngl">Referenced By</div>
+  <a class="nl sub" href="#">PRD-TRK-007 — MA Tracking</a>
+  <a class="nl sub" href="#">PRD-TRK-009 — Aima Tracking</a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<section class="cover" id="cover">
+  <div class="doc-module-tag">Tracking Governance</div>
+  <h1>UTM-GOV-001<br><strong>UTM Parameter Dictionary</strong></h1>
+  <p class="sub" data-lang="en">Company-wide UTM governance standard. Defines the allowed values, ownership, and rules for all UTM parameters used across all systems and channels. All systems that append UTM parameters to links must comply with this document.</p>
+  <p class="sub" data-lang="zh">全公司 UTM 治理标准。定义所有系统和渠道使用的 UTM 参数的允许值、归属权和规则。所有向链接附加 UTM 参数的系统必须遵守本文档。</p>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k">Doc ID</span><span class="v">UTM-GOV-001</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.2</span></div>
+    <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-green">Confirmed — B2C UTM Advisory Aligned</span></span></div>
+    <div class="meta-cell"><span class="k">Domain</span><span class="v">Tracking Governance</span></div>
+    <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-28</span></div>
+    <div class="meta-cell"><span class="k">Owner</span><span class="v">Product + Marketing</span></div>
+    <div class="meta-cell"><span class="k">Applies To</span><span class="v">MA System, Aima System, All future systems</span></div>
+    <div class="meta-cell"><span class="k">Referenced By</span><span class="v">PRD-TRK-007, PRD-TRK-009</span></div>
+  </div>
+</section>
+
+<!-- S1 PURPOSE -->
+<section class="section" id="purpose">
+  <div class="stag">01</div>
+  <h2 data-lang="en">Purpose &amp; Boundary <span class="en">目的与边界</span></h2>
+  <h2 data-lang="zh">目的与边界</h2>
+
+  <div style="background:linear-gradient(135deg,#fff 0%,var(--pink-light) 100%);border:2px solid var(--pink-border);border-radius:10px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink) 0%,#d9547a 50%,#f07090 100%);"></div>
+    <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink);margin-bottom:12px;">💡 What is this document?</div>
+    <p style="font-size:14px;line-height:1.85;color:var(--text-secondary);margin-bottom:16px;" data-lang="en">This document is the <strong style="color:var(--text-primary);">single source of truth</strong> for UTM parameters across the entire company. It defines what values are allowed, who can change them, and which systems must follow these rules.</p>
+    <p style="font-size:14px;line-height:1.85;color:var(--text-secondary);margin-bottom:16px;" data-lang="zh">本文档是全公司 UTM 参数的<strong style="color:var(--text-primary);">唯一权威来源</strong>。定义了允许的值、谁可以修改，以及哪些系统必须遵守这些规则。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#fff;border:1px solid var(--green-b);border-radius:6px;padding:14px;">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:8px;" data-lang="en">This document covers</div>
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:8px;" data-lang="zh">本文档覆盖</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);line-height:1.9;list-style:none;">
+          <li data-lang="en">✅ Allowed values for each UTM parameter</li><li data-lang="zh">✅ 每个 UTM 参数的允许值</li>
+          <li data-lang="en">✅ Who defines vs who executes each parameter</li><li data-lang="zh">✅ 谁定义 vs 谁执行每个参数</li>
+          <li data-lang="en">✅ Rules for system-automated UTM injection</li><li data-lang="zh">✅ 系统自动注入 UTM 的规则</li>
+          <li data-lang="en">✅ Override rules when business manually adds UTM</li><li data-lang="zh">✅ 业务手动添加 UTM 时的覆盖规则</li>
+          <li data-lang="en">✅ Scope: applies to ALL systems and channels</li><li data-lang="zh">✅ 适用范围：所有系统和渠道</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1px solid var(--red-b);border-radius:6px;padding:14px;">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:8px;" data-lang="en">This document does NOT cover</div>
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:8px;" data-lang="zh">本文档不覆盖</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);line-height:1.9;list-style:none;">
+          <li data-lang="en">❌ How ma_ref is generated (see PRD-TRK-007)</li><li data-lang="zh">❌ ma_ref 如何生成（见 PRD-TRK-007）</li>
+          <li data-lang="en">❌ How aima_ref is generated (see PRD-TRK-009)</li><li data-lang="zh">❌ aima_ref 如何生成（见 PRD-TRK-009）</li>
+          <li data-lang="en">❌ GA4 event configuration</li><li data-lang="zh">❌ GA4 event 配置</li>
+          <li data-lang="en">❌ Identity resolution logic</li><li data-lang="zh">❌ Identity 解析逻辑</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S2 OWNERSHIP -->
+<section class="section" id="ownership">
+  <div class="stag">02</div>
+  <h2 data-lang="en">Who Owns What <span class="en">谁负责什么</span></h2>
+  <h2 data-lang="zh">谁负责什么</h2>
+  <p class="sdesc" data-lang="en">UTM parameters have two types of owners — <strong>Definition owners</strong> who decide what values are allowed, and <strong>Execution owners</strong> who implement them in systems. These are different responsibilities.</p>
+  <p class="sdesc" data-lang="zh">UTM 参数有两种负责人——<strong>定义负责人</strong>决定允许哪些值，<strong>执行负责人</strong>在系统中实现。两者职责不同。</p>
+  <div class="tw"><table>
+    <thead><tr><th data-lang="en">Parameter</th><th data-lang="zh">参数</th><th data-lang="en">Definition Owner</th><th data-lang="zh">定义负责人</th><th data-lang="en">Execution Owner</th><th data-lang="zh">执行负责人</th><th data-lang="en">Business Can Override?</th><th data-lang="zh">业务可以覆盖？</th></tr></thead>
+    <tbody>
+      <tr><td class="field">utm_source</td><td class="field">utm_source</td><td><span class="owner-box owner-product">Product + Marketing</span></td><td><span class="owner-box owner-product">产品 + Marketing</span></td><td><span class="owner-box owner-eng">System (auto)</span></td><td><span class="owner-box owner-eng">系统自动</span></td><td><span class="badge b-red" data-lang="en">No — system overrides</span><span class="badge b-red" data-lang="zh">否 — 系统强制覆盖</span></td></tr>
+      <tr><td class="field">utm_medium</td><td class="field">utm_medium</td><td><span class="owner-box owner-product">Product + Marketing</span></td><td><span class="owner-box owner-product">产品 + Marketing</span></td><td><span class="owner-box owner-eng">System (auto)</span></td><td><span class="owner-box owner-eng">系统自动</span></td><td><span class="badge b-red" data-lang="en">No — system overrides</span><span class="badge b-red" data-lang="zh">否 — 系统强制覆盖</span></td></tr>
+      <tr><td class="field">utm_campaign</td><td class="field">utm_campaign</td><td><span class="owner-box owner-marketing">Business Team</span></td><td><span class="owner-box owner-marketing">业务团队</span></td><td><span class="owner-box owner-marketing">Business + System</span></td><td><span class="owner-box owner-marketing">业务 + 系统</span></td><td><span class="badge b-green" data-lang="en">Yes — business defines campaign name</span><span class="badge b-green" data-lang="zh">是 — 业务定义活动名称</span></td></tr>
+      <tr><td class="field">utm_content</td><td class="field">utm_content</td><td><span class="owner-box owner-marketing">Business Team</span></td><td><span class="owner-box owner-marketing">业务团队</span></td><td><span class="owner-box owner-marketing">Business</span></td><td><span class="owner-box owner-marketing">业务</span></td><td><span class="badge b-green" data-lang="en">Yes — optional, business defines CTA variant</span><span class="badge b-green" data-lang="zh">是 — 可选，业务定义 CTA 变体</span></td></tr>
+      <tr><td class="field">utm_term</td><td class="field">utm_term</td><td><span class="owner-box owner-product">Product + Marketing</span></td><td><span class="owner-box owner-product">产品 + Marketing</span></td><td><span class="owner-box owner-eng">System (auto)</span></td><td><span class="owner-box owner-eng">系统自动</span></td><td><span class="badge b-green" data-lang="en">System (auto) — rec_id</span><span class="badge b-green" data-lang="zh">系统自动 — rec_id</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S3 PARAMETER DEFINITIONS -->
+<section class="section" id="params">
+  <div class="stag">03</div>
+  <h2 data-lang="en">Parameter Definitions <span class="en">参数定义</span></h2>
+  <h2 data-lang="zh">参数定义</h2>
+
+  <!-- utm_source -->
+  <!-- utm_source -->
+  <div class="param-card" id="p-source">
+    <div class="param-head fixed">
+      <span class="param-name fixed">utm_source*</span>
+      <span class="badge b-green" data-lang="en">✅ Confirmed · Fixed — System Controlled</span>
+      <span class="badge b-green" data-lang="zh">✅ 已确认 · 固定值 — 系统控制</span>
+    </div>
+    <div class="param-body">
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Definition</span>
+        <span class="param-key" data-lang="zh">定义</span>
+        <span class="param-val" data-lang="en">Indicates where the traffic came from. Use the platform, publisher, or source that sent the user to the link (e.g. instagram, google, whatsapp, partner, influencer).</span>
+        <span class="param-val" data-lang="zh">标识流量来源。使用将用户引导到链接的平台、发布者或来源（如 instagram、google、whatsapp、partner、influencer）。</span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Mandatory</span>
+        <span class="param-key" data-lang="zh">是否必填</span>
+        <span class="param-val"><span class="badge b-pink">Yes *</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Allowed Values</span>
+        <span class="param-key" data-lang="zh">允许的值</span>
+        <span class="param-val">
+          <a href="https://riseandshinepteltd-my.sharepoint.com/:x:/g/personal/kriti_gomber_supermombusiness_com/IQDqa1qvidMyRppNB0J-Q_4tAa-c13eSXR49QokdTgy_ZuA?e=e4yA0F" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--pink);border:1px solid var(--pink-border);background:var(--pink-light);padding:4px 12px;border-radius:4px;text-decoration:none;">📋 View full utm_source list in UTM Advisory Excel →</a>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="en">Values are maintained in the Excel file. Do not define new values outside of it. Any new value requires approval from Product + Marketing before use.</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="zh">值维护在 Excel 文件中。不得在其外定义新值。任何新值须经产品 + Marketing 批准后方可使用。</div>
+        </span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For Aima WA</span>
+        <span class="param-key" data-lang="zh">Aima WA</span>
+        <span class="param-val"><code>aima</code> <span class="badge b-green">✅ Confirmed</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For MA System</span>
+        <span class="param-key" data-lang="zh">MA 系统</span>
+        <span class="param-val"><code>crm</code> <span class="badge b-green">✅ Confirmed</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- utm_medium -->
+  <div class="param-card" id="p-medium">
+    <div class="param-head fixed">
+      <span class="param-name fixed">utm_medium*</span>
+      <span class="badge b-green" data-lang="en">✅ Confirmed · Fixed — System Controlled</span>
+      <span class="badge b-green" data-lang="zh">✅ 已确认 · 固定值 — 系统控制</span>
+    </div>
+    <div class="param-body">
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Definition</span>
+        <span class="param-key" data-lang="zh">定义</span>
+        <span class="param-val" data-lang="en">Indicates the type of marketing activity or channel. Use the traffic category, not the platform (e.g. paid_social, partnership, influencer).</span>
+        <span class="param-val" data-lang="zh">标识营销活动类型或渠道。使用流量类别，而不是平台名称（如 paid_social、partnership、influencer）。</span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Mandatory</span>
+        <span class="param-key" data-lang="zh">是否必填</span>
+        <span class="param-val"><span class="badge b-pink">Yes *</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Allowed Values</span>
+        <span class="param-key" data-lang="zh">允许的值</span>
+        <span class="param-val">
+          <a href="https://riseandshinepteltd-my.sharepoint.com/:x:/g/personal/kriti_gomber_supermombusiness_com/IQDqa1qvidMyRppNB0J-Q_4tAa-c13eSXR49QokdTgy_ZuA?e=e4yA0F" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--pink);border:1px solid var(--pink-border);background:var(--pink-light);padding:4px 12px;border-radius:4px;text-decoration:none;">📋 View full utm_medium list in UTM Advisory Excel →</a>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="en">Values are maintained in the Excel file. Any new value requires approval from Product + Marketing before use.</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="zh">值维护在 Excel 文件中。任何新值须经产品 + Marketing 批准。</div>
+        </span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For Aima WA</span>
+        <span class="param-key" data-lang="zh">Aima WA</span>
+        <span class="param-val"><code>whatsapp</code> <span class="badge b-green">✅ Confirmed</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For MA System</span>
+        <span class="param-key" data-lang="zh">MA 系统</span>
+        <span class="param-val"><code>messaging</code> <span class="badge b-green">✅ Confirmed</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- utm_campaign -->
+  <div class="param-card" id="p-campaign">
+    <div class="param-head dynamic">
+      <span class="param-name dynamic">utm_campaign*</span>
+      <span class="badge b-blue" data-lang="en">Open — Business + System</span>
+      <span class="badge b-blue" data-lang="zh">开放值 — 业务 + 系统</span>
+    </div>
+    <div class="param-body">
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Definition</span>
+        <span class="param-key" data-lang="zh">定义</span>
+        <span class="param-val" data-lang="en">Indicates the overall campaign or initiative tied to the link. Always follow the format <code>year_country_campaign_description</code> using lowercase and underscores only.</span>
+        <span class="param-val" data-lang="zh">标识链接关联的整体活动或推广计划。始终使用格式 <code>year_country_campaign_description</code>，仅使用小写和下划线。</span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Mandatory</span>
+        <span class="param-key" data-lang="zh">是否必填</span>
+        <span class="param-val"><span class="badge b-pink">Yes *</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Format</span>
+        <span class="param-key" data-lang="zh">格式</span>
+        <span class="param-val">
+          <code>year_country_campaign_description</code><br>
+          <span style="font-size:12px;color:var(--text-muted);margin-top:4px;display:block;" data-lang="en">Examples: <code>2026_sg_pregnancy_box</code> · <code>2026_sg_partner_name</code> · <code>2026_may_toddler_seminar</code></span>
+          <span style="font-size:12px;color:var(--text-muted);margin-top:4px;display:block;" data-lang="zh">示例：<code>2026_sg_pregnancy_box</code> · <code>2026_sg_partner_name</code> · <code>2026_may_toddler_seminar</code></span>
+        </span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For MA / Aima</span>
+        <span class="param-key" data-lang="zh">MA / Aima</span>
+        <span class="param-val">
+          <div style="margin-bottom:6px;" data-lang="en">MA workflow triggered → system takes <code>flow_name</code> automatically</div>
+          <div style="margin-bottom:6px;" data-lang="zh">MA workflow 触发 → 系统自动取 <code>flow_name</code></div>
+          <div style="margin-bottom:6px;" data-lang="en">Aima user-triggered → <code>usertriggeredrecommendations</code></div>
+          <div style="margin-bottom:6px;" data-lang="zh">Aima 用户触发 → <code>usertriggeredrecommendations</code></div>
+          <div data-lang="en">Not tied to campaign → <code>null</code></div>
+          <div data-lang="zh">不关联活动 → <code>null</code></div>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- utm_content -->
+  <div class="param-card" id="p-content">
+    <div class="param-head dynamic">
+      <span class="param-name dynamic">utm_content*</span>
+      <span class="badge b-blue" data-lang="en">Open — Business Defined</span>
+      <span class="badge b-blue" data-lang="zh">开放值 — 业务定义</span>
+    </div>
+    <div class="param-body">
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Definition</span>
+        <span class="param-key" data-lang="zh">定义</span>
+        <span class="param-val" data-lang="en">Indicates the specific placement, creative, audience, partner, or variation. Use this to distinguish between ads, influencer names, formats, placements, or versions (e.g. rachel_lim_reel, story, flyer etc.).</span>
+        <span class="param-val" data-lang="zh">标识具体的位置、素材、受众、合作方或变体。用于区分广告、网红名字、格式、位置或版本（如 rachel_lim_reel、story、flyer 等）。</span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Mandatory</span>
+        <span class="param-key" data-lang="zh">是否必填</span>
+        <span class="param-val"><span class="badge b-pink">Yes *</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Allowed Values</span>
+        <span class="param-key" data-lang="zh">允许的值</span>
+        <span class="param-val">
+          <a href="https://riseandshinepteltd-my.sharepoint.com/:x:/g/personal/kriti_gomber_supermombusiness_com/IQDqa1qvidMyRppNB0J-Q_4tAa-c13eSXR49QokdTgy_ZuA?e=e4yA0F" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--pink);border:1px solid var(--pink-border);background:var(--pink-light);padding:4px 12px;border-radius:4px;text-decoration:none;">📋 View full utm_content list in UTM Advisory Excel →</a>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="en">Reference list maintained in Excel. Business may use custom values — use snake_case, lowercase only.</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-muted);" data-lang="zh">参考列表维护在 Excel 中。业务可使用自定义值——使用 snake_case，仅小写。</div>
+        </span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For MA / Aima</span>
+        <span class="param-key" data-lang="zh">MA / Aima</span>
+        <span class="param-val" data-lang="en">Use values like <code>triggered_flow</code>, <code>automated</code>, <code>broadcast</code>, <code>campaign_blast</code> from the Excel reference list for CRM/Aima messages.</span>
+        <span class="param-val" data-lang="zh">CRM/Aima 消息使用 Excel 参考列表中的值，如 <code>triggered_flow</code>、<code>automated</code>、<code>broadcast</code>、<code>campaign_blast</code>。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- utm_term -->
+  <div class="param-card" id="p-term">
+    <div class="param-head dynamic">
+      <span class="param-name dynamic">utm_term</span>
+      <span class="badge b-green" data-lang="en">✅ Confirmed · Optional</span>
+      <span class="badge b-green" data-lang="zh">✅ 已确认 · 可选</span>
+    </div>
+    <div class="param-body">
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Definition</span>
+        <span class="param-key" data-lang="zh">定义</span>
+        <span class="param-val" data-lang="en">Indicates the target audience or keyword. Use for audience segments, targeting groups, or search terms (e.g. new_moms, remarketing, baby_products).</span>
+        <span class="param-val" data-lang="zh">标识目标受众或关键词。用于受众细分、定向群组或搜索词（如 new_moms、remarketing、baby_products）。</span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">Mandatory</span>
+        <span class="param-key" data-lang="zh">是否必填</span>
+        <span class="param-val"><span class="badge b-tbd">Optional</span></span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">For CRM / Aima</span>
+        <span class="param-key" data-lang="zh">CRM / Aima 场景</span>
+        <span class="param-val">
+          <div class="callout c-green" style="margin:0;">
+            <strong data-lang="en">utm_term = {rec_id}</strong><span data-lang="en"> — When Aima sends a recommendation, utm_term carries the rec_id from the Recommendation Engine. Marketing has confirmed they no longer use utm_term for offer categories. This field is now reserved for rec_id in CRM/Aima channels.</span>
+            <strong data-lang="zh">utm_term = {rec_id}</strong><span data-lang="zh"> — 当 Aima 发送推荐时，utm_term 携带推荐引擎提供的 rec_id。Marketing 已确认不再使用 utm_term 放活动品类。此字段在 CRM/Aima 渠道中现在专门用于 rec_id。</span>
+          </div>
+        </span>
+      </div>
+      <div class="param-row">
+        <span class="param-key" data-lang="en">When empty</span>
+        <span class="param-key" data-lang="zh">为空时</span>
+        <span class="param-val" data-lang="en">If no rec_id is available (no Recommendation Engine involvement), utm_term is omitted from the link.</span>
+        <span class="param-val" data-lang="zh">如果没有 rec_id（无推荐引擎介入），utm_term 从链接中省略。</span>
+      </div>
+    </div>
+  </div>
+
+<section class="section" id="scope">
+  <div class="stag">04</div>
+  <h2 data-lang="en">Scope — All Systems <span class="en">适用范围 — 所有系统</span></h2>
+  <h2 data-lang="zh">适用范围 — 所有系统</h2>
+  <p class="sdesc" data-lang="en">This UTM standard applies to every system that appends UTM parameters to links — now and in the future. No system may define its own UTM values outside of this document.</p>
+  <p class="sdesc" data-lang="zh">本 UTM 标准适用于所有向链接附加 UTM 参数的系统——现在和未来。任何系统都不得在本文档之外定义自己的 UTM 值。</p>
+  <div class="tw"><table>
+    <thead><tr><th data-lang="en">System</th><th data-lang="zh">系统</th><th data-lang="en">Channel</th><th data-lang="zh">渠道</th><th data-lang="en">Must Comply</th><th data-lang="zh">必须遵守</th><th data-lang="en">Reference PRD</th><th data-lang="zh">参考文档</th></tr></thead>
+    <tbody>
+      <tr><td data-lang="en">MA System</td><td data-lang="zh">MA 系统</td><td data-lang="en">Email / WhatsApp Template</td><td data-lang="zh">邮件 / WA 模板</td><td><span class="badge b-green">Yes</span></td><td><span class="badge b-green">是</span></td><td>PRD-TRK-007 S9</td></tr>
+      <tr><td data-lang="en">Aima System</td><td data-lang="zh">Aima 系统</td><td data-lang="en">WhatsApp Native / Website Widget</td><td data-lang="zh">WA Native / 网站 Widget</td><td><span class="badge b-green">Yes</span></td><td><span class="badge b-green">是</span></td><td>PRD-TRK-009 S6</td></tr>
+      <tr><td data-lang="en">Business manual (UTM Builder)</td><td data-lang="zh">业务手动（UTM Builder）</td><td data-lang="en">Facebook / Instagram / Offline / etc.</td><td data-lang="zh">Facebook / Instagram / 线下等</td><td><span class="badge b-green">Yes</span></td><td><span class="badge b-green">是</span></td><td>UTM Template</td></tr>
+      <tr><td data-lang="en">Any future new system or channel</td><td data-lang="zh">未来任何新系统或渠道</td><td data-lang="en">TBD</td><td data-lang="zh">待定</td><td><span class="badge b-green">Yes — must update this doc first</span></td><td><span class="badge b-green">是 — 须先更新本文档</span></td><td>This document</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S5 OVERRIDE RULES -->
+<section class="section" id="override">
+  <div class="stag">05</div>
+  <h2 data-lang="en">Override Rules <span class="en">覆盖规则</span></h2>
+  <h2 data-lang="zh">覆盖规则</h2>
+  <p class="sdesc" data-lang="en">When a business user manually adds UTM parameters to a base URL before submitting to a system, the following rules apply.</p>
+  <p class="sdesc" data-lang="zh">当业务用户在将链接提交给系统之前手动添加 UTM 参数时，适用以下规则。</p>
+  <div class="tw"><table>
+    <thead><tr><th data-lang="en">Parameter</th><th data-lang="zh">参数</th><th data-lang="en">Business adds manually</th><th data-lang="zh">业务手动添加</th><th data-lang="en">System behaviour</th><th data-lang="zh">系统行为</th></tr></thead>
+    <tbody>
+      <tr><td class="field">utm_source</td><td class="field">utm_source</td><td data-lang="en">Any value</td><td data-lang="zh">任意值</td><td><span style="color:var(--red);font-weight:500;" data-lang="en">🚫 System overrides with correct value. Logs warning.</span><span style="color:var(--red);font-weight:500;" data-lang="zh">🚫 系统用正确值覆盖。记录 warning。</span></td></tr>
+      <tr><td class="field">utm_medium</td><td class="field">utm_medium</td><td data-lang="en">Any value</td><td data-lang="zh">任意值</td><td><span style="color:var(--red);font-weight:500;" data-lang="en">🚫 System overrides with correct value. Logs warning.</span><span style="color:var(--red);font-weight:500;" data-lang="zh">🚫 系统用正确值覆盖。记录 warning。</span></td></tr>
+      <tr><td class="field">utm_campaign</td><td class="field">utm_campaign</td><td data-lang="en">Campaign name / ID</td><td data-lang="zh">活动名称 / ID</td><td><span style="color:var(--green);font-weight:500;" data-lang="en">✅ Accepted. System uses business-provided value unless a flow_name is available (flow_name takes priority).</span><span style="color:var(--green);font-weight:500;" data-lang="zh">✅ 接受。系统使用业务提供的值，除非有 flow_name（flow_name 优先）。</span></td></tr>
+      <tr><td class="field">utm_content</td><td class="field">utm_content</td><td data-lang="en">CTA variant</td><td data-lang="zh">CTA 变体</td><td><span style="color:var(--green);font-weight:500;" data-lang="en">✅ Accepted. Business value used as-is.</span><span style="color:var(--green);font-weight:500;" data-lang="zh">✅ 接受。直接使用业务提供的值。</span></td></tr>
+      <tr><td class="field">utm_term</td><td class="field">utm_term</td><td data-lang="en">Any value</td><td data-lang="zh">任意值</td><td><span style="color:var(--green);font-weight:500;" data-lang="en">✅ System sets utm_term={rec_id} for CRM/Aima channels. Business-supplied utm_term overridden.</span><span style="color:var(--green);font-weight:500;" data-lang="zh">✅ 系统为 CRM/Aima 渠道设置 utm_term={rec_id}。覆盖业务手动填写的 utm_term。</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S6 EXAMPLE -->
+<section class="section" id="example">
+  <div class="stag">06</div>
+  <h2 data-lang="en">Filled Example <span class="en">填写示例</span></h2>
+  <h2 data-lang="zh">填写示例</h2>
+  <p class="sdesc" data-lang="en">Based on the existing UTM Template format. Yellow cells = business fills. White cells = system auto-generates.</p>
+  <p class="sdesc" data-lang="zh">基于现有 UTM Template 格式。黄色单元格 = 业务填写。白色单元格 = 系统自动生成。</p>
+
+  <div class="sub-h" data-lang="en">Example 1 — MA WhatsApp Template (System Auto)</div>
+  <div class="sub-h" data-lang="zh">示例 1 — MA WhatsApp 模板（系统自动）</div>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th data-lang="en">Value</th><th data-lang="zh">值</th><th data-lang="en">Source</th><th data-lang="zh">来源</th></tr></thead>
+    <tbody>
+      <tr><td class="field">utm_source</td><td><code>aima</code></td><td><code>aima</code></td><td><span class="badge b-green" data-lang="en">System auto ✅</span><span class="badge b-green" data-lang="zh">系统自动 ✅</span></td></tr>
+      <tr><td class="field">utm_medium</td><td><code>whatsapp</code></td><td><code>whatsapp</code></td><td><span class="badge b-green" data-lang="en">System auto ✅</span><span class="badge b-green" data-lang="zh">系统自动 ✅</span></td></tr>
+      <tr><td class="field">utm_campaign</td><td><code>sg_pawpatrol_lastvipoffer_300426</code></td><td><code>sg_pawpatrol_lastvipoffer_300426</code></td><td><span class="badge b-blue" data-lang="en">System takes from flow_name</span><span class="badge b-blue" data-lang="zh">系统从 flow_name 取值</span></td></tr>
+      <tr><td class="field">utm_content</td><td><code>cta_learn_more</code></td><td><code>cta_learn_more</code></td><td><span class="badge b-tbd" data-lang="en">Business defines per template</span><span class="badge b-tbd" data-lang="zh">业务按模板定义</span></td></tr>
+      <tr><td class="field">utm_term</td><td><code>{rec_id}</code></td><td><code>{rec_id}</code></td><td><span class="badge b-green" data-lang="en">System auto — rec_id value ✅</span><span class="badge b-green" data-lang="zh">系统自动 — rec_id 值 ✅</span></td></tr>
+    </tbody>
+  </table></div>
+  <div style="border-radius:6px;border:1px solid var(--border);overflow:hidden;margin:12px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--accent-soft);border-bottom:1px solid var(--border);">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">RESULTING URL</span>
+    </div>
+    <pre>https://welovesupermom.com/campaign/123
+  ?<span style="color:#f48fb1;">ma_ref</span>=<span style="color:#ffcc80;">eyJhbGci...</span>
+  &amp;<span style="color:#f48fb1;">utm_source</span>=<span style="color:#a5d6a7;">aima</span>
+  &amp;<span style="color:#f48fb1;">utm_medium</span>=<span style="color:#a5d6a7;">whatsapp</span>
+  &amp;<span style="color:#f48fb1;">utm_campaign</span>=<span style="color:#a5d6a7;">sg_pawpatrol_lastvipoffer_300426</span>
+  &amp;<span style="color:#f48fb1;">utm_content</span>=<span style="color:#a5d6a7;">cta_learn_more</span></pre>
+  </div>
+
+  <div class="sub-h" data-lang="en">Example 2 — Aima WhatsApp Native</div>
+  <div class="sub-h" data-lang="zh">示例 2 — Aima WhatsApp Native</div>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th data-lang="en">Value</th><th data-lang="zh">值</th><th data-lang="en">Source</th><th data-lang="zh">来源</th></tr></thead>
+    <tbody>
+      <tr><td class="field">utm_source</td><td><code>aima</code></td><td><code>aima</code></td><td><span class="badge b-green" data-lang="en">System auto ✅</span><span class="badge b-green" data-lang="zh">系统自动 ✅</span></td></tr>
+      <tr><td class="field">utm_medium</td><td><code>whatsapp</code></td><td><code>whatsapp</code></td><td><span class="badge b-green" data-lang="en">System auto ✅</span><span class="badge b-green" data-lang="zh">系统自动 ✅</span></td></tr>
+      <tr><td class="field">utm_campaign</td><td><code>usertriggeredrecommendations</code></td><td><code>usertriggeredrecommendations</code></td><td><span class="badge b-blue" data-lang="en">Aima system auto</span><span class="badge b-blue" data-lang="zh">Aima 系统自动</span></td></tr>
+      <tr><td class="field">utm_content</td><td><code>cta_shop_now</code></td><td><code>cta_shop_now</code></td><td><span class="badge b-tbd" data-lang="en">From Aima message template</span><span class="badge b-tbd" data-lang="zh">来自 Aima 消息模板</span></td></tr>
+      <tr><td class="field">utm_term</td><td><code>{rec_id}</code></td><td><code>{rec_id}</code></td><td><span class="badge b-green" data-lang="en">System auto — rec_id value ✅</span><span class="badge b-green" data-lang="zh">系统自动 — rec_id 值 ✅</span></td></tr>
+      <tr><td class="field">aima_ref</td><td><code>eyJjb252X2lk...</code></td><td><code>eyJjb252X2lk...</code></td><td><span class="badge b-green" data-lang="en">Aima Backend auto (PRD-TRK-009)</span><span class="badge b-green" data-lang="zh">Aima Backend 自动（PRD-TRK-009）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S7 RESOLVED DECISIONS -->
+<!-- S7 RESOLVED DECISIONS — v1.1 -->
+<section class="section" id="tbd">
+  <div class="stag">07</div>
+  <h2 data-lang="en">Resolved Decisions <span class="en">已确认事项</span></h2>
+  <h2 data-lang="zh">已确认事项</h2>
+  <p class="sdesc" data-lang="en">All decisions have been confirmed and aligned with B2C UTM Advisory. Engineers may now implement.</p>
+  <p class="sdesc" data-lang="zh">所有决策已与 B2C UTM Advisory 对齐确认。工程师可以开始实现。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th data-lang="en">Decision</th><th data-lang="zh">决策</th><th data-lang="en">Resolution</th><th data-lang="zh">结论</th><th data-lang="en">Confirmed By</th><th data-lang="zh">确认方</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">Q1</td>
+        <td data-lang="en">Where does rec_id go?</td>
+        <td data-lang="zh">rec_id 放哪里？</td>
+        <td><span class="badge b-green" data-lang="en">✅ utm_term = {rec_id}</span><span class="badge b-green" data-lang="zh">✅ utm_term = {rec_id}</span><br><span style="font-size:11px;color:var(--text-muted);" data-lang="en">Marketing no longer uses utm_term for offer category. utm_term is now reserved for rec_id in CRM/Aima context.</span><span style="font-size:11px;color:var(--text-muted);" data-lang="zh">Marketing 不再使用 utm_term 放活动品类。utm_term 现在在 CRM/Aima 场景下专门放 rec_id。</span></td>
+        <td data-lang="en">Product + Marketing</td>
+        <td data-lang="zh">产品 + Marketing</td>
+      </tr>
+      <tr>
+        <td class="field">Q2</td>
+        <td data-lang="en">Aima utm_source and utm_medium values?</td>
+        <td data-lang="zh">Aima utm_source 和 utm_medium 的值？</td>
+        <td>
+          <span class="badge b-green">✅</span> <code>utm_source=aima</code> + <code>utm_medium=whatsapp</code><br>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="en">Aima is a distinct source in GA4. Aligned with B2C UTM Advisory source list.</span>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="zh">Aima 在 GA4 中作为独立来源。已与 B2C UTM Advisory source 列表对齐。</span>
+        </td>
+        <td data-lang="en">Product + Marketing</td>
+        <td data-lang="zh">产品 + Marketing</td>
+      </tr>
+      <tr>
+        <td class="field">Q2b</td>
+        <td data-lang="en">MA utm_source and utm_medium values?</td>
+        <td data-lang="zh">MA utm_source 和 utm_medium 的值？</td>
+        <td>
+          <span class="badge b-green">✅</span> <code>utm_source=crm</code> + <code>utm_medium=messaging</code><br>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="en">MA System uses crm source to differentiate from Aima. Aligned with B2C UTM Advisory.</span>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="zh">MA 系统使用 crm source，与 Aima 区分。已与 B2C UTM Advisory 对齐。</span>
+        </td>
+        <td data-lang="en">Product + Marketing</td>
+        <td data-lang="zh">产品 + Marketing</td>
+      </tr>
+      <tr>
+        <td class="field">Q3</td>
+        <td data-lang="en">UTM Governance scope?</td>
+        <td data-lang="zh">UTM 治理范围？</td>
+        <td>
+          <span class="badge b-green" data-lang="en">✅ B2C UTM Advisory is the company-wide standard</span>
+          <span class="badge b-green" data-lang="zh">✅ B2C UTM Advisory 即全公司统一标准</span><br>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="en">Applies to all systems: MA, Aima, and all future channels.</span>
+          <span style="font-size:11px;color:var(--text-muted);" data-lang="zh">适用于所有系统：MA、Aima 及未来所有渠道。</span>
+        </td>
+        <td data-lang="en">B2C Team + Product</td>
+        <td data-lang="zh">B2C 团队 + 产品</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="signoff">
+  <div class="stag">Sign-off</div>
+  <h2 data-lang="en">Document Sign-off</h2>
+  <h2 data-lang="zh">文档签署</h2>
+  <div class="callout c-warn" data-lang="en"><strong>Status:</strong> All 3 decisions confirmed and aligned with B2C UTM Advisory. Engineers may proceed with implementation.</div>
+  <div class="callout c-warn" data-lang="zh"><strong>状态：</strong>所有 3 个决策已与 B2C UTM Advisory 对齐确认。工程师可以开始实现。</div>
+  <div class="signoff-grid" style="margin-top:16px;">
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Product Owner</div><div class="signoff-role" data-lang="zh">产品负责人</div><div class="signoff-name">—</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp; Date</div></div>
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Marketing Lead</div><div class="signoff-role" data-lang="zh">Marketing 负责人</div><div class="signoff-name">—</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp; Date</div></div>
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Data / Analytics Lead</div><div class="signoff-role" data-lang="zh">数据 / 分析负责人</div><div class="signoff-name">—</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp; Date</div></div>
+  </div>
+</section>
+
+<!-- REVISION -->
+<section class="section" id="revision">
+  <div class="stag">Revision History</div>
+  <h2 data-lang="en">Revision History</h2>
+  <h2 data-lang="zh">修订历史</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Version</th><th>Date</th><th>Author</th><th data-lang="en">Change</th><th data-lang="zh">变更</th></tr></thead>
+    <tbody>
+      <tr><td>v1.2</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Updated all parameter definitions per B2C UTM Advisory CSV. Removed inline enumerated value lists — all values now reference the live UTM Advisory Excel (SharePoint link). Updated descriptions for all 5 parameters. Added Excel links to utm_source, utm_medium, utm_content cards. Confirmed utm_term={rec_id} for CRM/Aima.</td><td data-lang="zh">根据 B2C UTM Advisory CSV 更新所有参数定义。移除内联枚举值列表——所有值现在引用 UTM Advisory Excel（SharePoint 链接）。更新所有 5 个参数的描述。为 utm_source、utm_medium、utm_content 卡片添加 Excel 链接。确认 CRM/Aima 的 utm_term={rec_id}。</td></tr>
+      <tr><td>v1.1</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">All 3 decisions resolved and aligned with B2C UTM Advisory. Q1: utm_term={rec_id} confirmed. Q2: utm_source=aima + utm_medium=whatsapp for Aima; utm_source=crm + utm_medium=messaging for MA. Q3: B2C Advisory is company-wide standard. All TBD labels removed. Status updated to Confirmed. Section 7 updated from Pending to Resolved Decisions.</td><td data-lang="zh">3 个待定决策全部解决，与 B2C UTM Advisory 对齐。Q1：utm_term={rec_id} 确认。Q2：Aima 使用 utm_source=aima + utm_medium=whatsapp；MA 使用 utm_source=crm + utm_medium=messaging。Q3：B2C Advisory 即全公司标准。移除所有 TBD 标注。状态更新为已确认。Section 7 从待定改为已解决。</td></tr>
+      <tr><td>v1.0</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Initial draft. Defines UTM parameter ownership, allowed values, override rules, scope (all systems), and 3 pending decisions requiring business sign-off. Bilingual EN/ZH.</td><td data-lang="zh">初始草稿。定义 UTM 参数归属权、允许值、覆盖规则、适用范围（所有系统）以及 3 个需要业务签署的待定决策。中英双语。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="doc-footer">
+  <span>UTM-GOV-001 · v1.2 · CONFIRMED — B2C UTM Advisory Aligned</span>
+  <span>© 2026 Product Team</span>
+</div>
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.classList.toggle('zh-mode', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = (el.getAttribute('data-lang') === lang) ? 'block' : 'none';
+  });
+}
+document.querySelectorAll('[data-lang="zh"]').forEach(el => el.style.display = 'none');
+document.querySelectorAll('[data-lang="en"]').forEach(el => el.style.display = 'block');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nl').forEach(n => {
+        n.classList.remove('active');
+        if (n.getAttribute('href') === '#' + e.target.id) n.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('[id]').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

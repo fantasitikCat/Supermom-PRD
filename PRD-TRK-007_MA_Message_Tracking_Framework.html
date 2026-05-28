@@ -186,6 +186,10 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl sub" href="#s7-gov">7.6 Governance Rules</a>
   <a class="nl" href="#s8">8. Responsibility Matrix</a>
   <a class="nl" href="#s9">9. Governance Rules</a>
+  <a class="nl" href="#s9utm">9. UTM Parameters</a>
+  <a class="nl sub" href="#s9utm">9.1 Why MA needs UTM</a>
+  <a class="nl sub" href="#s9utm">9.2 UTM Rules &amp; Values</a>
+  <a class="nl sub" href="#s9utm">9.3 MA Engineer Responsibility</a>
   <a class="nl" href="#s10">10. Limitations &amp; Roadmap</a>
   <a class="nl" href="#s11">11. Risks &amp; Mitigations</a>
   <a class="nl" href="#s12">12. Acceptance Criteria</a>
@@ -1020,6 +1024,155 @@ Meta API:   variables[
       <tr><td>Dynamic URL Button for WhatsApp</td><td><span class="badge b-green">Required</span></td><td class="zh">WhatsApp 模板必须使用 Dynamic URL Button</td></tr>
       <tr><td>identity_token as opaque token only</td><td><span class="badge b-green">Required</span></td><td class="zh">identity_token 必须为不透明 token，不含原始 identity</td></tr>
     </tbody>
+<!-- S9 UTM PARAMETERS — NEW v1.5 -->
+<section class="section" id="s9utm">
+  <div class="stag">09</div>
+  <h2>UTM Parameters <span class="en">UTM 参数规范</span></h2>
+  <p class="sdesc">MA System must append UTM parameters alongside <code>ma_ref</code> on every outgoing link. UTM parameters are separate from <code>ma_ref</code> — they serve GA4 external attribution, while <code>ma_ref</code> serves internal system tracking. Both are required. All UTM values must comply with the company-wide <strong>UTM Governance Standard</strong> (ref: UTM-GOV-001).</p>
+  <div class="callout c-info">
+    <strong>Reference Document:</strong> All UTM allowed values (medium, source, term dropdowns) are defined in <strong>UTM-GOV-001 — UTM Parameter Dictionary</strong>. MA Engineer must not define UTM values independently — use only values from UTM-GOV-001.
+  </div>
+
+  <div class="sub-h">9.1 Why MA Needs UTM <span class="en">为什么 MA 需要 UTM</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Tracking Layer</th><th>Parameter</th><th>Purpose</th><th>Read By</th></tr></thead>
+    <tbody>
+      <tr><td>Internal</td><td class="field">ma_ref</td><td>Flow / Node / Identity attribution — links the click back to a specific MA flow and user</td><td>MA Backend</td></tr>
+      <tr><td>External</td><td class="field">utm_*</td><td>Channel attribution — tells GA4 where the traffic came from</td><td>Google Analytics (GA4)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-note">Without UTM parameters, GA4 cannot attribute MA-driven traffic correctly. The two parameters serve completely different purposes and must both be present on every MA link.</div>
+
+  <div class="sub-h">9.2 UTM Parameter Rules <span class="en">UTM 参数规则</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th>Type</th><th>Value Rule</th><th>Who Provides</th><th class="zh">中文说明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">utm_source</td>
+        <td><span class="badge b-pink">Fixed</span></td>
+        <td>Must be a value from UTM-GOV-001 source list. For MA WhatsApp: <code>aima</code> — <span class="badge b-green">✅ Confirmed</span></td>
+        <td><span class="team team-be">MA Engineer</span></td>
+        <td class="zh">固定值，来自 UTM-GOV-001 source 列表，系统自动附加</td>
+      </tr>
+      <tr>
+        <td class="field">utm_medium</td>
+        <td><span class="badge b-pink">Fixed</span></td>
+        <td>Must be a value from UTM-GOV-001 medium list. <code>messaging</code> <span class="badge b-green">✅ Confirmed</span></td>
+        <td><span class="team team-be">MA Engineer</span></td>
+        <td class="zh">固定值，来自 UTM-GOV-001 medium 列表，系统自动附加</td>
+      </tr>
+      <tr>
+        <td class="field">utm_campaign</td>
+        <td><span class="badge b-blue">Dynamic</span></td>
+        <td>MA system takes value from <code>flow_name</code> or <code>template_name</code> at send time. If not associated with a flow: use campaign-specific value per UTM-GOV-001.</td>
+        <td><span class="team team-be">MA Engineer</span></td>
+        <td class="zh">动态值，MA 系统从 flow_name 或 template_name 自动取值</td>
+      </tr>
+      <tr>
+        <td class="field">utm_content</td>
+        <td><span class="badge b-tbd">Optional</span></td>
+        <td>CTA variant identifier. e.g. <code>cta_learn_more</code>, <code>cta_signup</code>. Defined per template by business team.</td>
+        <td><span class="team team-fe">Business Team</span></td>
+        <td class="zh">可选，CTA 变体标识，由业务团队按模板定义</td>
+      </tr>
+      <tr>
+        <td class="field">utm_term</td>
+        <td><span class="badge b-green">✅ Required (when rec_id available)</span></td>
+        <td><code>{rec_id}</code> — Marketing no longer uses utm_term for offer category. utm_term is now used for rec_id in CRM/Aima channels. <span class="badge b-green">✅ Confirmed per B2C UTM Advisory</span></td>
+        <td><span class="team team-be">MA Engineer</span></td>
+        <td class="zh">待 UTM-GOV-001 确认后定义，暂不实现</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">9.3 Complete MA Link Format <span class="en">完整 MA 链接格式</span></div>
+  <div class="code-wrap" style="border-radius:6px;border:1px solid var(--border);overflow:hidden;margin:12px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--accent-soft);border-bottom:1px solid var(--border);">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">URL Example — MA WhatsApp</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--pink);">Both ma_ref AND utm_* required</span>
+    </div>
+    <pre style="background:#1c1b18;color:#d4d0c8;padding:16px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.75;overflow-x:auto;"><span style="color:#6b7280;font-style:italic;">// MA WhatsApp — ma_ref (internal) + utm_* (GA4 attribution)</span>
+https://welovesupermom.com/campaign/123
+  ?<span style="color:#f48fb1;">ma_ref</span>=<span style="color:#ffcc80;">eyJhbGciOiJIUzI1NiJ9...</span>       <span style="color:#6b7280;font-style:italic;">← internal tracking (PRD-TRK-007)</span>
+  &amp;<span style="color:#f48fb1;">utm_source</span>=<span style="color:#a5d6a7;">crm</span>                         <span style="color:#6b7280;font-style:italic;">← MA source ✅ Confirmed</span>
+  &amp;<span style="color:#f48fb1;">utm_medium</span>=<span style="color:#a5d6a7;">messaging</span>                  <span style="color:#6b7280;font-style:italic;">← MA medium ✅ Confirmed</span>
+  &amp;<span style="color:#f48fb1;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_pawpatrol_offer</span>       <span style="color:#6b7280;font-style:italic;">← from flow_name (format: year_country_name)</span>
+  &amp;<span style="color:#f48fb1;">utm_content</span>=<span style="color:#a5d6a7;">cta_learn_more</span>             <span style="color:#6b7280;font-style:italic;">← optional, from template</span></pre>
+  </div>
+
+  <div class="sub-h">9.4 MA Engineer Responsibility <span class="en">MA 工程师职责</span></div>
+  <div class="callout c-warn">
+    <strong>✅ Values Confirmed:</strong> MA uses <code>utm_source=crm</code> + <code>utm_medium=messaging</code>. Aima uses <code>utm_source=aima</code> + <code>utm_medium=whatsapp</code>. Both aligned per UTM-GOV-001 v1.2. Reference: <strong>PRD-TRK-009 S6</strong> for Aima UTM rules.
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Responsibility</th><th>Owner</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td>Append utm_source and utm_medium (fixed values) to all MA links</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">系统自动附加，值来自 UTM-GOV-001</td></tr>
+      <tr><td>Extract flow_name / template_name → set as utm_campaign at send time</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">发送时从 MA 系统上下文自动取值</td></tr>
+      <tr><td>Enforce UTM override rule: system UTM values always override any business-supplied UTM in the base URL</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">系统 UTM 优先级高于业务手动填写的 UTM，强制覆盖</td></tr>
+      <tr><td data-lang="en">UTM values aligned with Aima Engineer per UTM-GOV-001 v1.2</td><td><span class="team team-be">MA Engineer</span> + <span class="team team-aima">Aima Engineer</span></td><td class="zh">UTM 值已按 UTM-GOV-001 v1.2 与 Aima 工程师对齐</td></tr>
+      
+    </tbody>
+  </table></div>
+
+  <!-- UTM Decision flow diagram -->
+  <div class="sub-h">9.5 UTM Injection Decision Flow <span class="en">UTM 注入决策流程</span></div>
+  <div class="diagram-wrap" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin:16px 0;overflow-x:auto;">
+    <div class="diagram-title" style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--pink);margin-bottom:16px;">MA Send Time — UTM + ma_ref Injection Logic</div>
+    <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="u1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+        <marker id="u2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+        <marker id="u3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
+      </defs>
+
+      <!-- Start -->
+      <rect x="270" y="10" width="180" height="36" rx="18" fill="#c0385a"/>
+      <text x="360" y="33" text-anchor="middle" font-size="11" font-weight="500" fill="#fff">MA sends message</text>
+      <line x1="360" y1="46" x2="360" y2="66" stroke="#c0385a" stroke-width="1.5" marker-end="url(#u1)"/>
+
+      <!-- Step 1: Check existing UTM -->
+      <polygon points="360,70 480,108 360,146 240,108" fill="#fff7e0" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="360" y="103" text-anchor="middle" font-size="10" font-weight="500" fill="#7a4f00">Business URL has</text>
+      <text x="360" y="117" text-anchor="middle" font-size="10" fill="#7a4f00">existing UTM?</text>
+
+      <!-- Yes: override -->
+      <line x1="480" y1="108" x2="580" y2="108" stroke="#c0385a" stroke-width="1.5" marker-end="url(#u1)"/>
+      <text x="532" y="101" text-anchor="middle" font-size="9" fill="#c0385a" font-family="IBM Plex Mono">Yes</text>
+      <rect x="582" y="88" width="118" height="40" rx="5" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.3"/>
+      <text x="641" y="105" text-anchor="middle" font-size="9.5" font-weight="500" fill="#8b1a1a">Override with</text>
+      <text x="641" y="119" text-anchor="middle" font-size="9" fill="#8b1a1a">system UTM values</text>
+
+      <!-- No: inject fresh -->
+      <line x1="240" y1="108" x2="140" y2="108" stroke="#0f3a6e" stroke-width="1.5" marker-end="url(#u2)"/>
+      <text x="188" y="101" text-anchor="middle" font-size="9" fill="#0f3a6e" font-family="IBM Plex Mono">No</text>
+      <rect x="20" y="88" width="118" height="40" rx="5" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.3"/>
+      <text x="79" y="105" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Inject UTM</text>
+      <text x="79" y="119" text-anchor="middle" font-size="9" fill="#0f3a6e">from system rules</text>
+
+      <!-- Both converge to generate ma_ref -->
+      <line x1="79" y1="128" x2="79" y2="170" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <line x1="79" y1="170" x2="248" y2="170" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#u2)"/>
+      <line x1="641" y1="128" x2="641" y2="170" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <line x1="641" y1="170" x2="472" y2="170" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#u1)"/>
+      <line x1="360" y1="146" x2="360" y2="158" stroke="#c0385a" stroke-width="1.2" marker-end="url(#u1)"/>
+
+      <!-- Generate ma_ref -->
+      <rect x="250" y="158" width="220" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="360" y="175" text-anchor="middle" font-size="10" font-weight="500" fill="#0a5a52">Generate ma_ref</text>
+      <text x="360" y="189" text-anchor="middle" font-size="9" fill="#5c5a54">identity_token + flow + node + channel</text>
+
+      <line x1="360" y1="198" x2="360" y2="218" stroke="#1a6b45" stroke-width="1.5" marker-end="url(#u3)"/>
+
+      <!-- Final link -->
+      <rect x="100" y="220" width="520" height="50" rx="6" fill="#1c1b18" stroke="#444" stroke-width="1"/>
+      <text x="360" y="240" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#80cbc4">?ma_ref=eyJ... &amp;utm_source=crm &amp;utm_medium=messaging</text>
+      <text x="360" y="256" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#a5d6a7">&amp;utm_campaign=flow_name &amp;utm_content=cta_learn_more</text>
+      <text x="360" y="272" text-anchor="middle" font-size="8.5" fill="#6b7280;font-style:italic">Both ma_ref (internal) + utm_* (GA4) attached</text>
+    </svg>
+  </div>
+</section>
+
   </table></div>
 </section>
 
@@ -1146,6 +1299,9 @@ Meta API:   variables[
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.7</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed all remaining errors: utm_source corrected to crm (not aima), utm_medium corrected to messaging (not whatsapp) in all code examples and SVG diagrams. utm_campaign format updated to year_country_name per Advisory. utm_term TBD removed — confirmed Required. Alignment warning updated to confirmed status. UTM-GOV-001 reference updated to v1.2.</td><td data-lang="zh">修正所有遗留错误：utm_source 更正为 crm（非 aima），utm_medium 更正为 messaging（非 whatsapp），包括代码示例和 SVG 图表。utm_campaign 格式按 Advisory 更新为 year_country_name。utm_term TBD 移除——确认为必填。对齐警告更新为已确认状态。UTM-GOV-001 引用更新为 v1.2。</td></tr>
+      <tr><td>v1.6</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Updated S9 UTM values per B2C UTM Advisory confirmation: MA utm_source=crm, utm_medium=messaging. utm_term={rec_id} confirmed. All TBD labels removed. Reference updated to UTM-GOV-001 v1.1.</td><td data-lang="zh">根据 B2C UTM Advisory 确认更新 S9 UTM 值：MA utm_source=crm，utm_medium=messaging。utm_term={rec_id} 确认。移除所有 TBD 标注。参考文档更新为 UTM-GOV-001 v1.1。</td></tr>
+      <tr><td>v1.5</td><td>2026-05-28</td><td>Product Team</td><td>Added Section 9: UTM Parameters. Defines UTM injection rules for MA system alongside ma_ref. Added UTM decision flow diagram. MA Engineer responsibility matrix updated. All UTM values reference UTM-GOV-001. TBD items pending business confirmation on utm_source, utm_medium, utm_term.</td></tr>
       <tr><td>v1.4</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 5.3 JWT HS256 Signing Specification with full payload structure, verification pseudocode, and secret rotation guidance. Replaced all "encode/decode" terminology with "sign/verify" across both documents. Clarified Redis TTL as cleanup mechanism only — expiry governed by JWT exp field.</td></tr>
       <tr><td>v1.3</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 7.3.1 Variable Index edge cases: non-consecutive indices (max+1 rule) and Meta 10-variable limit enforcement (UI + Backend dual validation). Added Phase 1 limitation for Meta review failure handling. Updated Redis write volume callout: constraints defined, implementation approach delegated to Backend engineering.</td></tr>
       <tr><td>v1.2</td><td>2026-05-26</td><td>Product Team</td><td>Added Section 6.2 Per-recipient Token Timing, Section 6.3 Email vs WhatsApp comparison table. Clarified Step 2 in Email Send Flow: one token per recipient, N recipients = N Redis writes. Added batch write optimization note.</td></tr>

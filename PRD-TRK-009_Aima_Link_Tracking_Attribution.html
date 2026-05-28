@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-TRK-009 | Aima Link Tracking & Attribution Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #fff; --border: #e2e0d8; --border-strong: #c8c5ba;
+  --text-primary: #1a1917; --text-secondary: #5c5a54; --text-muted: #9c9a93;
+  --accent-soft: #f0ede6; --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  --pink: #c0385a; --pink-mid: #d9547a; --pink-light: #fdf0f4; --pink-border: #f0b0c0; --pink-muted: #8a2040;
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --red: #8b1a1a; --red-bg: #fdf0f0; --red-b: #f0b0b0;
+  --blue: #0f3a6e; --blue-bg: #edf3fb; --blue-b: #b0cef0;
+  --teal: #0a5a52; --teal-bg: #e8f7f5; --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+.lang-bar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 9px 28px; }
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); font-weight: 500; border-left: 3px solid var(--pink); padding-left: 8px; }
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { padding: 3px 14px; border: none; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all .15s; letter-spacing: .05em; }
+.lang-btn.active { background: var(--pink); color: #fff; }
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { position: sticky; top: 41px; height: calc(100vh - 41px); overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); }
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe { height: 4px; background: linear-gradient(90deg, var(--pink) 0%, #d9547a 50%, #f07090 100%); }
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl { display: block; padding: 5px 20px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: all .12s; line-height: 1.4; }
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nl.active { color: var(--pink); background: var(--pink-light); border-left-color: var(--pink); font-weight: 500; }
+.nl.sub { padding-left: 32px; font-size: 11.5px; color: var(--text-muted); }
+.nl.sub:hover { color: var(--pink); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+.main { padding: 48px 56px; max-width: 900px; }
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink-border); background: var(--pink-light); padding: 3px 10px; border-radius: 3px; margin-bottom: 14px; }
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-blue  { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.b-tbd   { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-red   { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-b); }
+.b-purple{ background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-b); }
+.team { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+.team-fe   { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+.team-be   { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-b); }
+.team-gtm  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.team-aima { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-b); }
+.team-rec  { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-b); }
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.section h2 .en { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+hr.div { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+.sub-h .en { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+td.zh { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; border-left: 1px dashed var(--border); background: #fafaf8; }
+th.zh { color: var(--pink-muted); background: #f5e0e8; letter-spacing: .04em; border-left: 1px dashed var(--pink-border); }
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout strong { font-weight: 500; }
+.c-pink   { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info   { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn   { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green  { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note   { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.c-red    { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.c-purple { background: var(--purple-bg); border-color: var(--purple); color: var(--purple); }
+.zh-summary { background: var(--pink-light); border: 1px solid var(--pink-border); border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 12.5px; color: var(--pink-muted); line-height: 1.7; }
+.zh-summary-label { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); margin-bottom: 6px; display: block; }
+.diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin: 16px 0; overflow-x: auto; }
+.diagram-title { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--pink); margin-bottom: 16px; }
+.sev-h { color: var(--red); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-m { color: var(--amber); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.sev-l { color: var(--green); font-weight: 600; font-family: var(--mono); font-size: 11px; }
+.signoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.signoff-cell { background: var(--surface); padding: 14px 16px; }
+.signoff-role { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--pink); margin-bottom: 8px; }
+.signoff-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.signoff-line { border-top: 1px solid var(--border-strong); margin: 20px 0 6px; }
+.signoff-label { font-size: 11px; color: var(--text-muted); }
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .05em; }
+.exec-page { background: linear-gradient(135deg, #fff 0%, var(--pink-light) 100%); border: 2px solid var(--pink-border); border-radius: 12px; padding: 36px 40px; margin-bottom: 52px; position: relative; overflow: hidden; }
+.exec-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--pink) 0%, #d9547a 50%, #f07090 100%); }
+.exec-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink-border); background: #fff; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; }
+.exec-title { font-size: 20px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; line-height: 1.3; }
+.exec-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+.exec-summary-text { font-size: 14px; line-height: 1.85; color: var(--text-secondary); margin-bottom: 28px; max-width: 680px; }
+.exec-summary-text strong { color: var(--text-primary); }
+.exec-3col { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.exec-card { background: #fff; border: 1px solid var(--pink-border); border-radius: 8px; padding: 16px; text-align: center; }
+.exec-card-icon { font-size: 24px; margin-bottom: 8px; }
+.exec-card-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.exec-card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+.resp-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin: 16px 0; }
+.resp-card { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.resp-card-head { padding: 12px 16px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.resp-card-head.aima { background: var(--teal-bg); color: var(--teal); border-bottom: 1px solid var(--teal-b); }
+.resp-card-head.fe   { background: var(--pink-light); color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); }
+.resp-card-head.be   { background: var(--blue-bg); color: var(--blue); border-bottom: 1px solid var(--blue-b); }
+.resp-card-head.gtm  { background: var(--amber-bg); color: var(--amber); border-bottom: 1px solid var(--amber-b); }
+.resp-card-body { padding: 12px 16px; background: var(--surface); font-size: 12.5px; color: var(--text-secondary); line-height: 1.8; }
+.resp-card-body li { list-style: none; padding: 3px 0; display: flex; gap: 8px; align-items: flex-start; }
+.resp-card-body li::before { content: '→'; color: var(--pink); font-family: var(--mono); font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+.why-box { background: var(--green-bg); border: 1px solid var(--green-b); border-radius: 6px; padding: 14px 16px; margin: 10px 0; }
+.why-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: var(--green); margin-bottom: 6px; display: block; }
+.why-box p { font-size: 12.5px; color: var(--green); line-height: 1.75; }
+.phase-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin: 16px 0; }
+.phase-card { border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+.phase-head { padding: 10px 16px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; font-weight: 500; }
+.phase-head.p1 { background: var(--teal-bg); color: var(--teal); border-bottom: 1px solid var(--teal-b); }
+.phase-head.p2 { background: var(--purple-bg); color: var(--purple); border-bottom: 1px solid var(--purple-b); }
+.phase-body { padding: 12px 16px; background: var(--surface); font-size: 12.5px; color: var(--text-secondary); line-height: 1.8; }
+.phase-body li { list-style: none; padding: 2px 0; display: flex; gap: 8px; }
+.phase-body li::before { content: '·'; color: var(--pink); font-weight: bold; }
+.code-wrap { border-radius: 6px; border: 1px solid var(--border); overflow: hidden; margin: 12px 0; }
+.code-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+.code-lang { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; }
+.code-label { font-family: var(--mono); font-size: 10px; color: var(--pink); }
+pre { background: #1c1b18; color: #d4d0c8; padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; }
+pre .k { color: #80cbc4; } pre .s { color: #a5d6a7; } pre .c { color: #6b7280; font-style: italic; } pre .n { color: #f48fb1; } pre .v { color: #ffcc80; }
+code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); border: 1px solid var(--border); }
+[data-lang="zh"] { display: none; }
+body.zh-mode [data-lang="en"] { display: none; }
+body.zh-mode [data-lang="zh"] { display: block; }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .main { padding: 24px 20px; } .meta-grid, .signoff-grid, .resp-grid, .phase-row, .exec-3col { grid-template-columns: 1fr; } }
+@media print { .lang-bar, .sidebar { display: none; } .main { max-width: 100%; } }
+</style>
+</head>
+<body>
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <span class="lang-bar-logo">Tracking Foundation</span>
+    <span class="lang-bar-id">PRD-TRK-009 · v1.7 · 2026-05-28</span>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+  </div>
+</div>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">Tracking Foundation</div>
+    <div class="sidebar-title">Aima Link Tracking &amp; Attribution</div>
+    <div class="sidebar-ver">PRD-TRK-009 · v1.7</div>
+  </div>
+  <div class="ngl">Navigation</div>
+  <a class="nl" href="#exec">⭐ Executive Summary</a>
+  <a class="nl" href="#concepts">📖 Core Concepts (Read First)</a>
+  <div class="nav-div"></div>
+  <a class="nl" href="#cover">Cover &amp; Doc Info</a>
+  <a class="nl" href="#s1">1. Background</a>
+  <a class="nl" href="#s2">2. Goals</a>
+  <a class="nl" href="#s3">3. Scope</a>
+  <a class="nl" href="#s4">4. Core Principles</a>
+  <a class="nl" href="#s5">5. Architecture</a>
+  <a class="nl sub" href="#s5a">5.1 Layer Overview</a>
+  <a class="nl sub" href="#s5b">5.2 Aima vs MA System</a>
+  <a class="nl" href="#s6">6. Runtime Source</a>
+  <a class="nl sub" href="#s6a">6.1 Definition</a>
+  <a class="nl sub" href="#s6b">6.2 Decision Flow</a>
+  <a class="nl" href="#s7">7. aima_ref Design</a>
+  <a class="nl sub" href="#s7a">7.1 Field Structure</a>
+  <a class="nl sub" href="#s7b">7.2 Generation Rules</a>
+  <a class="nl" href="#s7b">7B. MA Trigger Rule</a>
+  <a class="nl sub" href="#s7b">7B.1 Decision Flow</a>
+  <a class="nl sub" href="#s7b">7B.2 MA Engineer Resp.</a>
+  <a class="nl" href="#s8">8. End-to-End Flows</a>
+  <a class="nl sub" href="#s8a">8.1 WhatsApp Native</a>
+  <a class="nl sub" href="#s8b">8.2 Website Widget</a>
+  <a class="nl" href="#s9">9. Responsibility Matrix</a>
+  <a class="nl" href="#s10">10. rec_id, aima_ref &amp; Full Funnel</a>
+  <a class="nl sub" href="#s10">10.1 Business Value</a>
+  <a class="nl sub" href="#s10">10.2 Full Funnel Diagram</a>
+  <a class="nl sub" href="#s10">10.3 Engineering Data Flow</a>
+  <a class="nl" href="#s11">11. Risks</a>
+  <a class="nl" href="#s12">12. Acceptance Criteria</a>
+  <a class="nl" href="#glossary">Glossary</a>
+  <a class="nl" href="#signoff">Sign-off</a>
+  <a class="nl" href="#revision">Revision History</a>
+  <div class="nav-div"></div>
+  <div class="ngl">Related PRDs</div>
+  <a class="nl sub" href="#">PRD-TRK-007 — MA Tracking</a>
+  <a class="nl sub" href="#">PRD-TRK-008 — MA Identity Assoc.</a>
+  <a class="nl sub" href="#">UTM-GOV-001 — UTM Dictionary</a>
+  <div class="nav-div"></div>
+  <div class="ngl">Team</div>
+  <a class="nl sub" href="#s9">🤖 Aima — Aima Engineer</a>
+  <a class="nl sub" href="#s9">⚙️ Aima Backend — Aima Engineer</a>
+  <a class="nl sub" href="#s9">🎯 Rec — Rec Engineer (Phase 1: none)</a>
+  <a class="nl sub" href="#">PRD-TRK-008 — MA Identity Assoc.</a>
+</nav>
+<main class="main">
+
+<!-- EXEC SUMMARY -->
+<section class="exec-page" id="exec">
+  <div class="exec-badge">⭐ Executive Summary · 业务摘要</div>
+  <div class="exec-title" data-lang="en">What is this document about?</div>
+  <div class="exec-title" data-lang="zh">这份文档讲什么？</div>
+  <div class="exec-subtitle" data-lang="en">A plain-language summary for business stakeholders</div>
+  <div class="exec-subtitle" data-lang="zh">面向业务同事的通俗说明</div>
+  <div class="exec-summary-text" data-lang="en">When Aima sends a link to a user — through WhatsApp or a website chat widget — we currently have <strong>no way to know if that user actually clicked the link, visited the page, or converted.</strong> This document defines how we fix that, by attaching a small tracking code (<code>aima_ref</code>) to every link Aima sends. It also clearly defines <strong>who is responsible for each step and why</strong>, so no team is doing someone else's job.</div>
+  <div class="exec-summary-text" data-lang="zh">当 Aima 通过 WhatsApp 或网站 Widget 向用户发送链接时，我们目前<strong>无法知道用户是否真的点击了链接、访问了页面、或完成了转化。</strong>这份文档定义了解决方案——在 Aima 发送的每条链接上附加一个追踪码（<code>aima_ref</code>）。同时明确<strong>每个团队负责哪一步以及原因</strong>，避免职责混淆。</div>
+  <div class="exec-3col">
+    <div class="exec-card"><div class="exec-card-icon">🔗</div><div class="exec-card-title" data-lang="en">Link Tracking</div><div class="exec-card-title" data-lang="zh">链接追踪</div><div class="exec-card-desc" data-lang="en">Every link Aima sends carries a unique <code>aima_ref</code> code traceable to the exact conversation and message.</div><div class="exec-card-desc" data-lang="zh">Aima 发出的每条链接带有唯一追踪码，可回溯到具体对话和消息。</div></div>
+    <div class="exec-card"><div class="exec-card-icon">📍</div><div class="exec-card-title" data-lang="en">Channel Awareness</div><div class="exec-card-title" data-lang="zh">渠道感知</div><div class="exec-card-desc" data-lang="en">Aima knows whether it's talking via WhatsApp or a website widget — and behaves differently for each channel.</div><div class="exec-card-desc" data-lang="zh">Aima 知道自己在 WhatsApp 还是网站 Widget 中对话，并针对不同渠道采取不同追踪方式。</div></div>
+    <div class="exec-card"><div class="exec-card-icon">📊</div><div class="exec-card-title" data-lang="en">Attribution</div><div class="exec-card-title" data-lang="zh">归因分析</div><div class="exec-card-desc" data-lang="en">For the first time, we can answer: "Which Aima conversation drove this registration / purchase?"</div><div class="exec-card-desc" data-lang="zh">我们第一次能回答：「哪次 Aima 对话带来了这次注册 / 购买？」</div></div>
+  </div>
+  <!-- Architecture overview SVG -->
+  <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px;">
+    <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink);margin-bottom:20px;text-align:center;" data-lang="en">System Overview — Who Does What</div>
+    <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink);margin-bottom:20px;text-align:center;" data-lang="zh">系统总览 — 谁负责什么</div>
+    <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="a1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+        <marker id="a2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="a3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+      </defs>
+      <rect x="20" y="10" width="720" height="60" rx="6" fill="#e8f7f5" opacity=".6"/>
+      <rect x="20" y="80" width="720" height="60" rx="6" fill="#edf3fb" opacity=".6"/>
+      <rect x="20" y="150" width="720" height="60" rx="6" fill="#fdf0f4" opacity=".4"/>
+      <rect x="20" y="220" width="720" height="30" rx="6" fill="#edf7f2" opacity=".5"/>
+      <text x="34" y="28" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA SYSTEM</text>
+      <text x="34" y="98" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="34" y="168" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">FRONTEND · GTM · GA4</text>
+      <text x="34" y="234" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">USER</text>
+      <!-- Step 1 -->
+      <rect x="80" y="18" width="110" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="135" y="36" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">1. Detect source</text>
+      <text x="135" y="50" text-anchor="middle" font-size="8.5" fill="#5c5a54">runtime_source</text>
+      <!-- Step 2 -->
+      <rect x="230" y="18" width="110" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="285" y="36" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">2. Identify links</text>
+      <text x="285" y="50" text-anchor="middle" font-size="8.5" fill="#5c5a54">in message</text>
+      <line x1="190" y1="38" x2="228" y2="38" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#a2)"/>
+      <!-- Down to backend -->
+      <line x1="285" y1="58" x2="285" y2="78" stroke="#0a5a52" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#a2)"/>
+      <!-- Step 3 Backend -->
+      <rect x="230" y="88" width="120" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.4"/>
+      <text x="290" y="106" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">3. Aima Backend</text>
+      <text x="290" y="120" text-anchor="middle" font-size="8.5" fill="#5c5a54">aima_ref + UTM logic</text>
+      <!-- Return to aima -->
+      <line x1="290" y1="88" x2="290" y2="68" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <line x1="290" y1="68" x2="400" y2="68" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#a3)"/>
+      <!-- Step 4 append -->
+      <rect x="402" y="18" width="120" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="462" y="34" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">4. Append params</text>
+      <text x="462" y="48" text-anchor="middle" font-size="8.5" fill="#c0385a">utm_* + aima_ref</text>
+      <!-- Step 5 send -->
+      <rect x="562" y="18" width="110" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="617" y="36" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">5. Send to user</text>
+      <text x="617" y="50" text-anchor="middle" font-size="8.5" fill="#5c5a54">via WhatsApp/Widget</text>
+      <line x1="522" y1="38" x2="560" y2="38" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#a2)"/>
+      <!-- Down to frontend/GA4 -->
+      <line x1="617" y1="58" x2="617" y2="148" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#a1)"/>
+      <!-- Step 6 GA4 -->
+      <rect x="562" y="158" width="110" height="40" rx="5" fill="#fff" stroke="#f0b0c0" stroke-width="1.4"/>
+      <text x="617" y="176" text-anchor="middle" font-size="9.5" font-weight="500" fill="#8a2040">6. GA4 event</text>
+      <text x="617" y="190" text-anchor="middle" font-size="8.5" fill="#5c5a54">aima_ref attribution</text>
+      <!-- User clicks -->
+      <line x1="617" y1="198" x2="617" y2="218" stroke="#1a6b45" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#a2)"/>
+      <rect x="490" y="222" width="254" height="22" rx="4" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="617" y="237" text-anchor="middle" font-size="9" fill="#1a6b45" font-weight="500">✓ Attribution complete — Aima conversation → User action</text>
+    </svg>
+  </div>
+  <div class="callout c-green" data-lang="en"><strong>Core principle:</strong> Aima handles cross-channel URL parameter injection. Website internal behaviour is handled by Frontend via GA4 events. These two never overlap.</div>
+  <div class="callout c-green" data-lang="zh"><strong>核心原则：</strong>Aima 负责跨渠道的 URL 参数注入。网站内部行为由前端通过 GA4 events 处理。两者职责不重叠。</div>
+</section>
+
+<!-- COVER -->
+<!-- CONCEPT PAGE: aima_ref vs rec_id — CENTRALIZED DEFINITION -->
+<section class="section" id="concepts" style="scroll-margin-top:60px;margin-bottom:56px;">
+  <div style="background:#fff;border:2px solid var(--border);border-radius:12px;padding:36px 40px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal) 0%,var(--purple) 50%,var(--pink) 100%);"></div>
+
+    <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);margin-bottom:20px;">
+      📖 <span data-lang="en">Core Concepts — Read This First</span>
+      <span data-lang="zh">核心概念 — 请先阅读</span>
+    </div>
+
+    <h2 style="font-size:20px;font-weight:500;margin-bottom:6px;letter-spacing:-.01em;" data-lang="en">What are <code style="font-size:18px;">aima_ref</code> and <code style="font-size:18px;">rec_id</code>?</h2>
+    <h2 style="font-size:20px;font-weight:500;margin-bottom:6px;letter-spacing:-.01em;" data-lang="zh"><code style="font-size:18px;">aima_ref</code> 和 <code style="font-size:18px;">rec_id</code> 是什么？</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:32px;" data-lang="en">Two tracking IDs, two different questions answered. Details are in their respective sections — this page is the single place to understand both.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:32px;" data-lang="zh">两个追踪 ID，回答两个不同的问题。详细内容在各自章节——本页是理解两者的唯一集中入口。</p>
+
+    <!-- Two cards side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+
+      <!-- aima_ref card -->
+      <div style="border:2px solid var(--teal-b);border-radius:10px;overflow:hidden;">
+        <div style="background:var(--teal-bg);padding:16px 20px;border-bottom:1px solid var(--teal-b);">
+          <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);margin-bottom:6px;">Token 1</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--teal);">aima_ref</div>
+        </div>
+        <div style="padding:16px 20px;background:#fff;">
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px;" data-lang="en">Message Attribution Token</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px;" data-lang="zh">消息归因 Token</div>
+
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8;margin-bottom:14px;" data-lang="en">
+            Attached to every link Aima sends. Ties a link click back to the specific <strong>conversation</strong> and <strong>message</strong> that contained it.
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8;margin-bottom:14px;" data-lang="zh">
+            附加到 Aima 发送的每条链接上。将链接点击追溯到具体的<strong>对话</strong>和<strong>消息</strong>。
+          </div>
+
+          <div style="background:var(--teal-bg);border-radius:6px;padding:10px 14px;margin-bottom:14px;">
+            <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:4px;" data-lang="en">Business question it answers</div>
+            <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:4px;" data-lang="zh">回答的业务问题</div>
+            <div style="font-size:13px;color:var(--teal);font-weight:500;" data-lang="en">"Did this Aima conversation lead to a conversion?"</div>
+            <div style="font-size:13px;color:var(--teal);font-weight:500;" data-lang="zh">「这次 Aima 对话有没有带来转化？」</div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.75;">
+            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--teal);font-weight:600;">Who generates:</span><span data-lang="en">Aima Backend — at message send time</span><span data-lang="zh">Aima Backend — 消息发送时</span></div>
+            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--teal);font-weight:600;">Contains:</span><span data-lang="en">conversation_id, message_id, user, runtime_source</span><span data-lang="zh">conversation_id, message_id, user, runtime_source</span></div>
+            <div style="display:flex;gap:8px;"><span style="color:var(--teal);font-weight:600;">In link as:</span><span><code>?aima_ref=xxx</code></span></div>
+          </div>
+          <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--text-muted);" data-lang="en">→ Details in <a href="#s7" style="color:var(--teal);">Section 7</a></div>
+          <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--text-muted);" data-lang="zh">→ 详见 <a href="#s7" style="color:var(--teal);">Section 7</a></div>
+        </div>
+      </div>
+
+      <!-- rec_id card -->
+      <div style="border:2px solid var(--purple-b);border-radius:10px;overflow:hidden;">
+        <div style="background:var(--purple-bg);padding:16px 20px;border-bottom:1px solid var(--purple-b);">
+          <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);margin-bottom:6px;">Token 2</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:500;color:var(--purple);">rec_id</div>
+        </div>
+        <div style="padding:16px 20px;background:#fff;">
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px;" data-lang="en">Recommendation Attribution ID</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px;" data-lang="zh">推荐归因 ID</div>
+
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8;margin-bottom:14px;" data-lang="en">
+            Attached to links when Aima recommends a specific activity. Ties a conversion back to the specific <strong>activity recommendation</strong> that triggered it.
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8;margin-bottom:14px;" data-lang="zh">
+            当 Aima 推荐具体活动时附加到链接上。将转化追溯到触发它的具体<strong>活动推荐</strong>。
+          </div>
+
+          <div style="background:var(--purple-bg);border-radius:6px;padding:10px 14px;margin-bottom:14px;">
+            <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:4px;" data-lang="en">Business question it answers</div>
+            <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:4px;" data-lang="zh">回答的业务问题</div>
+            <div style="font-size:13px;color:var(--purple);font-weight:500;" data-lang="en">"Which activity recommendation drove this conversion?"</div>
+            <div style="font-size:13px;color:var(--purple);font-weight:500;" data-lang="zh">「哪个活动推荐带来了这次转化？」</div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.75;">
+            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--purple);font-weight:600;">Who generates:</span><span data-lang="en">Recommendation Engineer — at recommendation time</span><span data-lang="zh">推荐工程师 — 推荐决策时</span></div>
+            <div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--purple);font-weight:600;">Contains:</span><span data-lang="en">unique ID per recommendation instance</span><span data-lang="zh">每次推荐行为的唯一 ID</span></div>
+            <div style="display:flex;gap:8px;"><span style="color:var(--purple);font-weight:600;">In link as:</span><span><code>?utm_term={rec_id}</code></span></div>
+          </div>
+          <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--text-muted);" data-lang="en">→ Details in <a href="#s10" style="color:var(--purple);">Section 10</a></div>
+          <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--text-muted);" data-lang="zh">→ 详见 <a href="#s10" style="color:var(--purple);">Section 10</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relationship row -->
+    <div style="background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:20px;">
+      <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;" data-lang="en">How they work together</div>
+      <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;" data-lang="zh">两者如何配合</div>
+      <div style="font-family:var(--mono);font-size:11.5px;color:var(--text-secondary);line-height:2;" data-lang="en">
+        Every Aima message gets an <span style="color:var(--teal);font-weight:600;">aima_ref</span> &nbsp;→&nbsp; tells you <em>which conversation</em> led to a click<br>
+        When Aima recommends an activity, the link also gets <span style="color:var(--purple);font-weight:600;">utm_term={rec_id}</span> &nbsp;→&nbsp; tells you <em>which recommendation</em> led to a conversion<br>
+        <span style="color:var(--text-muted);">They are independent IDs on the same link. Both can be present at the same time.</span>
+      </div>
+      <div style="font-family:var(--mono);font-size:11.5px;color:var(--text-secondary);line-height:2;" data-lang="zh">
+        每条 Aima 消息都有 <span style="color:var(--teal);font-weight:600;">aima_ref</span> &nbsp;→&nbsp; 告诉你<em>哪次对话</em>带来了点击<br>
+        当 Aima 推荐活动时，链接还带有 <span style="color:var(--purple);font-weight:600;">utm_term={rec_id}</span> &nbsp;→&nbsp; 告诉你<em>哪次推荐</em>带来了转化<br>
+        <span style="color:var(--text-muted);">两者是同一条链接上的独立 ID，可以同时存在。</span>
+      </div>
+    </div>
+
+    <!-- Full link example -->
+    <div style="border-radius:6px;border:1px solid var(--border);overflow:hidden;">
+      <div style="padding:8px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;" data-lang="en">Complete link example — both IDs present</div>
+      <div style="padding:8px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;" data-lang="zh">完整链接示例 — 两个 ID 同时存在</div>
+      <pre style="background:#1c1b18;color:#d4d0c8;padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;margin:0;">https://welovesupermom.com/event/summer-sale
+  ?<span style="color:#80cbc4;">utm_source</span>=<span style="color:#a5d6a7;">aima</span>
+  &amp;<span style="color:#80cbc4;">utm_medium</span>=<span style="color:#a5d6a7;">whatsapp</span>
+  &amp;<span style="color:#80cbc4;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_summer_promo</span>
+  &amp;<span style="color:#f48fb1;">utm_term</span>=<span style="color:#ce93d8;">rec_001</span>          <span style="color:#6b7280;font-style:italic;">← rec_id (from Rec Engineer)</span>
+  &amp;<span style="color:#80cbc4;">aima_ref</span>=<span style="color:#ffcc80;">eyJjb252X2lkIjoi...</span>  <span style="color:#6b7280;font-style:italic;">← aima_ref (from Aima Backend)</span></pre>
+    </div>
+
+    <!-- Not the same as ma_ref note -->
+    <div style="margin-top:16px;padding:12px 16px;background:var(--pink-light);border:1px solid var(--pink-border);border-radius:6px;font-size:12.5px;color:var(--pink-muted);">
+      <strong data-lang="en">⚠️ Note:</strong><span data-lang="en"> Neither <code>aima_ref</code> nor <code>rec_id</code> is the same as <code>ma_ref</code>. <code>ma_ref</code> is a separate token used by the MA System for batch messages (Email / WhatsApp Templates) — defined in PRD-TRK-007. These three tokens serve different systems and must never be merged.</span>
+      <strong data-lang="zh">⚠️ 注意：</strong><span data-lang="zh"> <code>aima_ref</code> 和 <code>rec_id</code> 都不是 <code>ma_ref</code>。<code>ma_ref</code> 是 MA System 用于批量消息（邮件 / WA 模板）的独立 token，定义在 PRD-TRK-007 中。三者服务于不同系统，不得混用。</span>
+    </div>
+  </div>
+</section>
+
+<section class="cover" id="cover">
+  <div class="doc-module-tag">Foundation · Tracking</div>
+  <h1>PRD-TRK-009<br><strong>Aima Link Tracking &amp; Attribution Framework</strong></h1>
+  <p class="sub" data-lang="en">Define the link tracking, parameter injection, and attribution framework for Aima conversational messages across WhatsApp Native and Website Widget channels.</p>
+  <p class="sub" data-lang="zh">定义 Aima 对话消息在 WhatsApp Native 和 Website Widget 渠道下的链接追踪、参数注入与归因框架。</p>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k">Doc ID</span><span class="v">PRD-TRK-009</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.7</span></div>
+    <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
+    <div class="meta-cell"><span class="k">Domain</span><span class="v">Foundation → Tracking</span></div>
+    <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-28</span></div>
+    <div class="meta-cell"><span class="k">Author</span><span class="v">Product Team</span></div>
+    <div class="meta-cell"><span class="k">Related</span><span class="v">PRD-TRK-007, PRD-TRK-008</span></div>
+    <div class="meta-cell"><span class="k">Phase</span><span class="v">Phase 1 — Message Attribution</span></div>
+  </div>
+</section>
+
+<!-- S1 BACKGROUND -->
+<section class="section" id="s1">
+  <div class="stag">01</div>
+  <h2 data-lang="en">Background <span class="en">背景</span></h2>
+  <h2 data-lang="zh">背景</h2>
+  <p class="sdesc" data-lang="en">Aima is a conversational AI sending links to users via WhatsApp and a website widget. Currently, there is no mechanism to track whether users click those links or what actions they take afterward.</p>
+  <p class="sdesc" data-lang="zh">Aima 是对话式 AI，通过 WhatsApp 和网站 Widget 向用户发送链接。目前没有任何机制追踪用户是否点击了这些链接，以及点击后的行为。</p>
+  <div class="zh-summary">
+    <span class="zh-summary-label" data-lang="en">Core Problem</span>
+    <span class="zh-summary-label" data-lang="zh">核心问题</span>
+    <span data-lang="en">We cannot answer: "Did this Aima conversation lead to a conversion?" — links sent by Aima carry no tracking context.</span>
+    <span data-lang="zh">我们无法回答：「这次 Aima 对话是否带来了转化？」— Aima 发送的链接没有追踪上下文。</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Pain Point</span><span data-lang="zh">痛点</span></th><th><span data-lang="en">Impact</span><span data-lang="zh">影响</span></th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">No attribution for Aima-driven conversions</span><span data-lang="zh">无法归因 Aima 带来的转化</span></td><td class="zh" data-lang="en">Cannot connect Aima messages to downstream purchases or registrations</td><td class="zh" data-lang="zh">无法将 Aima 消息与下游购买/注册关联</td></tr>
+      <tr><td><span data-lang="en">No channel differentiation in tracking</span><span data-lang="zh">渠道追踪无区分</span></td><td class="zh" data-lang="en">WhatsApp Native and Website Widget require different tracking strategies</td><td class="zh" data-lang="zh">WhatsApp Native 和 Website Widget 需要不同的追踪策略</td></tr>
+      <tr><td><span data-lang="en">Link context lost after send</span><span data-lang="zh">链接上下文在发送后丢失</span></td><td class="zh" data-lang="en">Cannot trace which conversation, message, or user a link belongs to</td><td class="zh" data-lang="zh">无法追溯链接来自哪次对话、哪条消息、哪个用户</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S2 GOALS -->
+<section class="section" id="s2">
+  <div class="stag">02</div>
+  <h2 data-lang="en">Goals</h2><h2 data-lang="zh">目标</h2>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Goal</span><span data-lang="zh">目标</span></th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">Attach <code>aima_ref</code> to all Aima-sent links</span><span data-lang="zh">为所有 Aima 发送的链接附加 <code>aima_ref</code></span></td><td class="zh" data-lang="en">Every link carries a trackable context token</td><td class="zh" data-lang="zh">每条链接携带可追踪的上下文 token</td></tr>
+      <tr><td><span data-lang="en">Differentiate WhatsApp Native vs Website Widget</span><span data-lang="zh">区分 WhatsApp Native 和 Website Widget</span></td><td class="zh" data-lang="en">Append UTM only for WhatsApp Native; rely on GA4 events for Widget</td><td class="zh" data-lang="zh">WhatsApp Native 追加 UTM；Widget 内部行为依靠 GA4 events</td></tr>
+      <tr><td><span data-lang="en">Enable Aima conversation attribution</span><span data-lang="zh">实现 Aima 对话归因</span></td><td class="zh" data-lang="en">Map aima_ref → conversation_id, message_id, user, channel</td><td class="zh" data-lang="zh">将 aima_ref 映射到 conversation_id、message_id、用户和渠道</td></tr>
+      <tr><td><span data-lang="en">Clear team responsibility boundaries</span><span data-lang="zh">明确团队职责边界</span></td><td class="zh" data-lang="en">Aima, Backend, Frontend, GTM each have non-overlapping roles</td><td class="zh" data-lang="zh">Aima、Backend、Frontend、GTM 职责不重叠</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S3 SCOPE -->
+<section class="section" id="s3">
+  <div class="stag">03</div>
+  <h2 data-lang="en">Scope</h2><h2 data-lang="zh">范围</h2>
+  <div class="sub-h" data-lang="en">Included</div><div class="sub-h" data-lang="zh">包含</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Category</span><span data-lang="zh">类别</span></th><th><span data-lang="en">Items</span><span data-lang="zh">内容</span></th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Channels</td><td class="field">渠道</td><td>WhatsApp Native, Website Widget</td><td class="zh" data-lang="en">Two Aima runtime channels</td><td class="zh" data-lang="zh">两个 Aima 运行渠道</td></tr>
+      <tr><td class="field">Link types</td><td class="field">链接类型</td><td><span data-lang="en">CTA buttons + all body links in WhatsApp messages</span><span data-lang="zh">WhatsApp 消息中的 CTA 按钮和正文链接</span></td><td class="zh" data-lang="en">Both must be tracked</td><td class="zh" data-lang="zh">两者都需要追踪</td></tr>
+      <tr><td class="field">Parameters</td><td class="field">参数</td><td>aima_ref, utm_source, utm_medium</td><td class="zh" data-lang="en">UTM only for WhatsApp Native</td><td class="zh" data-lang="zh">UTM 仅适用于 WhatsApp Native</td></tr>
+      <tr><td class="field">GA4 Events</td><td class="field">GA4 事件</td><td>recommendation_click, aima_recommendation_view/click</td><td class="zh" data-lang="en">For Website Widget internal tracking</td><td class="zh" data-lang="zh">用于 Website Widget 内部追踪</td></tr>
+    </tbody>
+  </table></div>
+  <div class="sub-h" data-lang="en">Excluded</div><div class="sub-h" data-lang="zh">排除</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Item</span><span data-lang="zh">内容</span></th><th><span data-lang="en">Reason</span><span data-lang="zh">排除原因</span></th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">rec_id (Recommendation ID)</span><span data-lang="zh">rec_id</span></td><td class="zh" data-lang="en"><span style="color:var(--green);font-weight:500;">✅ Now included in Phase 1</span> — moved from Phase 2 based on business requirement for full funnel attribution</td><td class="zh" data-lang="zh"><span style="color:var(--green);font-weight:500;">✅ 已纳入 Phase 1</span> — 基于业务对完整漏斗归因的需求，从 Phase 2 提前</td></tr>
+      <tr><td><span data-lang="en">MA System links (Email / WA Templates)</span><span data-lang="zh">MA System 链接</span></td><td class="zh" data-lang="en">Covered by PRD-TRK-007/008 via ma_ref — different system</td><td class="zh" data-lang="zh">由 PRD-TRK-007/008 通过 ma_ref 处理</td></tr>
+      <tr><td><span data-lang="en">Cross-device identity stitching</span><span data-lang="zh">跨设备 identity stitching</span></td><td class="zh" data-lang="en">Out of Phase 1 scope</td><td class="zh" data-lang="zh">Phase 1 范围外</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S4 CORE PRINCIPLES -->
+<section class="section" id="s4">
+  <div class="stag">04</div>
+  <h2 data-lang="en">Core Principles</h2><h2 data-lang="zh">核心原则</h2>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th><span data-lang="en">Principle</span><span data-lang="zh">原则</span></th><th><span data-lang="en">Why</span><span data-lang="zh">原因</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">P1</td>
+        <td><span data-lang="en"><strong>aima_ref ≠ ma_ref</strong> — Two different tokens for two different systems. aima_ref = Aima conversational messages. ma_ref = MA batch messages (Email/WA Templates). Never merge.</span><span data-lang="zh"><strong>aima_ref ≠ ma_ref</strong> — 两个不同系统的不同 token。aima_ref = Aima 对话消息。ma_ref = MA 批量消息。不得合并。</span></td>
+        <td class="zh" data-lang="en">Different lifecycle, context, ownership</td><td class="zh" data-lang="zh">不同生命周期、上下文和所有权</td></tr>
+      <tr><td class="field">P2</td>
+        <td><span data-lang="en"><strong>Aima owns URL parameter injection</strong> — Aima appends parameters to links before sending. No manual configuration by business users required.</span><span data-lang="zh"><strong>Aima 负责 URL 参数注入</strong> — Aima 在发送前为链接附加参数。无需业务用户手动配置。</span></td>
+        <td class="zh" data-lang="en">Only Aima knows conversation context at send time</td><td class="zh" data-lang="zh">只有 Aima 在发送时知道对话上下文</td></tr>
+      <tr><td class="field">P3</td>
+        <td><span data-lang="en"><strong>Website internal behaviour → GA4 events only</strong> — When users are on the website (Widget), NO URL parameters added. GA4 events handle in-session behaviour.</span><span data-lang="zh"><strong>网站内部行为 → 只用 GA4 events</strong> — 用户在网站内（Widget），不追加 URL 参数。GA4 events 处理 session 内行为。</span></td>
+        <td class="zh" data-lang="en">Prevents GA4 session breaks and double-counting</td><td class="zh" data-lang="zh">防止 GA4 session 中断和重复计数</td></tr>
+      <tr><td class="field">P4</td>
+        <td><span data-lang="en"><strong>Aima Backend generates aima_ref</strong> — Aima requests the token; Aima Backend generates it. Aima only appends it. Ensures tamper-resistance and auditability.</span><span data-lang="zh"><strong>Backend 生成 aima_ref</strong> — Aima 请求 token，Backend 生成，Aima 只负责拼接。确保安全性和可审计性。</span></td>
+        <td class="zh" data-lang="en">Token generation must be server-side only</td><td class="zh" data-lang="zh">token 生成必须在服务端</td></tr>
+    </tbody>
+  </table></div>
+</section>
+<!-- S5 ARCHITECTURE -->
+<section class="section" id="s5">
+  <div class="stag">05</div>
+  <h2 data-lang="en">System Architecture</h2><h2 data-lang="zh">系统架构</h2>
+
+  <div class="sub-h" id="s5a" data-lang="en">5.1 Layer Overview</div><div class="sub-h" data-lang="zh">5.1 层级总览</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">Three-Layer Architecture — Messaging / Tracking / Analytics</div>
+    <div class="diagram-title" data-lang="zh">三层架构 — 消息层 / 追踪层 / 分析层</div>
+    <svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs><marker id="la1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker></defs>
+      <!-- Layer 1 -->
+      <rect x="30" y="10" width="640" height="78" rx="7" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="48" y="30" font-size="8.5" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500" letter-spacing=".1em">LAYER 1 — MESSAGING LAYER</text>
+      <rect x="50" y="36" width="120" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/><text x="110" y="54" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Aima System</text><text x="110" y="68" text-anchor="middle" font-size="8.5" fill="#5c5a54">Conversation Runtime</text>
+      <rect x="196" y="36" width="120" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/><text x="256" y="54" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">WhatsApp Native</text><text x="256" y="68" text-anchor="middle" font-size="8.5" fill="#5c5a54">runtime_source=wa</text>
+      <rect x="342" y="36" width="120" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.2"/><text x="402" y="54" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Website Widget</text><text x="402" y="68" text-anchor="middle" font-size="8.5" fill="#5c5a54">runtime_source=web</text>
+      <rect x="488" y="36" width="120" height="40" rx="5" fill="#fdf0f4" stroke="#f0b0c0" stroke-width="1.2"/><text x="548" y="54" text-anchor="middle" font-size="9.5" font-weight="500" fill="#c0385a">MA System</text><text x="548" y="68" text-anchor="middle" font-size="8.5" fill="#8a2040">ma_ref (007/008)</text>
+      <!-- Arrow -->
+      <line x1="350" y1="88" x2="350" y2="110" stroke="#c0385a" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#la1)"/>
+      <!-- Layer 2 -->
+      <rect x="30" y="112" width="640" height="78" rx="7" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.5"/>
+      <text x="48" y="132" font-size="8.5" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500" letter-spacing=".1em">LAYER 2 — AIMA BACKEND</text>
+      <rect x="50" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="120" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Generate aima_ref</text><text x="120" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">JWT / opaque token</text>
+      <rect x="220" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="290" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">UTM Decision</text><text x="290" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">based on runtime_source</text>
+      <rect x="390" y="138" width="140" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/><text x="460" y="156" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Store Context</text><text x="460" y="170" text-anchor="middle" font-size="8.5" fill="#5c5a54">conv_id / msg_id / user</text>
+      <!-- Arrow -->
+      <line x1="350" y1="190" x2="350" y2="212" stroke="#c0385a" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#la1)"/>
+      <!-- Layer 3 -->
+      <rect x="30" y="214" width="640" height="60" rx="7" fill="#fdf0f4" stroke="#f0b0c0" stroke-width="1.5"/>
+      <text x="48" y="234" font-size="8.5" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500" letter-spacing=".1em">LAYER 3 — ANALYTICS (GA4 / GTM)</text>
+      <rect x="50" y="240" width="140" height="26" rx="4" fill="#fff" stroke="#f0b0c0" stroke-width="1"/><text x="120" y="257" text-anchor="middle" font-size="9" fill="#c0385a">aima_ref → GA4 event</text>
+      <rect x="220" y="240" width="140" height="26" rx="4" fill="#fff" stroke="#f0b0c0" stroke-width="1"/><text x="290" y="257" text-anchor="middle" font-size="9" fill="#c0385a">recommendation_click</text>
+      <rect x="390" y="240" width="140" height="26" rx="4" fill="#fff" stroke="#f0b0c0" stroke-width="1"/><text x="460" y="257" text-anchor="middle" font-size="9" fill="#c0385a">Attribution Report</text>
+    </svg>
+  </div>
+
+  <div class="sub-h" id="s5b" data-lang="en">5.2 Aima System vs MA System — Why They Are Separate</div>
+  <div class="sub-h" data-lang="zh">5.2 Aima System vs MA System — 为什么分开</div>
+  <div class="callout c-info" data-lang="en"><strong>Business analogy:</strong> MA System is like a postal service sending batch letters — the tracking code (<code>ma_ref</code>) is stamped at the post office before dispatch. Aima is a live customer service agent in conversation — the tracking code (<code>aima_ref</code>) is attached in real time during the conversation. Same destination (the user), completely different journeys.</div>
+  <div class="callout c-info" data-lang="zh"><strong>业务比喻：</strong>MA System 像邮局批量寄信，追踪码（<code>ma_ref</code>）在邮局盖章寄出。Aima 像客服实时对话，追踪码（<code>aima_ref</code>）在对话中实时附加。目的地相同（用户），但流程完全不同。</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Dimension</span><span data-lang="zh">维度</span></th><th>MA System (ma_ref)</th><th>Aima System (aima_ref)</th></tr></thead>
+    <tbody>
+      <tr><td class="field" data-lang="en">Trigger</td><td class="field" data-lang="zh">触发时机</td><td><span data-lang="en">MA Flow send (batch)</span><span data-lang="zh">MA Flow 批量发送</span></td><td><span data-lang="en">Aima message (real-time)</span><span data-lang="zh">Aima 对话消息（实时）</span></td></tr>
+      <tr><td class="field" data-lang="en">Channel</td><td class="field" data-lang="zh">渠道</td><td><span data-lang="en">Email / WhatsApp Template</span><span data-lang="zh">Email / WA 模板</span></td><td>WhatsApp Native / Website Widget</td></tr>
+      <tr><td class="field" data-lang="en">Context unit</td><td class="field" data-lang="zh">上下文单位</td><td><span data-lang="en">Flow → Node → Recipient</span><span data-lang="zh">Flow → Node → 收件人</span></td><td>Conversation → Message → User</td></tr>
+      <tr><td class="field" data-lang="en">PRD</td><td class="field" data-lang="zh">文档</td><td>PRD-TRK-007, PRD-TRK-008</td><td><span data-lang="en"><strong>This document (PRD-TRK-009)</strong></span><span data-lang="zh"><strong>本文档 (PRD-TRK-009)</strong></span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S6 RUNTIME SOURCE -->
+<section class="section" id="s6">
+  <div class="stag">06</div>
+  <h2 data-lang="en">Runtime Source</h2><h2 data-lang="zh">Runtime Source 运行时来源</h2>
+  <div class="sub-h" id="s6a" data-lang="en">6.1 Definition</div><div class="sub-h" data-lang="zh">6.1 定义</div>
+  <div class="callout c-note" data-lang="en"><strong>UTM Values Reference:</strong> All UTM values follow <strong>UTM-GOV-001 v1.2 — UTM Parameter Dictionary</strong> (B2C UTM Advisory aligned). Confirmed values: <code>utm_source=aima</code>, <code>utm_medium=whatsapp</code>, <code>utm_term={rec_id}</code>.</div>
+  <div class="callout c-note" data-lang="zh"><strong>UTM 值参考：</strong>所有 UTM 值遵守 <strong>UTM-GOV-001 v1.2</strong>（已与 B2C UTM Advisory 对齐）。确认值：<code>utm_source=aima</code>、<code>utm_medium=whatsapp</code>、<code>utm_term={rec_id}</code>。</div>
+  <p class="sdesc" data-lang="en">Every Aima conversation must know its <code>runtime_source</code> — the channel through which Aima is communicating. This single field determines how all links in the conversation are tracked.</p>
+  <p class="sdesc" data-lang="zh">每个 Aima 对话必须知道其 <code>runtime_source</code>——Aima 当前所在的渠道。这个字段决定了对话中所有链接的追踪方式。</p>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Value</span><span data-lang="zh">枚举值</span></th><th><span data-lang="en">Meaning</span><span data-lang="zh">含义</span></th><th><span data-lang="en">Who sets it</span><span data-lang="zh">谁设置</span></th><th>追踪策略</th></tr></thead>
+    <tbody>
+      <tr><td class="field">whatsapp_native</td><td class="field">whatsapp_native</td><td><span data-lang="en">User chatting via WhatsApp (outside website)</span><span data-lang="zh">用户通过 WhatsApp 对话（网站外）</span></td><td><span data-lang="en">Aima (from channel context)</span><span data-lang="zh">Aima（从渠道上下文）</span></td><td class="zh" data-lang="en">Append <code>utm_source=aima</code> + <code>utm_medium=whatsapp</code> + <code>aima_ref</code> + <code>utm_term={rec_id}</code> (if rec_id available)</td><td class="zh" data-lang="zh">为所有自有域名链接追加 utm_* + aima_ref</td></tr>
+      <tr><td class="field">website_widget</td><td class="field">website_widget</td><td><span data-lang="en">User chatting via Aima widget on website</span><span data-lang="zh">用户通过网站上的 Aima Widget 对话</span></td><td><span data-lang="en">Frontend (passed at Widget init)</span><span data-lang="zh">Frontend（Widget 初始化时传入）</span></td><td class="zh" data-lang="en">aima_ref only — NO utm_*; use GA4 events</td><td class="zh" data-lang="zh">仅 aima_ref；不加 utm_*；使用 GA4 events</td></tr>
+    </tbody>
+  </table></div>
+  <div class="why-box">
+    <span class="why-label" data-lang="en">Why no UTM for website_widget?</span>
+    <span class="why-label" data-lang="zh">为什么 website_widget 不加 UTM？</span>
+    <p data-lang="en">The user is already on the website. GA4 is already tracking their session. Adding UTM parameters would start a NEW GA4 session, breaking the existing attribution chain and causing double-counting. GA4 events are the correct tool for in-session behaviour.</p>
+    <p data-lang="zh">用户已经在网站上，GA4 已经在追踪他们的 session。追加 UTM 参数会开启新的 GA4 session，破坏已有的归因链，导致重复计数。GA4 events 是追踪 session 内行为的正确工具。</p>
+  </div>
+
+  <div class="sub-h" id="s6b" data-lang="en">6.2 Parameter Injection Decision Flow</div>
+  <div class="sub-h" data-lang="zh">6.2 参数注入决策流程</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">Decision: Which Parameters to Append?</div>
+    <div class="diagram-title" data-lang="zh">决策：追加哪些参数？</div>
+    <svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="dc1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+        <marker id="dc2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="dc3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+      </defs>
+      <!-- Start -->
+      <rect x="264" y="10" width="152" height="36" rx="18" fill="#c0385a"/>
+      <text x="340" y="33" text-anchor="middle" font-size="11" font-weight="500" fill="#fff">Aima sends a link</text>
+      <line x1="340" y1="46" x2="340" y2="78" stroke="#c0385a" stroke-width="1.5" marker-end="url(#dc1)"/>
+      <!-- Diamond -->
+      <polygon points="340,82 450,122 340,162 230,122" fill="#fff7e0" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="340" y="116" text-anchor="middle" font-size="10" font-weight="500" fill="#7a4f00">runtime_source?</text>
+      <text x="340" y="130" text-anchor="middle" font-size="9" fill="#9c7a00">检查渠道来源</text>
+      <!-- Left: WA -->
+      <line x1="230" y1="122" x2="110" y2="122" stroke="#0a5a52" stroke-width="1.5" marker-end="url(#dc2)"/>
+      <text x="168" y="115" text-anchor="middle" font-size="8.5" fill="#0a5a52" font-family="IBM Plex Mono">whatsapp_native</text>
+      <rect x="20" y="158" width="178" height="90" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="109" y="180" text-anchor="middle" font-size="10" font-weight="500" fill="#0a5a52">Append all:</text>
+      <text x="109" y="197" text-anchor="middle" font-size="10" fill="#0a5a52">utm_source=aima</text>
+      <text x="109" y="212" text-anchor="middle" font-size="10" fill="#0a5a52">utm_medium=whatsapp</text>
+      <text x="109" y="227" text-anchor="middle" font-size="10" fill="#c0385a" font-weight="500">aima_ref=xxx</text>
+      <text x="109" y="240" text-anchor="middle" font-size="9" fill="#5c5a54">(link_id per link)</text>
+      <line x1="109" y1="156" x2="109" y2="158" stroke="#0a5a52" stroke-width="1.5" marker-end="url(#dc2)"/>
+      <!-- Right: Widget -->
+      <line x1="450" y1="122" x2="570" y2="122" stroke="#0f3a6e" stroke-width="1.5" marker-end="url(#dc3)"/>
+      <text x="512" y="115" text-anchor="middle" font-size="8.5" fill="#0f3a6e" font-family="IBM Plex Mono">website_widget</text>
+      <rect x="482" y="158" width="178" height="90" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.5"/>
+      <text x="571" y="180" text-anchor="middle" font-size="10" font-weight="500" fill="#0f3a6e">Append only:</text>
+      <text x="571" y="198" text-anchor="middle" font-size="10" fill="#c0385a" font-weight="500">aima_ref=xxx</text>
+      <text x="571" y="215" text-anchor="middle" font-size="9" fill="#7a4f00">⚠ NO utm_*</text>
+      <text x="571" y="232" text-anchor="middle" font-size="9" fill="#0f3a6e">GA4 events track</text>
+      <text x="571" y="246" text-anchor="middle" font-size="9" fill="#0f3a6e">in-widget behaviour</text>
+      <line x1="571" y1="156" x2="571" y2="158" stroke="#0f3a6e" stroke-width="1.5" marker-end="url(#dc3)"/>
+      <!-- Bottom labels -->
+      <text x="109" y="268" text-anchor="middle" font-size="8" fill="#9c9a93" font-family="IBM Plex Mono">EXTERNAL CLICK TRACKING</text>
+      <text x="571" y="268" text-anchor="middle" font-size="8" fill="#9c9a93" font-family="IBM Plex Mono">IN-SESSION EVENT TRACKING</text>
+      <!-- Filter note -->
+      <rect x="230" y="186" width="220" height="34" rx="5" fill="#fef7e6" stroke="#f5d080" stroke-width="1"/>
+      <text x="340" y="202" text-anchor="middle" font-size="9" fill="#7a4f00" font-weight="500">⚠ External URLs: skip all parameters</text>
+      <text x="340" y="215" text-anchor="middle" font-size="8.5" fill="#7a4f00">外部/第三方 URL 不追加任何参数</text>
+    </svg>
+  </div>
+</section>
+
+<!-- S7 AIMA_REF -->
+<section class="section" id="s7">
+  <div class="stag">07</div>
+  <h2 data-lang="en">aima_ref Design</h2><h2 data-lang="zh">aima_ref 设计规范</h2>
+  <div class="sub-h" id="s7a" data-lang="en">7.1 Field Structure</div><div class="sub-h" data-lang="zh">7.1 字段结构</div>
+  <p class="sdesc" data-lang="en"><code>aima_ref</code> is an opaque token generated by Aima Backend that maps to conversation context. No raw identity data is stored inside the token — identity is resolved server-side via a Backend lookup.</p>
+  <p class="sdesc" data-lang="zh"><code>aima_ref</code> 是 Backend 生成的 opaque token，映射到对话上下文。token 内不存储原始 identity 数据——identity 通过 Backend lookup 在服务端解析。</p>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th><span data-lang="en">Description</span><span data-lang="zh">说明</span></th>
+      <th><span data-lang="en">Note</span><span data-lang="zh">备注</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">conversation_id</td>
+        <td>String</td>
+        <td><span data-lang="en">Aima conversation session ID</span><span data-lang="zh">Aima 对话 session ID</span></td>
+        <td><span data-lang="en">Maps to full conversation</span><span data-lang="zh">映射到完整对话</span></td>
+      </tr>
+      <tr>
+        <td class="field">message_id</td>
+        <td>String</td>
+        <td><span data-lang="en">Specific Aima message containing the link</span><span data-lang="zh">包含该链接的具体 Aima 消息</span></td>
+        <td><span data-lang="en">One message can have multiple links</span><span data-lang="zh">一条消息可包含多个链接</span></td>
+      </tr>
+      <tr>
+        <td class="field">user_id / phone</td>
+        <td>String</td>
+        <td><span data-lang="en">Opaque user reference (no raw PII in token)</span><span data-lang="zh">用户引用（token 中不含原始 PII）</span></td>
+        <td><span data-lang="en">Resolved server-side from identity store</span><span data-lang="zh">在服务端从 identity store 解析</span></td>
+      </tr>
+      <tr>
+        <td class="field">sent_time</td>
+        <td>Timestamp</td>
+        <td><span data-lang="en">Message sent time</span><span data-lang="zh">消息发送时间</span></td>
+        <td><span data-lang="en">Used for TTL and time-window attribution</span><span data-lang="zh">用于 TTL 和时间窗口归因</span></td>
+      </tr>
+      <tr>
+        <td class="field">link_id</td>
+        <td>String</td>
+        <td><span data-lang="en">Unique ID for this specific link in the message</span><span data-lang="zh">消息中该链接的唯一 ID</span></td>
+        <td><span data-lang="en">Differentiates multiple links in same message</span><span data-lang="zh">区分同一消息中的多个链接</span></td>
+      </tr>
+      <tr>
+        <td class="field">runtime_source</td>
+        <td>Enum</td>
+        <td><code>whatsapp_native</code> | <code>website_widget</code></td>
+        <td><span data-lang="en">Preserved for downstream attribution filtering</span><span data-lang="zh">保留用于下游归因过滤</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">URL Example</span><span class="code-label">Parameter construction per channel</span></div>
+    <pre><span class="c">// WhatsApp Native — full parameter set (per UTM-GOV-001 v1.2)</span>
+https://example.com/product/123
+  ?<span class="n">utm_source</span>=<span class="s">aima</span>
+  &amp;<span class="n">utm_medium</span>=<span class="s">whatsapp</span>
+  &amp;<span class="n">aima_ref</span>=<span class="v">eyJjb252X2lkIjoiY29udl8wMDEiLCJtc2dfaWQi...</span>
+
+<span class="c">// Website Widget — aima_ref only, NO utm_*</span>
+https://example.com/product/123
+  ?<span class="n">aima_ref</span>=<span class="v">eyJjb252X2lkIjoiY29udl8wMDEiLCJtc2dfaWQi...</span>
+
+<span class="c">// External URL — no parameters appended at all</span>
+https://third-party-site.com/product  <span class="c">← left as-is</span></pre>
+  </div>
+
+  <div class="sub-h" id="s7b" data-lang="en">7.2 Generation Rules</div><div class="sub-h" data-lang="zh">7.2 生成规则</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Rule</span><span data-lang="zh">规则</span></th><th><span data-lang="en">Detail</span><span data-lang="zh">说明</span></th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">One token per message</span><span data-lang="zh">每条消息一个 token</span></td><td><span data-lang="en">All links in the same Aima message share the same aima_ref, differentiated by link_id</span><span data-lang="zh">同一 Aima 消息中的所有链接共享同一个 aima_ref，通过 link_id 区分</span></td></tr>
+      <tr><td><span data-lang="en">Generated at send time</span><span data-lang="zh">发送时生成</span></td><td><span data-lang="en">Token generated by Aima Backend when Aima is about to send — not at conversation start</span><span data-lang="zh">Token 在 Aima 即将发送消息时由 Backend 生成，不在对话开始时生成</span></td></tr>
+      <tr><td><span data-lang="en">No raw identity in token</span><span data-lang="zh">token 中不含原始 identity</span></td><td><span data-lang="en">Same principle as PRD-TRK-007 identity_token: raw user data stored in Backend only</span><span data-lang="zh">与 PRD-TRK-007 identity_token 同理：原始用户数据只存储在 Backend 中</span></td></tr>
+      <tr><td><span data-lang="en">Filter external URLs</span><span data-lang="zh">过滤外部 URL</span></td><td><span data-lang="en">Aima MUST NOT append parameters to third-party URLs — only to own-domain links</span><span data-lang="zh">Aima 不得对第三方 URL 追加参数，只处理自有域名链接</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+<!-- S8 FLOWS -->
+<!-- S7B MA TRIGGER RULE — NEW v1.3 -->
+<section class="section" id="s7b">
+  <div class="stag">07B</div>
+  <h2 data-lang="en">MA-Triggered Scenario — Handling Rule <span class="en">MA 触发场景处理规则</span></h2>
+  <h2 data-lang="zh">MA 触发场景处理规则</h2>
+
+  <div class="callout c-info" data-lang="en"><strong>Industry Principle — Orchestration vs Execution:</strong> When MA System triggers Aima to send a message, MA is the Orchestration Layer (decision maker) and Aima is the Execution Layer (message sender). Tracking attribution follows the decision maker — therefore MA tracking parameters take precedence.</div>
+  <div class="callout c-info" data-lang="zh"><strong>行业原则 — 编排层 vs 执行层：</strong>当 MA 系统触发 Aima 发送消息时，MA 是编排层（决策者），Aima 是执行层（发送者）。追踪归属跟随决策者——因此 MA 追踪参数优先。</div>
+
+  <div class="callout c-warn" data-lang="en"><strong>⚠️ MA Engineer + Aima Engineer alignment required:</strong> This rule requires both engineers to agree on the interface — how MA passes tracking parameters to Aima. Refer to <strong>PRD-TRK-007 S9</strong> for MA UTM rules. Refer to <strong>UTM-GOV-001 v1.2</strong> for confirmed UTM values: MA uses <code>utm_source=crm</code> + <code>utm_medium=messaging</code>; Aima uses <code>utm_source=aima</code> + <code>utm_medium=whatsapp</code>.</div>
+  <div class="callout c-warn" data-lang="zh"><strong>⚠️ MA 工程师 + Aima 工程师需要对齐：</strong>此规则需要两位工程师就接口达成一致——MA 如何将追踪参数传给 Aima。MA UTM 规则参考 <strong>PRD-TRK-007 S9</strong>。允许的 UTM 值参考 <strong>UTM-GOV-001</strong>。</div>
+
+  <div class="sub-h" data-lang="en">Decision Logic — ma_ref vs aima_ref</div>
+  <div class="sub-h" data-lang="zh">决策逻辑 — ma_ref vs aima_ref</div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">Aima Receives Message Request — Which Tracking Path?</div>
+    <div class="diagram-title" data-lang="zh">Aima 收到消息请求 — 走哪条追踪路径？</div>
+    <svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="mf1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+        <marker id="mf2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="mf3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+        <marker id="mf4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#4a1a7a"/></marker>
+      </defs>
+
+      <!-- Start -->
+      <rect x="240" y="10" width="240" height="36" rx="18" fill="#c0385a"/>
+      <text x="360" y="33" text-anchor="middle" font-size="11" font-weight="500" fill="#fff">Aima receives message request</text>
+      <line x1="360" y1="46" x2="360" y2="70" stroke="#c0385a" stroke-width="1.5" marker-end="url(#mf1)"/>
+
+      <!-- Decision diamond -->
+      <polygon points="360,74 490,116 360,158 230,116" fill="#fff7e0" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="360" y="109" text-anchor="middle" font-size="10" font-weight="500" fill="#7a4f00">Request contains</text>
+      <text x="360" y="123" text-anchor="middle" font-size="10" fill="#7a4f00">ma_ref?</text>
+
+      <!-- YES path — MA triggered -->
+      <line x1="490" y1="116" x2="600" y2="116" stroke="#4a1a7a" stroke-width="1.5" marker-end="url(#mf4)"/>
+      <text x="547" y="108" text-anchor="middle" font-size="9" fill="#4a1a7a" font-family="IBM Plex Mono">Yes — MA triggered</text>
+
+      <rect x="602" y="88" width="108" height="56" rx="6" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
+      <text x="656" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">MA Path</text>
+      <text x="656" y="124" text-anchor="middle" font-size="8.5" fill="#4a1a7a">Use ma_ref</text>
+      <text x="656" y="138" text-anchor="middle" font-size="8.5" fill="#4a1a7a">passthrough UTM</text>
+
+      <!-- NO path — Aima conversational -->
+      <line x1="230" y1="116" x2="120" y2="116" stroke="#0a5a52" stroke-width="1.5" marker-end="url(#mf2)"/>
+      <text x="173" y="108" text-anchor="middle" font-size="9" fill="#0a5a52" font-family="IBM Plex Mono">No — Aima conv.</text>
+
+      <rect x="10" y="88" width="108" height="56" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="64" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Aima Path</text>
+      <text x="64" y="124" text-anchor="middle" font-size="8.5" fill="#0a5a52">Generate aima_ref</text>
+      <text x="64" y="138" text-anchor="middle" font-size="8.5" fill="#0a5a52">apply UTM rules</text>
+
+      <!-- MA Path details -->
+      <line x1="656" y1="144" x2="656" y2="178" stroke="#4a1a7a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#mf4)"/>
+      <rect x="572" y="180" width="176" height="80" rx="6" fill="#fff" stroke="#d8b0f0" stroke-width="1.3"/>
+      <text x="660" y="200" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">MA Tracking Rules</text>
+      <text x="660" y="216" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Keep ma_ref as-is</text>
+      <text x="660" y="230" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Do NOT generate aima_ref</text>
+      <text x="660" y="244" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Passthrough MA UTM values</text>
+      <text x="660" y="258" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Do NOT override any UTM</text>
+
+      <!-- Aima Path details -->
+      <line x1="64" y1="144" x2="64" y2="178" stroke="#0a5a52" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#mf2)"/>
+      <rect x="8" y="180" width="176" height="80" rx="6" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="96" y="200" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Aima Tracking Rules</text>
+      <text x="96" y="216" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Generate aima_ref</text>
+      <text x="96" y="230" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Check runtime_source</text>
+      <text x="96" y="244" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Apply UTM per S6 rules</text>
+      <text x="96" y="258" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Follow UTM-GOV-001</text>
+
+      <!-- Both converge to send -->
+      <line x1="184" y1="220" x2="310" y2="310" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <line x1="572" y1="220" x2="446" y2="310" stroke="#4a1a7a" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <rect x="200" y="308" width="320" height="36" rx="18" fill="#1c1b18"/>
+      <text x="360" y="330" text-anchor="middle" font-size="11" font-weight="500" fill="#a5d6a7">Send message with correct tracking</text>
+
+      <!-- Reference labels -->
+      <text x="660" y="278" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Ref: PRD-TRK-007 S9</text>
+      <text x="96" y="278" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Ref: PRD-TRK-009 S6</text>
+      <text x="360" y="360" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Both paths follow UTM-GOV-001 for allowed values</text>
+    </svg>
+  </div>
+
+  <div class="sub-h" data-lang="en">MA Engineer Responsibilities in This Flow</div>
+  <div class="sub-h" data-lang="zh">此流程中 MA 工程师的职责</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Responsibility</span><span data-lang="zh">职责</span></th><th><span data-lang="en">Owner</span><span data-lang="zh">负责方</span></th><th><span data-lang="en">Reference</span><span data-lang="zh">参考文档</span></th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span data-lang="en">When triggering Aima to send, pass <code>ma_ref</code> in the request so Aima knows this is an MA-triggered message</span><span data-lang="zh">触发 Aima 发送时，在请求中传入 <code>ma_ref</code>，让 Aima 知道这是 MA 触发的消息</span></td>
+        <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span></td>
+        <td class="zh" data-lang="en">PRD-TRK-007</td>
+        <td class="zh" data-lang="zh">PRD-TRK-007</td>
+      </tr>
+      <tr>
+        <td><span data-lang="en">Pass UTM parameters (utm_source, utm_medium, utm_campaign) to Aima alongside ma_ref. Aima passthrough only — does not modify.</span><span data-lang="zh">将 UTM 参数（utm_source、utm_medium、utm_campaign）与 ma_ref 一起传给 Aima。Aima 只透传，不修改。</span></td>
+        <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span></td>
+        <td class="zh" data-lang="en">PRD-TRK-007 S9 + UTM-GOV-001</td>
+        <td class="zh" data-lang="zh">PRD-TRK-007 S9 + UTM-GOV-001</td>
+      </tr>
+      <tr>
+        <td><span data-lang="en">Align interface spec with Aima Engineer — agree on how ma_ref and UTM are passed in the API request</span><span data-lang="zh">与 Aima 工程师对齐接口规范——就 API 请求中如何传递 ma_ref 和 UTM 达成一致</span></td>
+        <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span> + <span class="team team-aima">Aima Engineer</span></td>
+        <td class="zh" data-lang="en">⚠️ Must align before implementation</td>
+        <td class="zh" data-lang="zh">⚠️ 实现前必须对齐</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h" data-lang="en">Two-Scenario Comparison</div>
+  <div class="sub-h" data-lang="zh">两个场景对比</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Dimension</span><span data-lang="zh">维度</span></th><th><span data-lang="en">User-initiated Aima conversation</span><span data-lang="zh">用户主动发起 Aima 对话</span></th><th><span data-lang="en">MA-triggered Aima message</span><span data-lang="zh">MA 触发 Aima 发消息</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field" data-lang="en">Trigger</td><td class="field" data-lang="zh">触发方</td><td><span data-lang="en">User</span><span data-lang="zh">用户</span></td><td><span data-lang="en">MA System</span><span data-lang="zh">MA 系统</span></td></tr>
+      <tr><td class="field" data-lang="en">Tracking token</td><td class="field" data-lang="zh">追踪 token</td><td><code>aima_ref</code></td><td><code>ma_ref</code></td></tr>
+      <tr><td class="field" data-lang="en">UTM owner</td><td class="field" data-lang="zh">UTM 负责方</td><td><span data-lang="en">Aima Backend (per S6)</span><span data-lang="zh">Aima Backend（按 S6）</span></td><td><span data-lang="en">MA System (passed to Aima)</span><span data-lang="zh">MA 系统（传给 Aima）</span></td></tr>
+      <tr><td class="field" data-lang="en">PRD</td><td class="field" data-lang="zh">文档</td><td><span data-lang="en">This document (PRD-TRK-009)</span><span data-lang="zh">本文档（PRD-TRK-009）</span></td><td>PRD-TRK-007 S9</td></tr>
+      <tr><td class="field" data-lang="en">Conflict?</td><td class="field" data-lang="zh">冲突？</td><td colspan="4" style="text-align:center;"><span class="badge b-green" data-lang="en">✅ No conflict — mutually exclusive paths, never overlap</span><span class="badge b-green" data-lang="zh">✅ 无冲突 — 互斥路径，永不重叠</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="s8">
+  <div class="stag">08</div>
+  <h2 data-lang="en">End-to-End Flows</h2><h2 data-lang="zh">端到端流程</h2>
+
+  <div class="sub-h" id="s8a" data-lang="en">8.1 WhatsApp Native — Full Tracking Flow</div>
+  <div class="sub-h" data-lang="zh">8.1 WhatsApp Native — 完整追踪流程</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">WhatsApp Native — 9-Step Swimlane</div>
+    <div class="diagram-title" data-lang="zh">WhatsApp Native — 9步泳道图</div>
+    <svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="sw1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="sw2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+        <marker id="sw3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+        <marker id="sw4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
+        <marker id="sw5" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7a4f00"/></marker>
+      </defs>
+      <!-- Lanes -->
+      <rect x="20" y="8" width="725" height="60" rx="4" fill="#e8f7f5" opacity=".55"/>
+      <rect x="20" y="76" width="725" height="60" rx="4" fill="#edf3fb" opacity=".55"/>
+      <rect x="20" y="144" width="725" height="60" rx="4" fill="#fdf0f4" opacity=".4"/>
+      <rect x="20" y="212" width="725" height="60" rx="4" fill="#edf7f2" opacity=".5"/>
+      <rect x="20" y="280" width="725" height="60" rx="4" fill="#fef7e6" opacity=".5"/>
+      <!-- Lane labels -->
+      <text x="30" y="26" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA</text>
+      <text x="30" y="94" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="30" y="162" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">WHATSAPP</text>
+      <text x="30" y="230" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">USER BROWSER</text>
+      <text x="30" y="298" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
+
+      <!-- Step 1 -->
+      <rect x="80" y="16" width="105" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="132" y="33" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">1. Detect source</text>
+      <text x="132" y="47" text-anchor="middle" font-size="8.5" fill="#5c5a54">whatsapp_native</text>
+      <!-- Step 2 -->
+      <line x1="185" y1="36" x2="214" y2="36" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#sw1)"/>
+      <rect x="216" y="16" width="105" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="268" y="33" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">2. Identify links</text>
+      <text x="268" y="47" text-anchor="middle" font-size="8.5" fill="#5c5a54">in message</text>
+      <!-- Step 3: request -->
+      <line x1="268" y1="56" x2="268" y2="74" stroke="#0a5a52" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw1)"/>
+      <text x="275" y="70" font-size="8" fill="#9c9a93" font-family="IBM Plex Mono">request aima_ref</text>
+      <rect x="216" y="84" width="110" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.3"/>
+      <text x="271" y="101" text-anchor="middle" font-size="9" font-weight="500" fill="#0f3a6e">3. Aima Backend</text>
+      <text x="271" y="115" text-anchor="middle" font-size="8.5" fill="#5c5a54">aima_ref + store ctx</text>
+      <!-- Step 4: return -->
+      <line x1="271" y1="84" x2="271" y2="64" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <line x1="271" y1="64" x2="361" y2="64" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw2)"/>
+      <rect x="363" y="16" width="110" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="418" y="31" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">4. Append params</text>
+      <text x="418" y="45" text-anchor="middle" font-size="8.5" fill="#c0385a">utm_* + aima_ref</text>
+      <!-- Step 5: send -->
+      <line x1="473" y1="36" x2="502" y2="36" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#sw1)"/>
+      <rect x="504" y="16" width="110" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="559" y="33" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">5. Send via WA API</text>
+      <text x="559" y="47" text-anchor="middle" font-size="8.5" fill="#5c5a54">to user's phone</text>
+      <!-- Step 6: delivered -->
+      <line x1="559" y1="56" x2="559" y2="74" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw3)"/>
+      <rect x="504" y="84" width="110" height="40" rx="5" fill="#fff" stroke="#f0b0c0" stroke-width="1.3"/>
+      <text x="559" y="101" text-anchor="middle" font-size="9" font-weight="500" fill="#c0385a">6. Delivered</text>
+      <text x="559" y="115" text-anchor="middle" font-size="8.5" fill="#5c5a54">message with link</text>
+      <!-- Step 7: user clicks -->
+      <line x1="559" y1="124" x2="559" y2="142" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw3)"/>
+      <rect x="504" y="152" width="110" height="40" rx="5" fill="#fff" stroke="#f0b0c0" stroke-width="1.3"/>
+      <text x="559" y="169" text-anchor="middle" font-size="9" font-weight="500" fill="#c0385a">7. User clicks link</text>
+      <text x="559" y="183" text-anchor="middle" font-size="8.5" fill="#5c5a54">opens browser</text>
+      <!-- Step 8: page loads -->
+      <line x1="559" y1="192" x2="559" y2="210" stroke="#1a6b45" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw4)"/>
+      <rect x="504" y="220" width="110" height="40" rx="5" fill="#fff" stroke="#a8d8c0" stroke-width="1.3"/>
+      <text x="559" y="237" text-anchor="middle" font-size="9" font-weight="500" fill="#1a6b45">8. Page loads</text>
+      <text x="559" y="251" text-anchor="middle" font-size="8.5" fill="#5c5a54">reads aima_ref from URL</text>
+      <!-- Step 9: GA4 -->
+      <line x1="559" y1="260" x2="559" y2="278" stroke="#7a4f00" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#sw5)"/>
+      <rect x="504" y="288" width="110" height="40" rx="5" fill="#fff" stroke="#f5d080" stroke-width="1.3"/>
+      <text x="559" y="305" text-anchor="middle" font-size="9" font-weight="500" fill="#7a4f00">9. GA4 event</text>
+      <text x="559" y="319" text-anchor="middle" font-size="8.5" fill="#5c5a54">aima_link_click</text>
+      <!-- Step labels -->
+      <text x="132" y="12" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 1</text>
+      <text x="268" y="12" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 2</text>
+      <text x="271" y="80" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 3</text>
+      <text x="418" y="12" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 4</text>
+      <text x="559" y="12" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 5</text>
+      <text x="559" y="80" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 6</text>
+      <text x="559" y="148" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 7</text>
+      <text x="559" y="216" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 8</text>
+      <text x="559" y="284" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 9</text>
+    </svg>
+  </div>
+
+  <div class="sub-h" id="s8b" data-lang="en">8.2 Website Widget — GA4 Event-Based Flow</div>
+  <div class="sub-h" data-lang="zh">8.2 Website Widget — GA4 Event 追踪流程</div>
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">Website Widget — In-Session Tracking (No UTM, No Session Break)</div>
+    <div class="diagram-title" data-lang="zh">Website Widget — Session 内追踪（不加 UTM，不中断 Session）</div>
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="ww1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8a2040"/></marker>
+        <marker id="ww2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="ww3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#7a4f00"/></marker>
+        <marker id="ww4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+      </defs>
+      <!-- Lanes -->
+      <rect x="20" y="8" width="725" height="52" rx="4" fill="#fdf0f4" opacity=".4"/>
+      <rect x="20" y="68" width="725" height="52" rx="4" fill="#e8f7f5" opacity=".55"/>
+      <rect x="20" y="128" width="725" height="52" rx="4" fill="#edf3fb" opacity=".55"/>
+      <rect x="20" y="188" width="725" height="52" rx="4" fill="#fef7e6" opacity=".5"/>
+      <rect x="20" y="248" width="725" height="40" rx="4" fill="#edf7f2" opacity=".5"/>
+      <!-- Lane labels -->
+      <text x="30" y="24" font-size="8" font-family="IBM Plex Mono" fill="#8a2040" font-weight="500">FRONTEND</text>
+      <text x="30" y="84" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA WIDGET</text>
+      <text x="30" y="144" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND</text>
+      <text x="30" y="204" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
+      <text x="30" y="262" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">RESULT</text>
+
+      <!-- Step 1: FE init widget -->
+      <rect x="80" y="14" width="130" height="38" rx="5" fill="#fff" stroke="#f0b0c0" stroke-width="1.3"/>
+      <text x="145" y="30" text-anchor="middle" font-size="9" font-weight="500" fill="#8a2040">1. Init Widget</text>
+      <text x="145" y="44" text-anchor="middle" font-size="8" fill="#5c5a54">pass runtime_source=website_widget</text>
+      <!-- Step 2: Aima knows -->
+      <line x1="210" y1="33" x2="280" y2="33" stroke="#8a2040" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ww1)"/>
+      <line x1="280" y1="33" x2="280" y2="66" stroke="#8a2040" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ww1)"/>
+      <rect x="240" y="74" width="110" height="38" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="295" y="90" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">2. Aima knows</text>
+      <text x="295" y="104" text-anchor="middle" font-size="8" fill="#5c5a54">runtime = widget</text>
+      <!-- Step 3: User chats -->
+      <rect x="400" y="14" width="120" height="38" rx="5" fill="#fff" stroke="#f0b0c0" stroke-width="1.3"/>
+      <text x="460" y="30" text-anchor="middle" font-size="9" font-weight="500" fill="#8a2040">3. User chats</text>
+      <text x="460" y="44" text-anchor="middle" font-size="8" fill="#5c5a54">asks for recommendation</text>
+      <line x1="460" y1="52" x2="460" y2="66" stroke="#8a2040" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ww1)"/>
+      <!-- Step 4: Aima responds -->
+      <rect x="400" y="74" width="120" height="38" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="460" y="90" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">4. Aima sends link</text>
+      <text x="460" y="104" text-anchor="middle" font-size="8" fill="#c0385a">aima_ref only (no utm)</text>
+      <!-- Step 5: Backend -->
+      <line x1="460" y1="112" x2="460" y2="126" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#ww2)"/>
+      <rect x="400" y="134" width="120" height="38" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.3"/>
+      <text x="460" y="150" text-anchor="middle" font-size="9" font-weight="500" fill="#0f3a6e">5. Aima Backend gen</text>
+      <text x="460" y="164" text-anchor="middle" font-size="8" fill="#5c5a54">(UTM suppressed)</text>
+      <!-- Step 6: User clicks -->
+      <line x1="520" y1="93" x2="570" y2="93" stroke="#0a5a52" stroke-width="1.2" marker-end="url(#ww2)"/>
+      <rect x="572" y="74" width="120" height="38" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="632" y="90" text-anchor="middle" font-size="9" font-weight="500" fill="#0a5a52">6. User clicks link</text>
+      <text x="632" y="104" text-anchor="middle" font-size="8" fill="#5c5a54">inside widget</text>
+      <!-- Step 7: GA4 event -->
+      <line x1="632" y1="112" x2="632" y2="126" stroke="#7a4f00" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ww3)"/>
+      <rect x="572" y="194" width="120" height="38" rx="5" fill="#fff" stroke="#f5d080" stroke-width="1.3"/>
+      <text x="632" y="210" text-anchor="middle" font-size="9" font-weight="500" fill="#7a4f00">7. GA4 event fired</text>
+      <text x="632" y="224" text-anchor="middle" font-size="8" fill="#5c5a54">recommendation_click</text>
+      <line x1="632" y1="126" x2="632" y2="194" stroke="#7a4f00" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#ww3)"/>
+      <!-- Result banner -->
+      <rect x="80" y="252" width="600" height="28" rx="5" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="380" y="270" text-anchor="middle" font-size="9.5" fill="#1a6b45" font-weight="500">✓ GA4 session intact · No UTM pollution · Full attribution via aima_ref in GA4 event</text>
+      <text x="30" y="12" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 1</text>
+      <text x="295" y="70" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 2</text>
+      <text x="460" y="10" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 3</text>
+      <text x="460" y="70" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 4</text>
+      <text x="460" y="130" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 5</text>
+      <text x="632" y="70" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 6</text>
+      <text x="632" y="190" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="#9c9a93">STEP 7</text>
+    </svg>
+  </div>
+</section>
+<!-- S9 RESPONSIBILITY MATRIX -->
+<section class="section" id="s9">
+  <div class="stag">09</div>
+  <h2 data-lang="en">Responsibility Matrix</h2><h2 data-lang="zh">职责矩阵</h2>
+  <p class="sdesc" data-lang="en">Each team has a clearly defined, non-overlapping role. The <strong>Why</strong> box explains the business reason for each assignment so everyone understands the logic, not just the rule.</p>
+  <p class="sdesc" data-lang="zh">每个团队的职责明确且不重叠。每个卡片下的 <strong>Why</strong> 说明了分工的业务原因，让大家理解背后的逻辑，而不只是记住规则。</p>
+  <div class="resp-grid">
+    <div class="resp-card">
+      <div class="resp-card-head aima">🤖 Aima System</div>
+      <div class="resp-card-body">
+        <ul>
+          <li data-lang="en">Maintain <code>runtime_source</code> per conversation session</li><li data-lang="zh">维护每个对话 session 的 <code>runtime_source</code></li>
+          <li data-lang="en">Identify ALL links in outgoing messages (CTA buttons + body links)</li><li data-lang="zh">识别发出消息中的所有链接（CTA 按钮和正文链接）</li>
+          <li data-lang="en">Request <code>aima_ref</code> from Backend before sending each message</li><li data-lang="zh">每次发送消息前向 Backend 请求 <code>aima_ref</code></li>
+          <li data-lang="en">Append <code>aima_ref</code> (+ UTM if whatsapp_native) to own-domain links only</li><li data-lang="zh">仅对自有域名链接追加 <code>aima_ref</code>（+ UTM，如果是 whatsapp_native）</li>
+          <li data-lang="en">Receive <code>rec_id</code> from Recommendation Engineer and pass through to link parameters</li><li data-lang="zh">接收推荐引擎工程师提供的 <code>rec_id</code> 并透传到链接参数中</li>
+        </ul>
+        <div class="why-box" style="margin-top:10px;">
+          <span class="why-label" data-lang="en">Why Aima owns this</span>
+          <span class="why-label" data-lang="zh">为什么由 Aima 负责</span>
+          <p data-lang="en">Aima is the only system with full conversation context (session, message, channel) at the exact moment of sending. No other system can inject the correct parameters — only the system that <em>holds</em> the conversation knows what to attach.</p>
+          <p data-lang="zh">Aima 是发送时唯一拥有完整对话上下文（session、消息、渠道）的系统。没有其他系统能注入正确的参数——只有<em>持有</em>对话的系统才知道要附加什么。</p>
+        </div>
+      </div>
+    </div>
+    <div class="resp-card">
+      <div class="resp-card-head be">⚙️ Aima Backend</div>
+      <div class="resp-card-body">
+        <ul>
+          <li data-lang="en">Generate <code>aima_ref</code> token (opaque, signed, no raw PII)</li><li data-lang="zh">生成 <code>aima_ref</code> token（opaque、签名、不含原始 PII）</li>
+          <li data-lang="en">Store context mapping: aima_ref → conv_id / msg_id / user / runtime_source</li><li data-lang="zh">存储上下文映射：aima_ref → conv_id / msg_id / user / runtime_source</li>
+          <li data-lang="en">Enforce UTM decision: add UTM for whatsapp_native, suppress for website_widget</li><li data-lang="zh">执行 UTM 决策：whatsapp_native 加 UTM，website_widget 强制禁止</li>
+          <li data-lang="en">Resolve <code>aima_ref</code> when landing page calls Aima Backend resolve API</li><li data-lang="zh">当 landing page 调用 resolve API 时解析 <code>aima_ref</code></li>
+        </ul>
+        <div class="why-box" style="margin-top:10px;">
+          <span class="why-label" data-lang="en">Why Aima Backend owns this</span>
+          <span class="why-label" data-lang="zh">为什么由 Aima Backend 负责</span>
+          <p data-lang="en">Token generation MUST be server-side to prevent user tampering and ensure auditability. Backend is the only system that can safely map opaque tokens to real user identity without exposing PII to the browser or to Aima itself.</p>
+          <p data-lang="zh">Token 生成必须在服务端，防止用户篡改并确保可审计。Backend 是唯一能安全地将 opaque token 映射到真实用户 identity 的系统，而不向浏览器或 Aima 本身暴露 PII。</p>
+        </div>
+      </div>
+    </div>
+    <div class="resp-card">
+      <div class="resp-card-head fe">🖥️ Frontend</div>
+      <div class="resp-card-body">
+        <ul>
+          <li data-lang="en">Pass <code>runtime_source: "website_widget"</code> to Aima at Widget init</li><li data-lang="zh">Widget 初始化时向 Aima 传入 <code>runtime_source: "website_widget"</code></li>
+          <li data-lang="en">Pass page context: <code>page_url</code>, <code>ga_session_id</code>, <code>ga_client_id</code></li><li data-lang="zh">传入页面上下文：<code>page_url</code>、<code>ga_session_id</code>、<code>ga_client_id</code></li>
+          <li data-lang="en">Fire GA4 event <code>recommendation_click</code> on in-widget link clicks</li><li data-lang="zh">在 Widget 内链接点击时触发 GA4 event <code>recommendation_click</code></li>
+          <li data-lang="en">Fire <code>aima_recommendation_view</code> / <code>aima_recommendation_click</code> for recommendation cards</li><li data-lang="zh">推荐卡片触发 <code>aima_recommendation_view</code> / <code>aima_recommendation_click</code></li>
+        </ul>
+        <div class="why-box" style="margin-top:10px;">
+          <span class="why-label" data-lang="en">Why Frontend owns this</span>
+          <span class="why-label" data-lang="zh">为什么由 Frontend 负责</span>
+          <p data-lang="en">Frontend is the ONLY system that knows the current page's GA4 session and URL when the Widget initialises. Without this context, Aima cannot determine its operating channel — and would default to the wrong tracking strategy.</p>
+          <p data-lang="zh">Frontend 是 Widget 初始化时唯一知道当前页面 GA4 session 和 URL 的系统。没有这个上下文，Aima 无法判断自己的运行渠道，会采用错误的追踪策略。</p>
+        </div>
+      </div>
+    </div>
+    <div class="resp-card">
+      <div class="resp-card-head gtm">📊 GTM / GA4</div>
+      <div class="resp-card-body">
+        <ul>
+          <li data-lang="en">Listen to dataLayer events: <code>recommendation_click</code>, <code>aima_recommendation_click</code> → forward to GA4</li><li data-lang="zh">监听 dataLayer events：<code>recommendation_click</code>、<code>aima_recommendation_click</code> → 上报 GA4</li>
+          <li data-lang="en">Include <code>aima_ref</code> and <code>runtime_source</code> as GA4 event parameters</li><li data-lang="zh">在 GA4 中包含 <code>aima_ref</code> 和 <code>runtime_source</code> 作为 event 参数</li>
+        </ul>
+        <div class="callout c-red" style="margin-top:10px;font-size:12px;">
+          <strong data-lang="en">🚫 Forbidden:</strong><span data-lang="en"> GTM must NOT verify, decode, or parse aima_ref. GTM must NOT execute any identity resolution logic.</span>
+          <strong data-lang="zh">🚫 禁止：</strong><span data-lang="zh"> GTM 禁止验证、解码或解析 aima_ref。GTM 禁止执行任何 identity 解析逻辑。</span>
+        </div>
+        <div class="why-box" style="margin-top:8px;">
+          <span class="why-label" data-lang="en">Why GTM's role is limited</span>
+          <span class="why-label" data-lang="zh">为什么 GTM 职责受限</span>
+          <p data-lang="en">GTM runs in the user's browser. Any logic executed there is visible and manipulable by end users. Identity resolution and token verification must remain on the server to protect user privacy and prevent data manipulation.</p>
+          <p data-lang="zh">GTM 在用户浏览器中运行，执行的逻辑对用户可见且可被操控。Identity 解析和 token 验证必须保留在服务端，以保护用户隐私并防止数据被篡改。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rec Engineer card -->
+  <div class="resp-card" style="margin:0 0 14px;">
+    <div class="resp-card-head" style="background:var(--purple-bg);color:var(--purple);border-bottom:1px solid var(--purple-b);">🎯 Recommendation Engineer</div>
+    <div class="resp-card-body">
+      <ul>
+        <li data-lang="en">Analyse user → identify suitable activities → pass activity info + <strong>original link (no extra params)</strong> to Aima</li>
+        <li data-lang="zh">分析用户画像 → 找到合适的活动 → 将活动信息和<strong>原始链接（不附加任何参数）</strong>传给 Aima</li>
+        <li data-lang="en"><strong>Phase 1: one new step required.</strong> When outputting a recommendation, generate a unique <code>rec_id</code> and pass it alongside the activity link to Aima. Work level: small.</li>
+        <li data-lang="zh"><strong>Phase 1：新增一步。</strong>输出推荐时，生成唯一 <code>rec_id</code> 并与活动链接一起传给 Aima。工作量：小。</li>
+        <li data-lang="en">Phase 2 (future): attach <code>rec_id</code> per recommended activity for recommendation attribution</li>
+        <li data-lang="zh">Phase 2（未来）：为每个推荐活动附带 <code>rec_id</code>，支持推荐策略归因</li>
+      </ul>
+      <div class="callout c-green" style="margin-top:10px;font-size:12.5px;">
+        <strong data-lang="en">✅ Industry Principle — Separation of Concerns:</strong><span data-lang="en"> Recommendation Engine decides what to recommend. Aima decides how to track it. These never overlap.</span>
+        <strong data-lang="zh">✅ 行业原则 — 关注点分离：</strong><span data-lang="zh">推荐引擎决定推什么。Aima 决定怎么追踪。两者职责不重叠。</span>
+      </div>
+    </div>
+  </div>
+  <div class="sub-h" data-lang="en">Complete Responsibility Table</div>
+  <div class="sub-h" data-lang="zh">完整职责表</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Responsibility</span><span data-lang="zh">职责</span></th><th><span data-lang="en">Owner</span><span data-lang="zh">负责方</span></th><th><span data-lang="en">Benefit / Why</span><span data-lang="zh">好处 / 原因</span></th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">Maintain runtime_source per conversation</span><span data-lang="zh">维护每个对话的 runtime_source</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Single source of truth for channel context</td><td class="zh" data-lang="zh">渠道上下文的唯一可信来源</td></tr>
+      <tr><td><span data-lang="en">Identify links in outgoing messages</span><span data-lang="zh">识别发出消息中的链接</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Ensures no link is missed — both CTA and body</td><td class="zh" data-lang="zh">确保无遗漏，CTA 和正文链接均覆盖</td></tr>
+      <tr><td><span data-lang="en">Request aima_ref from Backend</span><span data-lang="zh">向 Backend 请求 aima_ref</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Separates concerns: Aima knows context, Backend holds security</td><td class="zh" data-lang="zh">分离关注点：Aima 知道上下文，Backend 持有安全性</td></tr>
+      <tr><td><span data-lang="en">Generate aima_ref token</span><span data-lang="zh">生成 aima_ref token</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Server-side generation prevents tampering; no PII in browser</td><td class="zh" data-lang="zh">服务端生成防止篡改；浏览器不暴露 PII</td></tr>
+      <tr><td><span data-lang="en">Store context mapping for aima_ref</span><span data-lang="zh">存储 aima_ref 上下文映射</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Enables future attribution queries and debugging</td><td class="zh" data-lang="zh">支持未来的归因查询和调试</td></tr>
+      <tr><td><span data-lang="en">Enforce UTM decision logic</span><span data-lang="zh">执行 UTM 决策逻辑</span></td><td><span class="team team-be">Aima Backend/span></td><td class="zh" data-lang="en">Dual safety: even if Aima fails, Backend blocks wrong UTM</td><td class="zh" data-lang="zh">双重保障：即使 Aima 出错，Backend 也能阻止错误 UTM</td></tr>
+      <tr><td><span data-lang="en">Append params to links and send</span><span data-lang="zh">为链接追加参数并发送</span></td><td><span class="team team-aima">Aima</span></td><td class="zh" data-lang="en">Automated — zero manual effort from business users</td><td class="zh" data-lang="zh">自动化——业务用户零手动工作</td></tr>
+      <tr><td><span data-lang="en">Pass runtime_source at Widget init</span><span data-lang="zh">Widget 初始化时传入 runtime_source</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Enables correct channel detection without guessing</td><td class="zh" data-lang="zh">确保准确的渠道检测，无需猜测</td></tr>
+      <tr><td><span data-lang="en">Pass GA4 session context to Aima</span><span data-lang="zh">向 Aima 传入 GA4 session 上下文</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Links in-widget behaviour to existing GA4 session</td><td class="zh" data-lang="zh">将 Widget 内行为与现有 GA4 session 关联</td></tr>
+      <tr><td><span data-lang="en">Fire in-widget GA4 events</span><span data-lang="zh">触发 Widget 内 GA4 events</span></td><td><span class="team team-fe">Frontend</span></td><td class="zh" data-lang="en">Tracks user behaviour without breaking session attribution</td><td class="zh" data-lang="zh">不中断 session 归因地追踪用户行为</td></tr>
+      <tr><td><span data-lang="en">Listen dataLayer → report to GA4</span><span data-lang="zh">监听 dataLayer → 上报 GA4</span></td><td><span class="team team-gtm">GTM</span></td><td class="zh" data-lang="en">Passthrough only — clean separation of analytics and identity</td><td class="zh" data-lang="zh">仅透传——分析和 identity 完全分离</td></tr>
+      <tr style="background:var(--purple-bg)"><td><span data-lang="en">Provide activity + original link to Aima (no extra params needed)</span><span data-lang="zh">向 Aima 提供活动信息和原始链接（无需附加任何参数）</span></td><td><span class="team team-rec">Rec Engineer</span></td><td class="zh" data-lang="en">Zero extra work in Phase 1 — original link is passed as-is</td><td class="zh" data-lang="zh">Phase 1 零额外工作量——原始链接直接传递，无需处理</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S10 REC_ID ROADMAP -->
+<!-- S10 REC_ID & ROADMAP — UPDATED v1.2 -->
+<section class="section" id="s10">
+  <div class="stag">10</div>
+  <h2 data-lang="en">rec_id, aima_ref &amp; Full Funnel Attribution</h2>
+  <h2 data-lang="zh">rec_id、aima_ref 与完整漏斗归因</h2>
+
+  <!-- BUSINESS VALUE BLOCK — plain language -->
+  <div style="background:linear-gradient(135deg,#fff 0%,var(--pink-light) 100%);border:2px solid var(--pink-border);border-radius:10px;padding:28px 32px;margin-bottom:28px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink) 0%,#d9547a 50%,#f07090 100%);"></div>
+    <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink);margin-bottom:12px;">💡 Business Value — 业务价值</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div style="background:#fff;border:1px solid var(--teal-b);border-radius:8px;padding:16px;">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:8px;">aima_ref — 解决什么问题</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;" data-lang="en">WhatsApp Message ROI</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;" data-lang="zh">WhatsApp 消息 ROI</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;" data-lang="en">Each WA message costs ~$0.1. <strong>aima_ref tells you which conversation led to a conversion.</strong> You can now calculate: spend on messages vs revenue from conversions = ROI.</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;" data-lang="zh">每条 WA 消息约 $0.1。<strong>aima_ref 告诉你哪次对话带来了转化。</strong>你可以计算：消息花费 vs 转化收入 = ROI。</div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--teal);background:var(--teal-bg);padding:8px 10px;border-radius:4px;" data-lang="en">发了多少条 → 花了多少钱 → 带来多少转化</div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--teal);background:var(--teal-bg);padding:8px 10px;border-radius:4px;" data-lang="zh">发了多少条 → 花了多少钱 → 带来多少转化</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--purple-b);border-radius:8px;padding:16px;">
+        <div style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:8px;">rec_id — 解决什么问题</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;" data-lang="en">Recommendation Engine ROI</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px;" data-lang="zh">推荐引擎 ROI</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;" data-lang="en">The Rec Engine recommends Activity A, B, C. <strong>rec_id tells you which specific activity was clicked and converted.</strong> You can now optimise: which activities are worth recommending?</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;" data-lang="zh">推荐引擎推荐了活动 A、B、C。<strong>rec_id 告诉你哪个活动被点击并转化了。</strong>你可以优化：哪些活动值得推荐？</div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--purple);background:var(--purple-bg);padding:8px 10px;border-radius:4px;" data-lang="en">推了什么 → 展示多少次 → 点了多少 → 转化多少</div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--purple);background:var(--purple-bg);padding:8px 10px;border-radius:4px;" data-lang="zh">推了什么 → 展示多少次 → 点了多少 → 转化多少</div>
+      </div>
+    </div>
+
+    <!-- Key difference one-liner -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:12px 16px;font-size:13px;color:var(--text-secondary);line-height:1.75;">
+      <span data-lang="en"><strong style="color:var(--teal);">aima_ref</strong> = Message-level tracking &nbsp;·&nbsp; answers "did this <em>conversation</em> convert?" &nbsp;&nbsp;|&nbsp;&nbsp; <strong style="color:var(--purple);">rec_id</strong> = Recommendation-level tracking &nbsp;·&nbsp; answers "did this <em>activity recommendation</em> convert?"</span>
+      <span data-lang="zh"><strong style="color:var(--teal);">aima_ref</strong> = 消息级别追踪 &nbsp;·&nbsp; 回答"这次<em>对话</em>有没有转化？" &nbsp;&nbsp;|&nbsp;&nbsp; <strong style="color:var(--purple);">rec_id</strong> = 推荐级别追踪 &nbsp;·&nbsp; 回答"这个<em>活动推荐</em>有没有转化？"</span>
+    </div>
+  </div>
+
+  <!-- BUSINESS FUNNEL DIAGRAM — for business stakeholders -->
+  <div class="sub-h" data-lang="en">Full Funnel — Business View</div>
+  <div class="sub-h" data-lang="zh">完整漏斗 — 业务视角</div>
+  <div class="callout c-note" data-lang="en">This diagram shows the full journey from "Rec Engine recommends an activity" to "user converts" — and which tracking ID covers each stage.</div>
+  <div class="callout c-note" data-lang="zh">这张图展示从「推荐引擎推荐活动」到「用户转化」的完整路径，以及每个阶段由哪个追踪 ID 覆盖。</div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">Full Funnel — From Recommendation to Conversion</div>
+    <div class="diagram-title" data-lang="zh">完整漏斗 — 从推荐到转化</div>
+    <svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="fn1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+      </defs>
+
+      <!-- Funnel stages — top to bottom -->
+      <!-- Stage 1: Rec Engine decides -->
+      <rect x="200" y="10" width="320" height="52" rx="8" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
+      <text x="360" y="32" text-anchor="middle" font-size="13" font-weight="600" fill="#4a1a7a">🎯 推荐引擎决定推荐活动 A</text>
+      <text x="360" y="50" text-anchor="middle" font-size="11" fill="#4a1a7a">Rec Engine decides to recommend Activity A</text>
+      <rect x="530" y="18" width="150" height="26" rx="4" fill="#fff" stroke="#d8b0f0" stroke-width="1"/>
+      <text x="605" y="30" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#4a1a7a" font-weight="500">rec_id generated</text>
+      <text x="605" y="40" text-anchor="middle" font-size="8.5" fill="#4a1a7a">by Rec Engineer</text>
+      <line x1="530" y1="31" x2="522" y2="31" stroke="#d8b0f0" stroke-width="1.2"/>
+
+      <line x1="360" y1="62" x2="360" y2="82" stroke="#c0385a" stroke-width="1.5" marker-end="url(#fn1)"/>
+
+      <!-- Stage 2: Aima sends message (Impression) -->
+      <rect x="160" y="84" width="400" height="52" rx="8" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.5"/>
+      <text x="360" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#0a5a52">📤 Aima 发送 WhatsApp 消息（含活动链接）</text>
+      <text x="360" y="122" text-anchor="middle" font-size="11" fill="#0a5a52">Aima sends WA message with activity link — IMPRESSION</text>
+      <rect x="40" y="92" width="112" height="36" rx="4" fill="#fff" stroke="#8dd4cc" stroke-width="1"/>
+      <text x="96" y="107" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">aima_ref + rec_id</text>
+      <text x="96" y="120" text-anchor="middle" font-size="8.5" fill="#0a5a52">attached to link</text>
+      <line x1="152" y1="110" x2="160" y2="110" stroke="#8dd4cc" stroke-width="1.2"/>
+
+      <line x1="360" y1="136" x2="360" y2="156" stroke="#c0385a" stroke-width="1.5" marker-end="url(#fn1)"/>
+      <text x="368" y="150" font-size="9" fill="#9c9a93" font-family="IBM Plex Mono">~$0.1 / msg cost</text>
+
+      <!-- Stage 3: User clicks -->
+      <rect x="180" y="158" width="360" height="52" rx="8" fill="#fdf0f4" stroke="#f0b0c0" stroke-width="1.5"/>
+      <text x="360" y="180" text-anchor="middle" font-size="13" font-weight="600" fill="#c0385a">👆 用户点击活动链接</text>
+      <text x="360" y="196" text-anchor="middle" font-size="11" fill="#c0385a">User clicks activity link — CLICK</text>
+      <rect x="548" y="166" width="130" height="36" rx="4" fill="#fff" stroke="#f0b0c0" stroke-width="1"/>
+      <text x="613" y="181" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#c0385a" font-weight="500">GA4 event fired</text>
+      <text x="613" y="194" text-anchor="middle" font-size="8.5" fill="#c0385a">recommendation_click</text>
+      <line x1="540" y1="184" x2="548" y2="184" stroke="#f0b0c0" stroke-width="1.2"/>
+
+      <line x1="360" y1="210" x2="360" y2="230" stroke="#c0385a" stroke-width="1.5" marker-end="url(#fn1)"/>
+
+      <!-- Stage 4: Conversion -->
+      <rect x="200" y="232" width="320" height="52" rx="8" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.5"/>
+      <text x="360" y="254" text-anchor="middle" font-size="13" font-weight="600" fill="#1a6b45">✅ 用户完成转化（注册 / 购买）</text>
+      <text x="360" y="270" text-anchor="middle" font-size="11" fill="#1a6b45">User converts — CONVERSION</text>
+
+      <!-- ROI label -->
+      <rect x="160" y="300" width="400" height="32" rx="6" fill="#1c1b18"/>
+      <text x="360" y="313" text-anchor="middle" font-size="10" font-family="IBM Plex Mono" fill="#80cbc4" font-weight="500">aima_ref</text>
+      <text x="360" y="326" text-anchor="middle" font-size="9" fill="#6b7280">links conversation → conversion &nbsp;·&nbsp; rec_id links recommendation → conversion</text>
+
+      <!-- Left side labels -->
+      <text x="18" y="114" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" transform="rotate(-90,18,114)">IMPRESSION</text>
+      <text x="18" y="188" font-size="8" font-family="IBM Plex Mono" fill="#c0385a" transform="rotate(-90,18,188)">CLICK</text>
+      <text x="18" y="262" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" transform="rotate(-90,18,262)">CONVERSION</text>
+    </svg>
+  </div>
+
+  <!-- TECHNICAL DATA FLOW — for engineers -->
+  <div class="sub-h" data-lang="en">Data Flow — Engineering View</div>
+  <div class="sub-h" data-lang="zh">数据流 — 工程视角</div>
+  <div class="callout c-note" data-lang="en">This diagram shows exactly where each ID is generated, who owns it, and how it flows through the system.</div>
+  <div class="callout c-note" data-lang="zh">这张图展示每个 ID 在哪里生成、归谁所有、以及如何在系统中流转。</div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title" data-lang="en">rec_id + aima_ref — Technical Data Flow</div>
+    <div class="diagram-title" data-lang="zh">rec_id + aima_ref — 技术数据流</div>
+    <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="tf1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#4a1a7a"/></marker>
+        <marker id="tf2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
+        <marker id="tf3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
+        <marker id="tf4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
+      </defs>
+
+      <!-- Lane backgrounds -->
+      <rect x="20" y="8" width="720" height="58" rx="4" fill="#f5edf9" opacity=".5"/>
+      <rect x="20" y="74" width="720" height="58" rx="4" fill="#e8f7f5" opacity=".5"/>
+      <rect x="20" y="140" width="720" height="58" rx="4" fill="#edf3fb" opacity=".5"/>
+      <rect x="20" y="206" width="720" height="58" rx="4" fill="#fef7e6" opacity=".45"/>
+      <rect x="20" y="272" width="720" height="38" rx="4" fill="#edf7f2" opacity=".5"/>
+
+      <!-- Lane labels -->
+      <text x="30" y="26" font-size="8" font-family="IBM Plex Mono" fill="#4a1a7a" font-weight="500">REC ENGINEER</text>
+      <text x="30" y="92" font-size="8" font-family="IBM Plex Mono" fill="#0a5a52" font-weight="500">AIMA (Aima Engineer)</text>
+      <text x="30" y="158" font-size="8" font-family="IBM Plex Mono" fill="#0f3a6e" font-weight="500">AIMA BACKEND (Aima Engineer)</text>
+      <text x="30" y="224" font-size="8" font-family="IBM Plex Mono" fill="#7a4f00" font-weight="500">GTM / GA4</text>
+      <text x="30" y="286" font-size="8" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">ANALYTICS OUTPUT</text>
+
+      <!-- Rec: analyse + generate rec_id -->
+      <rect x="80" y="16" width="130" height="40" rx="5" fill="#fff" stroke="#d8b0f0" stroke-width="1.4"/>
+      <text x="145" y="33" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">Analyse user</text>
+      <text x="145" y="47" text-anchor="middle" font-size="8.5" fill="#5c5a54">find suitable activity</text>
+
+      <line x1="210" y1="36" x2="238" y2="36" stroke="#4a1a7a" stroke-width="1.2" marker-end="url(#tf1)"/>
+
+      <rect x="240" y="16" width="140" height="40" rx="5" fill="#fff" stroke="#d8b0f0" stroke-width="1.4"/>
+      <text x="310" y="31" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">Generate rec_id</text>
+      <text x="310" y="45" text-anchor="middle" font-size="8.5" fill="#c0385a">NEW: unique per recommendation</text>
+
+      <line x1="380" y1="36" x2="408" y2="36" stroke="#4a1a7a" stroke-width="1.2" marker-end="url(#tf1)"/>
+
+      <rect x="410" y="16" width="150" height="40" rx="5" fill="#fff" stroke="#d8b0f0" stroke-width="1.4"/>
+      <text x="485" y="31" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">Send to Aima:</text>
+      <text x="485" y="45" text-anchor="middle" font-size="8.5" fill="#5c5a54">{ activity, link, rec_id }</text>
+
+      <!-- Arrow down to Aima -->
+      <line x1="485" y1="56" x2="485" y2="72" stroke="#4a1a7a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#tf1)"/>
+
+      <!-- Aima: receive + identify links -->
+      <rect x="410" y="82" width="150" height="40" rx="5" fill="#fff" stroke="#8dd4cc" stroke-width="1.4"/>
+      <text x="485" y="98" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Receive rec_id</text>
+      <text x="485" y="112" text-anchor="middle" font-size="8.5" fill="#5c5a54">identify links in msg</text>
+
+      <line x1="485" y1="122" x2="485" y2="138" stroke="#0a5a52" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#tf2)"/>
+
+      <!-- Backend: generate aima_ref + store -->
+      <rect x="340" y="148" width="150" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.4"/>
+      <text x="415" y="163" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Gen aima_ref</text>
+      <text x="415" y="177" text-anchor="middle" font-size="8.5" fill="#5c5a54">store: aima_ref + rec_id</text>
+
+      <line x1="415" y1="138" x2="415" y2="148" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#tf3)"/>
+
+      <!-- Link construction -->
+      <rect x="510" y="148" width="210" height="40" rx="5" fill="#1c1b18" stroke="#444" stroke-width="1"/>
+      <text x="615" y="163" text-anchor="middle" font-size="8.5" font-family="IBM Plex Mono" fill="#80cbc4">?aima_ref=xxx</text>
+      <text x="615" y="177" text-anchor="middle" font-size="8.5" font-family="IBM Plex Mono" fill="#f48fb1">&amp;rec_id=rec_001</text>
+      <line x1="490" y1="168" x2="510" y2="168" stroke="#0f3a6e" stroke-width="1.2" marker-end="url(#tf3)"/>
+
+      <!-- Impression recorded -->
+      <rect x="80" y="148" width="150" height="40" rx="5" fill="#fff" stroke="#b0cef0" stroke-width="1.4"/>
+      <text x="155" y="163" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0f3a6e">Record Impression</text>
+      <text x="155" y="177" text-anchor="middle" font-size="8.5" fill="#5c5a54">rec_id sent = 1 impression</text>
+      <line x1="415" y1="168" x2="232" y2="168" stroke="#0f3a6e" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#tf3)"/>
+
+      <!-- User clicks → GA4 -->
+      <line x1="615" y1="188" x2="615" y2="204" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#tf4)"/>
+      <rect x="510" y="214" width="210" height="40" rx="5" fill="#fff" stroke="#f5d080" stroke-width="1.4"/>
+      <text x="615" y="230" text-anchor="middle" font-size="9.5" font-weight="500" fill="#7a4f00">GA4: recommendation_click</text>
+      <text x="615" y="244" text-anchor="middle" font-size="8.5" fill="#5c5a54">{ aima_ref, rec_id, runtime_source }</text>
+
+      <!-- Analytics output -->
+      <rect x="80" y="278" width="200" height="26" rx="4" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="180" y="295" text-anchor="middle" font-size="9" fill="#1a6b45" font-weight="500">WhatsApp ROI (via aima_ref)</text>
+      <rect x="300" y="278" width="200" height="26" rx="4" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1"/>
+      <text x="400" y="295" text-anchor="middle" font-size="9" fill="#4a1a7a" font-weight="500">Rec Engine ROI (via rec_id)</text>
+      <rect x="520" y="278" width="200" height="26" rx="4" fill="#edf3fb" stroke="#b0cef0" stroke-width="1"/>
+      <text x="620" y="295" text-anchor="middle" font-size="9" fill="#0f3a6e" font-weight="500">Full Funnel Report</text>
+    </svg>
+  </div>
+
+  <!-- WHO DOES WHAT for rec_id -->
+  <div class="sub-h" data-lang="en">rec_id — Who Does What</div>
+  <div class="sub-h" data-lang="zh">rec_id — 谁负责什么</div>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Step</span><span data-lang="zh">步骤</span></th><th><span data-lang="en">Owner</span><span data-lang="zh">负责方</span></th><th><span data-lang="en">Action</span><span data-lang="zh">动作</span></th><th><span data-lang="en">Work Level</span><span data-lang="zh">工作量</span></th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td><span class="team team-rec">Rec Engineer</span></td>
+        <td><span class="team team-rec">推荐工程师</span></td>
+        <td><span data-lang="en">When outputting a recommendation, generate a unique <code>rec_id</code> and include it alongside the activity link</span><span data-lang="zh">输出推荐时，生成一个唯一 <code>rec_id</code>，与活动链接一起传给 Aima</span></td>
+        <td class="zh" data-lang="en"><span style="color:var(--amber);font-weight:500;">Small — one new field per recommendation output</span></td>
+        <td class="zh" data-lang="zh"><span style="color:var(--amber);font-weight:500;">小 — 每次推荐输出新增一个字段</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>2</td>
+        <td><span class="team team-aima">Aima Engineer</span></td>
+        <td><span class="team team-aima">Aima 工程师</span></td>
+        <td><span data-lang="en">Receive <code>rec_id</code> from Rec Engineer → pass through to link parameter → pass to Aima Backend with aima_ref request</span><span data-lang="zh">接收推荐工程师的 <code>rec_id</code> → 透传到链接参数 → 与 aima_ref 请求一起传给 Aima Backend</span></td>
+        <td class="zh" data-lang="en"><span style="color:var(--amber);font-weight:500;">Small — receive + passthrough only</span></td>
+        <td class="zh" data-lang="zh"><span style="color:var(--amber);font-weight:500;">小 — 接收并透传</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>3</td>
+        <td><span class="team team-be">Aima Backend</span></td>
+        <td><span class="team team-be">Aima Backend</span></td>
+        <td><span data-lang="en">Store <code>rec_id</code> alongside <code>aima_ref</code> context. Record Impression when message is sent. Append <code>rec_id</code> to link parameters.</span><span data-lang="zh">将 <code>rec_id</code> 与 <code>aima_ref</code> 上下文一起存储。消息发送时记录 Impression。将 <code>rec_id</code> 追加到链接参数。</span></td>
+        <td class="zh" data-lang="en"><span style="color:var(--amber);font-weight:500;">Medium — store + impression logging</span></td>
+        <td class="zh" data-lang="zh"><span style="color:var(--amber);font-weight:500;">中 — 存储 + Impression 记录</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>4</td>
+        <td><span class="team team-fe">Frontend / GTM</span></td>
+        <td><span class="team team-fe">Frontend / GTM</span></td>
+        <td><span data-lang="en">GA4 event <code>recommendation_click</code> already includes <code>aima_ref</code> — add <code>rec_id</code> as additional event parameter. No structural change.</span><span data-lang="zh">GA4 event <code>recommendation_click</code> 已包含 <code>aima_ref</code> — 新增 <code>rec_id</code> 作为额外 event 参数。无结构变化。</span></td>
+        <td class="zh" data-lang="en"><span style="color:var(--green);font-weight:500;">Minimal — add one parameter</span></td>
+        <td class="zh" data-lang="zh"><span style="color:var(--green);font-weight:500;">极小 — 新增一个参数</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <!-- Phase table updated -->
+  <div class="sub-h" data-lang="en">Updated Phase Plan</div>
+  <div class="sub-h" data-lang="zh">更新后的阶段规划</div>
+  <div class="phase-row">
+    <div class="phase-card">
+      <div class="phase-head p1">Phase 1 — Now · 当前阶段</div>
+      <div class="phase-body">
+        <ul>
+          <li data-lang="en"><code>aima_ref</code> — Required &nbsp;<span style="color:var(--green);font-size:11px;">✅ WhatsApp ROI</span></li>
+          <li data-lang="zh"><code>aima_ref</code> — 必须 &nbsp;<span style="color:var(--green);font-size:11px;">✅ WhatsApp ROI</span></li>
+          <li data-lang="en"><code>utm_source=aima</code> + <code>utm_medium=whatsapp</code> — Required (WhatsApp Native) ✅</li>
+          <li data-lang="zh"><code>utm_source=aima</code> + <code>utm_medium=whatsapp</code> — 必须（WhatsApp Native）✅</li>
+          <li data-lang="en"><code>rec_id</code> — <strong>Required</strong> &nbsp;<span style="color:var(--purple);font-size:11px;">✅ Rec Engine ROI · Full Funnel</span></li>
+          <li data-lang="zh"><code>rec_id</code> — <strong>必须</strong> &nbsp;<span style="color:var(--purple);font-size:11px;">✅ 推荐引擎 ROI · 完整漏斗</span></li>
+          <li data-lang="en">GA4 events — Required (Website Widget)</li>
+          <li data-lang="zh">GA4 events — 必须（Website Widget）</li>
+          <li data-lang="en">Impression logging (message sent = impression)</li>
+          <li data-lang="zh">Impression 记录（消息发送 = 展示）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-head p2">Phase 2 — Future · 未来阶段</div>
+      <div class="phase-body">
+        <ul>
+          <li data-lang="en">A/B test tracking — multiple rec strategies compared via rec_id</li>
+          <li data-lang="zh">A/B 测试追踪 — 通过 rec_id 对比多个推荐策略</li>
+          <li data-lang="en">Recommendation model feedback loop — use attribution data to improve Rec Engine</li>
+          <li data-lang="zh">推荐模型反馈循环 — 用归因数据优化推荐引擎</li>
+          <li data-lang="en">Cross-device identity stitching</li>
+          <li data-lang="zh">跨设备 identity stitching</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Field</span><span data-lang="zh">字段</span></th><th>Phase 1</th><th><span data-lang="en">Business Value</span><span data-lang="zh">业务价值</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">aima_ref</td><td class="field">aima_ref</td><td><span class="badge b-green">Required</span></td><td><span class="badge b-green">必须</span></td><td><span data-lang="en">WhatsApp message ROI — which conversation converted</span><span data-lang="zh">WhatsApp 消息 ROI — 哪次对话带来了转化</span></td></tr>
+      <tr><td class="field">utm_source / medium</td><td class="field">utm_source / medium</td><td><span class="badge b-green">Required (WA)</span></td><td><span class="badge b-green">必须（WA）</span></td><td><span data-lang="en">GA4 channel attribution for WhatsApp traffic</span><span data-lang="zh">WhatsApp 流量的 GA4 渠道归因</span></td></tr>
+      <tr><td class="field">rec_id</td><td class="field">rec_id</td><td><span class="badge b-purple">Required ← moved from Phase 2</span></td><td><span class="badge b-purple">必须 ← 从 Phase 2 提前</span></td><td><span data-lang="en">Rec Engine ROI — which activity recommendation converted · full funnel</span><span data-lang="zh">推荐引擎 ROI — 哪个活动推荐带来了转化 · 完整漏斗</span></td></tr>
+      <tr><td class="field">Impression log</td><td class="field">Impression 记录</td><td><span class="badge b-green">Required</span></td><td><span class="badge b-green">必须</span></td><td><span data-lang="en">Denominator for click-through rate and conversion rate calculations</span><span data-lang="zh">点击率和转化率计算的分母</span></td></tr>
+      <tr><td class="field">GA4 events</td><td class="field">GA4 events</td><td><span class="badge b-green">Required (Widget)</span></td><td><span class="badge b-green">必须（Widget）</span></td><td><span data-lang="en">In-session widget behaviour tracking</span><span data-lang="zh">Widget 内 session 行为追踪</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+<section class="section" id="s11">
+  <div class="stag">11</div>
+  <h2 data-lang="en">Risks &amp; Mitigations</h2><h2 data-lang="zh">风险与缓解措施</h2>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Risk</span><span data-lang="zh">风险</span></th><th><span data-lang="en">Severity</span><span data-lang="zh">严重性</span></th><th><span data-lang="en">Mitigation</span><span data-lang="zh">缓解措施</span></th></tr></thead>
+    <tbody>
+      <tr><td><span data-lang="en">Aima appends params to external/third-party URLs</span><span data-lang="zh">Aima 向外部/第三方 URL 追加参数</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima maintains an allowlist of own-domain URLs; skips all external links unconditionally</span><span data-lang="zh">Aima 维护自有域名白名单；无条件跳过所有外部链接</span></td></tr>
+      <tr><td><span data-lang="en">Frontend fails to pass runtime_source at Widget init</span><span data-lang="zh">Frontend 未在 Widget 初始化时传入 runtime_source</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima defaults to safest behaviour (website_widget → no UTM). Alert engineering team if runtime_source is missing.</span><span data-lang="zh">Aima 默认采用最安全策略（website_widget → 不加 UTM）。runtime_source 缺失时告警工程团队。</span></td></tr>
+      <tr><td><span data-lang="en">UTM appended in Website Widget context (breaks GA4 session)</span><span data-lang="zh">Website Widget 场景误加 UTM（破坏 GA4 session）</span></td><td><span class="sev-h">HIGH</span></td><td><span class="sev-h">高</span></td><td><span data-lang="en">Aima Backend enforces UTM suppression when runtime_source = website_widget. Dual-layer check: Aima + Backend both block.</span><span data-lang="zh">Backend 在 runtime_source = website_widget 时强制禁止 UTM。双层检查：Aima + Backend 均拦截。</span></td></tr>
+      <tr><td><span data-lang="en">aima_ref token tampered or forged</span><span data-lang="zh">aima_ref token 被篡改或伪造</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Token is signed server-side. Aima Backend verifies signature on resolve. Invalid tokens silently dropped.</span><span data-lang="zh">Token 在服务端签名。Backend 在 resolve 时验证签名。无效 token 静默丢弃。</span></td></tr>
+      <tr><td><span data-lang="en">rec_id not passed by Rec Engineer (missing field)</span><span data-lang="zh">推荐工程师未传入 rec_id</span></td><td><span class="sev-m">MEDIUM</span></td><td><span class="sev-m">中</span></td><td><span data-lang="en">Aima Backend detects missing rec_id and logs a warning. Link is still sent with aima_ref only. Attribution for that recommendation will be incomplete.</span><span data-lang="zh">Aima Backend 检测到 rec_id 缺失并记录告警。链接仍以仅含 aima_ref 的方式发送。该次推荐的归因数据将不完整。</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S12 ACCEPTANCE CRITERIA -->
+<section class="section" id="s12">
+  <div class="stag">12</div>
+  <h2 data-lang="en">Acceptance Criteria</h2><h2 data-lang="zh">验收标准</h2>
+  <div class="sub-h" data-lang="en">WhatsApp Native</div><div class="sub-h" data-lang="zh">WhatsApp Native</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th><span data-lang="en">Criterion</span><span data-lang="zh">验收条件</span></th><th><span data-lang="en">Expected Result</span><span data-lang="zh">预期结果</span></th></tr></thead>
+    <tbody>
+      <tr><td>AC-01</td><td><span data-lang="en">Aima sends a message with a link via WhatsApp Native</span><span data-lang="zh">Aima 通过 WhatsApp Native 发送含链接的消息</span></td><td><span data-lang="en">Link contains <code>?utm_source=aima&amp;utm_medium=whatsapp&amp;aima_ref=xxx</code></span><span data-lang="zh">链接包含 utm_source、utm_medium、aima_ref</span></td></tr>
+      <tr><td>AC-02</td><td><span data-lang="en">Multiple links in same WhatsApp message</span><span data-lang="zh">同一 WhatsApp 消息中有多个链接</span></td><td><span data-lang="en">All links carry the same aima_ref; each has a distinct link_id</span><span data-lang="zh">所有链接携带相同 aima_ref；每个有独立 link_id</span></td></tr>
+      <tr><td>AC-03</td><td><span data-lang="en">Aima message contains a third-party external URL</span><span data-lang="zh">Aima 消息含第三方外部 URL</span></td><td><span data-lang="en">Parameters NOT appended to external URL</span><span data-lang="zh">参数不追加到外部 URL</span></td></tr>
+      <tr><td>AC-04</td><td><span data-lang="en">Aima Backend can resolve aima_ref</span><span data-lang="zh">Backend 能解析 aima_ref</span></td><td><span data-lang="en">Aima Backend resolves aima_ref → conversation_id, message_id, user, runtime_source</span><span data-lang="zh">Backend 可将 aima_ref 解析为 conversation_id、message_id、user、runtime_source</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="sub-h" data-lang="en">Website Widget</div><div class="sub-h" data-lang="zh">Website Widget</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th><span data-lang="en">Criterion</span><span data-lang="zh">验收条件</span></th><th><span data-lang="en">Expected Result</span><span data-lang="zh">预期结果</span></th></tr></thead>
+    <tbody>
+      <tr><td>AC-05</td><td><span data-lang="en">Aima Widget initialised on website</span><span data-lang="zh">Aima Widget 在网站上初始化</span></td><td><span data-lang="en">Frontend passes <code>runtime_source: "website_widget"</code> to Aima</span><span data-lang="zh">Frontend 传入 runtime_source: "website_widget"</span></td></tr>
+      <tr><td>AC-06</td><td><span data-lang="en">Aima sends a link via Website Widget</span><span data-lang="zh">Aima 通过 Website Widget 发送链接</span></td><td><span data-lang="en">Link contains <code>aima_ref</code> ONLY — no <code>utm_*</code> parameters</span><span data-lang="zh">链接仅含 aima_ref，不含 utm_*</span></td></tr>
+      <tr><td>AC-07</td><td><span data-lang="en">User clicks link inside Widget</span><span data-lang="zh">用户在 Widget 内点击链接</span></td><td><span data-lang="en">GA4 event <code>recommendation_click</code> fires with aima_ref and runtime_source</span><span data-lang="zh">GA4 event recommendation_click 触发，包含 aima_ref 和 runtime_source</span></td></tr>
+      <tr><td>AC-09</td><td><span data-lang="en">Rec Engineer passes rec_id with activity recommendation</span><span data-lang="zh">推荐工程师传入 rec_id</span></td><td><span data-lang="en">Link contains <code>aima_ref=xxx&amp;rec_id=rec_001</code> · Aima Backend stores rec_id · Impression logged</span><span data-lang="zh">链接包含 aima_ref 和 rec_id · Aima Backend 存储 rec_id · Impression 记录</span></td></tr>
+      <tr><td>AC-08</td><td><span data-lang="en">Widget context: existing GA4 session</span><span data-lang="zh">Widget 场景：现有 GA4 session</span></td><td><span data-lang="en">GA4 session_id is the same before and after widget interaction</span><span data-lang="zh">Widget 交互前后 GA4 session_id 相同，session 未中断</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- GLOSSARY -->
+<section class="section" id="glossary">
+  <div class="stag">Glossary</div>
+  <h2 data-lang="en">Glossary</h2><h2 data-lang="zh">术语表</h2>
+  <div class="tw"><table>
+    <thead><tr><th><span data-lang="en">Term</span><span data-lang="zh">术语</span></th><th><span data-lang="en">Definition</span><span data-lang="zh">定义</span></th></tr></thead>
+    <tbody>
+      <tr><td class="field">aima_ref</td><td class="field">aima_ref</td><td><span data-lang="en">Opaque tracking token generated by Aima Backend, appended to Aima-sent links. Represents a message attribution context (conversation + message + user + channel). NOT the same as ma_ref.</span><span data-lang="zh">Backend 生成的追踪 token，追加到 Aima 发送的链接。代表消息归因上下文（对话 + 消息 + 用户 + 渠道）。与 ma_ref 不同。</span></td></tr>
+      <tr><td class="field">ma_ref</td><td class="field">ma_ref</td><td><span data-lang="en">Tracking token for MA System batch messages (Email / WhatsApp Templates). Defined in PRD-TRK-007/008. Completely separate from aima_ref.</span><span data-lang="zh">MA System 批量消息（Email / WA 模板）的追踪 token。由 PRD-TRK-007/008 定义。与 aima_ref 完全独立。</span></td></tr>
+      <tr><td class="field">runtime_source</td><td class="field">runtime_source</td><td><span data-lang="en">The channel Aima is operating in for a given conversation. Enum: whatsapp_native | website_widget. Determines tracking strategy.</span><span data-lang="zh">Aima 在给定对话中的运行渠道。枚举值：whatsapp_native | website_widget。决定追踪策略。</span></td></tr>
+      <tr><td class="field">rec_id</td><td class="field">rec_id</td><td><span data-lang="en">Recommendation Context ID. Generated by the Recommendation Engineer at the moment of recommending an activity. Unique per recommendation instance. Passed to Aima → Aima Backend → link parameter → GA4 event. Enables full funnel attribution: impression → click → conversion per recommended activity.</span><span data-lang="zh">推荐上下文 ID。由推荐工程师在推荐活动时生成，每次推荐行为唯一。传递路径：推荐引擎 → Aima → Aima Backend → 链接参数 → GA4 event。实现完整漏斗归因：展示 → 点击 → 转化。</span></td></tr>
+      <tr><td class="field">Message Attribution</td><td class="field">消息归因</td><td><span data-lang="en">Phase 1 architecture: tracking which Aima message / conversation led to a user action. aima_ref is the primary mechanism.</span><span data-lang="zh">Phase 1 架构：追踪哪条 Aima 消息/对话带来了用户行为。aima_ref 是主要机制。</span></td></tr>
+      <tr><td class="field">Recommendation Attribution</td><td class="field">推荐归因</td><td><span data-lang="en">Phase 1 architecture: tracking which specific activity recommendation (identified by rec_id) led to a click and conversion. Enables Rec Engine ROI calculation and full funnel analysis. Requires rec_id and a real Recommendation Engine.</span><span data-lang="zh">Phase 1 架构：追踪哪个具体的活动推荐（通过 rec_id 识别）带来了点击和转化。支持推荐引擎 ROI 计算和完整漏斗分析。</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- SIGNOFF -->
+<section class="section" id="signoff">
+  <div class="stag">Sign-off</div>
+  <h2 data-lang="en">Document Sign-off</h2><h2 data-lang="zh">文档签署</h2>
+  <p class="sdesc" data-lang="en">This document requires review and sign-off from the following roles before becoming effective.</p>
+  <p class="sdesc" data-lang="zh">本文档需经以下角色审核签署后方可生效。</p>
+  <div class="signoff-grid">
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Prepared By</div><div class="signoff-role" data-lang="zh">准备人</div><div class="signoff-name">Product Team</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div></div>
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Reviewed By</div><div class="signoff-role" data-lang="zh">审核人</div><div class="signoff-name">Tech Lead</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div></div>
+    <div class="signoff-cell"><div class="signoff-role" data-lang="en">Approved By</div><div class="signoff-role" data-lang="zh">批准人</div><div class="signoff-name">Engineering Manager</div><div class="signoff-line"></div><div class="signoff-label">Signature &nbsp;&nbsp;&nbsp;&nbsp; Date</div></div>
+  </div>
+</section>
+
+<!-- REVISION HISTORY -->
+<section class="section" id="revision">
+  <div class="stag">Revision History</div>
+  <h2 data-lang="en">Revision History</h2><h2 data-lang="zh">修订历史</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Version</th><th>Date</th><th>Author</th><th><span data-lang="en">Change Description</span><span data-lang="zh">变更说明</span></th></tr></thead>
+    <tbody>
+      <tr><td>v1.7</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed table layout bug: all doubled EN/ZH columns merged into single bilingual columns using inline span switching. Tables now render correctly in both languages without column collapse. Lang toggle JS updated to handle inline span elements.</td><td data-lang="zh">修复表格布局错误：所有双列 EN/ZH 列合并为单列双语列（使用内联 span 切换）。两种语言下表格均正确渲染，不再出现列塌陷。Lang toggle JS 更新以正确处理内联 span 元素。</td></tr>
+      <tr><td>v1.6</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Added Core Concepts page (between Executive Summary and Cover): centralized definition of aima_ref and rec_id — what each is, what business question it answers, who generates it, how they work together, and a complete link example. Addresses feedback that definitions were scattered across multiple sections. Includes ma_ref differentiation note.</span><span data-lang="zh">新增核心概念页（位于 Executive Summary 和 Cover 之间）：集中定义 aima_ref 和 rec_id——各自是什么、回答什么业务问题、谁生成、如何配合，以及完整链接示例。解决了定义分散在多个章节的问题。包含 ma_ref 区分说明。</span></td></tr>
+      <tr><td>v1.5</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Fixed all remaining errors per business confirmation: utm_source=aima (not whatsapp), utm_medium=whatsapp (not aima) corrected throughout all code examples. utm_campaign format updated to year_country_name per B2C UTM Advisory. utm_term={rec_id} added to WhatsApp Native parameter set. UTM-GOV-001 reference updated to v1.2. MA trigger section updated with confirmed MA values (crm + messaging).</span><span data-lang="zh">根据业务确认修正所有遗留错误：utm_source=aima（非 whatsapp），utm_medium=whatsapp（非 aima），所有代码示例已更正。utm_campaign 格式按 B2C UTM Advisory 更新为 year_country_name。utm_term={rec_id} 加入 WhatsApp Native 参数集。UTM-GOV-001 引用更新为 v1.2。MA 触发场景部分更新为确认的 MA 值（crm + messaging）。</span></td></tr>
+      <tr><td>v1.4</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Updated UTM values per B2C UTM Advisory: utm_source=aima, utm_medium=whatsapp, utm_term={rec_id}. All TBD labels removed. UTM-GOV-001 reference updated to v1.1. Code examples and flow diagrams updated with confirmed values.</span><span data-lang="zh">根据 B2C UTM Advisory 更新 UTM 值：utm_source=aima，utm_medium=whatsapp，utm_term={rec_id}。移除所有 TBD 标注。UTM-GOV-001 参考更新为 v1.1。代码示例和流程图更新为确认值。</span></td></tr>
+      <tr><td>v1.3</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Added Section 7B: MA-triggered scenario handling rule with decision flow diagram. Defines ma_ref vs aima_ref path logic. Added MA Engineer to responsibility matrix with alignment requirement. Added UTM-GOV-001 reference to S6. No conflict confirmed between MA and Aima tracking paths.</span><span data-lang="zh">新增 Section 7B：MA 触发场景处理规则及决策流程图。定义 ma_ref vs aima_ref 路径逻辑。责任矩阵新增 MA 工程师及对齐要求。S6 新增 UTM-GOV-001 引用。确认 MA 和 Aima 追踪路径无冲突。</span></td></tr>
+      <tr><td>v1.2</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">rec_id moved to Phase 1 (Required). Added: business value comparison block (aima_ref vs rec_id), full funnel diagram (business view), technical data flow diagram (engineering view), rec_id responsibility table, Impression logging requirement. Rec Engineer now has Phase 1 work. Risks and AC updated.</span><span data-lang="zh">rec_id 提前至 Phase 1（必须）。新增：aima_ref vs rec_id 业务价值对比、完整漏斗图（业务视角）、技术数据流图（工程视角）、rec_id 职责表、Impression 记录需求。推荐工程师 Phase 1 新增工作。风险和验收标准更新。</span></td></tr>
+      <tr><td>v1.1</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Updated: Backend → Aima Backend throughout. Added Recommendation Engineer responsibility card (Phase 1 zero work). Added team-rec badge. Industry rationale for Separation of Concerns added.</span><span data-lang="zh">更新：全文 Backend → Aima Backend。新增推荐引擎工程师职责卡（Phase 1 零工作量）。新增 team-rec 标签。新增关注点分离行业原则说明。</span></td></tr>
+      <tr><td>v1.0</td><td>2026-05-28</td><td>Product Team</td><td><span data-lang="en">Initial release. Covers runtime_source design, aima_ref token structure, WhatsApp Native and Website Widget flows (with swimlane diagrams), full responsibility matrix with Why rationale, rec_id phase roadmap, risks, and acceptance criteria. Bilingual EN/ZH.</span><span data-lang="zh">初始版本。涵盖 runtime_source 设计、aima_ref token 结构、WhatsApp Native 和 Website Widget 流程（含泳道图）、完整职责矩阵（含 Why 说明）、rec_id 阶段规划、风险和验收标准。中英双语。</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="doc-footer">
+  <span>PRD-TRK-009 · v1.0 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>© 2026 Product Team</span>
+</div>
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.classList.toggle('zh-mode', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    const elLang = el.getAttribute('data-lang');
+    el.style.display = (elLang === lang) ? (el.classList.contains('inline') ? 'inline' : 'block') : 'none';
+  });
+}
+// Init — show EN
+document.querySelectorAll('[data-lang="zh"]').forEach(el => el.style.display = 'none');
+document.querySelectorAll('[data-lang="en"]').forEach(el => el.style.display = 'block');
+
+// Active nav highlight
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nl').forEach(n => {
+        n.classList.remove('active');
+        if (n.getAttribute('href') === '#' + e.target.id) n.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+document.querySelectorAll('[id]').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

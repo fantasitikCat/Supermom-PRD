@@ -580,6 +580,7 @@
         { title: "Tracking Context Initialization", description: "Tracking runtime initialization, session and identity context propagation", url: "./PRD-TRK-006_Tracking_Context_Initialization.html" },
         { title: "MA Campaign Link Tracking Framework", description: "System-managed MA link tracking, attribution context injection, and cross-channel message tracking framework", url: "./PRD-TRK-007_MA_Message_Tracking_Framework.html" },
         { title: "MA Campaign Link Identity Association", description: "Anonymous identity association and attribution resolution for MA message link visits", url: "./PRD-TRK-008_MA_Message_Link_Identity_Association.html" },
+        { title: "Aima Link Tracking & Attribution Framework", description: "Anonymous identity association and attribution resolution for MA message link visits", url: "./PRD-TRK-009_Aima_Link_Tracking_Attribution.html" },
       ]
     },
     { id: "f3", name: "Signal Framework", description: "Standardizes, classifies & processes behavioral, semantic and interaction signals", status: "WIP", docCount: 2, tabKey: "foundation", url: "/foundation/signals/overview.html",
@@ -588,12 +589,18 @@
         { title: "Pulse Signal-to-Tag Framework", description: "Signal scoring, tag mapping and audience intelligence generation from Pulse conversations", url: "./PRD-SIG-002_Signal_Tag_Gallery_Mapping.html" }
       ]
     },
-    { id: "f4", name: "Tag Governance", description: "Tag domains, score, TTL, lifecycle & mapping rules", status: "WIP", docCount: 1, tabKey: "foundation", url: "/foundation/tag-governance/overview.html",
-      childrenDocs: [{ title: "Tag Lifecycle", description: "Creation to expiration", url: "/foundation/tag-governance/lifecycle.html" }]
+    { id: "f4", name: "Tracking Governance", description: "Tag domains, UTM standards, parameter ownership & data collection rules", status: "WIP", docCount: 2, tabKey: "foundation", url: "/foundation/tag-governance/overview.html",
+      childrenDocs: [
+        { title: "UTM Governance", description: "UTM standards", url: "./UTM-GOV-001_UTM_Parameter_Dictionary.html" },
+      ]
     },
     { id: "f5", name: "Event Dictionary", description: "Standard event names, parameters, ownership & validation", status: "WIP", docCount: 1, tabKey: "foundation", url: "/foundation/event-dictionary/overview.html",
-      childrenDocs: [{ title: "Event Registry", description: "Owner and validation", url: "/foundation/event-dictionary/registry.html" }]
+      childrenDocs: [
+        { title: "Event Registry", description: "Owner and validation", url: "/foundation/event-dictionary/registry.html" },
+      
+      ]
     },
+    
 
     // ========== INTEGRATIONS ==========
     { id: "i1", name: "WhatsApp", description: "Outbound WA message sending via MA triggers", status: "WIP", docCount: 2, tabKey: "integrations", url: "/integrations/whatsapp/overview.html",
@@ -653,7 +660,8 @@
     },
     { id: "g4", name: "PDF Snapshot & SharePoint Archive", description: "When and how to archive approved documents", status: "Approved", docCount: 1, tabKey: "governance", url: "/governance/snapshot-archive-rules.html",
       childrenDocs: [{ title: "Archive Policy", description: "Retention and versioning", url: "/governance/archive-policy.html" }]
-    }
+    },
+    
   ];
 
   // 运行时变量
