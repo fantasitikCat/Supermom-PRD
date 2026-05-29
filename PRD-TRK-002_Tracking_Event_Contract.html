@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracking Master PRD v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--border-strong:#c8c5ba;--text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;--accent-soft:#f0ede6;--green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;--amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;--red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;--blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;--purple:#4a1a7a;--purple-bg:#f5edf9;--purple-b:#d8b0f0;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text-primary);background:var(--bg)}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:26px 0}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sidebar-logo .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.sidebar-logo .name{font-size:13px;font-weight:500;line-height:1.3}
+.sidebar-logo .ver{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px}
+.nav-group{margin-bottom:4px}
+.nav-group-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 20px 3px}
+.nav-link{display:block;padding:5px 20px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nav-link:hover{color:var(--text-primary);background:var(--accent-soft);border-left-color:var(--text-primary)}
+.nav-link .zh{color:var(--text-muted);font-size:11px;margin-left:4px}
+.main{padding:50px 58px;max-width:860px}
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:2px solid var(--text-primary)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+h1{font-size:25px;font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:12px}
+h1 strong{font-weight:500}
+.desc{font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6}
+.desc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+.meta-pill{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.meta-pill .lbl{color:var(--text-muted);font-family:var(--mono);font-size:10px}
+.meta-pill .val{color:var(--text-primary);font-weight:500}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.section{margin-bottom:56px;scroll-margin-top:26px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+h2{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px;line-height:1.3}
+h2 .zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+h3{font-size:14px;font-weight:500;margin:26px 0 10px;color:var(--text-primary)}
+h3 .zh{font-size:12px;font-weight:400;color:var(--text-muted);margin-left:5px}
+.sdesc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65}
+.sdesc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+hr.div{border:none;border-top:1px solid var(--border);margin:44px 0}
+.callout{padding:12px 16px;border-radius:5px;border-left:3px solid;margin:16px 0;font-size:13px;line-height:1.65}
+.callout .zh{display:block;font-size:12px;margin-top:4px;opacity:.85}
+.callout strong{font-weight:500}
+.c-info{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-warn{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-note{background:var(--accent-soft);border-color:var(--border-strong);color:var(--text-secondary)}
+.tw{overflow-x:auto;margin:12px 0;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--accent-soft)}
+th{padding:8px 12px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+td .zh{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf7}
+code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+.req{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:3px;font-weight:500;white-space:nowrap}
+.ryes{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.rno{background:var(--accent-soft);color:var(--text-muted);border:1px solid var(--border)}
+.rcond{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.own{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.ofe{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.obe{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-b)}
+.ocms{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.ogtm{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-b)}
+.oai{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+pre{background:#1c1b18;color:#d4d0c8;padding:16px 20px;border-radius:6px;font-family:var(--mono);font-size:12px;line-height:1.75;overflow-x:auto;margin:12px 0}
+pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7280}
+.eb{border:1px solid var(--border);border-radius:8px;margin-bottom:26px;overflow:hidden}
+.eh{display:flex;align-items:center;justify-content:space-between;padding:11px 17px;background:var(--accent-soft);border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.en{font-family:var(--mono);font-size:13.5px;font-weight:500;color:var(--text-primary)}
+.en-zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:6px}
+.ebody{padding:16px 18px}
+.emeta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.emeta label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);display:block;margin-bottom:2px}
+.emeta p{margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.5}
+.emeta p .zh{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+.cond-block{background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:6px;padding:14px 17px;margin:14px 0}
+.cond-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin-bottom:10px;font-weight:500}
+.cond-rule{font-size:12.5px;color:var(--amber);margin-bottom:7px;line-height:1.6;padding-left:10px;border-left:2px solid var(--amber-b)}
+.cond-rule .zh{display:block;font-size:11px;margin-top:2px;opacity:.8}
+.cond-rule code{background:rgba(255,255,255,.55);border-color:var(--amber-b)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.pcard{border:1px solid var(--border);border-radius:6px;padding:14px 16px;background:var(--surface)}
+.pnum{font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.ptitle{font-size:13px;font-weight:500;margin-bottom:3px}
+.ptitle .zh{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:5px}
+.pdesc{font-size:12px;color:var(--text-secondary);line-height:1.55;margin:0}
+.pdesc .zh{display:block;color:var(--text-muted);margin-top:3px;font-size:11px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cmp-col{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cmp-h{padding:7px 12px;font-size:11px;font-family:var(--mono);font-weight:500}
+.cmp-col.avoid .cmp-h{background:var(--red-bg);color:var(--red)}
+.cmp-col.use .cmp-h{background:var(--green-bg);color:var(--green)}
+.cmp-b{padding:10px 12px;font-size:12px;color:var(--text-secondary);line-height:1.8}
+.cmp-b code{display:block}
+.funnel{display:flex;flex-direction:column;max-width:440px;margin:14px 0}
+.fstep{display:flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid var(--border);background:var(--surface);font-size:12.5px}
+.fstep:first-child{border-radius:6px 6px 0 0}
+.fstep:last-child{border-radius:0 0 6px 6px;border-top:none}
+.fstep:not(:first-child):not(:last-child){border-top:none}
+.fevent{font-family:var(--mono);font-size:11px;font-weight:500;min-width:176px}
+.flabel{font-size:11px;color:var(--text-muted)}
+.flabel .zh{display:block}
+.farrow{padding-left:24px;font-size:10px;color:var(--text-muted);font-family:var(--mono)}
+.rlink{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;color:var(--blue);text-decoration:none;padding:2px 7px;background:var(--blue-bg);border-radius:3px;border:1px solid var(--blue-b)}
+.rlink::before{content:'→ '}
+.ga4y{color:var(--green);font-family:var(--mono);font-size:11px}
+.ga4n{color:var(--red);font-family:var(--mono);font-size:11px}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:26px 18px}.pgrid,.cmp,.emeta{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Tracking · Contract</div>
+    <div class="name">Tracking Master PRD</div>
+    <div class="ver">v2.0 — May 2025</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Overview 概览</div>
+    <a class="nav-link" href="#scope">Scope &amp; purpose <span class="zh">文档范围</span></a>
+    <a class="nav-link" href="#changelog">v2.0 Changelog <span class="zh">变更记录</span></a>
+    <a class="nav-link" href="#principles">Design principles <span class="zh">设计原则</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Contract 合同</div>
+    <a class="nav-link" href="#envelope">Global envelope <span class="zh">全局字段</span></a>
+    <a class="nav-link" href="#session">Session &amp; impression <span class="zh">会话与曝光</span></a>
+    <a class="nav-link" href="#conditional">Conditional rules <span class="zh">条件规则</span></a>
+    <a class="nav-link" href="#identity">Identity fields <span class="zh">身份字段</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Events 事件</div>
+    <a class="nav-link" href="#page_view">page_view</a>
+    <a class="nav-link" href="#content_impression">content_impression</a>
+    <a class="nav-link" href="#content_click">content_click</a>
+    <a class="nav-link" href="#content_view">content_view</a>
+    <a class="nav-link" href="#button_click">button_click</a>
+    <a class="nav-link" href="#form-events">Form events <span class="zh">表单</span></a>
+    <a class="nav-link" href="#otp-events">OTP events</a>
+    <a class="nav-link" href="#search-events">Search events <span class="zh">搜索</span></a>
+    <a class="nav-link" href="#engagement-events">Engagement <span class="zh">参与度</span></a>
+    <a class="nav-link" href="#aima-qa-events">AIMA &amp; QA</a>
+    <a class="nav-link" href="#video-events">Video events <span class="zh">视频</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Rules 规则</div>
+    <a class="nav-link" href="#attribution">Attribution &amp; UTM <span class="zh">归因</span></a>
+    <a class="nav-link" href="#funnels">Funnel &amp; abandon <span class="zh">漏斗</span></a>
+    <a class="nav-link" href="#ga4-exposure">GA4 exposure <span class="zh">字段暴露</span></a>
+    <a class="nav-link" href="#restrictions">Data restrictions <span class="zh">禁止数据</span></a>
+    <a class="nav-link" href="#ownership">Ownership <span class="zh">负责人</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Navigation 导航</div>
+    <a class="nav-link" href="PRD-TRK-001_Tracking_System_Overview.html" style="color:var(--blue);font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:4px;">← Back to Overview <span class="zh">返回总览</span></a>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="doc-header">
+  <div class="eyebrow">Tracking · Contract Document · 追踪合同文档</div>
+  <h1><strong>Tracking Master PRD</strong> v2.0</h1>
+  <div class="desc">
+    Defines what to track and what each field means. Does not cover GTM implementation, BigQuery schema, or consent configuration.
+    <span class="zh">定义追踪什么、每个字段的含义。不包含 GTM 配置、BigQuery Schema 或隐私合规配置。</span>
+  </div>
+  <div class="meta-pills">
+    <div class="meta-pill"><span class="sdot"></span><span class="lbl">Status</span><span class="val">Canonical 正式版本</span></div>
+    <div class="meta-pill"><span class="lbl">Version</span><span class="val">2.0</span></div>
+    <div class="meta-pill"><span class="lbl">Updated</span><span class="val">May 2025</span></div>
+  </div>
+</div>
+
+<!-- 00 SCOPE -->
+<section class="section" id="scope">
+  <div class="stag">00</div>
+  <h2>Scope &amp; purpose <span class="zh">文档范围与目的</span></h2>
+  <p class="sdesc">This document is the single source of truth for the tracking contract. All teams align to this document.
+    <span class="zh">本文档是追踪合同的唯一来源，所有团队以本文档为准。</span>
+  </p>
+  <div class="tw"><table>
+    <thead><tr><th>Topic 主题</th><th>Covered 本文覆盖</th></tr></thead>
+    <tbody>
+      <tr><td>Event taxonomy <span class="zh">事件分类体系</span></td><td><span class="req ryes">YES</span></td></tr>
+      <tr><td>Tracking contract — fields, types, owners <span class="zh">追踪合同</span></td><td><span class="req ryes">YES</span></td></tr>
+      <tr><td>Attribution rules <span class="zh">归因规则</span></td><td><span class="req ryes">YES</span></td></tr>
+      <tr><td>Identity fields — names &amp; scope <span class="zh">身份字段名称与范围</span></td><td><span class="req ryes">YES</span></td></tr>
+      <tr><td>Funnel &amp; abandon definitions <span class="zh">漏斗与放弃定义</span></td><td><span class="req ryes">YES</span></td></tr>
+      <tr><td>Official value dictionaries <span class="zh">官方枚举值字典</span></td><td><a class="rlink" href="tracking-dictionary.html">Tracking Dictionary</a></td></tr>
+      <tr><td>GTM trigger / tag / variable setup <span class="zh">GTM 触发器配置</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ GTM Implementation Guide</span></td></tr>
+      <tr><td>GA4 Custom Dimension registration <span class="zh">GA4 自定义维度注册</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ GA4 Configuration Guide</span></td></tr>
+      <tr><td>BigQuery schema &amp; export mapping <span class="zh">BigQuery 表结构</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ BigQuery Schema Guide</span></td></tr>
+      <tr><td>Identity stitching &amp; cross-device <span class="zh">身份拼接与跨设备</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ Identity &amp; User PRD</span></td></tr>
+      <tr><td>Consent mode &amp; PDPA <span class="zh">合规与隐私</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ Consent &amp; Privacy Guide</span></td></tr>
+      <tr><td>QA checklist &amp; validation <span class="zh">验收与 QA</span></td><td><span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">→ Tracking QA Guide</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-info">
+    <strong>For AI tools / 给 AI 工具：</strong> All field names use <code>snake_case</code>. Enum values are in <em>Tracking Dictionary</em>. Every event in §07 follows: business meaning → trigger timing → fields table → example payload.
+    <span class="zh">所有字段名使用 snake_case。枚举值在《Tracking Dictionary》中。第 07 节每个事件结构：业务含义 → 触发时机 → 字段表 → 示例 payload。</span>
+  </div>
+</section>
+
+<!-- v2.0 CHANGELOG -->
+<section class="section" id="changelog">
+  <div class="stag">v2.0</div>
+  <h2>v2.0 Changelog <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section</th><th>Change 变更</th></tr></thead>
+    <tbody>
+      <tr><td>§04 Conditional rules</td><td>更新条件必填规则：移除 campaign/group/qa；新增 flashcard、event（含 source_system + content_source）、各活动类型；新增 page_type = detail/listing 时 content_type 必填规则</td></tr>
+      <tr><td>§07 page_view</td><td>移除 page_category；更新示例，page_type 使用结构型值（detail/listing），content_type 承担内容区分</td></tr>
+      <tr><td>§10 GA4 exposure</td><td>移除 campaign_type（字段已废弃）；新增 filter_value ✗ Exclude；新增 source_system / content_source ✗ Exclude</td></tr>
+      <tr><td>§11 Data restrictions</td><td>新增追踪边界说明：join_external 是跳转外部社群平台的最后可追踪节点</td></tr>
+      <tr><td>§12 Ownership</td><td>Frontend 新增 filter_value；Backend 移除 campaign_type，新增 source_system、content_source</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 01 PRINCIPLES -->
+<section class="section" id="principles">
+  <div class="stag">01</div>
+  <h2>Design principles <span class="zh">设计原则</span></h2>
+  <div class="pgrid">
+    <div class="pcard"><div class="pnum">P1</div><div class="ptitle">Events = user actions <span class="zh">事件 = 用户行为</span></div><p class="pdesc">Event names answer: <em>what did the user do?</em> Verb + noun, no business unit encoding.<span class="zh">事件名只描述用户做了什么，不编码业务单元。</span></p></div>
+    <div class="pcard"><div class="pnum">P2</div><div class="ptitle">Parameters = context <span class="zh">参数 = 上下文</span></div><p class="pdesc">Parameters answer: <em>what was the user acting on?</em><span class="zh">参数描述用户对什么进行了操作，在什么场景下。</span></p></div>
+    <div class="pcard"><div class="pnum">P3</div><div class="ptitle">One event name per action <span class="zh">同类行为只有一个事件名</span></div><p class="pdesc">Use parameters to distinguish context. Never create per-unit event names.<span class="zh">用参数区分业务，禁止为每个业务单元创建独立事件名。</span></p></div>
+    <div class="pcard"><div class="pnum">P4</div><div class="ptitle">Page ≠ Component <span class="zh">页面 ≠ 组件</span></div><p class="pdesc">AIMA and QA are components on a page, not page types.<span class="zh">AIMA 和 QA 是页面上的组件，不是页面类型。</span></p></div>
+  </div>
+  <h3>Naming — avoid vs use <span class="zh">命名规范</span></h3>
+  <div class="cmp">
+    <div class="cmp-col avoid"><div class="cmp-h">❌ Avoid 禁止</div><div class="cmp-b"><code>banner_click</code><code>campaign_click</code><code>search_click</code></div></div>
+    <div class="cmp-col use"><div class="cmp-h">✓ Use 正确写法</div><div class="cmp-b"><code>content_click + component_type: "banner"</code><code>content_click + component_type: "campaign_list"</code><code>search_result_click</code></div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- 02 ENVELOPE -->
+<section class="section" id="envelope">
+  <div class="stag">02</div>
+  <h2>Global event envelope <span class="zh">全局事件字段</span></h2>
+  <p class="sdesc">Every event <strong>must</strong> include all Required fields. These form the base layer of every payload.<span class="zh">每一个事件都必须包含以下标记为 Required 的字段，这是所有事件的基础层。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Field 字段</th><th>Type</th><th>Required</th><th>Description 说明</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td><code>event</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>Event name — see §07<span class="zh">事件名称，见第 07 节</span></td><td><span class="own ofe">Frontend</span></td></tr>
+      <tr><td><code>page_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>Current page type — see Dictionary §1<span class="zh">当前页面类型，见字典第 1 节</span></td><td><span class="own ofe">Frontend</span></td></tr>
+      <tr><td><code>session_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>GA4 <code>ga_session_id</code> — read by GTM, written to dataLayer<span class="zh">GTM 从 GA4 读取后写入 dataLayer</span></td><td><span class="own ogtm">GTM</span></td></tr>
+      <tr><td><code>anonymous_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>GA4 <code>client_id</code> — read by GTM, written to dataLayer<span class="zh">GTM 从 GA4 读取后写入 dataLayer</span></td><td><span class="own ogtm">GTM</span></td></tr>
+      <tr><td><code>v2_uid</code></td><td>string</td><td><span class="req rno">NO</span></td><td>Authenticated user ID, present after OTP success<span class="zh">登录用户 ID，OTP 验证成功后存在</span></td><td><span class="own obe">Backend</span></td></tr>
+      <tr><td><code>profile_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td>Profile-level ID — see Identity &amp; User PRD<span class="zh">Profile 级别 ID，见 Identity PRD</span></td><td><span class="own obe">Backend</span></td></tr>
+      <tr><td><code>utm_source</code></td><td>string</td><td><span class="req rno">NO</span></td><td>Traffic source, persisted from session entry<span class="zh">流量来源，从 session 入口持久化</span></td><td><span class="own ogtm">GTM</span></td></tr>
+      <tr><td><code>utm_medium</code></td><td>string</td><td><span class="req rno">NO</span></td><td>Traffic medium<span class="zh">流量渠道</span></td><td><span class="own ogtm">GTM</span></td></tr>
+      <tr><td><code>utm_campaign</code></td><td>string</td><td><span class="req rno">NO</span></td><td>Campaign name<span class="zh">活动名称</span></td><td><span class="own ogtm">GTM</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 03 SESSION -->
+<section class="section" id="session">
+  <div class="stag">03</div>
+  <h2>Session &amp; impression rules <span class="zh">会话与曝光规则</span></h2>
+  <h3>Session rules <span class="zh">会话规则</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Rule 规则</th><th>Value 值</th></tr></thead>
+    <tbody>
+      <tr><td>Session timeout <span class="zh">会话超时</span></td><td>30 minutes of inactivity（30 分钟无操作）</td></tr>
+      <tr><td>New session trigger <span class="zh">新 session 触发</span></td><td>User arrives with a new <code>utm_source</code>（新来源进入）</td></tr>
+      <tr><td>Attribution window <span class="zh">归因窗口</span></td><td>7 days（7 天）</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Impression rules <span class="zh">曝光规则</span></h3>
+  <p class="sdesc"><code>content_impression</code> fires only when all three conditions are met.<span class="zh">三个条件全部满足时才触发曝光事件。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Condition 条件</th><th>Rule 规则</th></tr></thead>
+    <tbody>
+      <tr><td>Viewport threshold <span class="zh">视口阈值</span></td><td>Element ≥ 50% visible（元素可见面积 ≥ 50%）</td></tr>
+      <tr><td>Minimum duration <span class="zh">最短曝光时长</span></td><td>Remains visible ≥ 1 second（持续可见 ≥ 1 秒）</td></tr>
+      <tr><td>Deduplication <span class="zh">去重</span></td><td>Each <code>content_id</code> fires once per session（同 session 每个 content_id 只触发一次）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 04 CONDITIONAL -->
+<section class="section" id="conditional">
+  <div class="stag">04</div>
+  <h2>Conditional field rules <span class="zh">条件必填规则</span></h2>
+  <p class="sdesc">When a field is marked <span class="req rcond">CONDITIONAL</span>, its requirement depends on the value of <code>content_type</code>.<span class="zh">字段标记为 CONDITIONAL 时，是否必填取决于 content_type 的值。</span></p>
+  <div class="cond-block">
+    <div class="cond-title">Conditional Required Rules — 条件必填规则</div>
+    <div class="cond-rule">If <code>content_type = "article"</code> → <code>content_id</code> <strong>Required</strong> · <code>content_category</code> <strong>Required</strong><span class="zh">文章：content_id 和 content_category 必填</span></div>
+    <div class="cond-rule">If <code>content_type = "flashcard"</code> → <code>content_id</code> <strong>Required</strong><span class="zh">闪卡：content_id 必填</span></div>
+    <div class="cond-rule">If <code>content_type = "lead_gen" / "survey" / "ugc" / "referral"</code> → <code>content_id</code> <strong>Required</strong> · <code>form_id</code> <strong>Required on form pages</strong><span class="zh">活动类型：content_id 必填；表单页时 form_id 必填</span></div>
+    <div class="cond-rule">If <code>content_type = "community_group"</code> → <code>content_id</code> <strong>Required</strong><span class="zh">社群：content_id 必填</span></div>
+    <div class="cond-rule">If <code>content_type = "event"</code> → <code>content_id</code> <strong>Required</strong> · <code>source_system</code> <strong>Required</strong> · <code>content_source</code> <strong>Required</strong><span class="zh">外部活动：content_id、source_system、content_source 均必填</span></div>
+    <div class="cond-rule">If <code>content_type = "external_link"</code> → <code>link_url</code> <strong>Required</strong> · <code>link_domain</code> <strong>Recommended</strong><span class="zh">外部链接：link_url 必填，link_domain 推荐填写</span></div>
+    <div class="cond-rule">If <code>page_type = "detail"</code> or <code>"listing"</code> → <code>content_type</code> <strong>Required</strong><span class="zh">详情页或列表页：content_type 必填</span></div>
+  </div>
+  <div class="callout c-note"><strong>source_campaign_id vs campaign_id：</strong> <code>source_campaign_id</code> = the campaign the user is currently on（当前所在活动，即上下文）. <code>campaign_id</code> = the campaign being displayed as content（被展示的内容活动）.<span class="zh">例：用户在活动 A 的 thank_you 页（source_campaign_id: "cmp_001"），看到推荐的活动 B（campaign_id: "cmp_002"）。</span></div>
+</section>
+
+<!-- 05 IDENTITY -->
+<section class="section" id="identity">
+  <div class="stag">05</div>
+  <h2>Identity fields <span class="zh">身份字段</span></h2>
+  <p class="sdesc">Field names and scope are defined here. Generation rules, merge logic, and cross-device strategy are in → <em>Identity &amp; User PRD</em>.<span class="zh">本节定义字段名称与范围。生成规则、合并逻辑、跨设备策略见《Identity &amp; User PRD》。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Field 字段</th><th>Scope 范围</th><th>Source 来源</th><th>Present when 存在时机</th></tr></thead>
+    <tbody>
+      <tr><td><code>anonymous_id</code></td><td>Browser-level <span class="zh">浏览器级别</span></td><td>GA4 <code>client_id</code> — GTM reads &amp; writes to dataLayer<span class="zh">GTM 读取后写入 dataLayer</span></td><td>Always <span class="zh">始终</span></td></tr>
+      <tr><td><code>session_id</code></td><td>Session-level <span class="zh">会话级别</span></td><td>GA4 <code>ga_session_id</code> — GTM reads &amp; writes to dataLayer<span class="zh">GTM 读取后写入 dataLayer</span></td><td>Always <span class="zh">始终</span></td></tr>
+      <tr><td><code>v2_uid</code></td><td>User-level <span class="zh">用户级别</span></td><td>Backend — set after OTP verification<span class="zh">后端在 OTP 验证成功后设置</span></td><td>After <code>login</code> or <code>sign_up</code></td></tr>
+      <tr><td><code>profile_id</code></td><td>Profile-level <span class="zh">Profile 级别</span></td><td>Backend — pre-OTP identity token<span class="zh">后端 pre-OTP 身份令牌</span></td><td>When profile exists <span class="zh">Profile 存在时</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-warn"><strong>GTM implementation note / GTM 实施说明：</strong> GTM must explicitly read <code>client_id</code> and <code>ga_session_id</code> from GA4 and write them as <code>anonymous_id</code> and <code>session_id</code> into the dataLayer. Do not rely on GA4 internal processing.<span class="zh">GTM 必须主动将 GA4 的 client_id 和 ga_session_id 读出并写入 dataLayer，不能依赖 GA4 内部处理——否则 BigQuery 中这两个字段会为空，下游数据无法关联。</span></div>
+</section>
+
+<hr class="div">
+
+<!-- 07 EVENTS -->
+<section class="section" id="events-intro">
+  <div class="stag">07</div>
+  <h2>Event contract <span class="zh">事件合同</span></h2>
+  <p class="sdesc">Each event: business meaning → trigger timing → fields → example payload. All events also carry the <a href="#envelope" style="color:var(--blue)">global envelope fields</a>.<span class="zh">每个事件：业务含义 → 触发时机 → 字段表 → 示例 payload。所有事件同时包含全局字段。</span></p>
+</section>
+
+<!-- page_view -->
+<div class="eb" id="page_view">
+  <div class="eh"><span><span class="en">page_view</span><span class="en-zh">页面浏览</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>User loaded a page.<span class="zh">用户打开了一个页面。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>After page DOM is fully loaded.<span class="zh">页面 DOM 加载完成后触发。</span></p></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>page_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"article"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>page_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"art_001"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>page_title</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"Baby eczema guide"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>page_url</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"/article/art_001"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// page_view — article detail / 文章详情页</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"page_view"</span>,
+  <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">page_title</span>: <span class="s">"Baby eczema guide"</span>,
+  <span class="k">page_url</span>: <span class="s">"/content/art_001"</span>
+});
+
+<span class="c">// page_view — lead_gen campaign detail / 留资活动详情页</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"page_view"</span>,
+  <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">content_id</span>: <span class="s">"14958"</span>,
+  <span class="k">page_title</span>: <span class="s">"Free Baby Box by Drypers"</span>,
+  <span class="k">page_url</span>: <span class="s">"/l/14958"</span>
+});</pre>
+  </div>
+</div>
+
+<!-- content_impression -->
+<div class="eb" id="content_impression">
+  <div class="eh"><span><span class="en">content_impression</span><span class="en-zh">内容曝光</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>A content item entered the user's viewport.<span class="zh">内容进入用户可视区域。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>≥ 50% visible for ≥ 1s. Once per <code>content_id</code> per session.<span class="zh">可见 ≥ 50% 且持续 1 秒；同 session 每个内容只触发一次。</span></p></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"recommendation_widget"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"cmp_002"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"campaign"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>campaign_id</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"cmp_002"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>campaign_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"survey"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"nutrition"</code></td><td><span class="own ocms">CMS</span></td></tr>
+        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"aima"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>source_campaign_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>impression_position</code></td><td>integer</td><td><span class="req rno">NO</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>link_url</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"https://..."</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>link_domain</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"example.com"</code></td><td><span class="own obe">Backend</span></td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:11px;color:var(--text-muted);margin:6px 0 10px;">CONDITIONAL fields: see <a href="#conditional" style="color:var(--blue);">§04 conditional rules</a> · 条件必填见第 04 节</p>
+    <pre><span class="c">// content_impression — AIMA recommendation on thank_you page</span>
+<span class="c">// 场景：thank_you 页 AIMA 推荐内容曝光</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"content_impression"</span>,
+  <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"aima"</span>,
+  <span class="k">source_campaign_id</span>: <span class="s">"cmp_001"</span>,  <span class="c">// 当前所在活动 current context</span>
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>,          <span class="c">// 被推荐的内容 recommended item</span>
+  <span class="k">content_type</span>: <span class="s">"campaign"</span>,
+  <span class="k">campaign_id</span>: <span class="s">"cmp_002"</span>,
+  <span class="k">campaign_type</span>: <span class="s">"survey"</span>,
+  <span class="k">content_category</span>: <span class="s">"nutrition"</span>,
+  <span class="k">impression_position</span>: <span class="n">1</span>
+});</pre>
+  </div>
+</div>
+
+<!-- content_click -->
+<div class="eb" id="content_click">
+  <div class="eh"><span><span class="en">content_click</span><span class="en-zh">内容点击</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>User clicked on a content item.<span class="zh">用户点击了一个内容。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>On click.<span class="zh">点击时触发。</span></p></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"banner"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"campaign"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"homepage"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>source_campaign_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>clicked_position</code></td><td>integer</td><td><span class="req rno">NO</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// content_click — banner on homepage / 首页 banner 点击</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"content_click"</span>,
+  <span class="k">page_type</span>: <span class="s">"home"</span>,
+  <span class="k">component_type</span>: <span class="s">"banner"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>,
+  <span class="k">content_type</span>: <span class="s">"campaign"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"homepage"</span>,
+  <span class="k">clicked_position</span>: <span class="n">1</span>
+});</pre>
+  </div>
+</div>
+
+<!-- content_view -->
+<div class="eb" id="content_view">
+  <div class="eh"><span><span class="en">content_view</span><span class="en-zh">内容详情浏览</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>User reached a content detail page.<span class="zh">用户进入了内容详情页。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>After detail page fully loaded. Distinct from <code>content_click</code>.<span class="zh">详情页加载完成后触发，不等同于点击事件。</span></p></div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"art_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"article"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_format</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"video"</code></td><td><span class="own ocms">CMS</span></td></tr>
+        <tr><td><code>content_category</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"baby_health"</code></td><td><span class="own ocms">CMS</span></td></tr>
+        <tr><td><code>content_topic</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"eczema"</code></td><td><span class="own ocms">CMS / AI</span></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// content_view — article detail / 文章详情页</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"content_view"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_category</span>: <span class="s">"baby_health"</span>,
+  <span class="k">content_topic</span>: <span class="s">"eczema"</span>
+});</pre>
+  </div>
+</div>
+
+<!-- button_click -->
+<div class="eb" id="button_click">
+  <div class="eh"><span><span class="en">button_click</span><span class="en-zh">按钮点击</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>User clicked a CTA or action button.<span class="zh">用户点击了 CTA 或功能按钮。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>On click.<span class="zh">点击时触发。</span></p></div>
+    </div>
+    <div class="callout c-note" style="margin-bottom:12px;"><code>button_action_type</code> = what the button does（按钮行为意图）. <code>target_type</code> = what it acts on（作用对象）. Full enum values: <a href="tracking-dictionary.html" style="color:var(--blue);">Dictionary §9–10</a>.<span class="zh">完整枚举值见《Tracking Dictionary》第 9–10 节。</span></div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>button_action_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"open_chat"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>target_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"chat_widget"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>component_type</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"floating_button"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>content_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// button_click — floating button opens AIMA / 浮动按钮打开 AIMA</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"button_click"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"floating_button"</span>,
+  <span class="k">button_action_type</span>: <span class="s">"open_chat"</span>,
+  <span class="k">target_type</span>: <span class="s">"chat_widget"</span>
+});</pre>
+  </div>
+</div>
+
+<!-- FORM EVENTS -->
+<section class="section" id="form-events">
+  <h3>Form events <span class="zh">表单事件</span></h3>
+  <p class="sdesc">Four events cover the full form lifecycle, enabling funnel and abandon analysis.<span class="zh">四个事件覆盖表单完整生命周期，用于漏斗分析和放弃率计算。</span></p>
+  <div class="eb"><div class="eh"><span><span class="en">form_view</span><span class="en-zh">表单曝光</span></span></div><div class="ebody"><div class="emeta"><div><label>Trigger 触发</label><p>Form becomes visible.<span class="zh">表单进入用户视野。</span></p></div></div><pre>dataLayer.push({ <span class="k">event</span>: <span class="s">"form_view"</span>, <span class="k">page_type</span>: <span class="s">"campaign"</span>, <span class="k">component_type</span>: <span class="s">"form"</span>, <span class="k">form_id</span>: <span class="s">"leadgen_form_001"</span>, <span class="k">campaign_id</span>: <span class="s">"cmp_001"</span> });</pre></div></div>
+  <div class="eb"><div class="eh"><span><span class="en">form_start</span><span class="en-zh">开始填写表单</span></span></div><div class="ebody"><div class="emeta"><div><label>Trigger 触发</label><p>User interacts with the first field.<span class="zh">用户首次输入任意字段时。</span></p></div></div><pre>dataLayer.push({ <span class="k">event</span>: <span class="s">"form_start"</span>, <span class="k">page_type</span>: <span class="s">"campaign"</span>, <span class="k">form_id</span>: <span class="s">"leadgen_form_001"</span>, <span class="k">campaign_id</span>: <span class="s">"cmp_001"</span> });</pre></div></div>
+  <div class="eb"><div class="eh"><span><span class="en">form_submit</span><span class="en-zh">表单提交成功</span></span></div><div class="ebody"><div class="emeta"><div><label>Trigger 触发</label><p>Backend confirms successful submission.<span class="zh">后端确认提交成功后触发（非前端点击时）。</span></p></div></div><pre>dataLayer.push({
+  <span class="k">event</span>: <span class="s">"form_submit"</span>,
+  <span class="k">page_type</span>: <span class="s">"campaign"</span>,
+  <span class="k">form_id</span>: <span class="s">"leadgen_form_001"</span>,
+  <span class="k">campaign_id</span>: <span class="s">"cmp_001"</span>,
+  <span class="k">campaign_type</span>: <span class="s">"leadgen"</span>,
+  <span class="k">utm_source</span>: <span class="s">"aima"</span>  <span class="c">// UTM persisted from session / 从 session 入口持久化</span>
+});</pre></div></div>
+  <div class="eb"><div class="eh"><span><span class="en">form_validation_error</span><span class="en-zh">表单校验失败</span></span></div><div class="ebody"><div class="emeta"><div><label>Trigger 触发</label><p>Client-side validation fails. One event per failed field.<span class="zh">前端校验失败时，每个失败字段触发一次。</span></p></div></div><div class="tw"><table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead><tbody><tr><td><code>form_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"leadgen_form_001"</code></td><td><span class="own obe">Backend</span></td></tr><tr><td><code>validation_field</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"phone"</code></td><td><span class="own ofe">Frontend</span></td></tr></tbody></table></div><pre>dataLayer.push({ <span class="k">event</span>: <span class="s">"form_validation_error"</span>, <span class="k">page_type</span>: <span class="s">"campaign"</span>, <span class="k">form_id</span>: <span class="s">"leadgen_form_001"</span>, <span class="k">validation_field</span>: <span class="s">"phone"</span> });</pre></div></div>
+</section>
+
+<!-- OTP EVENTS -->
+<section class="section" id="otp-events">
+  <h3>OTP events</h3>
+  <div class="eb"><div class="eh"><span class="en">otp_popup_view · otp_input_phone · otp_sent · login · sign_up · otp_verify_fail</span></div><div class="ebody">
+    <div class="callout c-info" style="margin-bottom:12px;">
+      <strong>Naming confirmed v1.1 / 命名已确认：</strong> OTP events use <code>otp_popup_view</code> — consistent with <code>component_type: "otp_popup"</code>. <code>login</code> and <code>sign_up</code> are GA4 official recommended events and appear natively in GA4 standard reports.
+      <span class="zh">OTP 事件使用 otp_popup_view，与 component_type: "otp_popup" 保持一致。login 和 sign_up 是 GA4 官方推荐事件，无需自定义配置即可出现在标准报告中。</span>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Event 事件</th><th>Trigger 触发时机</th><th>Key params 关键参数</th></tr></thead>
+      <tbody>
+        <tr><td><code>otp_popup_view</code> <span style="font-size:11px;color:var(--text-muted)">OTP 弹窗曝光</span></td><td>OTP popup appears<span class="zh">OTP 弹窗出现时</span></td><td><code>component_type: "otp_popup"</code> · <code>source_component</code></td></tr>
+        <tr><td><code>otp_input_phone</code> <span style="font-size:11px;color:var(--text-muted)">输入手机号</span></td><td>User finishes typing phone number<span class="zh">用户完成手机号输入时</span></td><td><code>country_code</code></td></tr>
+        <tr><td><code>otp_sent</code> <span style="font-size:11px;color:var(--text-muted)">OTP 发送成功</span></td><td>SMS sent successfully from backend<span class="zh">后端短信发送成功时</span></td><td><code>method: "sms"</code></td></tr>
+        <tr><td><code>login</code> <span style="font-size:11px;color:var(--text-muted)">登录成功 · GA4 官方推荐</span></td><td>Existing user passes OTP verification<span class="zh">已有用户通过 OTP 验证时</span></td><td><code>method: "otp_verified"</code></td></tr>
+        <tr><td><code>sign_up</code> <span style="font-size:11px;color:var(--text-muted)">新用户注册 · GA4 官方推荐</span></td><td>New user completes OTP and registration<span class="zh">新用户完成 OTP 验证并注册时</span></td><td><code>method: "otp"</code></td></tr>
+        <tr><td><code>otp_verify_fail</code> <span style="font-size:11px;color:var(--text-muted)">OTP 验证失败</span></td><td>Verification fails<span class="zh">验证失败时</span></td><td><code>fail_reason: "invalid_otp" / "expired_otp" / "max_attempts"</code></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// otp_popup_view</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"campaign_join_button"</span> });
+
+<span class="c">// login — existing user verified</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"login"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">method</span>: <span class="s">"otp_verified"</span> });
+
+<span class="c">// sign_up — new user</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"sign_up"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">method</span>: <span class="s">"otp"</span> });
+
+<span class="c">// otp_verify_fail</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_verify_fail"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">fail_reason</span>: <span class="s">"invalid_otp"</span> });</pre>
+  </div></div>
+</section>
+
+<!-- SEARCH EVENTS -->
+<section class="section" id="search-events">
+  <h3>Search events <span class="zh">搜索事件</span></h3>
+  <div class="callout c-warn"><strong>Privacy / 隐私：</strong> <code>search_topic</code> must be the AI-classified label, never the raw user query.<span class="zh">search_topic 必须是 AI 分类后的主题标签，禁止传入用户原始搜索词。</span></div>
+  <div class="eb"><div class="eh"><span class="en">search_submit · search_result_view · search_result_click · search_no_result</span></div><div class="ebody">
+    <pre><span class="c">// search_submit — 用户提交搜索</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"search_submit"</span>, <span class="k">page_type</span>: <span class="s">"home"</span>, <span class="k">component_type</span>: <span class="s">"search_bar"</span>, <span class="k">search_topic</span>: <span class="s">"eczema"</span> });
+
+<span class="c">// search_result_view — 结果页加载完成</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"search_result_view"</span>, <span class="k">page_type</span>: <span class="s">"search_result"</span>, <span class="k">search_topic</span>: <span class="s">"eczema"</span>, <span class="k">result_count</span>: <span class="n">12</span> });
+
+<span class="c">// search_result_click — 用户点击结果</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"search_result_click"</span>, <span class="k">page_type</span>: <span class="s">"search_result"</span>, <span class="k">search_topic</span>: <span class="s">"eczema"</span>, <span class="k">clicked_content_id</span>: <span class="s">"art_001"</span>, <span class="k">clicked_position</span>: <span class="n">1</span> });
+
+<span class="c">// search_no_result — 无搜索结果</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"search_no_result"</span>, <span class="k">page_type</span>: <span class="s">"search_result"</span>, <span class="k">search_topic</span>: <span class="s">"eczema"</span> });</pre>
+  </div></div>
+</section>
+
+<!-- ENGAGEMENT -->
+<section class="section" id="engagement-events">
+  <h3>Engagement events <span class="zh">参与度事件</span></h3>
+  <div class="callout c-note"><strong>Page dwell time / 页面完整停留时长：</strong> Do not implement a custom timer for total page dwell time. GA4 natively tracks <code>engagement_time_msec</code> via the built-in <code>user_engagement</code> event, available directly in BigQuery. See → <em>GA4 Configuration Guide</em>.<span class="zh">不需要自行实现总停留时长计时器。GA4 原生通过 user_engagement 事件记录 engagement_time_msec，可直接在 BigQuery 中查询。见《GA4 Configuration Guide》。</span></div>
+  <div class="eb"><div class="eh"><span class="en">scroll_depth · page_engagement</span></div><div class="ebody">
+    <div class="tw"><table>
+      <thead><tr><th>Event 事件</th><th>Milestones 触发节点</th><th>Key field</th></tr></thead>
+      <tbody>
+        <tr><td><code>scroll_depth</code> <span style="font-size:11px;color:var(--text-muted)">滚动深度</span></td><td>25% / 50% / 75% / 90%<span class="zh">每个节点各触发一次</span></td><td><code>scroll_percentage: 50</code></td></tr>
+        <tr><td><code>page_engagement</code> <span style="font-size:11px;color:var(--text-muted)">停留里程碑</span></td><td>15s / 30s / 60s / 120s<span class="zh">里程碑节点，非总时长</span></td><td><code>engagement_time_sec: 30</code></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// scroll_depth</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"scroll_depth"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">scroll_percentage</span>: <span class="n">50</span> });
+<span class="c">// page_engagement</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"page_engagement"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">engagement_time_sec</span>: <span class="n">30</span> });</pre>
+  </div></div>
+</section>
+
+<!-- AIMA & QA -->
+<section class="section" id="aima-qa-events">
+  <h3>AIMA &amp; QA events</h3>
+  <div class="callout c-warn"><strong>Privacy / 隐私：</strong> <code>question_topic</code> must be AI-classified. Never send raw message text.<span class="zh">question_topic 必须是 AI 分类后的标签，严禁传入用户原始聊天内容。</span></div>
+  <div class="eb"><div class="eh"><span class="en">chat_open · chat_message_send · chat_close · qa_question_click</span></div><div class="ebody">
+    <pre><span class="c">// chat_open — 用户打开 AIMA 聊天窗口</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">component_type</span>: <span class="s">"chat_widget"</span>, <span class="k">source_component</span>: <span class="s">"floating_button"</span> });
+
+<span class="c">// chat_message_send — 用户发送消息</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"chat_message_send"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"aima"</span>,
+  <span class="k">question_topic</span>: <span class="s">"eczema"</span>,  <span class="c">// AI-classified / AI 分类值，非原文</span>
+  <span class="k">chat_session_id</span>: <span class="s">"chat_001"</span>
+});
+
+<span class="c">// qa_question_click — 用户点击 QA 问题</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"qa_question_click"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">component_type</span>: <span class="s">"qa_widget"</span>, <span class="k">question_topic</span>: <span class="s">"formula_milk"</span>, <span class="k">qa_session_id</span>: <span class="s">"qa_001"</span> });</pre>
+  </div></div>
+</section>
+
+<!-- chat_close -->
+<div class="eb" id="chat_close">
+  <div class="eh"><span><span class="en">chat_close</span><span class="en-zh">关闭 AIMA 聊天窗口</span></span></div>
+  <div class="ebody">
+    <div class="emeta">
+      <div><label>Business meaning 业务含义</label><p>User closed the AIMA chat window. Used to measure how long the user engaged with the chat.<span class="zh">用户关闭了 AIMA 聊天窗口，用于衡量用户在聊天窗口中的停留时长。</span></p></div>
+      <div><label>Trigger timing 触发时机</label><p>When the chat window is closed or dismissed. Frontend calculates duration from <code>chat_open</code> timestamp.<span class="zh">聊天窗口关闭时触发。前端计算从 chat_open 到关闭的时长，单位秒。</span></p></div>
+    </div>
+    <div class="callout c-note" style="margin-bottom:14px;">
+      Frontend must store the <code>chat_open</code> timestamp in memory and compute <code>chat_duration_sec</code> at close time. Do not rely on GA4 to calculate this.
+      <span class="zh">前端需在内存中记录 chat_open 时的时间戳，在窗口关闭时计算时长。不能依赖 GA4 自动计算。</span>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"chat_widget"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>component_name</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"aima"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>chat_session_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"chat_001"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>chat_duration_sec</code></td><td>integer</td><td><span class="req ryes">YES</span></td><td><code>47</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>message_count</code></td><td>integer</td><td><span class="req rno">NO</span></td><td><code>3</code></td><td><span class="own ofe">Frontend</span></td></tr>
+      </tbody>
+    </table></div>
+    <pre><span class="c">// Frontend implementation pattern / 前端实现方式</span>
+<span class="c">// Step 1: record open time when chat_open fires</span>
+<span class="c">// 步骤 1：chat_open 触发时记录时间戳</span>
+const chatOpenTime = Date.now();
+let messageCount = 0;
+
+<span class="c">// Step 2: increment count on each message sent</span>
+<span class="c">// 步骤 2：每次发送消息时计数</span>
+messageCount++;
+
+<span class="c">// Step 3: push chat_close when window is dismissed</span>
+<span class="c">// 步骤 3：窗口关闭时 push 事件</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"chat_close"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"aima"</span>,
+  <span class="k">chat_session_id</span>: <span class="s">"chat_001"</span>,
+  <span class="k">chat_duration_sec</span>: Math.round((Date.now() - chatOpenTime) / <span class="n">1000</span>),
+  <span class="k">message_count</span>: messageCount
+});</pre>
+  </div>
+</div>
+
+<!-- VIDEO EVENTS -->
+<section class="section" id="video-events">
+  <h3>Video events <span class="zh">视频事件</span></h3>
+  <p class="sdesc">Video is a content format, not a content type. Video events always carry the parent content's <code>content_type</code> and <code>content_format: "video"</code> or <code>"mixed"</code>.<span class="zh">视频是内容的呈现形式，不是独立内容类型。视频事件始终携带父内容的 content_type，以及 content_format: "video" 或 "mixed"。</span></p>
+  <div class="eb" id="video_play">
+    <div class="eh"><span><span class="en">video_play · video_progress · video_complete</span><span class="en-zh">视频播放 · 进度 · 完播</span></span></div>
+    <div class="ebody">
+      <div class="emeta">
+        <div><label>video_play 触发</label><p>User clicks play.<span class="zh">用户点击播放按钮时。</span></p></div>
+        <div><label>video_progress 触发</label><p>Playback reaches 25% / 50% / 75%.<span class="zh">播放进度达到 25% / 50% / 75% 时各触发一次。</span></p></div>
+      </div>
+      <div class="emeta">
+        <div><label>video_complete 触发</label><p>Playback reaches ≥ 90%.<span class="zh">播放进度达到 90% 时触发，视为完播。</span></p></div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"video_player"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"art_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+          <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"article"</code></td><td><span class="own obe">Backend</span></td></tr>
+          <tr><td><code>content_format</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"video"</code></td><td><span class="own ocms">CMS</span></td></tr>
+          <tr><td><code>video_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"vid_001"</code></td><td><span class="own obe">Backend</span></td></tr>
+          <tr><td><code>video_duration_sec</code></td><td>integer</td><td><span class="req ryes">YES</span></td><td><code>180</code></td><td><span class="own obe">Backend</span></td></tr>
+          <tr><td><code>video_current_time_sec</code></td><td>integer</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>90</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>video_percent</code></td><td>integer</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>50</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        </tbody>
+      </table></div>
+      <p style="font-size:11px;color:var(--text-muted);margin:6px 0 10px;"><code>video_current_time_sec</code> and <code>video_percent</code> required for <code>video_progress</code> only. · video_progress 事件时两者必填。</p>
+      <pre><span class="c">// video_play — 用户点击播放</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"video_play"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"video_player"</span>,
+  <span class="k">content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_format</span>: <span class="s">"mixed"</span>,  <span class="c">// 图文内嵌视频</span>
+  <span class="k">video_id</span>: <span class="s">"vid_001"</span>,
+  <span class="k">video_duration_sec</span>: <span class="n">180</span>
+});
+
+<span class="c">// video_progress — 播放进度节点（50%）</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"video_progress"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"video_player"</span>,
+  <span class="k">content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_format</span>: <span class="s">"mixed"</span>,
+  <span class="k">video_id</span>: <span class="s">"vid_001"</span>,
+  <span class="k">video_duration_sec</span>: <span class="n">180</span>,
+  <span class="k">video_percent</span>: <span class="n">50</span>,
+  <span class="k">video_current_time_sec</span>: <span class="n">90</span>
+});
+
+<span class="c">// video_complete — 完播（播放 ≥ 90%）</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"video_complete"</span>,
+  <span class="k">page_type</span>: <span class="s">"article"</span>,
+  <span class="k">component_type</span>: <span class="s">"video_player"</span>,
+  <span class="k">content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">content_format</span>: <span class="s">"mixed"</span>,
+  <span class="k">video_id</span>: <span class="s">"vid_001"</span>,
+  <span class="k">video_duration_sec</span>: <span class="n">180</span>
+});</pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- 08 ATTRIBUTION -->
+<section class="section" id="attribution">
+  <div class="stag">08</div>
+  <h2>Attribution &amp; UTM <span class="zh">归因与 UTM</span></h2>
+
+  <div class="callout c-info">
+    <strong>acq_* vs utm_* — 两套归因体系并行，互不替代</strong>
+    <span class="zh" style="display:block;margin-top:6px;font-size:12px;line-height:1.7;">
+      <strong>utm_*（本文档）</strong>：前端 session-level 归因，存入 GA4 → BigQuery tracking 层，每次新 session 可覆盖，由 GTM 负责。<br>
+      <strong>acq_*（见 → Landing Page Attribution PRD 和 acq_* 字段说明）</strong>：后端 First-touch 归因，只记录用户首次进入 Landing Page 时的来源，存入业务数据库，不覆盖，由 Backend 负责。<br>
+      两套体系通过 <code>v2_uid</code> 在 BigQuery 中关联。<code>acq_*</code> 字段不得出现在 dataLayer 中。
+    </span>
+    <span style="display:block;margin-top:8px;font-size:12px;">
+      Key alignment: <code>acq_source: "aima_bot"</code> maps to <code>utm_source: "aima"</code>. Always use <code>utm_source: "aima"</code> in tracking contract — never <code>aima_bot</code>.
+    </span>
+  </div>
+
+  <h3>UTM persistence rule <span class="zh">UTM 持久化规则</span></h3>
+  <p class="sdesc">GTM stores UTM parameters in <code>sessionStorage</code> on first entry. All subsequent events read from storage, not re-read from the URL.<span class="zh">用户首次携带 UTM 进入时，GTM 将参数存入 sessionStorage。后续事件从 storage 读取，不重新解析 URL。</span></p>
+  <p class="sdesc">UTM must be explicitly included in these conversion events: <span class="zh">以下关键转化事件必须主动带上 UTM：</span></p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;"><code>form_submit</code><code>login</code><code>sign_up</code><code>lead_gen_complete</code></div>
+
+  <h3>utm_medium — approved values <span class="zh">合法值</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>utm_medium</th><th>Description 说明</th><th>Maps from acq_channel</th></tr></thead>
+    <tbody>
+      <tr><td><code>paid_social</code></td><td>Paid social ads<span class="zh">付费社交广告</span></td><td><code>meta_ads</code> / <code>instagram</code></td></tr>
+      <tr><td><code>whatsapp</code></td><td>WhatsApp channel traffic<span class="zh">WhatsApp 渠道流量</span></td><td><code>whatsapp</code></td></tr>
+      <tr><td><code>organic</code></td><td>Organic website traffic<span class="zh">网站自然流量</span></td><td><code>website</code></td></tr>
+      <tr><td><code>direct</code></td><td>Direct / no referrer<span class="zh">直接访问，无来源</span></td><td><code>direct</code></td></tr>
+      <tr><td><code>internal</code></td><td>Internal system — AIMA, QA<span class="zh">内部系统流量，如 AIMA、QA，不计入外部渠道</span></td><td>—</td></tr>
+      <tr><td><code>edm</code></td><td>Email / EDM campaign<span class="zh">邮件营销</span></td><td>—</td></tr>
+      <tr><td><code>push</code></td><td>App or AIMA push notification<span class="zh">App 或 AIMA 推送消息</span></td><td>—</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>utm_source — approved values <span class="zh">合法值（含 acq_* 对照）</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>utm_source</th><th>utm_medium</th><th>Description 说明</th><th>acq_source mapping</th></tr></thead>
+    <tbody>
+      <tr><td><code>aima</code></td><td><code>internal</code></td><td>AIMA chat recommendation<span class="zh">AIMA 聊天推荐</span></td><td><code>aima_bot</code></td></tr>
+      <tr><td><code>qa</code></td><td><code>internal</code></td><td>QA recommendation<span class="zh">QA 推荐</span></td><td>—</td></tr>
+      <tr><td><code>facebook</code></td><td><code>paid_social</code></td><td>Facebook / Meta Ads<span class="zh">Facebook 广告</span></td><td><code>facebook_feed</code></td></tr>
+      <tr><td><code>instagram</code></td><td><code>paid_social</code></td><td>Instagram Ads<span class="zh">Instagram 广告</span></td><td><code>instagram_story</code></td></tr>
+      <tr><td><code>whatsapp_group</code></td><td><code>whatsapp</code></td><td>WhatsApp group via Whapi<span class="zh">Whapi 接入的 WhatsApp 群流量</span></td><td><code>whapi_group</code></td></tr>
+      <tr><td><code>push_notification</code></td><td><code>push</code></td><td>App or AIMA push<span class="zh">App 或 AIMA 推送通知</span></td><td><code>push_notification</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-note">When <code>utm_source</code> is an internal system (e.g. <code>aima</code>, <code>qa</code>), always set <code>utm_medium: "internal"</code> to prevent internal traffic from polluting external channel data.<span class="zh">当 utm_source 为内部系统（如 aima、qa）时，必须同时设置 utm_medium: "internal"，避免内部流量污染外部渠道数据。</span></div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Rule 规则</th><th>Value 值</th></tr></thead>
+    <tbody>
+      <tr><td>Attribution window <span class="zh">归因窗口</span></td><td>7 days（7 天）</td></tr>
+      <tr><td>Attribution model <span class="zh">归因模型</span></td><td>Last non-direct click（末次非直接点击）— configured in GA4</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 09 FUNNELS -->
+<section class="section" id="funnels">
+  <div class="stag">09</div>
+  <h2>Funnel &amp; abandon <span class="zh">漏斗与放弃计算</span></h2>
+  <h3>Form funnel <span class="zh">表单漏斗</span></h3>
+  <div class="funnel">
+    <div class="fstep"><span class="fevent">form_view</span><span class="flabel">Form seen<span class="zh">表单曝光</span></span></div>
+    <div class="farrow">↓</div>
+    <div class="fstep"><span class="fevent">form_start</span><span class="flabel">First interaction<span class="zh">首次输入</span></span></div>
+    <div class="farrow">↓</div>
+    <div class="fstep" style="background:var(--green-bg);border-color:var(--green-b)"><span class="fevent" style="color:var(--green)">form_submit</span><span class="flabel" style="color:var(--green)">Backend confirmed<span class="zh">后端确认成功</span></span></div>
+  </div>
+  <p class="sdesc" style="margin-top:8px;"><strong>Form abandon</strong> = sessions with <code>form_start</code> but no <code>form_submit</code>.<span class="zh">表单放弃 = 有 form_start 但没有 form_submit 的 session。</span></p>
+  <h3>OTP funnel</h3>
+  <div class="funnel">
+    <div class="fstep"><span class="fevent">otp_popup_view</span><span class="flabel">Popup shown<span class="zh">弹窗出现</span></span></div>
+    <div class="farrow">↓</div>
+    <div class="fstep"><span class="fevent">otp_input_phone</span><span class="flabel">Phone entered<span class="zh">输入手机号</span></span></div>
+    <div class="farrow">↓</div>
+    <div class="fstep"><span class="fevent">otp_sent</span><span class="flabel">SMS sent<span class="zh">短信发送成功</span></span></div>
+    <div class="farrow">↓</div>
+    <div class="fstep" style="background:var(--green-bg);border-color:var(--green-b)"><span class="fevent" style="color:var(--green)">login / sign_up</span><span class="flabel" style="color:var(--green)">Verified<span class="zh">验证通过</span></span></div>
+  </div>
+  <p class="sdesc" style="margin-top:8px;"><strong>OTP abandon</strong> = sessions with <code>otp_sent</code> but no <code>login</code> or <code>sign_up</code>.<span class="zh">OTP 放弃 = 有 otp_sent 但没有 login 或 sign_up 的 session。</span></p>
+</section>
+
+<!-- 10 GA4 EXPOSURE -->
+<section class="section" id="ga4-exposure">
+  <div class="stag">10</div>
+  <h2>GA4 exposure rules <span class="zh">GA4 字段暴露规则</span></h2>
+  <p class="sdesc">Not all fields should be registered as GA4 Custom Dimensions. Full registration steps in → <em>GA4 Configuration Guide</em>.<span class="zh">并非所有字段都应注册为 GA4 自定义维度。完整注册步骤见《GA4 Configuration Guide》。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Field 字段</th><th>GA4 Custom Dimension</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_type</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality, essential<span class="zh">低基数，核心维度</span></td></tr>
+      <tr><td><code>component_type</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality<span class="zh">低基数</span></td></tr>
+      <tr><td><code>content_type</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality<span class="zh">低基数</span></td></tr>
+      <tr><td><code>content_category</code></td><td><span class="ga4y">✓ Register</span></td><td>Core audience dimension<span class="zh">核心受众维度</span></td></tr>
+      <tr><td><code>recommendation_source</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality<span class="zh">低基数</span></td></tr>
+      <tr><td><code>button_action_type</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality<span class="zh">低基数</span></td></tr>
+      <tr><td><code>target_type</code></td><td><span class="ga4y">✓ Register</span></td><td>Low cardinality<span class="zh">低基数</span></td></tr>
+      <tr><td><code>utm_source / utm_medium / utm_campaign</code></td><td><span class="ga4y">✓ Register</span></td><td>Attribution essential<span class="zh">归因必需</span></td></tr>
+      <tr><td><code>impression_position / clicked_position</code></td><td><span class="ga4y">✓ Register</span></td><td>Position analysis<span class="zh">位置分析</span></td></tr>
+      <tr><td><code>button_id</code></td><td><span class="ga4n">✗ Exclude</span></td><td>High cardinality<span class="zh">高基数，影响 GA4 性能</span></td></tr>
+      <tr><td><code>button_text</code></td><td><span class="ga4n">✗ Exclude</span></td><td>Multi-language pollution<span class="zh">多语言污染</span></td></tr>
+      <tr><td><code>filter_value</code></td><td><span class="ga4n">✗ Exclude</span></td><td>High cardinality — BigQuery only<span class="zh">高基数，仅 BigQuery 分析</span></td></tr>
+      <tr><td><code>source_system / content_source</code></td><td><span class="ga4n">✗ Exclude</span></td><td>Internal system fields — BigQuery only<span class="zh">系统内部字段，仅 BigQuery 使用</span></td></tr>
+      <tr><td><code>search_topic / question_topic</code></td><td><span class="ga4n">✗ Exclude</span></td><td>High cardinality — analyse in BigQuery<span class="zh">基数较高，建议仅在 BigQuery 分析</span></td></tr>
+      <tr><td>Raw message / raw search text</td><td><span class="ga4n">✗ Never</span></td><td>PII risk<span class="zh">PII 风险，严禁上传</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11 RESTRICTIONS -->
+<section class="section" id="restrictions">
+  <div class="stag">11</div>
+  <h2>Data restrictions <span class="zh">禁止上传数据</span></h2>
+  <div class="callout c-warn"><strong>The following data must NEVER appear in any dataLayer.push call or tracking payload.<br>以下数据严禁出现在任何 dataLayer.push 或追踪 payload 中。</strong></div>
+  <div class="callout c-note"><strong>Tracking boundary / 追踪边界：</strong> <code>button_click</code> with <code>button_action_type: "join_external"</code> is the last trackable event when a user leaves Supermom to join a WhatsApp or Telegram group. Native group join confirmation on external platforms is outside tracking scope.<span class="zh">用户点击 join_external 跳转至 WhatsApp / Telegram 后，Supermom 的追踪即告结束。外部平台的原生加入确认行为不在追踪范围内。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Data type 数据类型</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>Phone numbers <span class="zh">手机号</span></td><td>PII</td></tr>
+      <tr><td>Email addresses <span class="zh">邮箱地址</span></td><td>PII</td></tr>
+      <tr><td>OTP codes <span class="zh">OTP 验证码</span></td><td>Security risk 安全风险</td></tr>
+      <tr><td>Raw user chat messages <span class="zh">用户原始聊天内容</span></td><td>Privacy risk 隐私风险</td></tr>
+      <tr><td>Raw user search queries <span class="zh">用户原始搜索词</span></td><td>May contain PII 可能含 PII</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 12 OWNERSHIP -->
+<section class="section" id="ownership">
+  <div class="stag">12</div>
+  <h2>Field ownership <span class="zh">字段负责人</span></h2>
+  <p class="sdesc">When a field is missing in production, this table determines who is responsible.<span class="zh">当线上某字段数据缺失时，按此表确认负责人。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Owner 负责人</th><th>Fields 字段</th></tr></thead>
+    <tbody>
+      <tr><td><span class="own ofe">Frontend</span></td><td><code>event</code> <code>page_type</code> <code>component_type</code> <code>source_component</code> <code>impression_position</code> <code>clicked_position</code> <code>button_action_type</code> <code>target_type</code> <code>filter_value</code> <code>chat_duration_sec</code> <code>message_count</code> <code>video_percent</code> <code>video_current_time_sec</code></td></tr>
+      <tr><td><span class="own obe">Backend</span></td><td><code>content_id</code> <code>content_type</code> <code>campaign_id</code> <code>form_id</code> <code>source_campaign_id</code> <code>link_url</code> <code>link_domain</code> <code>v2_uid</code> <code>profile_id</code> <code>video_id</code> <code>video_duration_sec</code> <code>source_system</code> <code>content_source</code></td></tr>
+      <tr><td><span class="own ocms">CMS</span></td><td><code>content_category</code> <code>content_topic</code> <code>content_format</code></td></tr>
+      <tr><td><span class="own ogtm">GTM</span></td><td><code>anonymous_id</code> <code>session_id</code> <code>utm_source</code> <code>utm_medium</code> <code>utm_campaign</code> <code>utm_content</code> <code>utm_term</code></td></tr>
+      <tr><td><span class="own oai">AI / Search</span></td><td><code>question_topic</code> <code>search_topic</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

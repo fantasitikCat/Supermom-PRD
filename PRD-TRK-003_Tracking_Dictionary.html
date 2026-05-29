@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracking Dictionary v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;--accent-soft:#f0ede6;--green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;--amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;--blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;--red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text-primary);background:var(--bg)}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:26px 0}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.name{font-size:13px;font-weight:500}
+.ver{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px}
+.nav-group{margin-bottom:4px}
+.ngl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 20px 3px}
+.nl{display:block;padding:5px 20px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nl:hover{color:var(--text-primary);background:var(--accent-soft);border-left-color:var(--text-primary)}
+.nl .zh{color:var(--text-muted);font-size:11px;margin-left:4px}
+.main{padding:50px 58px;max-width:860px}
+.doc-header{margin-bottom:44px;padding-bottom:30px;border-bottom:2px solid var(--text-primary)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+h1{font-size:24px;font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:12px}
+h1 strong{font-weight:500}
+.desc{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px}
+.desc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+.mp{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.mp .l{color:var(--text-muted);font-family:var(--mono);font-size:10px}
+.mp .v{color:var(--text-primary);font-weight:500}
+.section{margin-bottom:52px;scroll-margin-top:26px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+h2{font-size:17px;font-weight:500;letter-spacing:-.01em;margin-bottom:4px;line-height:1.3}
+h2 .zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+.sdesc{font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6}
+.sdesc .zh{display:block;color:var(--text-muted);font-size:12px;margin-top:3px}
+.sdesc code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+hr.div{border:none;border-top:1px solid var(--border);margin:40px 0}
+.tw{overflow-x:auto;margin:12px 0;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--accent-soft)}
+th{padding:8px 12px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+td .zh{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+td .note{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf7}
+code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+.val{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text-primary)}
+.callout{padding:12px 16px;border-radius:5px;border-left:3px solid;margin:14px 0;font-size:13px;line-height:1.65}
+.callout .zh{display:block;font-size:12px;margin-top:4px;opacity:.85}
+.callout strong{font-weight:500}
+.c-info{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-warn{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-note{background:var(--accent-soft);border-color:#c8c5ba;color:var(--text-secondary)}
+.rlink{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;color:var(--blue);text-decoration:none;padding:2px 7px;background:var(--blue-bg);border-radius:3px;border:1px solid var(--blue-b)}
+.rlink::before{content:'← '}
+.dep{font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:3px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.new{font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:3px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.own-fe{color:var(--blue);font-family:var(--mono);font-size:11px}
+.own-be{color:#4a1a7a;font-family:var(--mono);font-size:11px}
+.own-cms{color:var(--green);font-family:var(--mono);font-size:11px}
+.own-gtm{color:var(--amber);font-family:var(--mono);font-size:11px}
+.pii-badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.ok-badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.ga4y{color:var(--green);font-family:var(--mono);font-size:11px}
+.ga4n{color:var(--red);font-family:var(--mono);font-size:11px}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:26px 18px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Tracking · Dictionary</div>
+    <div class="name">Tracking Dictionary</div>
+    <div class="ver">v2.0 — May 2025</div>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Overview 概览</div>
+    <a class="nl" href="#about">About this document</a>
+    <a class="nl" href="#changelog">v2.0 Changelog <span class="zh">变更记录</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Page &amp; Component 页面组件</div>
+    <a class="nl" href="#page-type">§1 page_type <span class="zh">页面类型</span></a>
+    <a class="nl" href="#component-type">§2 component_type <span class="zh">组件类型</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Content 内容</div>
+    <a class="nl" href="#content-type">§3 content_type <span class="zh">内容类型</span></a>
+    <a class="nl" href="#content-category">§4 content_category <span class="zh">内容分类</span></a>
+    <a class="nl" href="#content-format">§4b content_format <span class="zh">呈现形式</span></a>
+    <a class="nl" href="#campaign-content-format">§4c campaign format rule</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Tracking 追踪</div>
+    <a class="nl" href="#recommendation-source">§5 recommendation_source</a>
+    <a class="nl" href="#source-system">§6 source_system / content_source <span class="zh">外部系统来源</span></a>
+    <a class="nl" href="#attribution">§7 Attribution UTM</a>
+    <a class="nl" href="#identity">§8 Identity <span class="zh">身份</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Button 按钮</div>
+    <a class="nl" href="#button-action">§9 button_action_type</a>
+    <a class="nl" href="#target-type">§10 target_type</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Events &amp; Rules 事件规则</div>
+    <a class="nl" href="#events">§11 Event list <span class="zh">事件列表</span></a>
+    <a class="nl" href="#position">§12 Position fields <span class="zh">位置字段</span></a>
+    <a class="nl" href="#source-component">§13 source_component</a>
+    <a class="nl" href="#trigger-rules">§14 Trigger rules <span class="zh">触发规则</span></a>
+    <a class="nl" href="#filter-value">§15 filter_value <span class="zh">过滤值</span></a>
+    <a class="nl" href="#forbidden">§16 Forbidden data <span class="zh">禁止数据</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Navigation 导航</div>
+    <a class="nl" href="PRD-TRK-002_Tracking_Event_Contract.html" style="color:var(--blue);font-family:var(--mono);font-size:11px;">← Back to Contract</a>
+  </div>
+</nav>
+
+<main class="main">
+<div class="doc-header">
+  <div class="eyebrow">Tracking · Dictionary · 追踪字典</div>
+  <h1><strong>Tracking Dictionary</strong> v2.0</h1>
+  <div class="desc">
+    The official enum values for every field used in the Tracking Master PRD.
+    <span class="zh">《Tracking Master PRD》中所有字段的官方枚举值。本文档是参考字典，不定义事件逻辑或业务规则。</span>
+  </div>
+  <div class="meta-pills">
+    <div class="mp"><span class="l">Status</span><span class="v">Canonical 正式版本</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">2.0</span></div>
+    <div class="mp"><span class="l">Updated</span><span class="v">May 2025</span></div>
+    <div class="mp"><span class="l">Parent doc</span><span class="v"><a class="rlink" href="PRD-TRK-002_Tracking_Event_Contract.html">Tracking Master PRD v2.0</a></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="stag">00</div>
+  <h2>About this document <span class="zh">关于本文档</span></h2>
+  <p class="sdesc">This document contains only the official allowed values (enums) for each field. To understand when and how to use these fields, refer to the Tracking Master PRD.
+    <span class="zh">本文档只包含每个字段的官方合法值（枚举）。要了解何时、如何使用这些字段，请参阅《Tracking Master PRD》。</span>
+  </p>
+  <div class="callout c-info">
+    <strong>For AI tools / 给 AI 工具：</strong> This document is a lookup table. Every section follows: field name → allowed values table. Values not listed here are not permitted.
+    <span class="zh">本文档是查找表。每节结构：字段名 → 合法值表。未在本文档列出的值不允许使用。</span>
+  </div>
+</section>
+
+<!-- CHANGELOG -->
+<section class="section" id="changelog">
+  <div class="stag">v2.0</div>
+  <h2>Changelog <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section 节</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>§1 page_type</td><td>重构枚举值：移除内容实体型值，统一为页面结构型值</td><td>page_type 应描述页面结构，不应描述内容类型</td></tr>
+      <tr><td>§3 content_type</td><td>废弃 <code>campaign</code> <code>group</code> <code>qa</code>；新增 <code>flashcard</code> <code>community_group</code> <code>event</code> <code>ugc</code> <code>survey</code> <code>referral</code> <code>lead_gen</code></td><td>与 Page Mapping CSV 对齐；campaign 拆分为具体业务类型</td></tr>
+      <tr><td>§5 campaign_type</td><td><span class="dep">DEPRECATED 已废弃</span> 整节废弃</td><td>content_type 细分后完全覆盖，冗余</td></tr>
+      <tr><td>§2 component_type</td><td>新增 <code>filter_widget</code> <code>poll_widget</code></td><td>新交互组件</td></tr>
+      <tr><td>§9 button_action_type</td><td>新增 <code>join_external</code> <code>submit_answer</code> <code>submit_vote</code> <code>apply_filter</code> <code>view_all</code></td><td>社群加入、闪卡答题、投票、过滤等新行为</td></tr>
+      <tr><td>§10 target_type</td><td>新增 <code>whatsapp</code> <code>telegram</code></td><td>外部平台跳转</td></tr>
+      <tr><td>§6</td><td><span class="new">NEW 新增</span> source_system / content_source</td><td>外部 Event 平台跨系统数据来源标识</td></tr>
+      <tr><td>§15</td><td><span class="new">NEW 新增</span> filter_value</td><td>过滤行为参数，仅 BigQuery，不注册 GA4 CD</td></tr>
+      <tr><td>§5 recommendation_source</td><td>新增 <code>rule_based</code>（已登录，基于孩子年龄个性化推荐）和 <code>default</code>（未登录，回退到第一个 filter）；移除 <code>aima</code>（AIMA 是聊天组件，不是推荐算法）</td><td>与实际推荐逻辑对齐</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §1 PAGE TYPE -->
+<section class="section" id="page-type">
+  <div class="stag">§1</div>
+  <h2>page_type <span class="zh">页面类型</span></h2>
+  <p class="sdesc">Describes the <strong>structural template</strong> of the page — not what content is on it. Content type is described by <code>content_type</code>.
+    <span class="zh">描述页面的结构模板，不描述页面上的内容类型。内容类型由 content_type 字段承担。</span>
+  </p>
+  <div class="callout c-note"><strong>Design rule / 设计原则：</strong> <code>page_type</code> values must be stable across product changes. Adding a new content type must never require adding a new <code>page_type</code> value — add a <code>content_type</code> value instead.<span class="zh">page_type 枚举值应保持稳定。新增内容品类时只需新增 content_type 值，无需修改 page_type。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th><th>URL examples</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">homepage</span></td><td>首页</td><td>Website homepage</td><td><code>/home</code></td></tr>
+      <tr><td><span class="val">listing</span></td><td>列表页</td><td>Any feed or list of content items<span class="zh">任何内容列表 / Feed 页</span></td><td><code>/discover</code> <code>/gifts</code> <code>/events</code> <code>/earn</code> <code>/connect</code></td></tr>
+      <tr><td><span class="val">detail</span></td><td>详情页</td><td>Single content item detail page<span class="zh">单个内容详情页</span></td><td><code>/content/:id</code> <code>/l/:id</code> <code>/events/:id</code> <code>/u/:slug</code></td></tr>
+      <tr><td><span class="val">form</span></td><td>表单页</td><td>Campaign form submission page<span class="zh">活动表单提交页</span></td><td><code>/s/:slug</code> <code>/m/s/:slug</code></td></tr>
+      <tr><td><span class="val">thank_you</span></td><td>Thank You 页</td><td>Post-conversion confirmation page<span class="zh">提交成功确认页</span></td><td><code>/thank-you</code></td></tr>
+      <tr><td><span class="val">profile</span></td><td>用户中心</td><td>User account / profile page<span class="zh">用户账号页</span></td><td><code>/profile</code> <code>/m/participate</code></td></tr>
+      <tr><td><span class="val">settings</span></td><td>设置页</td><td>Account settings pages<span class="zh">账户设置页</span></td><td><code>/m/subscription-preferences</code> <code>/m/social-media</code></td></tr>
+      <tr><td><span class="val">search_result</span></td><td>搜索结果页</td><td>Search results page</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §2 COMPONENT TYPE -->
+<section class="section" id="component-type">
+  <div class="stag">§2</div>
+  <h2>component_type <span class="zh">组件类型</span></h2>
+  <p class="sdesc">Represents the UI component the user is interacting with.<span class="zh">表示用户当前正在交互的 UI 组件。</span></p>
+  <div class="callout c-note"><code>component_type</code> ≠ <code>content_type</code>. A banner is a component. The article or campaign inside the banner is the content. <code>filter_widget</code> ≠ <code>tab</code>: filter narrows the same content type; tab switches to a different content area.<span class="zh">过滤组件收窄同类内容；Tab 切换到不同内容区域。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">banner</span></td><td>Banner 区域</td><td>Hero banner, usually homepage top</td></tr>
+      <tr><td><span class="val">recommendation_widget</span></td><td>推荐组件</td><td>Recommendation card area — use <code>recommendation_source</code> to distinguish data origin<span class="zh">推荐卡片区域；用 recommendation_source 区分数据来源</span></td></tr>
+      <tr><td><span class="val">article_list</span></td><td>文章列表</td><td>Article feed component</td></tr>
+      <tr><td><span class="val">campaign_list</span></td><td>活动列表</td><td>Campaign feed component</td></tr>
+      <tr><td><span class="val">group_list</span></td><td>社群列表</td><td>Community group feed</td></tr>
+      <tr><td><span class="val">filter_widget</span></td><td>过滤组件</td><td><span class="new">NEW</span> Filter/facet component that narrows results within the same content type<span class="zh">在同一内容类型范围内收窄结果的过滤组件</span></td></tr>
+      <tr><td><span class="val">poll_widget</span></td><td>投票组件</td><td><span class="new">NEW</span> Inline poll / vote component<span class="zh">内嵌投票组件</span></td></tr>
+      <tr><td><span class="val">chat_widget</span></td><td>AIMA 聊天窗口</td><td>AI chat component</td></tr>
+      <tr><td><span class="val">search_bar</span></td><td>搜索框</td><td>Search input bar</td></tr>
+      <tr><td><span class="val">search_result</span></td><td>搜索结果区域</td><td>Search result list component</td></tr>
+      <tr><td><span class="val">otp_popup</span></td><td>OTP 弹窗</td><td>OTP verification modal</td></tr>
+      <tr><td><span class="val">popup</span></td><td>普通弹窗</td><td>Generic popup / modal</td></tr>
+      <tr><td><span class="val">form</span></td><td>表单</td><td>Form component</td></tr>
+      <tr><td><span class="val">floating_button</span></td><td>浮动按钮</td><td>Floating CTA button</td></tr>
+      <tr><td><span class="val">navigation</span></td><td>顶部导航</td><td>Top navigation bar</td></tr>
+      <tr><td><span class="val">bottom_navigation</span></td><td>底部导航</td><td>Bottom navigation bar</td></tr>
+      <tr><td><span class="val">carousel</span></td><td>轮播组件</td><td>Carousel / slider</td></tr>
+      <tr><td><span class="val">action_bar</span></td><td>操作栏</td><td>Like / share action bar</td></tr>
+      <tr><td><span class="val">tab</span></td><td>Tab 组件</td><td>Switches between different content areas or types<span class="zh">切换不同内容区域或类型的 Tab</span></td></tr>
+      <tr><td><span class="val">video_player</span></td><td>视频播放器</td><td>Embedded video player component</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §3 CONTENT TYPE -->
+<section class="section" id="content-type">
+  <div class="stag">§3</div>
+  <h2>content_type <span class="zh">内容实体类型</span></h2>
+  <p class="sdesc">Represents the type of content entity the user is consuming. This is what is inside the component, not the component itself. Paired with <code>page_type</code> to fully describe a page.<span class="zh">表示用户真正浏览/点击/消费的内容实体类型。与 page_type 组合使用完整描述一个页面。</span></p>
+  <div class="callout c-warn"><strong>Breaking change v2.0：</strong> <code>campaign</code> <code>group</code> <code>qa</code> have been removed. Use the specific values below. Update any existing implementation referencing these deprecated values.<span class="zh">v2.0 重大变更：campaign / group / qa 已废弃，请使用下方具体值更新现有实现。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th><th>URL pattern</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">article</span></td><td>文章</td><td>Editorial article content</td><td><code>/content/:id</code></td></tr>
+      <tr><td><span class="val">flashcard</span></td><td>闪卡</td><td><span class="new">NEW</span> Flashcard / decision-flow content<span class="zh">闪卡 / 决策流内容</span></td><td><code>/question/:id</code></td></tr>
+      <tr><td><span class="val">community_group</span></td><td>社群</td><td><span class="new">NEW</span> WhatsApp or Telegram community group<span class="zh">WhatsApp 或 Telegram 社群</span></td><td><code>/connect</code></td></tr>
+      <tr><td><span class="val">event</span></td><td>活动（外部）</td><td><span class="new">NEW</span> Event from external event platform — use <code>source_system</code> + <code>content_source</code><span class="zh">来自外部活动平台的事件；配合 source_system 和 content_source 使用</span></td><td><code>/events/:id</code></td></tr>
+      <tr><td><span class="val">ugc</span></td><td>UGC 活动</td><td><span class="new">NEW</span> User-generated content campaign<span class="zh">用户产生内容活动</span></td><td><code>/u/:slug</code></td></tr>
+      <tr><td><span class="val">survey</span></td><td>问卷活动</td><td><span class="new">NEW</span> Survey / questionnaire campaign<span class="zh">问卷活动</span></td><td><code>/y/:slug</code></td></tr>
+      <tr><td><span class="val">referral</span></td><td>转介绍活动</td><td><span class="new">NEW</span> Referral campaign<span class="zh">转介绍活动</span></td><td><code>/m/referral/:slug</code></td></tr>
+      <tr><td><span class="val">lead_gen</span></td><td>留资活动</td><td><span class="new">NEW</span> Lead generation campaign<span class="zh">留资活动</span></td><td><code>/l/:id</code> <code>/ll/:id</code> <code>/lll/:id</code> <code>/gifts</code></td></tr>
+      <tr><td><span class="val">external_link</span></td><td>外部链接</td><td>Third-party external link</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-note"><strong>page_type + content_type combination examples / 组合示例：</strong><br>
+  <code>page_type: "listing"</code> + <code>content_type: "article"</code> → 文章列表页<br>
+  <code>page_type: "detail"</code> + <code>content_type: "lead_gen"</code> → 留资活动详情页<br>
+  <code>page_type: "detail"</code> + <code>content_type: "flashcard"</code> → 闪卡详情页<br>
+  <code>page_type: "form"</code> + <code>content_type: "survey"</code> → 问卷表单提交页
+  </div>
+</section>
+
+<!-- §4 CONTENT CATEGORY -->
+<section class="section" id="content-category">
+  <div class="stag">§4</div>
+  <h2>content_category <span class="zh">内容分类</span></h2>
+  <p class="sdesc">The topic category of the content. Applies to articles, campaigns, and recommendations. Owner: <span class="own-cms">CMS</span>.<span class="zh">内容所属主题分类。由 CMS 在内容发布时设置。</span></p>
+  <div class="callout c-warn"><strong>Production rule：</strong> <code>uncategorized</code> must not appear in production data. CMS must assign a category at publish time.<span class="zh">uncategorized 不应出现在生产数据中。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>English label</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">baby_essentials</span></td><td>婴幼儿必需品</td><td>Baby Essentials</td></tr>
+      <tr><td><span class="val">care_recovery</span></td><td>护理与恢复</td><td>Care &amp; Recovery</td></tr>
+      <tr><td><span class="val">education_learning</span></td><td>教育与学习</td><td>Education &amp; Learning</td></tr>
+      <tr><td><span class="val">health_protection_finance</span></td><td>健康、保障与金融</td><td>Health Protection &amp; Finance</td></tr>
+      <tr><td><span class="val">mom_body_identity</span></td><td>妈妈身体与身份</td><td>Mom Body &amp; Identity</td></tr>
+      <tr><td><span class="val">pregnancy_birth</span></td><td>孕期与分娩</td><td>Pregnancy &amp; Birth</td></tr>
+      <tr><td><span class="val">product_guide_reviews</span></td><td>产品指南与测评</td><td>Product Guide &amp; Reviews</td></tr>
+      <tr><td><span class="val">uncategorized</span></td><td>未分类</td><td>Fallback only — must not persist in production</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §4b CONTENT FORMAT -->
+<section class="section" id="content-format">
+  <div class="stag">§4b</div>
+  <h2>content_format <span class="zh">内容呈现形式</span></h2>
+  <p class="sdesc">Describes how the content is presented. Used alongside <code>content_type</code>. Owner: <span class="own-cms">CMS</span>.<span class="zh">描述内容的呈现形式，与 content_type 配合使用。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">article</span></td><td>图文</td><td>Default text + image format</td></tr>
+      <tr><td><span class="val">video</span></td><td>视频</td><td>Video-first or video-only content</td></tr>
+      <tr><td><span class="val">mixed</span></td><td>图文 + 视频</td><td>Text article with embedded video</td></tr>
+      <tr><td><span class="val">interactive</span></td><td>互动内容</td><td>Polls, quizzes, interactive Q&amp;A</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §4c CAMPAIGN FORMAT RULE -->
+<section class="section" id="campaign-content-format">
+  <div class="stag">§4c</div>
+  <h2>content_format selection rule — campaign pages <span class="zh">活动页面的 content_format 选择规则</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Page composition 页面构成</th><th>content_type</th><th>content_format</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Rich text / images + embedded form<span class="zh">图文介绍 + 内嵌表单</span></td><td><span class="val">lead_gen / survey / ugc / referral</span></td><td><span class="val">mixed</span></td><td>Editorial content + interaction both present</td></tr>
+      <tr><td>Form only — no editorial content<span class="zh">纯表单，无图文</span></td><td><span class="val">lead_gen / survey / ugc / referral</span></td><td><span class="val">interactive</span></td><td>Sole interaction is form input</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §5 RECOMMENDATION SOURCE -->
+<section class="section" id="recommendation-source">
+  <div class="stag">§5</div>
+  <h2>recommendation_source <span class="zh">推荐来源</span></h2>
+  <p class="sdesc">Identifies which system or surface surfaced the recommended content. Used in <code>content_impression</code> and <code>content_click</code>.<span class="zh">标识推荐内容是由哪个系统或入口展示的。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">rule_based</span></td><td>个性化推荐</td><td><span class="new">NEW</span> Personalised recommendation based on user profile — child age matching. Only fires when user is logged in.<span class="zh">基于用户 profile（孩子年龄）的个性化推荐。仅在用户已登录时展示。</span></td></tr>
+      <tr><td><span class="val">default</span></td><td>默认推荐</td><td><span class="new">NEW</span> Default content shown to non-logged-in users — falls back to first filter result.<span class="zh">未登录用户的默认内容，回退到第一个 filter 结果。</span></td></tr>
+      <tr><td><span class="val">related_content</span></td><td>相关推荐</td><td>Related content suggestion on detail page — editorial or tag-based<span class="zh">详情页相关内容推荐，编辑或标签匹配</span></td></tr>
+      <tr><td><span class="val">homepage</span></td><td>首页推荐</td><td>Homepage editorial recommendation</td></tr>
+      <tr><td><span class="val">thank_you</span></td><td>Thank You 推荐</td><td>Post-conversion page recommendation</td></tr>
+      <tr><td><span class="val">banner</span></td><td>Banner 推荐</td><td>Recommended via banner placement</td></tr>
+      <tr><td><span class="val">filter</span></td><td>过滤结果</td><td>Content surfaced after user applies a filter<span class="zh">用户应用过滤条件后展示的内容</span></td></tr>
+      <tr><td><span class="val">search</span></td><td>搜索结果</td><td>User arrived via search result click</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §6 SOURCE SYSTEM -->
+<section class="section" id="source-system">
+  <div class="stag">§6</div>
+  <h2>source_system / content_source <span class="zh">外部系统来源标识</span></h2>
+  <p class="sdesc"><span class="new">NEW</span> Used when <code>content_type = "event"</code> to identify which external system the content originates from. Owner: <span class="own-be">Backend</span>.<span class="zh">当 content_type 为 event 时，标识内容来自哪个外部系统。由后端 API 返回，前端透传。</span></p>
+  <div class="callout c-info"><strong>source_system</strong> = the aggregation platform entry point（数据入口平台）. <strong>content_source</strong> = the original system that created the event（活动的原始创建系统）. Both fields are provided by the backend API response — frontend passes them through transparently.<span class="zh">两个字段均由后端 API 响应提供，前端直接透传，不需要前端判断。</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Field 字段</th><th>Value 值</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>source_system</code></td><td><span class="val">event_platform</span></td><td>External event aggregation platform<span class="zh">外部活动聚合平台（入口）</span></td></tr>
+      <tr><td><code>content_source</code></td><td><span class="val">native</span></td><td>Event created on the native event platform<span class="zh">自研平台创建的活动</span></td></tr>
+      <tr><td><code>content_source</code></td><td><span class="val">rsvpify</span></td><td>Event created on RSVPify<span class="zh">在 RSVPify 上创建的活动</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-warn"><strong>Prerequisite / 前提：</strong> The event platform API must return <code>content_source</code> in its response. Confirm with the event platform team that this field is available before implementation.<span class="zh">实施前需确认 event_platform API 响应中已包含 content_source 字段。</span></div>
+</section>
+
+<!-- §7 ATTRIBUTION -->
+<section class="section" id="attribution">
+  <div class="stag">§7</div>
+  <h2>Attribution parameters <span class="zh">归因参数</span></h2>
+  <p class="sdesc">UTM parameters for traffic attribution. Owner: <span class="own-gtm">GTM</span>.<span class="zh">用于流量归因的 UTM 参数。负责人：GTM。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th>Chinese</th><th>Description</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>utm_source</code></td><td>来源</td><td>Traffic source</td><td><code>facebook</code> · <code>aima</code> · <code>push_notification</code></td></tr>
+      <tr><td><code>utm_medium</code></td><td>渠道</td><td>Traffic medium</td><td><code>paid_social</code> · <code>whatsapp</code> · <code>internal</code></td></tr>
+      <tr><td><code>utm_campaign</code></td><td>活动</td><td>Campaign name</td><td><code>nov_leadgen_th</code></td></tr>
+      <tr><td><code>utm_content</code></td><td>内容</td><td>Ad / content variant</td><td><code>banner_top</code> · <code>button_cta</code></td></tr>
+      <tr><td><code>utm_term</code></td><td>搜索词</td><td>Paid search keyword</td><td><code>baby+eczema</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §8 IDENTITY -->
+<section class="section" id="identity">
+  <div class="stag">§8</div>
+  <h2>Identity fields <span class="zh">身份字段</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th>Chinese</th><th>Scope</th><th>Present when</th></tr></thead>
+    <tbody>
+      <tr><td><code>anonymous_id</code></td><td>匿名用户 ID</td><td>Browser-level</td><td>Always — GA4 client_id via GTM</td></tr>
+      <tr><td><code>session_id</code></td><td>会话 ID</td><td>Session-level</td><td>Always — GA4 ga_session_id via GTM</td></tr>
+      <tr><td><code>v2_uid</code></td><td>v2 用户 ID</td><td>User-level</td><td>After otp_verify_success</td></tr>
+      <tr><td><code>profile_id</code></td><td>Profile ID</td><td>Profile-level</td><td>When profile exists</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §9 BUTTON ACTION TYPE -->
+<section class="section" id="button-action">
+  <div class="stag">§9</div>
+  <h2>button_action_type <span class="zh">按钮行为意图</span></h2>
+  <p class="sdesc">Describes the intended action when a button is clicked. Used in <code>button_click</code> event.<span class="zh">描述按钮点击后的行为意图。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">navigate</span></td><td>页面跳转</td><td>Navigate to a page or content</td></tr>
+      <tr><td><span class="val">register</span></td><td>注册</td><td>Trigger registration flow</td></tr>
+      <tr><td><span class="val">open_chat</span></td><td>打开聊天</td><td>Open AIMA chat window</td></tr>
+      <tr><td><span class="val">open_popup</span></td><td>打开弹窗</td><td>Open a popup / modal</td></tr>
+      <tr><td><span class="val">submit</span></td><td>提交</td><td>Submit a form (generic)</td></tr>
+      <tr><td><span class="val">join_external</span></td><td>跳转外部平台加入</td><td><span class="new">NEW</span> User leaves Supermom to join a group on WhatsApp or Telegram — last trackable node<span class="zh">用户离开 Supermom 跳转至外部平台加入社群，是可追踪的最后节点</span></td></tr>
+      <tr><td><span class="val">submit_answer</span></td><td>提交答题</td><td><span class="new">NEW</span> Submit a flashcard quiz answer — light interaction, no funnel<span class="zh">提交闪卡答题，轻交互，不进转化漏斗</span></td></tr>
+      <tr><td><span class="val">submit_vote</span></td><td>提交投票</td><td><span class="new">NEW</span> Submit a poll vote — light interaction, no funnel<span class="zh">提交投票，轻交互，不进转化漏斗</span></td></tr>
+      <tr><td><span class="val">apply_filter</span></td><td>应用过滤条件</td><td><span class="new">NEW</span> User selects a filter option in filter_widget<span class="zh">用户在过滤组件中选择筛选条件</span></td></tr>
+      <tr><td><span class="val">view_all</span></td><td>查看全部</td><td><span class="new">NEW</span> Entry point to view full list of a content type<span class="zh">查看某类内容全部列表的入口按钮</span></td></tr>
+      <tr><td><span class="val">like</span></td><td>点赞</td><td>Like / upvote content</td></tr>
+      <tr><td><span class="val">save</span></td><td>收藏</td><td>Save / bookmark content</td></tr>
+      <tr><td><span class="val">share</span></td><td>分享</td><td>Share content</td></tr>
+      <tr><td><span class="val">play</span></td><td>播放</td><td>Play video</td></tr>
+      <tr><td><span class="val">close</span></td><td>关闭</td><td>Close a window or popup</td></tr>
+      <tr><td><span class="val">expand</span></td><td>展开</td><td>Expand / show more</td></tr>
+      <tr><td><span class="val">collapse</span></td><td>收起</td><td>Collapse / show less</td></tr>
+      <tr><td><span class="val">download</span></td><td>下载</td><td>Download a file</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §10 TARGET TYPE -->
+<section class="section" id="target-type">
+  <div class="stag">§10</div>
+  <h2>target_type <span class="zh">按钮作用对象</span></h2>
+  <p class="sdesc">What the button acts on. Paired with <code>button_action_type</code>.<span class="zh">按钮作用的对象类型。与 button_action_type 配合使用。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">internal</span></td><td>站内跳转</td><td>Navigate within Supermom</td></tr>
+      <tr><td><span class="val">external</span></td><td>外部链接</td><td>Generic external URL</td></tr>
+      <tr><td><span class="val">whatsapp</span></td><td>WhatsApp</td><td><span class="new">NEW</span> Opens WhatsApp (app or web)<span class="zh">打开 WhatsApp 应用或网页版</span></td></tr>
+      <tr><td><span class="val">telegram</span></td><td>Telegram</td><td><span class="new">NEW</span> Opens Telegram (app or web)<span class="zh">打开 Telegram 应用或网页版</span></td></tr>
+      <tr><td><span class="val">chat_widget</span></td><td>AIMA 聊天</td><td>Opens AIMA chat</td></tr>
+      <tr><td><span class="val">popup</span></td><td>弹窗</td><td>Opens a modal / popup</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §11 EVENT LIST -->
+<section class="section" id="events">
+  <div class="stag">§11</div>
+  <h2>Event list <span class="zh">事件列表</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Chinese 中文</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td>页面浏览</td><td>Page</td></tr>
+      <tr><td><code>content_impression</code></td><td>内容曝光</td><td>Content</td></tr>
+      <tr><td><code>content_click</code></td><td>内容点击</td><td>Content</td></tr>
+      <tr><td><code>content_view</code></td><td>内容详情浏览</td><td>Content</td></tr>
+      <tr><td><code>button_click</code></td><td>按钮点击</td><td>Interaction</td></tr>
+      <tr><td><code>form_view</code></td><td>表单曝光</td><td>Form</td></tr>
+      <tr><td><code>form_start</code></td><td>开始填写表单</td><td>Form</td></tr>
+      <tr><td><code>form_submit</code></td><td>表单提交成功</td><td>Form</td></tr>
+      <tr><td><code>otp_popup_view</code></td><td>OTP 弹窗曝光</td><td>OTP</td></tr>
+      <tr><td><code>otp_input_phone</code></td><td>输入手机号</td><td>OTP</td></tr>
+      <tr><td><code>otp_sent</code></td><td>OTP 发送成功</td><td>OTP</td></tr>
+      <tr><td><code>login</code></td><td>登录成功</td><td>OTP</td></tr>
+      <tr><td><code>sign_up</code></td><td>新用户注册</td><td>OTP</td></tr>
+      <tr><td><code>otp_verify_fail</code></td><td>OTP 验证失败</td><td>OTP</td></tr>
+      <tr><td><code>search_submit</code></td><td>搜索提交</td><td>Search</td></tr>
+      <tr><td><code>search_result_view</code></td><td>搜索结果页浏览</td><td>Search</td></tr>
+      <tr><td><code>search_result_click</code></td><td>搜索结果点击</td><td>Search</td></tr>
+      <tr><td><code>search_no_result</code></td><td>无搜索结果</td><td>Search</td></tr>
+      <tr><td><code>chat_open</code></td><td>打开聊天</td><td>Engagement</td></tr>
+      <tr><td><code>chat_message_send</code></td><td>发送消息</td><td>Engagement</td></tr>
+      <tr><td><code>chat_close</code></td><td>关闭聊天</td><td>Engagement</td></tr>
+      <tr><td><code>scroll_depth</code></td><td>滚动深度</td><td>Engagement</td></tr>
+      <tr><td><code>page_engagement</code></td><td>页面停留</td><td>Engagement</td></tr>
+      <tr><td><code>video_play</code></td><td>视频播放</td><td>Video</td></tr>
+      <tr><td><code>video_progress</code></td><td>视频进度</td><td>Video</td></tr>
+      <tr><td><code>video_complete</code></td><td>视频完播</td><td>Video</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §12 POSITION -->
+<section class="section" id="position">
+  <div class="stag">§12</div>
+  <h2>Position fields <span class="zh">位置字段</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Chinese</th><th>Description</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td><code>impression_position</code></td><td>曝光位置</td><td>Position of the content item when seen<span class="zh">内容在列表中曝光时的位置序号（从 1 开始）</span></td><td>integer, starts at 1</td></tr>
+      <tr><td><code>clicked_position</code></td><td>点击位置</td><td>Position of the content item when clicked<span class="zh">内容被点击时的位置序号（从 1 开始）</span></td><td>integer, starts at 1</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §13 SOURCE COMPONENT -->
+<section class="section" id="source-component">
+  <div class="stag">§13</div>
+  <h2>source_component <span class="zh">行为来源组件</span></h2>
+  <p class="sdesc">Identifies which component triggered the action. Used for OTP, popup, chat, and registration flows.<span class="zh">标识哪个组件触发了当前行为。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">banner</span></td><td>Banner</td></tr>
+      <tr><td><span class="val">recommendation_widget</span></td><td>推荐组件</td></tr>
+      <tr><td><span class="val">campaign_join_button</span></td><td>活动参加按钮</td></tr>
+      <tr><td><span class="val">chat_widget</span></td><td>AIMA 聊天</td></tr>
+      <tr><td><span class="val">floating_button</span></td><td>浮动按钮</td></tr>
+      <tr><td><span class="val">navigation</span></td><td>顶部导航栏</td></tr>
+      <tr><td><span class="val">filter_widget</span></td><td>过滤组件</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §14 TRIGGER RULES -->
+<section class="section" id="trigger-rules">
+  <div class="stag">§14</div>
+  <h2>Trigger timing rules <span class="zh">触发时机规则</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Trigger timing 触发时机</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td>After page DOM fully loaded</td></tr>
+      <tr><td><code>content_impression</code></td><td>Element ≥ 50% in viewport for ≥ 1 second. Once per content_id per session.</td></tr>
+      <tr><td><code>content_click</code></td><td>On content item click</td></tr>
+      <tr><td><code>content_view</code></td><td>After detail page fully loaded</td></tr>
+      <tr><td><code>button_click</code></td><td>On button click</td></tr>
+      <tr><td><code>form_view</code></td><td>Form becomes visible (≥ 50% viewport)</td></tr>
+      <tr><td><code>form_start</code></td><td>User first interacts with any form field</td></tr>
+      <tr><td><code>form_submit</code></td><td>Backend confirms successful submission — NOT on button click</td></tr>
+      <tr><td><code>scroll_depth</code></td><td>Scroll reaches 25% / 50% / 75% / 90%</td></tr>
+      <tr><td><code>page_engagement</code></td><td>Active time reaches 15s / 30s / 60s / 120s</td></tr>
+      <tr><td><code>video_play</code></td><td>User clicks play</td></tr>
+      <tr><td><code>video_progress</code></td><td>Playback reaches 25% / 50% / 75%</td></tr>
+      <tr><td><code>video_complete</code></td><td>Playback reaches ≥ 90%</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §15 FILTER VALUE -->
+<section class="section" id="filter-value">
+  <div class="stag">§15</div>
+  <h2>filter_value <span class="zh">过滤条件值</span></h2>
+  <p class="sdesc"><span class="new">NEW</span> The value selected by the user in a <code>filter_widget</code>. Sent in <code>button_click</code> events when <code>button_action_type = "apply_filter"</code>.<span class="zh">用户在过滤组件中选择的筛选条件值。在 button_action_type 为 apply_filter 的 button_click 事件中携带。</span></p>
+  <div class="callout c-warn"><strong>GA4 exposure rule：</strong> <code>filter_value</code> is high-cardinality. Do NOT register as a GA4 Custom Dimension. Use BigQuery only.<span class="zh">filter_value 为高基数字段，禁止注册为 GA4 自定义维度，仅在 BigQuery 中分析。</span></div>
+  <p class="sdesc">Values are free-form strings representing the filter label. Examples by page:<span class="zh">值为自由字符串，代表筛选标签。各页示例：</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Page 页面</th><th>Example filter_value values</th></tr></thead>
+    <tbody>
+      <tr><td>Gifts listing <code>/gifts</code></td><td><code>pregnant</code> · <code>with_kids_0_2</code> · <code>with_kids_3_above</code> · <code>family</code> · <code>all</code></td></tr>
+      <tr><td>Connect / WhatsApp Groups</td><td><code>all</code> · <code>birth_club</code> · <code>interests</code> · <code>neighbourhood</code></td></tr>
+      <tr><td>Connect / Birth Club sub-filter</td><td><code>all_stages</code> · <code>1st_trimester</code> · <code>2nd_trimester</code> · <code>3rd_trimester</code> · <code>0_3_months</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §16 FORBIDDEN DATA -->
+<section class="section" id="forbidden">
+  <div class="stag">§16</div>
+  <h2>Forbidden data <span class="zh">禁止上传数据</span></h2>
+  <div class="callout c-warn"><strong>These must NEVER appear in any tracking payload. 以下数据严禁出现在任何追踪 payload 中。</strong></div>
+  <div class="tw"><table>
+    <thead><tr><th>Data 数据</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>Phone numbers 手机号</td><td><span class="pii-badge">PII</span></td></tr>
+      <tr><td>Email addresses 邮箱地址</td><td><span class="pii-badge">PII</span></td></tr>
+      <tr><td>OTP codes OTP 验证码</td><td><span class="pii-badge">Security</span></td></tr>
+      <tr><td>Raw user chat messages 用户原始聊天内容</td><td><span class="pii-badge">Privacy</span></td></tr>
+      <tr><td>Raw user search queries 用户原始搜索词</td><td><span class="pii-badge">PII risk</span></td></tr>
+      <tr><td><code>button_id</code> · <code>button_text</code> · <code>filter_value</code> (in GA4 CD)</td><td>High cardinality — BigQuery only<span class="zh">高基数，仅 BigQuery 分析</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+</div>
+</body>
+</html>
