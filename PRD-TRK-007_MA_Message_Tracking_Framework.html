@@ -1064,9 +1064,22 @@ Meta API:   variables[
       <tr>
         <td class="field">utm_campaign</td>
         <td><span class="badge b-blue">Dynamic</span></td>
-        <td>MA system takes value from <code>flow_name</code> or <code>template_name</code> at send time. If not associated with a flow: use campaign-specific value per UTM-GOV-001.</td>
+        <td>MA system auto-generates from <code>flow_name</code> at send time.<br><br>
+          <strong>Rule: If sending via Aima WA account → append <code>_aima_wa</code> suffix automatically.</strong><br>
+          Standard account: <code>{flow_name}</code> &nbsp;·&nbsp; Aima WA account: <code>{flow_name}_aima_wa</code></td>
         <td><span class="team team-be">MA Engineer</span></td>
         <td class="zh">动态值，MA 系统从 flow_name 或 template_name 自动取值</td>
+      </tr>
+      <tr>
+      </tr>
+      <tr>
+        <td colspan="4" style="padding:0;border-bottom:1px solid var(--border);">
+          <div class="callout c-green" style="margin:8px 12px;font-size:12.5px;">
+            <strong>Why _aima_wa suffix?</strong> Enables precise GA4 filtering: <code>utm_campaign contains "aima_wa"</code> → shows exactly which MA messages were sent via Aima WA account and their conversion results. Without this, MA traffic via Aima WA account cannot be separated from other CRM traffic in GA4 reports.
+            <br><br>
+            <strong>为什么要加 _aima_wa 后缀？</strong>支持精确的 GA4 筛选：<code>utm_campaign 包含 "aima_wa"</code> → 精确显示哪些 MA 消息通过 Aima WA 账号发送及其转化结果。没有这个后缀，GA4 报表中无法将 Aima WA 账号的 MA 流量与其他 CRM 流量区分开。
+          </div>
+        </td>
       </tr>
       <tr>
         <td class="field">utm_content</td>
@@ -1096,7 +1109,7 @@ https://welovesupermom.com/campaign/123
   ?<span style="color:#f48fb1;">ma_ref</span>=<span style="color:#ffcc80;">eyJhbGciOiJIUzI1NiJ9...</span>       <span style="color:#6b7280;font-style:italic;">← internal tracking (PRD-TRK-007)</span>
   &amp;<span style="color:#f48fb1;">utm_source</span>=<span style="color:#a5d6a7;">crm</span>                         <span style="color:#6b7280;font-style:italic;">← MA source ✅ Confirmed</span>
   &amp;<span style="color:#f48fb1;">utm_medium</span>=<span style="color:#a5d6a7;">messaging</span>                  <span style="color:#6b7280;font-style:italic;">← MA medium ✅ Confirmed</span>
-  &amp;<span style="color:#f48fb1;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_pawpatrol_offer</span>       <span style="color:#6b7280;font-style:italic;">← from flow_name (format: year_country_name)</span>
+  &amp;<span style="color:#f48fb1;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_pawpatrol_offer_aima_wa</span>  <span style="color:#6b7280;font-style:italic;">← flow_name + _aima_wa (Aima WA account detected)</span>
   &amp;<span style="color:#f48fb1;">utm_content</span>=<span style="color:#a5d6a7;">cta_learn_more</span>             <span style="color:#6b7280;font-style:italic;">← optional, from template</span></pre>
   </div>
 
@@ -1108,7 +1121,11 @@ https://welovesupermom.com/campaign/123
     <thead><tr><th>Responsibility</th><th>Owner</th><th class="zh">说明</th></tr></thead>
     <tbody>
       <tr><td>Append utm_source and utm_medium (fixed values) to all MA links</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">系统自动附加，值来自 UTM-GOV-001</td></tr>
-      <tr><td>Extract flow_name / template_name → set as utm_campaign at send time</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">发送时从 MA 系统上下文自动取值</td></tr>
+      <tr>
+  <td>Extract <code>flow_name</code> → set as <code>utm_campaign</code>. <strong>Auto-detect if sending via Aima WA account → append <code>_aima_wa</code> suffix.</strong></td>
+  <td><span class="team team-be">MA Engineer</span></td>
+  <td class="zh">从 flow_name 自动取值。<strong>自动检测是否使用 Aima WA 账号 → 自动追加 <code>_aima_wa</code> 后缀。</strong></td>
+</tr>
       <tr><td>Enforce UTM override rule: system UTM values always override any business-supplied UTM in the base URL</td><td><span class="team team-be">MA Engineer</span></td><td class="zh">系统 UTM 优先级高于业务手动填写的 UTM，强制覆盖</td></tr>
       <tr><td data-lang="en">UTM values aligned with Aima Engineer per UTM-GOV-001 v1.2</td><td><span class="team team-be">MA Engineer</span> + <span class="team team-aima">Aima Engineer</span></td><td class="zh">UTM 值已按 UTM-GOV-001 v1.2 与 Aima 工程师对齐</td></tr>
       
@@ -1167,7 +1184,7 @@ https://welovesupermom.com/campaign/123
       <!-- Final link -->
       <rect x="100" y="220" width="520" height="50" rx="6" fill="#1c1b18" stroke="#444" stroke-width="1"/>
       <text x="360" y="240" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#80cbc4">?ma_ref=eyJ... &amp;utm_source=crm &amp;utm_medium=messaging</text>
-      <text x="360" y="256" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#a5d6a7">&amp;utm_campaign=flow_name &amp;utm_content=cta_learn_more</text>
+      <text x="360" y="256" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="#a5d6a7">&amp;utm_campaign=flow_name_aima_wa &amp;utm_content=cta_learn_more</text>
       <text x="360" y="272" text-anchor="middle" font-size="8.5" fill="#6b7280;font-style:italic">Both ma_ref (internal) + utm_* (GA4) attached</text>
     </svg>
   </div>
@@ -1299,6 +1316,7 @@ https://welovesupermom.com/campaign/123
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.8</td><td>2026-05-28</td><td>Product Team</td><td>Updated utm_campaign rule in S9.2: when MA sends via Aima WA account, system automatically appends _aima_wa suffix to flow_name (e.g. 2026_sg_summer_aima_wa). Enables GA4 filtering of MA messages sent via Aima WA account vs standard accounts. Updated code example, responsibility table, and SVG diagram.</td></tr>
       <tr><td>v1.7</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed all remaining errors: utm_source corrected to crm (not aima), utm_medium corrected to messaging (not whatsapp) in all code examples and SVG diagrams. utm_campaign format updated to year_country_name per Advisory. utm_term TBD removed — confirmed Required. Alignment warning updated to confirmed status. UTM-GOV-001 reference updated to v1.2.</td><td data-lang="zh">修正所有遗留错误：utm_source 更正为 crm（非 aima），utm_medium 更正为 messaging（非 whatsapp），包括代码示例和 SVG 图表。utm_campaign 格式按 Advisory 更新为 year_country_name。utm_term TBD 移除——确认为必填。对齐警告更新为已确认状态。UTM-GOV-001 引用更新为 v1.2。</td></tr>
       <tr><td>v1.6</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Updated S9 UTM values per B2C UTM Advisory confirmation: MA utm_source=crm, utm_medium=messaging. utm_term={rec_id} confirmed. All TBD labels removed. Reference updated to UTM-GOV-001 v1.1.</td><td data-lang="zh">根据 B2C UTM Advisory 确认更新 S9 UTM 值：MA utm_source=crm，utm_medium=messaging。utm_term={rec_id} 确认。移除所有 TBD 标注。参考文档更新为 UTM-GOV-001 v1.1。</td></tr>
       <tr><td>v1.5</td><td>2026-05-28</td><td>Product Team</td><td>Added Section 9: UTM Parameters. Defines UTM injection rules for MA system alongside ma_ref. Added UTM decision flow diagram. MA Engineer responsibility matrix updated. All UTM values reference UTM-GOV-001. TBD items pending business confirmation on utm_source, utm_medium, utm_term.</td></tr>

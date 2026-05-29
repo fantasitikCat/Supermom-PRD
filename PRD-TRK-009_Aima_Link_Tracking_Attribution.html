@@ -159,7 +159,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-009 · v1.9 · 2026-05-28</span>
+    <span class="lang-bar-id">PRD-TRK-009 · v2.0 · 2026-05-28</span>
   </div>
   <div class="lang-toggle">
     <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
@@ -172,7 +172,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">Aima Link Tracking &amp; Attribution</div>
-    <div class="sidebar-ver">PRD-TRK-009 · v1.9</div>
+    <div class="sidebar-ver">PRD-TRK-009 · v2.0</div>
   </div>
   <div class="ngl">Navigation</div>
   <a class="nl" href="#exec">⭐ Executive Summary</a>
@@ -427,7 +427,7 @@ body.zh-mode [data-lang="zh"] { display: block; }
   <p class="sub" data-lang="zh">定义 Aima 对话消息在 WhatsApp Native 和 Website Widget 渠道下的链接追踪、参数注入与归因框架。</p>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">Doc ID</span><span class="v">PRD-TRK-009</span></div>
-    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.9</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v2.0</span></div>
     <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
     <div class="meta-cell"><span class="k">Domain</span><span class="v">Foundation → Tracking</span></div>
     <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-28</span></div>
@@ -728,129 +728,138 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
   </table></div>
 </section>
 <!-- S8 FLOWS -->
-<!-- S7B MA TRIGGER RULE — NEW v1.3 -->
+<!-- S7B MA vs AIMA — INDEPENDENT SYSTEMS — v2.0 -->
 <section class="section" id="s7b">
   <div class="stag">07B</div>
-  <h2 data-lang="en">MA-Triggered Scenario — Handling Rule <span class="en">MA 触发场景处理规则</span></h2>
-  <h2 data-lang="zh">MA 触发场景处理规则</h2>
+  <h2 data-lang="en">MA System vs Aima — Independent Tracking <span class="en">独立追踪系统</span></h2>
+  <h2 data-lang="zh">MA System vs Aima — 独立追踪系统</h2>
 
-  <div class="callout c-info" data-lang="en"><strong>Industry Principle — Orchestration vs Execution:</strong> When MA System triggers Aima to send a message, MA is the Orchestration Layer (decision maker) and Aima is the Execution Layer (message sender). Tracking attribution follows the decision maker — therefore MA tracking parameters take precedence.</div>
-  <div class="callout c-info" data-lang="zh"><strong>行业原则 — 编排层 vs 执行层：</strong>当 MA 系统触发 Aima 发送消息时，MA 是编排层（决策者），Aima 是执行层（发送者）。追踪归属跟随决策者——因此 MA 追踪参数优先。</div>
+  <div class="callout c-green" data-lang="en">
+    <strong>Key Principle:</strong> MA System and Aima share the same WhatsApp account but operate completely independently. Each system builds, tracks and sends its own messages. There is no handoff between them.
+  </div>
+  <div class="callout c-green" data-lang="zh">
+    <strong>核心原则：</strong>MA System 和 Aima 共用同一个 WhatsApp 账号，但完全独立运作。各自构建、追踪和发送消息，互不干涉。
+  </div>
 
-  <div class="callout c-warn" data-lang="en"><strong>⚠️ MA Engineer + Aima Engineer alignment required:</strong> This rule requires both engineers to agree on the interface — how MA passes tracking parameters to Aima. Refer to <strong>PRD-TRK-007 S9</strong> for MA UTM rules. Refer to <strong>UTM-GOV-001 v1.2</strong> for confirmed UTM values: MA uses <code>utm_source=crm</code> + <code>utm_medium=messaging</code>; Aima uses <code>utm_source=aima</code> + <code>utm_medium=whatsapp</code>.</div>
-  <div class="callout c-warn" data-lang="zh"><strong>⚠️ MA 工程师 + Aima 工程师需要对齐：</strong>此规则需要两位工程师就接口达成一致——MA 如何将追踪参数传给 Aima。MA UTM 规则参考 <strong>PRD-TRK-007 S9</strong>。允许的 UTM 值参考 <strong>UTM-GOV-001</strong>。</div>
-
-  <div class="sub-h" data-lang="en">Decision Logic — ma_ref vs aima_ref</div>
-  <div class="sub-h" data-lang="zh">决策逻辑 — ma_ref vs aima_ref</div>
+  <!-- How MA sends messages -->
+  <div class="sub-h" data-lang="en">How MA Sends Messages via WhatsApp</div>
+  <div class="sub-h" data-lang="zh">MA 如何通过 WhatsApp 发送消息</div>
 
   <div class="diagram-wrap">
-    <div class="diagram-title" data-lang="en">Aima Receives Message Request — Which Tracking Path?</div>
-    <div class="diagram-title" data-lang="zh">Aima 收到消息请求 — 走哪条追踪路径？</div>
-    <svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+    <div class="diagram-title" data-lang="en">MA Message Flow — Aima Engineer has no involvement</div>
+    <div class="diagram-title" data-lang="zh">MA 消息流程 — Aima 工程师不参与</div>
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
       <defs>
-        <marker id="mf1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
-        <marker id="mf2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0a5a52"/></marker>
-        <marker id="mf3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f3a6e"/></marker>
-        <marker id="mf4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#4a1a7a"/></marker>
+        <marker id="ma1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#4a1a7a"/></marker>
+        <marker id="ma2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c0385a"/></marker>
       </defs>
 
-      <!-- Start -->
-      <rect x="240" y="10" width="240" height="36" rx="18" fill="#c0385a"/>
-      <text x="360" y="33" text-anchor="middle" font-size="11" font-weight="500" fill="#fff">Aima receives message request</text>
-      <line x1="360" y1="46" x2="360" y2="70" stroke="#c0385a" stroke-width="1.5" marker-end="url(#mf1)"/>
+      <!-- Step 1: MA builds message -->
+      <rect x="20" y="30" width="140" height="50" rx="6" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
+      <text x="90" y="52" text-anchor="middle" font-size="10" font-weight="500" fill="#4a1a7a">MA System</text>
+      <text x="90" y="67" text-anchor="middle" font-size="8.5" fill="#5c5a54">Build message template</text>
+      <text x="90" y="20" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#4a1a7a">MA ENGINEER</text>
 
-      <!-- Decision diamond -->
-      <polygon points="360,74 490,116 360,158 230,116" fill="#fff7e0" stroke="#f5a623" stroke-width="1.5"/>
-      <text x="360" y="109" text-anchor="middle" font-size="10" font-weight="500" fill="#7a4f00">Request contains</text>
-      <text x="360" y="123" text-anchor="middle" font-size="10" fill="#7a4f00">ma_ref?</text>
+      <!-- Arrow -->
+      <line x1="160" y1="55" x2="198" y2="55" stroke="#4a1a7a" stroke-width="1.5" marker-end="url(#ma1)"/>
 
-      <!-- YES path — MA triggered -->
-      <line x1="490" y1="116" x2="600" y2="116" stroke="#4a1a7a" stroke-width="1.5" marker-end="url(#mf4)"/>
-      <text x="547" y="108" text-anchor="middle" font-size="9" fill="#4a1a7a" font-family="IBM Plex Mono">Yes — MA triggered</text>
+      <!-- Step 2: MA appends tracking -->
+      <rect x="200" y="30" width="150" height="50" rx="6" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
+      <text x="275" y="50" text-anchor="middle" font-size="10" font-weight="500" fill="#4a1a7a">Append tracking</text>
+      <text x="275" y="64" text-anchor="middle" font-size="8.5" fill="#c0385a">ma_ref + utm_*</text>
+      <text x="275" y="75" text-anchor="middle" font-size="8" fill="#5c5a54">(no aima_ref)</text>
 
-      <rect x="602" y="88" width="108" height="56" rx="6" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
-      <text x="656" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">MA Path</text>
-      <text x="656" y="124" text-anchor="middle" font-size="8.5" fill="#4a1a7a">Use ma_ref</text>
-      <text x="656" y="138" text-anchor="middle" font-size="8.5" fill="#4a1a7a">passthrough UTM</text>
+      <!-- Arrow -->
+      <line x1="350" y1="55" x2="388" y2="55" stroke="#4a1a7a" stroke-width="1.5" marker-end="url(#ma1)"/>
 
-      <!-- NO path — Aima conversational -->
-      <line x1="230" y1="116" x2="120" y2="116" stroke="#0a5a52" stroke-width="1.5" marker-end="url(#mf2)"/>
-      <text x="173" y="108" text-anchor="middle" font-size="9" fill="#0a5a52" font-family="IBM Plex Mono">No — Aima conv.</text>
+      <!-- Step 3: MA calls WA API directly -->
+      <rect x="390" y="30" width="150" height="50" rx="6" fill="#f5edf9" stroke="#d8b0f0" stroke-width="1.5"/>
+      <text x="465" y="50" text-anchor="middle" font-size="10" font-weight="500" fill="#4a1a7a">Call WA API directly</text>
+      <text x="465" y="64" text-anchor="middle" font-size="8.5" fill="#5c5a54">using Aima WA account</text>
 
-      <rect x="10" y="88" width="108" height="56" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.5"/>
-      <text x="64" y="110" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Aima Path</text>
-      <text x="64" y="124" text-anchor="middle" font-size="8.5" fill="#0a5a52">Generate aima_ref</text>
-      <text x="64" y="138" text-anchor="middle" font-size="8.5" fill="#0a5a52">apply UTM rules</text>
+      <!-- Arrow -->
+      <line x1="540" y1="55" x2="578" y2="55" stroke="#c0385a" stroke-width="1.5" marker-end="url(#ma2)"/>
 
-      <!-- MA Path details -->
-      <line x1="656" y1="144" x2="656" y2="178" stroke="#4a1a7a" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#mf4)"/>
-      <rect x="572" y="180" width="176" height="80" rx="6" fill="#fff" stroke="#d8b0f0" stroke-width="1.3"/>
-      <text x="660" y="200" text-anchor="middle" font-size="9.5" font-weight="500" fill="#4a1a7a">MA Tracking Rules</text>
-      <text x="660" y="216" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Keep ma_ref as-is</text>
-      <text x="660" y="230" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Do NOT generate aima_ref</text>
-      <text x="660" y="244" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Passthrough MA UTM values</text>
-      <text x="660" y="258" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Do NOT override any UTM</text>
+      <!-- Step 4: User receives -->
+      <rect x="580" y="30" width="100" height="50" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.5"/>
+      <text x="630" y="52" text-anchor="middle" font-size="10" font-weight="500" fill="#1a6b45">User receives</text>
+      <text x="630" y="66" text-anchor="middle" font-size="8.5" fill="#5c5a54">message</text>
 
-      <!-- Aima Path details -->
-      <line x1="64" y1="144" x2="64" y2="178" stroke="#0a5a52" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#mf2)"/>
-      <rect x="8" y="180" width="176" height="80" rx="6" fill="#fff" stroke="#8dd4cc" stroke-width="1.3"/>
-      <text x="96" y="200" text-anchor="middle" font-size="9.5" font-weight="500" fill="#0a5a52">Aima Tracking Rules</text>
-      <text x="96" y="216" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Generate aima_ref</text>
-      <text x="96" y="230" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Check runtime_source</text>
-      <text x="96" y="244" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Apply UTM per S6 rules</text>
-      <text x="96" y="258" text-anchor="middle" font-size="8.5" fill="#5c5a54">· Follow UTM-GOV-001</text>
-
-      <!-- Both converge to send -->
-      <line x1="184" y1="220" x2="310" y2="310" stroke="#c0385a" stroke-width="1.2" stroke-dasharray="3,2"/>
-      <line x1="572" y1="220" x2="446" y2="310" stroke="#4a1a7a" stroke-width="1.2" stroke-dasharray="3,2"/>
-      <rect x="200" y="308" width="320" height="36" rx="18" fill="#1c1b18"/>
-      <text x="360" y="330" text-anchor="middle" font-size="11" font-weight="500" fill="#a5d6a7">Send message with correct tracking</text>
-
-      <!-- Reference labels -->
-      <text x="660" y="278" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Ref: PRD-TRK-007 S9</text>
-      <text x="96" y="278" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Ref: PRD-TRK-009 S6</text>
-      <text x="360" y="360" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="#9c9a93">Both paths follow UTM-GOV-001 for allowed values</text>
+      <!-- NO AIMA label -->
+      <rect x="180" y="110" width="340" height="50" rx="6" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="350" y="132" text-anchor="middle" font-size="10" font-weight="500" fill="#8b1a1a" data-lang="en">🚫 Aima Engineer has NO involvement in this flow</text>
+      <text x="350" y="148" text-anchor="middle" font-size="9" fill="#8b1a1a" data-lang="zh">🚫 Aima 工程师在此流程中不参与任何工作</text>
     </svg>
   </div>
 
-  <div class="sub-h" data-lang="en">MA Engineer Responsibilities in This Flow</div>
-  <div class="sub-h" data-lang="zh">此流程中 MA 工程师的职责</div>
+  <!-- What MA link contains -->
+  <div class="sub-h" data-lang="en">What a MA Link Contains</div>
+  <div class="sub-h" data-lang="zh">MA 链接包含什么</div>
+  <div style="border-radius:6px;border:1px solid var(--border);overflow:hidden;margin:12px 0;">
+    <div style="padding:8px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;">MA WhatsApp Link</div>
+    <pre style="background:#1c1b18;color:#d4d0c8;padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;margin:0;">https://welovesupermom.com/event/summer-sale
+  ?<span style="color:#f48fb1;">ma_ref</span>=<span style="color:#ffcc80;">eyJhbGci...</span>           <span style="color:#6b7280;font-style:italic;">← MA internal tracking (PRD-TRK-007)</span>
+  &amp;<span style="color:#f48fb1;">utm_source</span>=<span style="color:#a5d6a7;">crm</span>              <span style="color:#6b7280;font-style:italic;">← MA source</span>
+  &amp;<span style="color:#f48fb1;">utm_medium</span>=<span style="color:#a5d6a7;">messaging</span>         <span style="color:#6b7280;font-style:italic;">← MA medium</span>
+  &amp;<span style="color:#f48fb1;">utm_campaign</span>=<span style="color:#a5d6a7;">2026_sg_summer</span>   <span style="color:#6b7280;font-style:italic;">← from flow_name</span>
+  <span style="color:#6b7280;font-style:italic;">// No aima_ref — MA messages have nothing to do with Aima conversation system</span></pre>
+  </div>
+
+  <!-- Side by side comparison -->
+  <div class="sub-h" data-lang="en">MA vs Aima — Full Comparison</div>
+  <div class="sub-h" data-lang="zh">MA vs Aima — 完整对比</div>
   <div class="tw"><table>
-    <thead><tr><th><span data-lang="en">Responsibility</span><span data-lang="zh">职责</span></th><th><span data-lang="en">Owner</span><span data-lang="zh">负责方</span></th><th><span data-lang="en">Reference</span><span data-lang="zh">参考文档</span></th></tr></thead>
+    <thead><tr>
+      <th><span data-lang="en">Dimension</span><span data-lang="zh">维度</span></th>
+      <th><span data-lang="en">MA System</span><span data-lang="zh">MA System</span></th>
+      <th><span data-lang="en">Aima System</span><span data-lang="zh">Aima System</span></th>
+    </tr></thead>
     <tbody>
       <tr>
-        <td><span data-lang="en">When triggering Aima to send, pass <code>ma_ref</code> in the request so Aima knows this is an MA-triggered message</span><span data-lang="zh">触发 Aima 发送时，在请求中传入 <code>ma_ref</code>，让 Aima 知道这是 MA 触发的消息</span></td>
-        <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span></td>
-        <td class="zh" data-lang="en">PRD-TRK-007</td>
-        <td class="zh" data-lang="zh">PRD-TRK-007</td>
+        <td class="field"><span data-lang="en">Message type</span><span data-lang="zh">消息类型</span></td>
+        <td><span data-lang="en">Batch template messages</span><span data-lang="zh">批量模板消息</span></td>
+        <td><span data-lang="en">Real-time conversational messages</span><span data-lang="zh">实时对话消息</span></td>
       </tr>
       <tr>
-        <td><span data-lang="en">Pass UTM parameters (utm_source, utm_medium, utm_campaign) to Aima alongside ma_ref. Aima passthrough only — does not modify.</span><span data-lang="zh">将 UTM 参数（utm_source、utm_medium、utm_campaign）与 ma_ref 一起传给 Aima。Aima 只透传，不修改。</span></td>
+        <td class="field"><span data-lang="en">Who builds message</span><span data-lang="zh">谁构建消息</span></td>
         <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span></td>
-        <td class="zh" data-lang="en">PRD-TRK-007 S9 + UTM-GOV-001</td>
-        <td class="zh" data-lang="zh">PRD-TRK-007 S9 + UTM-GOV-001</td>
+        <td><span class="team team-aima">Aima Engineer</span></td>
       </tr>
       <tr>
-        <td><span data-lang="en">Align interface spec with Aima Engineer — agree on how ma_ref and UTM are passed in the API request</span><span data-lang="zh">与 Aima 工程师对齐接口规范——就 API 请求中如何传递 ma_ref 和 UTM 达成一致</span></td>
-        <td><span class="team team-be" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-b);">MA Engineer</span> + <span class="team team-aima">Aima Engineer</span></td>
-        <td class="zh" data-lang="en">⚠️ Must align before implementation</td>
-        <td class="zh" data-lang="zh">⚠️ 实现前必须对齐</td>
+        <td class="field"><span data-lang="en">Tracking token</span><span data-lang="zh">追踪 token</span></td>
+        <td><code>ma_ref</code></td>
+        <td><code>aima_ref</code></td>
+      </tr>
+      <tr>
+        <td class="field"><span data-lang="en">UTM source</span><span data-lang="zh">UTM source</span></td>
+        <td><code>crm</code></td>
+        <td><code>aima</code></td>
+      </tr>
+      <tr>
+        <td class="field"><span data-lang="en">UTM medium</span><span data-lang="zh">UTM medium</span></td>
+        <td><code>messaging</code></td>
+        <td><code>whatsapp</code></td>
+      </tr>
+      <tr>
+        <td class="field"><span data-lang="en">WA account used</span><span data-lang="zh">使用的 WA 账号</span></td>
+        <td colspan="2" style="text-align:center;"><span data-lang="en">✅ Same Aima WA account — but called independently by each system</span><span data-lang="zh">✅ 同一个 Aima WA 账号——但各自独立调用</span></td>
+      </tr>
+      <tr>
+        <td class="field"><span data-lang="en">Conflict?</span><span data-lang="zh">冲突？</span></td>
+        <td colspan="2" style="text-align:center;"><span class="badge b-green" data-lang="en">✅ No conflict — completely independent, never overlap</span><span class="badge b-green" data-lang="zh">✅ 无冲突 — 完全独立，不重叠</span></td>
       </tr>
     </tbody>
   </table></div>
 
-  <div class="sub-h" data-lang="en">Two-Scenario Comparison</div>
-  <div class="sub-h" data-lang="zh">两个场景对比</div>
-  <div class="tw"><table>
-    <thead><tr><th><span data-lang="en">Dimension</span><span data-lang="zh">维度</span></th><th><span data-lang="en">User-initiated Aima conversation</span><span data-lang="zh">用户主动发起 Aima 对话</span></th><th><span data-lang="en">MA-triggered Aima message</span><span data-lang="zh">MA 触发 Aima 发消息</span></th></tr></thead>
-    <tbody>
-      <tr><td class="field" data-lang="en">Trigger</td><td class="field" data-lang="zh">触发方</td><td><span data-lang="en">User</span><span data-lang="zh">用户</span></td><td><span data-lang="en">MA System</span><span data-lang="zh">MA 系统</span></td></tr>
-      <tr><td class="field" data-lang="en">Tracking token</td><td class="field" data-lang="zh">追踪 token</td><td><code>aima_ref</code></td><td><code>ma_ref</code></td></tr>
-      <tr><td class="field" data-lang="en">UTM owner</td><td class="field" data-lang="zh">UTM 负责方</td><td><span data-lang="en">Aima Engineer (per S6)</span><span data-lang="zh">Aima 工程师（按 S6）</span></td><td><span data-lang="en">MA System (passed to Aima)</span><span data-lang="zh">MA 系统（传给 Aima）</span></td></tr>
-      <tr><td class="field" data-lang="en">PRD</td><td class="field" data-lang="zh">文档</td><td><span data-lang="en">This document (PRD-TRK-009)</span><span data-lang="zh">本文档（PRD-TRK-009）</span></td><td>PRD-TRK-007 S9</td></tr>
-      <tr><td class="field" data-lang="en">Conflict?</td><td class="field" data-lang="zh">冲突？</td><td colspan="4" style="text-align:center;"><span class="badge b-green" data-lang="en">✅ No conflict — mutually exclusive paths, never overlap</span><span class="badge b-green" data-lang="zh">✅ 无冲突 — 互斥路径，永不重叠</span></td></tr>
-    </tbody>
-  </table></div>
+  <!-- Aima Engineer responsibility in this context -->
+  <div class="sub-h" data-lang="en">Aima Engineer Responsibility in MA Flow</div>
+  <div class="sub-h" data-lang="zh">Aima 工程师在 MA 流程中的职责</div>
+  <div class="callout c-note" data-lang="en">
+    <strong>Aima Engineer has NO responsibility in the MA message flow.</strong> The only one-time alignment needed is ensuring the shared WA account API credentials are accessible by both systems without conflict. This is an infrastructure setup, not ongoing development work.
+  </div>
+  <div class="callout c-note" data-lang="zh">
+    <strong>Aima 工程师在 MA 消息流程中没有任何职责。</strong>唯一需要一次性对齐的是确保共用的 WA 账号 API 凭证两个系统都能正常调用且不冲突。这是基础设施配置，不是持续的开发工作。
+  </div>
 </section>
 
 <section class="section" id="s8">
@@ -1492,6 +1501,7 @@ https://third-party-site.com/product  <span class="c">← left as-is</span></pre
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th><span data-lang="en">Change Description</span><span data-lang="zh">变更说明</span></th></tr></thead>
     <tbody>
+      <tr><td>v2.0</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Major correction to Section 7B: MA System and Aima are completely independent — MA does not trigger Aima to send messages. MA uses Aima WA account directly via WhatsApp API. Aima Engineer has no involvement in MA message flow. Section rewritten with correct flow diagram, link example, and comparison table. Only one-time WA API credential alignment needed between teams.</td><td data-lang="zh">Section 7B 重大修正：MA System 和 Aima 完全独立——MA 不触发 Aima 发消息。MA 直接通过 WhatsApp API 使用 Aima WA 账号发送。Aima 工程师不参与 MA 消息流程。章节已重写，包含正确的流程图、链接示例和对比表格。两个团队只需一次性对齐 WA API 凭证配置。</td></tr>
       <tr><td>v1.9</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Merged "Aima System" and "Aima Backend" into single "Aima Engineer" card throughout. Updated all team badges, SVG lane labels, swimlane diagrams, table entries, and text references. Fixed broken HTML span tags. Fixed data flow SVG viewBox to prevent lane label clipping.</td><td data-lang="zh">将"Aima System"和"Aima Backend"全文合并为"Aima 工程师"单张卡片。更新所有 team badge、SVG lane 标签、泳道图、表格条目和文字引用。修复断裂的 HTML span 标签。修复数据流 SVG viewBox 防止 lane 标签被截断。</td></tr>
       <tr><td>v1.8</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed Responsibility Matrix: Recommendation Engineer card moved to first position in the grid (was incorrectly placed as a standalone card after the grid). Added proper why-box explaining why rec_id must be generated by the Rec Engineer, not Aima.</td><td data-lang="zh">修复职责矩阵：推荐工程师卡片移至网格第一位（之前错误地放在网格之外作为独立卡片）。新增 Why 说明框，解释为什么 rec_id 必须由推荐工程师生成而非 Aima。</td></tr>
       <tr><td>v1.7</td><td>2026-05-28</td><td>Product Team</td><td data-lang="en">Fixed table layout bug: all doubled EN/ZH columns merged into single bilingual columns using inline span switching. Tables now render correctly in both languages without column collapse. Lang toggle JS updated to handle inline span elements.</td><td data-lang="zh">修复表格布局错误：所有双列 EN/ZH 列合并为单列双语列（使用内联 span 切换）。两种语言下表格均正确渲染，不再出现列塌陷。Lang toggle JS 更新以正确处理内联 span 元素。</td></tr>
