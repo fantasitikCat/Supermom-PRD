@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMPL-TRK-GTM-001 GTM E-commerce Configuration Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--border-strong:#c8c5ba;--text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;--accent-soft:#f0ede6;--green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;--amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;--red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;--blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;--purple:#4a1a7a;--purple-bg:#f5edf9;--purple-b:#d8b0f0;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text-primary);background:var(--bg)}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:26px 0}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sidebar-logo .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.sidebar-logo .name{font-size:13px;font-weight:500;line-height:1.3}
+.sidebar-logo .ver{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px}
+.nav-group{margin-bottom:4px}
+.ngl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 20px 3px}
+.nl{display:block;padding:5px 20px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nl:hover{color:var(--text-primary);background:var(--accent-soft);border-left-color:var(--text-primary)}
+.nl .zh{color:var(--text-muted);font-size:11px;margin-left:4px}
+.main{padding:50px 58px;max-width:900px}
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:2px solid var(--text-primary)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+h1{font-size:25px;font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:12px}
+h1 strong{font-weight:500}
+.desc{font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+.mp{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.mp .l{color:var(--text-muted);font-family:var(--mono);font-size:10px}
+.mp .v{color:var(--text-primary);font-weight:500}
+.section{margin-bottom:56px;scroll-margin-top:26px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+h2{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px;line-height:1.3}
+h2 .zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+h3{font-size:14px;font-weight:500;margin:28px 0 10px;color:var(--text-primary);padding-bottom:6px;border-bottom:1px solid var(--border)}
+h4{font-size:12px;font-weight:500;margin:14px 0 6px;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.sdesc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65}
+hr.div{border:none;border-top:1px solid var(--border);margin:44px 0}
+.callout{padding:12px 16px;border-radius:5px;border-left:3px solid;margin:16px 0;font-size:13px;line-height:1.65}
+.callout .zh{display:block;font-size:12px;margin-top:4px;opacity:.85}
+.callout strong{font-weight:500}
+.c-info{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-warn{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-note{background:var(--accent-soft);border-color:var(--border-strong);color:var(--text-secondary)}
+.c-green{background:var(--green-bg);border-color:var(--green-b);color:var(--green)}
+.tw{overflow-x:auto;margin:12px 0;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--accent-soft)}
+th{padding:8px 12px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf7}
+code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+pre{background:#1c1b18;color:#d4d0c8;padding:16px 20px;border-radius:6px;font-family:var(--mono);font-size:12px;line-height:1.75;overflow-x:auto;margin:12px 0}
+pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7280}
+.step{counter-increment:steps;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.step-head{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--accent-soft);border-bottom:1px solid var(--border)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--text-primary);color:#fff;font-family:var(--mono);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:13px;font-weight:500}
+.step-body{padding:14px 16px;font-size:13px;color:var(--text-secondary);line-height:1.65}
+.step-body ul{margin:8px 0 8px 18px}
+.step-body li{margin-bottom:4px}
+.gtm-field{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-b);padding:1px 6px;border-radius:3px}
+.arrow-map{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:5px;margin:6px 0;font-size:12.5px}
+.arrow-map .from{font-family:var(--mono);color:var(--blue);font-size:12px}
+.arrow-map .arr{color:var(--text-muted)}
+.arrow-map .to{font-family:var(--mono);color:var(--green);font-size:12px}
+.arrow-map .note{font-size:11px;color:var(--text-muted);margin-left:auto}
+.funnel-row{display:grid;grid-template-columns:120px 160px 1fr;gap:0;border-bottom:1px solid var(--border)}
+.funnel-row:last-child{border-bottom:none}
+.funnel-row > div{padding:10px 14px;font-size:12.5px}
+.funnel-row > div:first-child{background:var(--accent-soft);font-weight:500;font-size:12px;color:var(--text-secondary)}
+.funnel-row > div:nth-child(2){font-family:var(--mono);font-size:12px;color:var(--blue)}
+.funnel-row > div:last-child{color:var(--text-secondary)}
+.funnel-wrap{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Implementation · GTM · 配置指南</div>
+    <div class="name">GTM E-commerce Configuration</div>
+    <div class="ver">IMPL-TRK-GTM-001 · v1.0</div>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Overview 概览</div>
+    <a class="nl" href="#overview">§1 Architecture</a>
+    <a class="nl" href="#funnel">§2 Funnel mapping</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Setup 配置步骤</div>
+    <a class="nl" href="#variables">Step 1 · Variables</a>
+    <a class="nl" href="#triggers">Step 2 · Triggers</a>
+    <a class="nl" href="#tag-view-item-list">Step 3 · view_item_list</a>
+    <a class="nl" href="#tag-select-item">Step 4 · select_item</a>
+    <a class="nl" href="#tag-view-item">Step 5 · view_item</a>
+    <a class="nl" href="#tag-begin-checkout">Step 6 · begin_checkout</a>
+    <a class="nl" href="#tag-purchase">Step 7 · purchase</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Validation 验证</div>
+    <a class="nl" href="#preview">§9 GTM Preview checklist</a>
+    <a class="nl" href="#ga4-report">§10 GA4 report verification</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Reference 参考</div>
+    <a class="nl" href="IMPL-TRK-001_Frontend_Implementation_Guide.html" style="color:var(--blue);font-family:var(--mono);font-size:11px;">← Frontend Guide 001</a>
+    <a class="nl" href="PRD-TRK-002_Tracking_Event_Contract.html" style="color:var(--blue);font-family:var(--mono);font-size:11px;">← Event Contract 002</a>
+  </div>
+</nav>
+
+<main class="main">
+<div class="doc-header">
+  <div class="eyebrow">Implementation · GTM · E-commerce Configuration</div>
+  <h1><strong>GTM E-commerce Configuration Guide</strong></h1>
+  <div class="desc">
+    Step-by-step GTM setup to transform custom dataLayer events into GA4 standard e-commerce events. Enables the GA4 built-in Purchase Journey funnel report without changing any frontend code.
+    <span style="display:block;color:var(--text-muted);font-size:12px;margin-top:3px">将自定义 dataLayer 事件转换为 GA4 标准电商事件，无需修改前端代码即可启用 GA4 内置漏斗报告。</span>
+  </div>
+  <div class="meta-pills">
+    <div class="mp"><span class="l">Doc</span><span class="v">IMPL-TRK-GTM-001</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">1.0</span></div>
+    <div class="mp"><span class="l">Parent</span><span class="v">PRD-TRK-002 v2.3</span></div>
+    <div class="mp"><span class="l">Audience</span><span class="v">GTM Operator</span></div>
+  </div>
+</div>
+
+<!-- §1 OVERVIEW -->
+<section class="section" id="overview">
+  <div class="stag">§1</div>
+  <h2>Architecture <span class="zh">架构说明</span></h2>
+  <p class="sdesc">Frontend pushes one event to dataLayer. GTM reads it and fires two GA4 events: the custom event (for BigQuery analysis) and a standard e-commerce event (for GA4 built-in reports). The frontend never pushes e-commerce events directly.</p>
+
+  <pre><span class="c">Frontend dataLayer          GTM                    GA4
+──────────────────          ───                    ───
+content_impression    ───►  Tag A ──► content_impression  (BigQuery)
+                      ───►  Tag B ──► view_item_list       (E-commerce funnel)
+
+content_click         ───►  Tag A ──► content_click        (BigQuery)
+                      ───►  Tag B ──► select_item           (E-commerce funnel)
+
+content_view          ───►  Tag A ──► content_view         (BigQuery)
+                      ───►  Tag B ──► view_item             (E-commerce funnel)
+
+begin_checkout        ───►  Tag A ──► begin_checkout        (BigQuery + GA4 funnel)
+
+purchase              ───►  Tag A ──► purchase              (BigQuery + GA4 funnel)</span></pre>
+
+  <div class="callout c-note"><strong>event_id is the link.</strong> Both Tag A and Tag B read <code>event_id</code> from the same dataLayer push. In BigQuery you can join <code>content_impression</code> with <code>view_item_list</code> using <code>event_id</code> to verify the mapping is correct.</div>
+</section>
+
+<!-- §2 FUNNEL MAPPING -->
+<section class="section" id="funnel">
+  <div class="stag">§2</div>
+  <h2>Funnel mapping <span class="zh">漏斗映射表</span></h2>
+
+  <div class="funnel-wrap">
+    <div class="funnel-row">
+      <div>Stage 阶段</div>
+      <div>GA4 Event</div>
+      <div>Source dataLayer event · Trigger</div>
+    </div>
+    <div class="funnel-row">
+      <div>1 Impression</div>
+      <div>view_item_list</div>
+      <div>Triggered by <code>content_impression</code> — fires for every content card that enters viewport</div>
+    </div>
+    <div class="funnel-row">
+      <div>2 Selection</div>
+      <div>select_item</div>
+      <div>Triggered by <code>content_click</code> — fires when user clicks a content card</div>
+    </div>
+    <div class="funnel-row">
+      <div>3 Engagement</div>
+      <div>view_item</div>
+      <div>Triggered by <code>content_view</code> — fires when detail page fully loads</div>
+    </div>
+    <div class="funnel-row">
+      <div>4 Intent</div>
+      <div>begin_checkout</div>
+      <div>Triggered by <code>begin_checkout</code> — fires on CTA click (before OTP if applicable)</div>
+    </div>
+    <div class="funnel-row">
+      <div>5 Conversion</div>
+      <div>purchase</div>
+      <div>Triggered by <code>purchase</code> — fires after backend confirms submission</div>
+    </div>
+  </div>
+</section>
+
+<!-- §3 VARIABLES -->
+<section class="section" id="variables">
+  <div class="stag">§3</div>
+  <h2>Step 1 — Create Data Layer Variables <span class="zh">第一步：创建数据层变量</span></h2>
+  <p class="sdesc">Variables are GTM's way of reading values from the dataLayer. Create all variables below before configuring any Tags. Each variable maps a dataLayer key to a GTM variable name you can reference in Tags.</p>
+
+  <div class="callout c-note"><strong>Where to find this in GTM:</strong> Left sidebar → <strong>Variables</strong> → <strong>User-Defined Variables</strong> section → <strong>New</strong>.<span class="zh">GTM 左侧导航 → Variables → User-Defined Variables → New。</span></div>
+
+  <h3>How to create one variable — step by step</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Variables → New</div></div>
+    <div class="step-body">Click <strong>New</strong> in the top right of the User-Defined Variables section.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Variable Configuration → choose Data Layer Variable</div></div>
+    <div class="step-body">Click <strong>Variable Configuration</strong> → scroll to <strong>Page Variables</strong> → select <strong>Data Layer Variable</strong>.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">3</div><div class="step-title">Set Data Layer Variable Name</div></div>
+    <div class="step-body">
+      In the <span class="gtm-field">Data Layer Variable Name</span> field, enter the key exactly as it appears in the dataLayer (e.g. <code>event_id</code>).<br><br>
+      Set <span class="gtm-field">Data Layer Version</span> to <strong>Version 2</strong>.<br><br>
+      Leave <span class="gtm-field">Default Value</span> empty unless specified below.
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">4</div><div class="step-title">Name the variable</div></div>
+    <div class="step-body">In the top left name field, enter the GTM Variable Name from the table below (e.g. <code>DLV - event_id</code>). Click <strong>Save</strong>.</div>
+  </div>
+
+  <h3>All variables to create</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GTM Variable Name</th><th>Data Layer Variable Name</th><th>Default Value</th><th>Used in Tags</th></tr></thead>
+    <tbody>
+      <tr><td><code>DLV - event_id</code></td><td><code>event_id</code></td><td>—</td><td>All e-commerce tags</td></tr>
+      <tr><td><code>DLV - content_id</code></td><td><code>content_id</code></td><td>—</td><td>All e-commerce tags</td></tr>
+      <tr><td><code>DLV - content_type</code></td><td><code>content_type</code></td><td>—</td><td>All e-commerce tags</td></tr>
+      <tr><td><code>DLV - content_category</code></td><td><code>content_category</code></td><td>—</td><td>view_item_list, select_item, view_item</td></tr>
+      <tr><td><code>DLV - component_type</code></td><td><code>component_type</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - impression_position</code></td><td><code>impression_position</code></td><td>—</td><td>view_item_list</td></tr>
+      <tr><td><code>DLV - clicked_position</code></td><td><code>clicked_position</code></td><td>—</td><td>select_item</td></tr>
+      <tr><td><code>DLV - filter_audience</code></td><td><code>filter_audience</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - filter_life_stage</code></td><td><code>filter_life_stage</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - filter_content_category</code></td><td><code>filter_content_category</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - filter_group_type</code></td><td><code>filter_group_type</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - tab_value</code></td><td><code>tab_value</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - recommendation_source</code></td><td><code>recommendation_source</code></td><td>—</td><td>view_item_list, select_item</td></tr>
+      <tr><td><code>DLV - transaction_id</code></td><td><code>transaction_id</code></td><td>—</td><td>purchase</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sdesc" style="margin-top:12px">Repeat the 4 steps above for each row. You should have 14 variables when done.</p>
+</section>
+
+<hr class="div">
+
+<!-- §3b TRIGGERS -->
+<section class="section" id="triggers">
+  <div class="stag">§3b</div>
+  <h2>Step 2 — Create Triggers <span class="zh">第二步：创建触发器</span></h2>
+  <p class="sdesc">Triggers tell GTM which dataLayer event should fire each Tag. Create these five triggers before configuring Tags.</p>
+
+  <div class="callout c-note"><strong>Where to find this in GTM:</strong> Left sidebar → <strong>Triggers</strong> → <strong>New</strong>.<span class="zh">GTM 左侧导航 → Triggers → New。</span></div>
+
+  <h3>How to create a Custom Event trigger</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Triggers → New → Trigger Configuration → Custom Event</div></div>
+    <div class="step-body">Click <strong>Trigger Configuration</strong> → under <strong>Other</strong> → select <strong>Custom Event</strong>.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Set Event Name</div></div>
+    <div class="step-body">
+      In <span class="gtm-field">Event Name</span>, enter the dataLayer event name exactly (case-sensitive).<br>
+      Set <span class="gtm-field">This trigger fires on</span> to <strong>All Custom Events</strong>.<br>
+      Name the trigger and Save.
+    </div>
+  </div>
+
+  <h3>All triggers to create</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Trigger Name</th><th>Trigger Type</th><th>Event Name</th></tr></thead>
+    <tbody>
+      <tr><td><code>CE - content_impression</code></td><td>Custom Event</td><td><code>content_impression</code></td></tr>
+      <tr><td><code>CE - content_click</code></td><td>Custom Event</td><td><code>content_click</code></td></tr>
+      <tr><td><code>CE - content_view</code></td><td>Custom Event</td><td><code>content_view</code></td></tr>
+      <tr><td><code>CE - begin_checkout</code></td><td>Custom Event</td><td><code>begin_checkout</code></td></tr>
+      <tr><td><code>CE - purchase</code></td><td>Custom Event</td><td><code>purchase</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §4 VIEW_ITEM_LIST -->
+<section class="section" id="tag-view-item-list">
+  <div class="stag">§4</div>
+  <h2>Step 3 — Tag: view_item_list <span class="zh">第三步：配置 view_item_list Tag</span></h2>
+  <p class="sdesc">This Tag fires every time a content card enters the viewport. It converts <code>content_impression</code> into GA4's standard <code>view_item_list</code> e-commerce event.</p>
+
+  <h3>Create the Tag</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Tags → New</div></div>
+    <div class="step-body">Left sidebar → <strong>Tags</strong> → <strong>New</strong>. Name the tag: <strong>GA4 - view_item_list</strong>.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Tag Configuration → Custom HTML</div></div>
+    <div class="step-body">
+      Click <strong>Tag Configuration</strong> → under <strong>Custom</strong> → select <strong>Custom HTML</strong>.<br><br>
+      <div class="callout c-note" style="margin-top:8px">Use <strong>Custom HTML</strong> instead of the GA4 Event tag type because GA4 Event tags do not support nested <code>items</code> arrays natively. Custom HTML gives full control over the payload structure.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">3</div><div class="step-title">Paste the HTML code</div></div>
+    <div class="step-body">Paste the code below into the HTML field. Replace <code>G-XXXXXXXXXX</code> with your GA4 Measurement ID.</div>
+  </div>
+
+  <pre><span class="c">&lt;script&gt;</span>
+window.gtag(<span class="s">'event'</span>, <span class="s">'view_item_list'</span>, {
+  <span class="k">send_to</span>: <span class="s">'G-XXXXXXXXXX'</span>,
+  <span class="k">event_id</span>:       {{DLV - event_id}},
+  <span class="k">item_list_name</span>: {{DLV - component_type}},
+  <span class="k">items</span>: [{
+    <span class="k">item_id</span>:        {{DLV - content_id}},
+    <span class="k">item_name</span>:      {{DLV - content_id}},
+    <span class="k">item_category</span>:  {{DLV - content_type}},
+    <span class="k">item_category2</span>: {{DLV - content_category}},
+    <span class="k">item_category3</span>: {{DLV - filter_audience}} || {{DLV - filter_life_stage}} || {{DLV - filter_group_type}} || {{DLV - tab_value}},
+    <span class="k">item_category4</span>: {{DLV - filter_content_category}},
+    <span class="k">item_list_id</span>:   {{DLV - recommendation_source}},
+    <span class="k">index</span>:          {{DLV - impression_position}}
+  }]
+});
+<span class="c">&lt;/script&gt;</span></pre>
+
+  <div class="step">
+    <div class="step-head"><div class="step-num">4</div><div class="step-title">Set Triggering</div></div>
+    <div class="step-body">
+      Scroll down to <strong>Triggering</strong> → click the <strong>+</strong> icon → select <strong>CE - content_impression</strong>.<br><br>
+      Click <strong>Save</strong>.
+    </div>
+  </div>
+
+  <h3>Field mapping explained</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GA4 e-commerce field</th><th>GTM Variable</th><th>dataLayer source</th><th>Example value</th></tr></thead>
+    <tbody>
+      <tr><td><code>event_id</code></td><td><code>{{DLV - event_id}}</code></td><td><code>event_id</code></td><td><code>evt_a1b2c3d4</code></td></tr>
+      <tr><td><code>item_list_name</code></td><td><code>{{DLV - component_type}}</code></td><td><code>component_type</code></td><td><code>campaign_list</code></td></tr>
+      <tr><td><code>item_id</code></td><td><code>{{DLV - content_id}}</code></td><td><code>content_id</code></td><td><code>cmp_001</code></td></tr>
+      <tr><td><code>item_category</code></td><td><code>{{DLV - content_type}}</code></td><td><code>content_type</code></td><td><code>lead_gen</code></td></tr>
+      <tr><td><code>item_category2</code></td><td><code>{{DLV - content_category}}</code></td><td><code>content_category</code></td><td><code>baby_essentials</code></td></tr>
+      <tr><td><code>item_category3</code></td><td>first non-empty of four filter variables</td><td><code>filter_audience</code> / <code>filter_life_stage</code> / <code>filter_group_type</code> / <code>tab_value</code></td><td><code>pregnant</code></td></tr>
+      <tr><td><code>item_category4</code></td><td><code>{{DLV - filter_content_category}}</code></td><td><code>filter_content_category</code></td><td><code>baby_essentials</code></td></tr>
+      <tr><td><code>item_list_id</code></td><td><code>{{DLV - recommendation_source}}</code></td><td><code>recommendation_source</code></td><td><code>rule_based</code></td></tr>
+      <tr><td><code>index</code></td><td><code>{{DLV - impression_position}}</code></td><td><code>impression_position</code></td><td><code>3</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn"><strong>item_category3 — only one filter field is active per page.</strong> Each page uses a different filter field: /giveaway uses <code>filter_audience</code>, /guide uses <code>filter_life_stage</code>, /connect uses <code>filter_group_type</code>, /earn uses <code>tab_value</code>. The <code>||</code> operator picks whichever has a value. Verify in GTM Preview that the correct field is populated for each page.<span class="zh">每个页面只有一个 filter 字段有值。|| 运算符取第一个非空值。在 GTM Preview 中分别验证各页面的 item_category3 是否正确。</span></div>
+</section>
+
+<hr class="div">
+
+<!-- §5 SELECT_ITEM -->
+<section class="section" id="tag-select-item">
+  <div class="stag">§5</div>
+  <h2>Step 4 — Tag: select_item <span class="zh">第四步：配置 select_item Tag</span></h2>
+  <p class="sdesc">Converts <code>content_click</code> into GA4's <code>select_item</code>. Same process as §4.</p>
+
+  <h3>Create the Tag</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Tags → New → Custom HTML</div></div>
+    <div class="step-body">Name: <strong>GA4 - select_item</strong>. Tag Configuration → Custom HTML. Paste code below.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Set Triggering → CE - content_click</div></div>
+    <div class="step-body">Triggering → <strong>CE - content_click</strong>. Save.</div>
+  </div>
+
+  <pre><span class="c">&lt;script&gt;</span>
+window.gtag(<span class="s">'event'</span>, <span class="s">'select_item'</span>, {
+  <span class="k">send_to</span>: <span class="s">'G-XXXXXXXXXX'</span>,
+  <span class="k">event_id</span>:       {{DLV - event_id}},
+  <span class="k">item_list_name</span>: {{DLV - component_type}},
+  <span class="k">items</span>: [{
+    <span class="k">item_id</span>:        {{DLV - content_id}},
+    <span class="k">item_name</span>:      {{DLV - content_id}},
+    <span class="k">item_category</span>:  {{DLV - content_type}},
+    <span class="k">item_category2</span>: {{DLV - content_category}},
+    <span class="k">item_category3</span>: {{DLV - filter_audience}} || {{DLV - filter_life_stage}} || {{DLV - filter_group_type}} || {{DLV - tab_value}},
+    <span class="k">index</span>:          {{DLV - clicked_position}}
+  }]
+});
+<span class="c">&lt;/script&gt;</span></pre>
+
+  <h3>Field mapping</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GA4 field</th><th>GTM Variable</th><th>dataLayer source</th></tr></thead>
+    <tbody>
+      <tr><td><code>event_id</code></td><td><code>{{DLV - event_id}}</code></td><td><code>event_id</code></td></tr>
+      <tr><td><code>item_list_name</code></td><td><code>{{DLV - component_type}}</code></td><td><code>component_type</code></td></tr>
+      <tr><td><code>item_id</code></td><td><code>{{DLV - content_id}}</code></td><td><code>content_id</code></td></tr>
+      <tr><td><code>item_category</code></td><td><code>{{DLV - content_type}}</code></td><td><code>content_type</code></td></tr>
+      <tr><td><code>item_category2</code></td><td><code>{{DLV - content_category}}</code></td><td><code>content_category</code></td></tr>
+      <tr><td><code>item_category3</code></td><td>first non-empty filter variable</td><td><code>filter_audience</code> / <code>filter_life_stage</code> / <code>filter_group_type</code> / <code>tab_value</code></td></tr>
+      <tr><td><code>index</code></td><td><code>{{DLV - clicked_position}}</code></td><td><code>clicked_position</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §6 VIEW_ITEM -->
+<section class="section" id="tag-view-item">
+  <div class="stag">§6</div>
+  <h2>Step 5 — Tag: view_item <span class="zh">第五步：配置 view_item Tag</span></h2>
+  <p class="sdesc">Converts <code>content_view</code> into GA4's <code>view_item</code>. Fires when user lands on a detail page.</p>
+
+  <h3>Create the Tag</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Tags → New → Custom HTML</div></div>
+    <div class="step-body">Name: <strong>GA4 - view_item</strong>. Tag Configuration → Custom HTML. Paste code below.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Set Triggering → CE - content_view</div></div>
+    <div class="step-body">Triggering → <strong>CE - content_view</strong>. Save.</div>
+  </div>
+
+  <pre><span class="c">&lt;script&gt;</span>
+window.gtag(<span class="s">'event'</span>, <span class="s">'view_item'</span>, {
+  <span class="k">send_to</span>: <span class="s">'G-XXXXXXXXXX'</span>,
+  <span class="k">event_id</span>: {{DLV - event_id}},
+  <span class="k">items</span>: [{
+    <span class="k">item_id</span>:        {{DLV - content_id}},
+    <span class="k">item_name</span>:      {{DLV - content_id}},
+    <span class="k">item_category</span>:  {{DLV - content_type}},
+    <span class="k">item_category2</span>: {{DLV - content_category}}
+  }]
+});
+<span class="c">&lt;/script&gt;</span></pre>
+
+  <h3>Field mapping</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GA4 field</th><th>GTM Variable</th><th>dataLayer source</th></tr></thead>
+    <tbody>
+      <tr><td><code>event_id</code></td><td><code>{{DLV - event_id}}</code></td><td><code>event_id</code></td></tr>
+      <tr><td><code>item_id</code></td><td><code>{{DLV - content_id}}</code></td><td><code>content_id</code></td></tr>
+      <tr><td><code>item_category</code></td><td><code>{{DLV - content_type}}</code></td><td><code>content_type</code></td></tr>
+      <tr><td><code>item_category2</code></td><td><code>{{DLV - content_category}}</code></td><td><code>content_category</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-note">No filter fields here — <code>content_view</code> fires on the detail page where there are no active filters. Filter context is preserved in BQ by joining with the preceding <code>content_click</code> event via <code>session_id</code>.</div>
+</section>
+
+<hr class="div">
+
+<!-- §7 BEGIN_CHECKOUT -->
+<section class="section" id="tag-begin-checkout">
+  <div class="stag">§7</div>
+  <h2>Step 6 — Tag: begin_checkout <span class="zh">第六步：配置 begin_checkout Tag</span></h2>
+  <div class="callout c-note"><code>begin_checkout</code> is pushed directly by the frontend — GTM passes it through to GA4 with items structure. No custom event conversion needed.<span class="zh">begin_checkout 由前端直接 push，GTM 加上 items 结构后透传给 GA4。</span></div>
+
+  <h3>Create the Tag</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Tags → New → Custom HTML</div></div>
+    <div class="step-body">Name: <strong>GA4 - begin_checkout</strong>. Paste code below.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Set Triggering → CE - begin_checkout</div></div>
+    <div class="step-body">Triggering → <strong>CE - begin_checkout</strong>. Save.</div>
+  </div>
+
+  <pre><span class="c">&lt;script&gt;</span>
+window.gtag(<span class="s">'event'</span>, <span class="s">'begin_checkout'</span>, {
+  <span class="k">send_to</span>: <span class="s">'G-XXXXXXXXXX'</span>,
+  <span class="k">event_id</span>: {{DLV - event_id}},
+  <span class="k">items</span>: [{
+    <span class="k">item_id</span>:       {{DLV - content_id}},
+    <span class="k">item_name</span>:     {{DLV - content_id}},
+    <span class="k">item_category</span>: {{DLV - content_type}}
+  }]
+});
+<span class="c">&lt;/script&gt;</span></pre>
+</section>
+
+<hr class="div">
+
+<!-- §8 PURCHASE -->
+<section class="section" id="tag-purchase">
+  <div class="stag">§8</div>
+  <h2>Step 7 — Tag: purchase <span class="zh">第七步：配置 purchase Tag</span></h2>
+  <div class="callout c-warn"><strong>transaction_id is mandatory.</strong> GA4 uses it to deduplicate purchase events. Always map it — a missing transaction_id causes duplicate conversions counted in GA4.<span class="zh">transaction_id 必填。GA4 用它去重转化事件。切勿遗漏，否则 GA4 里会重复计算转化。</span></div>
+
+  <h3>Create the Tag</h3>
+  <div class="step">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Tags → New → Custom HTML</div></div>
+    <div class="step-body">Name: <strong>GA4 - purchase</strong>. Paste code below.</div>
+  </div>
+  <div class="step">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Set Triggering → CE - purchase</div></div>
+    <div class="step-body">Triggering → <strong>CE - purchase</strong>. Save.</div>
+  </div>
+
+  <pre><span class="c">&lt;script&gt;</span>
+window.gtag(<span class="s">'event'</span>, <span class="s">'purchase'</span>, {
+  <span class="k">send_to</span>: <span class="s">'G-XXXXXXXXXX'</span>,
+  <span class="k">event_id</span>:       {{DLV - event_id}},
+  <span class="k">transaction_id</span>: {{DLV - transaction_id}},  <span class="c">// from Backend — mandatory</span>
+  <span class="k">value</span>:          <span class="n">0</span>,
+  <span class="k">currency</span>:       <span class="s">'SGD'</span>,
+  <span class="k">items</span>: [{
+    <span class="k">item_id</span>:       {{DLV - content_id}},
+    <span class="k">item_name</span>:     {{DLV - content_id}},
+    <span class="k">item_category</span>: {{DLV - content_type}}
+  }]
+});
+<span class="c">&lt;/script&gt;</span></pre>
+
+  <h3>Content types that trigger purchase</h3>
+  <div class="tw"><table>
+    <thead><tr><th>content_type</th><th>Trigger condition</th></tr></thead>
+    <tbody>
+      <tr><td><code>lead_gen</code></td><td>form_submit — backend confirms</td></tr>
+      <tr><td><code>survey</code></td><td>form_submit — backend confirms</td></tr>
+      <tr><td><code>ugc</code></td><td>form_submit — backend confirms</td></tr>
+      <tr><td><code>flashcard</code></td><td>OTP completes + backend confirms answer submission</td></tr>
+      <tr><td><code>flashcard</code> (vote)</td><td>OTP completes + backend confirms vote submission</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §9 PREVIEW CHECKLIST -->
+<section class="section" id="preview">
+  <div class="stag">§9</div>
+  <h2>GTM Preview — validation checklist <span class="zh">预览验证清单</span></h2>
+  <p class="sdesc">Use GTM Preview mode to verify each tag fires correctly. For each page type, confirm the following.</p>
+
+  <h3>For each listing page</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Check</th><th>Expected</th></tr></thead>
+    <tbody>
+      <tr><td><code>content_impression</code> fires in dataLayer</td><td>One entry per visible content card</td></tr>
+      <tr><td><code>GA4 - view_item_list</code> tag fires</td><td>Once per content_impression</td></tr>
+      <tr><td><code>item_list_name</code> value</td><td>Matches <code>component_type</code> (e.g. "campaign_list")</td></tr>
+      <tr><td><code>item_id</code> value</td><td>Matches <code>content_id</code></td></tr>
+      <tr><td><code>item_category</code> value</td><td>Matches <code>content_type</code></td></tr>
+      <tr><td><code>item_category3</code> value (filter pages)</td><td>Matches active filter state (e.g. "pregnant")</td></tr>
+      <tr><td><code>index</code> value</td><td>Sequential position — continues across Load More</td></tr>
+      <tr><td>After filter Tab click — <code>index</code> resets to 1</td><td>Position counter resets on filter change</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>For purchase flow</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Check</th><th>Expected</th></tr></thead>
+    <tbody>
+      <tr><td><code>begin_checkout</code> fires on CTA click</td><td>Before OTP popup appears</td></tr>
+      <tr><td><code>purchase</code> fires after backend confirm</td><td>NOT on button click</td></tr>
+      <tr><td><code>transaction_id</code> present in purchase tag</td><td>Non-empty string from backend</td></tr>
+      <tr><td>Same <code>event_id</code> in <code>content_impression</code> and <code>view_item_list</code></td><td>Identical UUID</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §10 GA4 REPORT -->
+<section class="section" id="ga4-report">
+  <div class="stag">§10</div>
+  <h2>GA4 report verification <span class="zh">GA4 报告验证</span></h2>
+
+  <h3>Purchase Journey funnel in GA4</h3>
+  <p class="sdesc">After tags are live, verify the funnel in GA4: <strong>Advertising → Attribution → Purchase Journey</strong>. You should see all 5 stages populated.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>GA4 Funnel Stage</th><th>GA4 Event</th><th>Where to check in GA4</th></tr></thead>
+    <tbody>
+      <tr><td>Impressions</td><td><code>view_item_list</code></td><td>Events report → view_item_list count</td></tr>
+      <tr><td>Product Views</td><td><code>view_item</code></td><td>Events report → view_item count</td></tr>
+      <tr><td>Add to Cart</td><td><code>begin_checkout</code></td><td>Events report → begin_checkout count</td></tr>
+      <tr><td>Purchases</td><td><code>purchase</code></td><td>Monetisation → Purchases</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-info"><strong>item_category breakdown in GA4:</strong> In the e-commerce reports, use <strong>Item category</strong> dimension to segment by <code>content_type</code> (lead_gen vs flashcard vs article). Use <strong>Item category 2</strong> for <code>content_category</code> breakdown.<span class="zh">在电商报告中，用 Item category 维度按 content_type 分组（如 lead_gen vs flashcard），用 Item category 2 按 content_category 分组。</span></div>
+
+  <h3>Common issues</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Issue</th><th>Likely cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>view_item_list not firing</td><td>Trigger name mismatch</td><td>Confirm trigger event name is exactly <code>content_impression</code></td></tr>
+      <tr><td>item_id empty</td><td>DLV not reading content_id</td><td>Check DLV key spelling — must match dataLayer key exactly</td></tr>
+      <tr><td>item_category3 always empty</td><td>Filter fields not in dataLayer</td><td>Confirm frontend is pushing filter_* fields in content_impression</td></tr>
+      <tr><td>Duplicate purchase conversions</td><td>transaction_id missing</td><td>Verify backend is returning transaction_id and frontend includes it</td></tr>
+      <tr><td>begin_checkout after OTP</td><td>Frontend firing too late</td><td>begin_checkout must fire on CTA click — before OTP check</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

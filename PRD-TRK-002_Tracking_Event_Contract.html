@@ -158,6 +158,10 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
     <a class="nav-link" href="#ownership">Ownership <span class="zh">负责人</span></a>
   </div>
   <div class="nav-group">
+    <div class="nav-group-label">Appendix 附录</div>
+    <a class="nav-link" href="#page-event-matrix">Page × Event matrix <span class="zh">页面事件矩阵</span></a>
+  </div>
+  <div class="nav-group">
     <div class="nav-group-label">Navigation 导航</div>
     <a class="nav-link" href="PRD-TRK-001_Tracking_System_Overview.html" style="color:var(--blue);font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:4px;">← Back to Overview <span class="zh">返回总览</span></a>
   </div>
@@ -225,6 +229,51 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </table></div>
 </section>
 
+<!-- v2.1 CHANGELOG -->
+<section class="section" id="changelog-v21">
+  <div class="stag">v2.1</div>
+  <h2>v2.1 Changelog <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>content_impression · content_click</td><td><code>impression_position</code> 从 NO 改为 CONDITIONAL；<code>clicked_position</code> 从 NO 改为 CONDITIONAL</td><td>位置效果对比分析的核心字段，标注为可选会导致前端不实现</td></tr>
+      <tr><td>content_impression · content_click</td><td><code>recommendation_source</code> 从 NO 改为 CONDITIONAL</td><td>component_type = recommendation_widget 时必填，大量空值会使推荐效果分析失去意义</td></tr>
+      <tr><td>§04 Conditional rules</td><td>新增三条规则：impression_position · clicked_position · recommendation_source</td><td>与字段标注变更对齐</td></tr>
+      <tr><td>OTP events</td><td>删除 page_category: "auth"；page_type 改为透传底层页面类型；source_component 对齐新枚举</td><td>OTP 弹窗是浮层，page_type 应反映底层页面</td></tr>
+      <tr><td>Appendix A</td><td>detail 页 content_impression 补充 content_type 和 recommendation_source</td><td>原矩阵遗漏</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- v2.2 CHANGELOG -->
+<section class="section" id="changelog-v22">
+  <div class="stag">v2.2</div>
+  <h2>v2.2 Changelog <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>Global envelope</td><td>新增 <code>event_id</code>（YES 必填）：前端每次 push 生成唯一 UUID，用 <code>crypto.randomUUID()</code></td><td>双轨方案需精确关联 content_impression 与 GTM 转换的 view_item_list；支持 BQ 去重</td></tr>
+      <tr><td>OTP events</td><td>新增 <code>source_page</code> 和 <code>component_name</code> 字段；更新示例覆盖 4 个场景</td><td>source_component 拆分为两字段后需同时推送 source_page 和 component_name 才能完整标识触发上下文</td></tr>
+      <tr><td>content_impression · content_click</td><td>新增 filter 字段：<code>filter_life_stage</code> <code>filter_content_category</code> <code>filter_group_type</code> <code>filter_audience</code> <code>tab_value</code>（均 CONDITIONAL）</td><td>BQ 需还原"用户在什么 filter 状态下看到/点击了这个内容"</td></tr>
+      <tr><td>page_view</td><td>新增 <code>tab_value</code>（CONDITIONAL）：/earn 页初始 Tab 状态，默认 all</td><td>BQ 分析 /earn 用户行为需知道进入时的 Tab 状态</td></tr>
+      <tr><td>§04 Conditional rules</td><td>新增规则：filter_* 字段条件 · switch_tab 条件 · otp_popup_view 三字段必填 · /earn page_view tab_value 必填</td><td>与新增字段对齐</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- v2.3 CHANGELOG -->
+<section class="section" id="changelog-v23">
+  <div class="stag">v2.3</div>
+  <h2>v2.3 Changelog <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>§08-ext Profile setup</td><td>新增三个事件：<code>profile_setup_view</code> · <code>profile_setup_dismiss</code> · <code>profile_setup_submit</code></td><td>新用户注册后画像采集流程需要追踪：弹窗曝光、关闭、提交，以及独立页面的相同行为</td></tr>
+      <tr><td>§08-ext</td><td><code>is_pregnant</code> 和 <code>children_count</code> 标注 BigQuery only，GTM 不转发给 GA4</td><td>用户画像数据属于 PII 风险字段，不应进入 GA4</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <!-- 01 PRINCIPLES -->
 <section class="section" id="principles">
   <div class="stag">01</div>
@@ -253,6 +302,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
     <thead><tr><th>Field 字段</th><th>Type</th><th>Required</th><th>Description 说明</th><th>Owner</th></tr></thead>
     <tbody>
       <tr><td><code>event</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>Event name — see §07<span class="zh">事件名称，见第 07 节</span></td><td><span class="own ofe">Frontend</span></td></tr>
+      <tr><td><code>event_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>Unique UUID generated per dataLayer.push — use <code>crypto.randomUUID()</code>. Used for deduplication between <code>content_impression</code> and GTM-generated <code>view_item_list</code><span class="zh">每次 push 生成的唯一 UUID，用于 content_impression 与 GTM 转换事件去重关联</span></td><td><span class="own ofe">Frontend</span></td></tr>
       <tr><td><code>page_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>Current page type — see Dictionary §1<span class="zh">当前页面类型，见字典第 1 节</span></td><td><span class="own ofe">Frontend</span></td></tr>
       <tr><td><code>session_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>GA4 <code>ga_session_id</code> — read by GTM, written to dataLayer<span class="zh">GTM 从 GA4 读取后写入 dataLayer</span></td><td><span class="own ogtm">GTM</span></td></tr>
       <tr><td><code>anonymous_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td>GA4 <code>client_id</code> — read by GTM, written to dataLayer<span class="zh">GTM 从 GA4 读取后写入 dataLayer</span></td><td><span class="own ogtm">GTM</span></td></tr>
@@ -304,6 +354,12 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
     <div class="cond-rule">If <code>content_type = "event"</code> → <code>content_id</code> <strong>Required</strong> · <code>source_system</code> <strong>Required</strong> · <code>content_source</code> <strong>Required</strong><span class="zh">外部活动：content_id、source_system、content_source 均必填</span></div>
     <div class="cond-rule">If <code>content_type = "external_link"</code> → <code>link_url</code> <strong>Required</strong> · <code>link_domain</code> <strong>Recommended</strong><span class="zh">外部链接：link_url 必填，link_domain 推荐填写</span></div>
     <div class="cond-rule">If <code>page_type = "detail"</code> or <code>"listing"</code> → <code>content_type</code> <strong>Required</strong><span class="zh">详情页或列表页：content_type 必填</span></div>
+    <div class="cond-rule">If <code>component_type</code> has position concept (<code>"banner" / "recommendation_widget" / "article_list" / "campaign_list" / "group_list" / "carousel"</code>) → <code>impression_position</code> <strong>Required</strong> in <code>content_impression</code> · <code>clicked_position</code> <strong>Required</strong> in corresponding <code>content_click</code><span class="zh">有位置概念的组件：impression_position 必填，对应 content_click 中 clicked_position 必填</span></div>
+    <div class="cond-rule">If <code>component_type = "recommendation_widget"</code> → <code>recommendation_source</code> <strong>Required</strong><span class="zh">推荐组件：recommendation_source 必填</span></div>
+    <div class="cond-rule">If page has active filter state and event is <code>content_impression</code> or <code>content_click</code> → all active <code>filter_*</code> fields <strong>Required</strong>: <code>filter_life_stage</code> on /guide · <code>filter_content_category</code> on /guide article section · <code>filter_group_type</code> on /connect · <code>filter_audience</code> on /giveaway<span class="zh">有过滤器的列表页，content_impression 和 content_click 必须携带所有当前激活的 filter_* 字段；前端需维护 filter 状态对象</span></div>
+    <div class="cond-rule">If <code>button_action_type = "switch_tab"</code> → <code>tab_value</code> <strong>Required</strong> — used only on /earn for content type switching<span class="zh">/earn 内容类型 Tab 切换：tab_value 必填</span></div>
+    <div class="cond-rule">If <code>page_type = "listing"</code> and page is /earn → <code>tab_value</code> <strong>Required</strong> in <code>page_view</code> to record initial Tab state<span class="zh">/earn 页 page_view：tab_value 必填，记录初始 Tab 状态，默认值 all</span></div>
+    <div class="cond-rule">If event is <code>otp_popup_view</code> → <code>source_component</code> <strong>Required</strong> · <code>source_page</code> <strong>Required</strong> · <code>component_name</code> <strong>Required</strong><span class="zh">OTP 弹窗触发：source_component、source_page、component_name 三字段均必填</span></div>
   </div>
   <div class="callout c-note"><strong>source_campaign_id vs campaign_id：</strong> <code>source_campaign_id</code> = the campaign the user is currently on（当前所在活动，即上下文）. <code>campaign_id</code> = the campaign being displayed as content（被展示的内容活动）.<span class="zh">例：用户在活动 A 的 thank_you 页（source_campaign_id: "cmp_001"），看到推荐的活动 B（campaign_id: "cmp_002"）。</span></div>
 </section>
@@ -349,6 +405,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
         <tr><td><code>page_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"art_001"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>page_title</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"Baby eczema guide"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>page_url</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"/article/art_001"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>tab_value</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"all"</code></td><td><span class="own ofe">Frontend</span></td></tr>
       </tbody>
     </table></div>
     <pre><span class="c">// page_view — article detail / 文章详情页</span>
@@ -390,9 +447,14 @@ dataLayer.push({
         <tr><td><code>campaign_id</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"cmp_002"</code></td><td><span class="own obe">Backend</span></td></tr>
         <tr><td><code>campaign_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"survey"</code></td><td><span class="own obe">Backend</span></td></tr>
         <tr><td><code>content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"nutrition"</code></td><td><span class="own ocms">CMS</span></td></tr>
-        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"aima"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"rule_based"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>source_campaign_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>impression_position</code></td><td>integer</td><td><span class="req rno">NO</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>impression_position</code></td><td>integer</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_life_stage</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"trimester_1"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"baby_essentials"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_group_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"birth_club"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_audience</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"pregnant"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>tab_value</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"ugc"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>link_url</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"https://..."</code></td><td><span class="own obe">Backend</span></td></tr>
         <tr><td><code>link_domain</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"example.com"</code></td><td><span class="own obe">Backend</span></td></tr>
       </tbody>
@@ -430,9 +492,14 @@ dataLayer.push({
         <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"banner"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
         <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"campaign"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"homepage"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"homepage"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>source_campaign_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>clicked_position</code></td><td>integer</td><td><span class="req rno">NO</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>clicked_position</code></td><td>integer</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_life_stage</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"trimester_1"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"baby_essentials"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_group_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"birth_club"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>filter_audience</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"pregnant"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>tab_value</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"ugc"</code></td><td><span class="own ofe">Frontend</span></td></tr>
       </tbody>
     </table></div>
     <pre><span class="c">// content_click — banner on homepage / 首页 banner 点击</span>
@@ -543,17 +610,26 @@ dataLayer.push({
         <tr><td><code>otp_verify_fail</code> <span style="font-size:11px;color:var(--text-muted)">OTP 验证失败</span></td><td>Verification fails<span class="zh">验证失败时</span></td><td><code>fail_reason: "invalid_otp" / "expired_otp" / "max_attempts"</code></td></tr>
       </tbody>
     </table></div>
-    <pre><span class="c">// otp_popup_view</span>
-dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"campaign_join_button"</span> });
+    <pre><span class="c">// otp_popup_view — 用户在活动详情页点击参加，被拦截</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"campaign_join"</span>, <span class="k">source_page</span>: <span class="s">"detail"</span>, <span class="k">component_name</span>: <span class="s">"detail_join_button"</span> });
 
-<span class="c">// login — existing user verified</span>
-dataLayer.push({ <span class="k">event</span>: <span class="s">"login"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">method</span>: <span class="s">"otp_verified"</span> });
+<span class="c">// otp_popup_view — 首页 "Chat with Aima" 黄色区块按钮（主动触发）</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"aima_open"</span>, <span class="k">source_page</span>: <span class="s">"homepage"</span>, <span class="k">component_name</span>: <span class="s">"homepage_aima_section"</span> });
+
+<span class="c">// otp_popup_view — 首页 "Trusted by millions" 区块 Join Village 按钮</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"village_join"</span>, <span class="k">source_page</span>: <span class="s">"homepage"</span>, <span class="k">component_name</span>: <span class="s">"homepage_social_proof"</span> });
+
+<span class="c">// otp_popup_view — /giveaway 页右侧 "Log in or join free" 按钮</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>, <span class="k">component_type</span>: <span class="s">"otp_popup"</span>, <span class="k">source_component</span>: <span class="s">"village_join"</span>, <span class="k">source_page</span>: <span class="s">"listing"</span>, <span class="k">component_name</span>: <span class="s">"giveaway_village_join"</span> });
+
+<span class="c">// login — existing user verified / page_type = 底层页面，不是 "auth"</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"login"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">method</span>: <span class="s">"otp_verified"</span> });
 
 <span class="c">// sign_up — new user</span>
-dataLayer.push({ <span class="k">event</span>: <span class="s">"sign_up"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">method</span>: <span class="s">"otp"</span> });
+dataLayer.push({ <span class="k">event</span>: <span class="s">"sign_up"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">method</span>: <span class="s">"otp"</span> });
 
 <span class="c">// otp_verify_fail</span>
-dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_verify_fail"</span>, <span class="k">page_type</span>: <span class="s">"auth"</span>, <span class="k">page_category</span>: <span class="s">"auth"</span>, <span class="k">fail_reason</span>: <span class="s">"invalid_otp"</span> });</pre>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"otp_verify_fail"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">fail_reason</span>: <span class="s">"invalid_otp"</span> });</pre>
   </div></div>
 </section>
 
@@ -600,8 +676,8 @@ dataLayer.push({ <span class="k">event</span>: <span class="s">"page_engagement"
   <h3>AIMA &amp; QA events</h3>
   <div class="callout c-warn"><strong>Privacy / 隐私：</strong> <code>question_topic</code> must be AI-classified. Never send raw message text.<span class="zh">question_topic 必须是 AI 分类后的标签，严禁传入用户原始聊天内容。</span></div>
   <div class="eb"><div class="eh"><span class="en">chat_open · chat_message_send · chat_close · qa_question_click</span></div><div class="ebody">
-    <pre><span class="c">// chat_open — 用户打开 AIMA 聊天窗口</span>
-dataLayer.push({ <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">component_type</span>: <span class="s">"chat_widget"</span>, <span class="k">source_component</span>: <span class="s">"floating_button"</span> });
+    <pre><span class="c">// chat_open — 用户打开 AIMA 聊天窗口（浮动按钮触发，未登录时会先跳 OTP）</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"article"</span>, <span class="k">component_type</span>: <span class="s">"chat_widget"</span>, <span class="k">source_component</span>: <span class="s">"aima_open"</span> });
 
 <span class="c">// chat_message_send — 用户发送消息</span>
 dataLayer.push({
@@ -881,6 +957,210 @@ dataLayer.push({
       <tr><td><span class="own oai">AI / Search</span></td><td><code>question_topic</code> <code>search_topic</code></td></tr>
     </tbody>
   </table></div>
+</section>
+
+<!-- APPENDIX: PAGE × EVENT MATRIX -->
+<hr class="div">
+<section class="section" id="page-event-matrix">
+  <div class="stag">Appendix A</div>
+  <h2>Page × Event matrix <span class="zh">页面事件矩阵</span></h2>
+  <p class="sdesc">For each page type, this matrix lists which events must be implemented, which are conditional, and which fields are required in that context. Use this as a frontend implementation checklist and QA verification guide.<span class="zh">对于每种页面类型，本矩阵列出必须实现的事件、条件事件及各场景必填字段。用作前端实施 checklist 和 QA 验收依据。</span></p>
+  <div class="callout c-note"><strong>OTP events apply to all pages / OTP 事件适用于所有页面：</strong> <code>otp_popup_view</code> · <code>otp_input_phone</code> · <code>otp_sent</code> · <code>login</code> · <code>sign_up</code> · <code>otp_verify_fail</code> can fire on any page where a login-gated action exists. Always use the underlying <code>page_type</code>, never <code>"auth"</code>.<span class="zh">OTP 事件可在任何有登录拦截的页面触发。page_type 始终填写底层页面类型，禁止填写 "auth"。</span></div>
+
+  <!-- homepage -->
+  <h3>homepage <span class="zh">首页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "homepage"</code></td><td></td></tr>
+      <tr><td><code>content_impression</code></td><td><span class="req ryes">YES</span></td><td><code>component_type</code> · <code>content_id</code> · <code>content_type</code> · <code>impression_position</code></td><td>All visible content components: banner, recommendation_widget, article_list, campaign_list</td></tr>
+      <tr><td><code>content_click</code></td><td><span class="req ryes">YES</span></td><td><code>component_type</code> · <code>content_id</code> · <code>clicked_position</code></td><td></td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type</code> · <code>target_type</code> · <code>component_type</code></td><td>Only if CTA buttons exist outside content items</td></tr>
+      <tr><td><code>search_submit</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>component_type: "search_bar"</code> · <code>search_topic</code></td><td>Only if search bar present on homepage</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- listing -->
+  <h3>listing <span class="zh">列表页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "listing"</code></td><td></td></tr>
+      <tr><td><code>content_impression</code></td><td><span class="req ryes">YES</span></td><td><code>component_type</code> · <code>content_id</code> · <code>content_type</code> · <code>impression_position</code></td><td>Every content card that enters viewport</td></tr>
+      <tr><td><code>content_click</code></td><td><span class="req ryes">YES</span></td><td><code>component_type</code> · <code>content_id</code> · <code>clicked_position</code></td><td></td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type: "apply_filter"</code> · <code>component_type: "filter_widget"</code> · <code>filter_value</code></td><td>Required when filter_widget is present</td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type: "view_all"</code> · <code>component_type</code></td><td>Required when "view all" buttons exist</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- detail -->
+  <h3>detail <span class="zh">详情页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "detail"</code></td><td></td></tr>
+      <tr><td><code>content_view</code></td><td><span class="req ryes">YES</span></td><td><code>content_id</code> · <code>content_type</code> · <code>content_category</code></td><td>Fires after page fully loaded</td></tr>
+      <tr><td><code>scroll_depth</code></td><td><span class="req ryes">YES</span></td><td><code>scroll_percentage</code></td><td>25% / 50% / 75% / 90%</td></tr>
+      <tr><td><code>page_engagement</code></td><td><span class="req ryes">YES</span></td><td><code>engagement_time_sec</code></td><td>15s / 30s / 60s / 120s</td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type</code> · <code>target_type</code> · <code>component_type</code></td><td>campaign_join, group_join, share, like, save, join_external</td></tr>
+      <tr><td><code>content_impression</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>component_type: "recommendation_widget"</code> · <code>content_id</code> · <code>impression_position</code></td><td>Only if related content / recommendation widget present</td></tr>
+      <tr><td><code>video_play · video_progress · video_complete</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>video_id</code> · <code>video_duration_sec</code> · <code>content_format: "video"</code></td><td>Only if page contains video</td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type: "submit_answer"</code> · <code>component_type: "poll_widget"</code></td><td>Only if flashcard / poll widget present</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- form -->
+  <h3>form <span class="zh">表单页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "form"</code></td><td></td></tr>
+      <tr><td><code>form_view</code></td><td><span class="req ryes">YES</span></td><td><code>form_id</code> · <code>component_type: "form"</code></td><td></td></tr>
+      <tr><td><code>form_start</code></td><td><span class="req ryes">YES</span></td><td><code>form_id</code></td><td>First field interaction only</td></tr>
+      <tr><td><code>form_submit</code></td><td><span class="req ryes">YES</span></td><td><code>form_id</code> · <code>utm_source</code> · <code>utm_medium</code> · <code>utm_campaign</code></td><td>Backend confirmed only — NOT on button click</td></tr>
+      <tr><td><code>form_validation_error</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>form_id</code> · <code>validation_field</code></td><td>One event per failed field</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- thank_you -->
+  <h3>thank_you <span class="zh">提交成功页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "thank_you"</code></td><td></td></tr>
+      <tr><td><code>content_impression</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>component_type: "recommendation_widget"</code> · <code>content_id</code> · <code>recommendation_source: "thank_you"</code> · <code>source_campaign_id</code></td><td>Only if recommendation widget present</td></tr>
+      <tr><td><code>content_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>component_type</code> · <code>content_id</code> · <code>clicked_position</code></td><td>Only if recommendation widget present</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- profile -->
+  <h3>profile <span class="zh">用户中心</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "profile"</code></td><td></td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type</code> · <code>target_type</code> · <code>component_type</code></td><td>Navigation actions, settings shortcuts</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- settings -->
+  <h3>settings <span class="zh">设置页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "settings"</code></td><td></td></tr>
+      <tr><td><code>button_click</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>button_action_type</code> · <code>component_type</code></td><td>Save, toggle, submit preference actions</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- search_result -->
+  <h3>search_result <span class="zh">搜索结果页</span></h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event 事件</th><th>Required 必须</th><th>Key fields 关键字段</th><th>Notes 说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_view</code></td><td><span class="req ryes">YES</span></td><td><code>page_type: "search_result"</code></td><td></td></tr>
+      <tr><td><code>search_result_view</code></td><td><span class="req ryes">YES</span></td><td><code>search_topic</code> · <code>result_count</code></td><td></td></tr>
+      <tr><td><code>search_result_click</code></td><td><span class="req ryes">YES</span></td><td><code>search_topic</code> · <code>clicked_content_id</code> · <code>clicked_position</code></td><td></td></tr>
+      <tr><td><code>search_no_result</code></td><td><span class="req rcond">CONDITIONAL</span></td><td><code>search_topic</code></td><td>Only when result_count = 0</td></tr>
+    </tbody>
+  </table></div>
+
+</section>
+
+<!-- PROFILE SETUP EVENTS -->
+<hr class="div">
+<section class="section" id="profile-setup-events">
+  <div class="stag">§08-ext</div>
+  <h2>Profile setup events <span class="zh">用户画像采集事件</span></h2>
+  <p class="sdesc">Fired when a new user encounters the onboarding profile popup (post-registration) or visits the standalone profile setup page. Data collected here goes to BigQuery only — do NOT register <code>is_pregnant</code> or <code>children_count</code> as GA4 Custom Dimensions.<span class="zh">新用户注册后遇到画像采集弹窗，或访问独立的画像采集页面时触发。采集数据仅进 BigQuery，禁止注册为 GA4 自定义维度。</span></p>
+  <div class="callout c-note"><strong>One-time popup / 弹窗只触发一次：</strong> <code>profile_setup_view</code> with <code>entry_source: "post_registration"</code> fires only once per user — immediately after first successful OTP registration. Subsequent visits to the standalone page use <code>entry_source: "direct"</code> or <code>"popup_dismissed"</code>.<span class="zh">entry_source 为 post_registration 的 profile_setup_view 每个用户只触发一次，即首次 OTP 注册成功后立即触发。</span></div>
+
+  <!-- profile_setup_view -->
+  <div class="eb" id="profile_setup_view">
+    <div class="eh"><span><span class="en">profile_setup_view</span><span class="en-zh">画像采集弹窗/页面曝光</span></span></div>
+    <div class="ebody">
+      <div class="emeta">
+        <div><label>Business meaning 业务含义</label><p>Profile setup UI becomes visible — either the post-registration popup or the standalone page.<span class="zh">画像采集界面出现，可能是注册后弹窗或独立页面。</span></p></div>
+        <div><label>Trigger timing 触发时机</label><p>When popup appears after OTP success (new user only), or when standalone profile page loads.<span class="zh">OTP 成功后弹窗出现时（仅新用户），或独立画像页面加载完成时。</span></p></div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"popup"</code> or <code>"form"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>component_name</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"onboarding_profile_popup"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>entry_source</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"post_registration"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        </tbody>
+      </table></div>
+      <pre><span class="c">// 新用户注册后弹窗出现</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"profile_setup_view"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">component_type</span>: <span class="s">"popup"</span>, <span class="k">component_name</span>: <span class="s">"onboarding_profile_popup"</span>, <span class="k">entry_source</span>: <span class="s">"post_registration"</span> });
+
+<span class="c">// 用户关闭弹窗后进入独立页面</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"profile_setup_view"</span>, <span class="k">page_type</span>: <span class="s">"profile"</span>, <span class="k">component_type</span>: <span class="s">"form"</span>, <span class="k">component_name</span>: <span class="s">"profile_setup_page"</span>, <span class="k">entry_source</span>: <span class="s">"popup_dismissed"</span> });
+
+<span class="c">// 用户直接访问独立页面（从未见过弹窗）</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"profile_setup_view"</span>, <span class="k">page_type</span>: <span class="s">"profile"</span>, <span class="k">component_type</span>: <span class="s">"form"</span>, <span class="k">component_name</span>: <span class="s">"profile_setup_page"</span>, <span class="k">entry_source</span>: <span class="s">"direct"</span> });</pre>
+    </div>
+  </div>
+
+  <!-- profile_setup_dismiss -->
+  <div class="eb" id="profile_setup_dismiss">
+    <div class="eh"><span><span class="en">profile_setup_dismiss</span><span class="en-zh">关闭画像采集弹窗</span></span></div>
+    <div class="ebody">
+      <div class="emeta">
+        <div><label>Business meaning 业务含义</label><p>New user closes the onboarding profile popup without submitting.<span class="zh">新用户关闭画像采集弹窗，未提交任何信息。</span></p></div>
+        <div><label>Trigger timing 触发时机</label><p>On X button click or outside-popup tap.<span class="zh">点击关闭按钮或点击弹窗外部时触发。</span></p></div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"popup"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>component_name</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"onboarding_profile_popup"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        </tbody>
+      </table></div>
+      <pre><span class="c">// 用户关闭弹窗</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"profile_setup_dismiss"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>, <span class="k">component_type</span>: <span class="s">"popup"</span>, <span class="k">component_name</span>: <span class="s">"onboarding_profile_popup"</span> });</pre>
+    </div>
+  </div>
+
+  <!-- profile_setup_submit -->
+  <div class="eb" id="profile_setup_submit">
+    <div class="eh"><span><span class="en">profile_setup_submit</span><span class="en-zh">提交画像信息</span></span></div>
+    <div class="ebody">
+      <div class="emeta">
+        <div><label>Business meaning 业务含义</label><p>User submits their profile information — either via popup or standalone page.<span class="zh">用户提交画像信息，可来自弹窗或独立页面。</span></p></div>
+        <div><label>Trigger timing 触发时机</label><p>On successful submission confirmed by backend. NOT on Finish button click.<span class="zh">Backend 确认提交成功后触发，不是点击 Finish 按钮时。</span></p></div>
+      </div>
+      <div class="callout c-warn"><strong>BigQuery only / 仅 BigQuery：</strong> <code>is_pregnant</code> and <code>children_count</code> must NOT be sent to GA4. GTM must not forward these fields.<span class="zh">is_pregnant 和 children_count 禁止进入 GA4，GTM 不转发这两个字段。</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><code>component_name</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"onboarding_profile_popup"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>entry_source</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"post_registration"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>is_pregnant</code></td><td>boolean</td><td><span class="req ryes">YES</span></td><td><code>true</code></td><td><span class="own ofe">Frontend</span></td></tr>
+          <tr><td><code>children_count</code></td><td>integer</td><td><span class="req ryes">YES</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        </tbody>
+      </table></div>
+      <pre><span class="c">// 用户在弹窗中提交画像信息</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"profile_setup_submit"</span>,
+  <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">component_name</span>: <span class="s">"onboarding_profile_popup"</span>,
+  <span class="k">entry_source</span>: <span class="s">"post_registration"</span>,
+  <span class="k">is_pregnant</span>: <span class="k">true</span>,
+  <span class="k">children_count</span>: <span class="n">0</span>
+});
+
+<span class="c">// 用户在独立页面提交（弹窗关闭后）</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"profile_setup_submit"</span>,
+  <span class="k">page_type</span>: <span class="s">"profile"</span>,
+  <span class="k">component_name</span>: <span class="s">"profile_setup_page"</span>,
+  <span class="k">entry_source</span>: <span class="s">"popup_dismissed"</span>,
+  <span class="k">is_pregnant</span>: <span class="k">false</span>,
+  <span class="k">children_count</span>: <span class="n">2</span>
+});</pre>
+    </div>
+  </div>
 </section>
 
 </main>

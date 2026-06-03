@@ -167,8 +167,22 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
       <tr><td>§9 button_action_type</td><td>新增 <code>join_external</code> <code>submit_answer</code> <code>submit_vote</code> <code>apply_filter</code> <code>view_all</code></td><td>社群加入、闪卡答题、投票、过滤等新行为</td></tr>
       <tr><td>§10 target_type</td><td>新增 <code>whatsapp</code> <code>telegram</code></td><td>外部平台跳转</td></tr>
       <tr><td>§6</td><td><span class="new">NEW 新增</span> source_system / content_source</td><td>外部 Event 平台跨系统数据来源标识</td></tr>
-      <tr><td>§15</td><td><span class="new">NEW 新增</span> filter_value</td><td>过滤行为参数，仅 BigQuery，不注册 GA4 CD</td></tr>
-      <tr><td>§5 recommendation_source</td><td>新增 <code>rule_based</code>（已登录，基于孩子年龄个性化推荐）和 <code>default</code>（未登录，回退到第一个 filter）；移除 <code>aima</code>（AIMA 是聊天组件，不是推荐算法）</td><td>与实际推荐逻辑对齐</td></tr>
+      <tr><td>§13 source_component</td><td>枚举完全重新定义：从 UI 组件名改为用户触发意图。新值：<code>navigation_register</code> <code>campaign_join</code> <code>group_join</code> <code>aima_open</code> <code>flashcard_answer</code> <code>vote</code>。移除：<code>banner</code> <code>recommendation_widget</code> <code>campaign_join_button</code> <code>floating_button</code> <code>filter_widget</code></td><td>原设计混淆了 UI 容器与用户意图。source_component 的职责是回答"用户被拦截时想做什么"，而非"哪个 UI 元素触发了事件"。UI 容器由 component_type 负责。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="changelog-v21">
+  <div class="stag">v2.1</div>
+  <h2>Changelog v2.1 <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section 节</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>§13 source_component</td><td>拆分为 <code>source_component</code> + <code>source_page</code> 两个字段；新增枚举值 <code>village_join</code> <code>mission_view</code></td><td>单字段无法区分同一意图在不同页面的触发；拆分后新增页面不需要新增枚举值</td></tr>
+      <tr><td>§9 button_action_type</td><td>新增 <code>switch_tab</code>；更新 <code>apply_filter</code> 说明，明确 Tab 切换 content_category 时也使用 apply_filter</td><td>区分内容类型切换（switch_tab）和过滤条件切换（apply_filter）</td></tr>
+      <tr><td>§15 Filter fields</td><td>废弃单一 filter_value 字段；改为按维度拆分：<code>filter_life_stage</code> <code>filter_content_category</code> <code>filter_group_type</code> <code>filter_audience</code> <code>tab_value</code>；各字段有完整枚举</td><td>多 filter 维度同时激活时单字段无法承载；拆分后各维度独立，BQ 查询更清晰</td></tr>
+      <tr><td>§15 event_id</td><td><span class="new">NEW</span> 新增字段定义：前端每次 push 生成唯一 UUID，用于 content_impression 与 view_item_list 去重关联</td><td>双轨方案（自有体系 + 电商事件）需要能精确关联两个事件</td></tr>
+      <tr><td>§15 component_name</td><td><span class="new">NEW</span> 新增字段定义：同页多个相同类型组件时标识具体实例，命名规则 {page}_{zone}</td><td>homepage 多个 AIMA 入口需要区分，单靠 component_type 无法识别</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -394,7 +408,8 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
       <tr><td><span class="val">join_external</span></td><td>跳转外部平台加入</td><td><span class="new">NEW</span> User leaves Supermom to join a group on WhatsApp or Telegram — last trackable node<span class="zh">用户离开 Supermom 跳转至外部平台加入社群，是可追踪的最后节点</span></td></tr>
       <tr><td><span class="val">submit_answer</span></td><td>提交答题</td><td><span class="new">NEW</span> Submit a flashcard quiz answer — light interaction, no funnel<span class="zh">提交闪卡答题，轻交互，不进转化漏斗</span></td></tr>
       <tr><td><span class="val">submit_vote</span></td><td>提交投票</td><td><span class="new">NEW</span> Submit a poll vote — light interaction, no funnel<span class="zh">提交投票，轻交互，不进转化漏斗</span></td></tr>
-      <tr><td><span class="val">apply_filter</span></td><td>应用过滤条件</td><td><span class="new">NEW</span> User selects a filter option in filter_widget<span class="zh">用户在过滤组件中选择筛选条件</span></td></tr>
+      <tr><td><span class="val">apply_filter</span></td><td>应用过滤条件</td><td><span class="new">NEW</span> User selects a filter option in filter_widget or tab component. Use when tab switches content_category or life_stage<span class="zh">用户在过滤组件或 Tab 中选择筛选条件（Tab 切换内容分类或生命周期时使用）</span></td></tr>
+      <tr><td><span class="val">switch_tab</span></td><td>切换内容类型 Tab</td><td><span class="new">NEW</span> User switches between content type tabs (e.g. /earn: All → ugc → survey). Use only when tab switches content_type, not content_category<span class="zh">用户在内容类型 Tab 间切换（如 /earn 页）。仅在 Tab 切换 content_type 时使用，切换 content_category 用 apply_filter</span></td></tr>
       <tr><td><span class="val">view_all</span></td><td>查看全部</td><td><span class="new">NEW</span> Entry point to view full list of a content type<span class="zh">查看某类内容全部列表的入口按钮</span></td></tr>
       <tr><td><span class="val">like</span></td><td>点赞</td><td>Like / upvote content</td></tr>
       <tr><td><span class="val">save</span></td><td>收藏</td><td>Save / bookmark content</td></tr>
@@ -479,18 +494,43 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
 <!-- §13 SOURCE COMPONENT -->
 <section class="section" id="source-component">
   <div class="stag">§13</div>
-  <h2>source_component <span class="zh">行为来源组件</span></h2>
-  <p class="sdesc">Identifies which component triggered the action. Used for OTP, popup, chat, and registration flows.<span class="zh">标识哪个组件触发了当前行为。</span></p>
+  <h2>source_component + source_page <span class="zh">OTP 触发意图 + 来源页面</span></h2>
+  <p class="sdesc">Two fields used together to fully identify the OTP trigger context. Always push both fields together in OTP and registration flow events.<span class="zh">两个字段配合使用，完整标识 OTP 触发上下文。在 OTP 和注册流程事件中始终同时推送。</span></p>
+  <div class="callout c-note">
+    <strong>Design rule / 设计原则：</strong> <code>source_component</code> = what the user was trying to do. <code>source_page</code> = which page it happened on. Splitting into two fields means new pages never require new <code>source_component</code> enum values.
+    <span class="zh">source_component 描述用户意图，source_page 描述发生页面。拆分为两个字段后，新增页面不需要新增 source_component 枚举值。</span>
+  </div>
+  <div class="callout c-info">
+    <strong>BQ derived field / BQ 派生字段：</strong> <code>trigger_type</code> (proactive vs intercepted) — derive in BigQuery:<br><br>
+    <code>CASE WHEN source_component = 'navigation_register' THEN 'proactive' ELSE 'intercepted' END AS trigger_type</code>
+    <span class="zh">主动注册 vs 被拦截不需要前端推送，在 BigQuery 中用 CASE 派生。新增枚举值时同步更新此 CASE。</span>
+  </div>
+
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">source_component 枚举</h3>
   <div class="tw"><table>
-    <thead><tr><th>Value 值</th><th>Chinese 中文</th></tr></thead>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Trigger type</th><th>Description 说明</th></tr></thead>
     <tbody>
-      <tr><td><span class="val">banner</span></td><td>Banner</td></tr>
-      <tr><td><span class="val">recommendation_widget</span></td><td>推荐组件</td></tr>
-      <tr><td><span class="val">campaign_join_button</span></td><td>活动参加按钮</td></tr>
-      <tr><td><span class="val">chat_widget</span></td><td>AIMA 聊天</td></tr>
-      <tr><td><span class="val">floating_button</span></td><td>浮动按钮</td></tr>
-      <tr><td><span class="val">navigation</span></td><td>顶部导航栏</td></tr>
-      <tr><td><span class="val">filter_widget</span></td><td>过滤组件</td></tr>
+      <tr><td><span class="val">navigation_register</span></td><td>导航栏注册/登录</td><td>主动触发</td><td>User clicked the register/login entry in top navigation<span class="zh">用户主动点击顶部导航注册/登录入口</span></td></tr>
+      <tr><td><span class="val">campaign_join</span></td><td>参加活动</td><td>被拦截</td><td>User clicked "Join campaign" — intercepted because not logged in<span class="zh">用户点击参加活动，因未登录被拦截</span></td></tr>
+      <tr><td><span class="val">group_join</span></td><td>加入社群</td><td>被拦截</td><td>User clicked "Join group" on any page — intercepted<span class="zh">用户在任意页面点击加入社群，因未登录被拦截</span></td></tr>
+      <tr><td><span class="val">aima_open</span></td><td>唤起 AIMA</td><td>被拦截</td><td>User triggered any AIMA entry point — intercepted. Use <code>source_page</code> + <code>component_name</code> to distinguish multiple AIMA buttons on same page<span class="zh">用户触发任意 AIMA 入口被拦截。同页多个 AIMA 按钮用 source_page + component_name 区分</span></td></tr>
+      <tr><td><span class="val">flashcard_answer</span></td><td>闪卡答题</td><td>被拦截</td><td>User selected a flashcard answer — intercepted<span class="zh">用户选择闪卡答案，因未登录被拦截</span></td></tr>
+      <tr><td><span class="val">vote</span></td><td>投票</td><td>被拦截</td><td>User clicked a poll option inside flashcard detail — intercepted<span class="zh">用户在闪卡详情页点击投票选项，因未登录被拦截</span></td></tr>
+      <tr><td><span class="val">village_join</span></td><td>加入 Supermom Village</td><td>被拦截</td><td>User clicked "Log in or join free" / "Join the Supermom Village" CTA. Use <code>source_page</code> to distinguish which page<span class="zh">用户点击加入 Village 的 CTA 按钮，用 source_page 区分页面</span></td></tr>
+      <tr><td><span class="val">mission_view</span></td><td>查看任务列表</td><td>被拦截</td><td>User clicked "See active missions" — intercepted<span class="zh">用户点击查看任务列表，因未登录被拦截</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">source_page 枚举</h3>
+  <p class="sdesc" style="margin-bottom:8px">Reuses <code>page_type</code> enum values. Always reflects the underlying page where the OTP was triggered — never <code>"auth"</code>.<span class="zh">复用 page_type 枚举值。始终反映触发 OTP 时的底层页面，禁止填写 "auth"。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Example pages</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">homepage</span></td><td>AIMA buttons, village join, mission CTA on homepage</td></tr>
+      <tr><td><span class="val">listing</span></td><td>village_join on /giveaway or /earn; group_join on /connect</td></tr>
+      <tr><td><span class="val">detail</span></td><td>campaign_join, group_join, flashcard_answer, vote on detail pages</td></tr>
+      <tr><td><span class="val">profile</span></td><td>Any gated action on profile page</td></tr>
+      <tr><td><span class="val">any</span></td><td>navigation_register — can fire from any page</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -519,26 +559,120 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
   </table></div>
 </section>
 
-<!-- §15 FILTER VALUE -->
+<!-- §15 FILTER FIELDS -->
 <section class="section" id="filter-value">
   <div class="stag">§15</div>
-  <h2>filter_value <span class="zh">过滤条件值</span></h2>
-  <p class="sdesc"><span class="new">NEW</span> The value selected by the user in a <code>filter_widget</code>. Sent in <code>button_click</code> events when <code>button_action_type = "apply_filter"</code>.<span class="zh">用户在过滤组件中选择的筛选条件值。在 button_action_type 为 apply_filter 的 button_click 事件中携带。</span></p>
-  <div class="callout c-warn"><strong>GA4 exposure rule：</strong> <code>filter_value</code> is high-cardinality. Do NOT register as a GA4 Custom Dimension. Use BigQuery only.<span class="zh">filter_value 为高基数字段，禁止注册为 GA4 自定义维度，仅在 BigQuery 中分析。</span></div>
-  <p class="sdesc">Values are free-form strings representing the filter label. Examples by page:<span class="zh">值为自由字符串，代表筛选标签。各页示例：</span></p>
+  <h2>Filter fields <span class="zh">过滤字段</span></h2>
+  <p class="sdesc">Each filter dimension has its own dedicated field. Always carry active filter state in <code>content_impression</code> and <code>content_click</code> events on filtered listing pages.<span class="zh">每个过滤维度有独立字段。在有过滤器的列表页，content_impression 和 content_click 事件必须携带当前激活的过滤状态。</span></p>
+  <div class="callout c-note"><strong>Design rule / 设计原则：</strong> Filter fields describe UI state, not content attributes. <code>content_category</code> = what the content is. <code>filter_content_category</code> = what the user selected. They are independent and both required when applicable.<span class="zh">过滤字段描述 UI 状态，不描述内容属性。content_category 是内容本身的分类，filter_content_category 是用户选择的过滤条件，两者独立，各自必填。</span></div>
+  <div class="callout c-warn"><strong>GA4 exposure rule：</strong> All filter fields are high-cardinality. Do NOT register as GA4 Custom Dimensions. Use BigQuery only.<span class="zh">所有过滤字段均为高基数，禁止注册为 GA4 自定义维度，仅在 BigQuery 中分析。</span></div>
+
+  <!-- filter_life_stage -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">filter_life_stage</h3>
+  <p class="sdesc" style="margin-bottom:8px">Life stage filter state. Used on /guide (flashcard tab, article section) and /connect (Birth Club dropdown).<span class="zh">生命周期过滤状态。用于 /guide 闪卡 Tab、/guide 文章区块、/connect Birth Club 下拉。</span></p>
   <div class="tw"><table>
-    <thead><tr><th>Page 页面</th><th>Example filter_value values</th></tr></thead>
+    <thead><tr><th>Value 值</th><th>Label 显示</th><th>Pages 页面</th></tr></thead>
     <tbody>
-      <tr><td>Gifts listing <code>/gifts</code></td><td><code>pregnant</code> · <code>with_kids_0_2</code> · <code>with_kids_3_above</code> · <code>family</code> · <code>all</code></td></tr>
-      <tr><td>Connect / WhatsApp Groups</td><td><code>all</code> · <code>birth_club</code> · <code>interests</code> · <code>neighbourhood</code></td></tr>
-      <tr><td>Connect / Birth Club sub-filter</td><td><code>all_stages</code> · <code>1st_trimester</code> · <code>2nd_trimester</code> · <code>3rd_trimester</code> · <code>0_3_months</code></td></tr>
+      <tr><td><span class="val">all_stages</span></td><td>All stages</td><td>/guide 文章区块 · /connect（有）· /guide 闪卡 Tab（<strong>无此值</strong>）</td></tr>
+      <tr><td><span class="val">trimester_1</span></td><td>1st Trimester</td><td>所有支持 life_stage 的页面</td></tr>
+      <tr><td><span class="val">trimester_2</span></td><td>2nd Trimester</td><td>同上</td></tr>
+      <tr><td><span class="val">trimester_3</span></td><td>3rd Trimester</td><td>同上</td></tr>
+      <tr><td><span class="val">0_3m</span></td><td>0-3 months</td><td>同上</td></tr>
+      <tr><td><span class="val">4_6m</span></td><td>4-6 months</td><td>同上</td></tr>
+      <tr><td><span class="val">7_12m</span></td><td>7-12 months</td><td>同上</td></tr>
+      <tr><td><span class="val">1_3y</span></td><td>1-3 years old</td><td>同上</td></tr>
+      <tr><td><span class="val">3_6y</span></td><td>3-6 years old</td><td>同上</td></tr>
+      <tr><td><span class="val">6_12y</span></td><td>6-12 years old</td><td>同上</td></tr>
+      <tr><td><span class="val">12y_above</span></td><td>12 Onwards</td><td>同上</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- filter_content_category -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">filter_content_category</h3>
+  <p class="sdesc" style="margin-bottom:8px">Content category filter state. Used on /guide article section. Default: <code>all</code>.<span class="zh">内容分类过滤状态。用于 /guide 文章区块。默认值 all。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Label 显示</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">all</span></td><td>All</td></tr>
+      <tr><td><span class="val">baby_essentials</span></td><td>Baby Essentials</td></tr>
+      <tr><td><span class="val">care_recovery</span></td><td>Care & Recovery</td></tr>
+      <tr><td><span class="val">education_learning</span></td><td>Education & Learning</td></tr>
+      <tr><td><span class="val">health_protection_finance</span></td><td>Health Protection & Finance</td></tr>
+      <tr><td><span class="val">mom_body_identity</span></td><td>Mom Body & Identity</td></tr>
+      <tr><td><span class="val">pregnancy_birth</span></td><td>Pregnancy & Birth</td></tr>
+      <tr><td><span class="val">product_guide_reviews</span></td><td>Product Guide & Reviews</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- filter_group_type -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">filter_group_type</h3>
+  <p class="sdesc" style="margin-bottom:8px">Group type filter state. Top-level Tab on /connect. Default: <code>all</code>.<span class="zh">社群类型过滤状态。/connect 顶层 Tab。默认值 all。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Label 显示</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">all</span></td><td>All</td></tr>
+      <tr><td><span class="val">birth_club</span></td><td>Birth Club</td></tr>
+      <tr><td><span class="val">interests</span></td><td>Interests</td></tr>
+      <tr><td><span class="val">neighbourhood</span></td><td>Neighbourhood</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- filter_audience -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">filter_audience</h3>
+  <p class="sdesc" style="margin-bottom:8px">Audience filter state. Tab on /giveaway listing. Default: <code>all</code>.<span class="zh">受众分类过滤状态。/giveaway 列表页 Tab。默认值 all。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Label 显示</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">all</span></td><td>All</td></tr>
+      <tr><td><span class="val">pregnant</span></td><td>Pregnant</td></tr>
+      <tr><td><span class="val">kids_0_2y</span></td><td>With kids 0–2 years old</td></tr>
+      <tr><td><span class="val">kids_3y_above</span></td><td>With kids 3 years old and above</td></tr>
+      <tr><td><span class="val">family</span></td><td>Family</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- filter_earn_type / tab_value -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">tab_value（/earn page）</h3>
+  <p class="sdesc" style="margin-bottom:8px">Content type Tab on /earn. Pushed in <code>button_click</code> with <code>button_action_type: "switch_tab"</code> and in <code>page_view</code> as initial state. Default: <code>all</code>.<span class="zh">/earn 页内容类型 Tab。在 button_click（switch_tab）和 page_view（初始状态）中推送。默认值 all。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Label 显示</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">all</span></td><td>All</td></tr>
+      <tr><td><span class="val">ugc</span></td><td>Create & Earn</td></tr>
+      <tr><td><span class="val">survey</span></td><td>Surveys</td></tr>
+      <tr><td><span class="val">referral</span></td><td>Referrals</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- event_id -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">event_id</h3>
+  <p class="sdesc" style="margin-bottom:8px">Unique ID generated by frontend for every dataLayer push. Ensures deduplication between <code>content_impression</code> and GTM-generated <code>view_item_list</code>. Required on all events.<span class="zh">前端每次 push dataLayer 时生成的唯一 ID。用于 content_impression 和 GTM 转换生成的 view_item_list 之间的去重关联。所有事件必填。</span></p>
+  <div class="callout c-note"><strong>Generation rule / 生成规则：</strong> Use <code>crypto.randomUUID()</code> or equivalent UUID v4 library. Generate once per dataLayer.push call — do NOT reuse across events.<span class="zh">使用 crypto.randomUUID() 或等效的 UUID v4 库。每次 dataLayer.push 调用生成一次，不得跨事件复用。</span></div>
+
+  <!-- component_name -->
+  <h3 style="margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)">component_name</h3>
+  <p class="sdesc" style="margin-bottom:8px">Identifies the specific component instance when multiple components of the same <code>component_type</code> exist on the same page. Used in OTP events alongside <code>source_component</code> and <code>source_page</code>.<span class="zh">当同一页面存在多个相同 component_type 的组件实例时，用于标识具体是哪个组件。在 OTP 事件中与 source_component、source_page 配合使用。</span></p>
+  <div class="callout c-note"><strong>Naming rule / 命名规则：</strong> <code>{page}_{zone_description}</code> — e.g. <code>homepage_hero_chat</code>, <code>homepage_aima_section</code>, <code>homepage_social_proof</code>, <code>homepage_guidance_tabs</code>. No strict enum — values are defined per page in IMPL-TRK-001.<span class="zh">命名规则：{页面}_{区域描述}。无严格枚举，各页面组件名在 IMPL-TRK-001 中定义。</span></div>
+</section>
+
+<!-- §16 ENTRY SOURCE -->
+<section class="section" id="entry-source">
+  <div class="stag">§16</div>
+  <h2>entry_source <span class="zh">入口来源</span></h2>
+  <p class="sdesc">Identifies how the user arrived at the profile setup UI. Used only in <code>profile_setup_view</code> and <code>profile_setup_submit</code> events.<span class="zh">标识用户进入画像采集界面的方式。仅用于 profile_setup_view 和 profile_setup_submit 事件。</span></p>
+  <div class="tw"><table>
+    <thead><tr><th>Value 值</th><th>Chinese 中文</th><th>Description 说明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="val">post_registration</span></td><td>注册后触发</td><td>Popup appeared immediately after first OTP registration — fires only once per user<span class="zh">首次 OTP 注册成功后立即弹出，每个用户只触发一次</span></td></tr>
+      <tr><td><span class="val">popup_dismissed</span></td><td>弹窗关闭后进入</td><td>User dismissed the popup and later visited the standalone profile setup page<span class="zh">用户关闭弹窗后，后续访问独立画像采集页面</span></td></tr>
+      <tr><td><span class="val">direct</span></td><td>直接进入</td><td>User visited the standalone profile setup page without ever seeing the popup<span class="zh">用户从未见过弹窗，直接访问独立画像采集页面</span></td></tr>
     </tbody>
   </table></div>
 </section>
 
-<!-- §16 FORBIDDEN DATA -->
+<!-- §17 FORBIDDEN DATA -->
 <section class="section" id="forbidden">
-  <div class="stag">§16</div>
+  <div class="stag">§17</div>
   <h2>Forbidden data <span class="zh">禁止上传数据</span></h2>
   <div class="callout c-warn"><strong>These must NEVER appear in any tracking payload. 以下数据严禁出现在任何追踪 payload 中。</strong></div>
   <div class="tw"><table>

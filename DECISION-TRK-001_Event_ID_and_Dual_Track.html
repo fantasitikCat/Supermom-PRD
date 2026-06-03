@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DECISION-TRK-001 Event ID Uniqueness & Dual-Track Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--border-strong:#c8c5ba;--text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;--accent-soft:#f0ede6;--green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;--amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;--red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;--blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;--purple:#4a1a7a;--purple-bg:#f5edf9;--purple-b:#d8b0f0;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text-primary);background:var(--bg)}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:26px 0}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sidebar-logo .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.sidebar-logo .name{font-size:13px;font-weight:500;line-height:1.3}
+.sidebar-logo .ver{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:3px}
+.nav-group{margin-bottom:4px}
+.ngl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 20px 3px}
+.nl{display:block;padding:5px 20px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nl:hover{color:var(--text-primary);background:var(--accent-soft);border-left-color:var(--text-primary)}
+.main{padding:50px 58px;max-width:860px}
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:2px solid var(--text-primary)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+h1{font-size:25px;font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:12px}
+h1 strong{font-weight:500}
+.desc{font-size:13px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6}
+.meta-pills{display:flex;flex-wrap:wrap;gap:8px}
+.mp{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.mp .l{color:var(--text-muted);font-family:var(--mono);font-size:10px}
+.mp .v{color:var(--text-primary);font-weight:500}
+.section{margin-bottom:56px;scroll-margin-top:26px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+h2{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-bottom:16px;line-height:1.3}
+h2 .zh{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px}
+h3{font-size:14px;font-weight:500;margin:28px 0 10px;color:var(--text-primary);padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sdesc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65}
+hr.div{border:none;border-top:1px solid var(--border);margin:44px 0}
+.callout{padding:12px 16px;border-radius:5px;border-left:3px solid;margin:16px 0;font-size:13px;line-height:1.65}
+.callout .zh{display:block;font-size:12px;margin-top:4px;opacity:.85}
+.callout strong{font-weight:500}
+.c-info{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-warn{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-note{background:var(--accent-soft);border-color:var(--border-strong);color:var(--text-secondary)}
+.c-green{background:var(--green-bg);border-color:var(--green-b);color:var(--green)}
+.c-red{background:var(--red-bg);border-color:var(--red-b);color:var(--red)}
+.tw{overflow-x:auto;margin:12px 0;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--accent-soft)}
+th{padding:8px 12px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafaf7}
+code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padding:1px 5px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+pre{background:#1c1b18;color:#d4d0c8;padding:16px 20px;border-radius:6px;font-family:var(--mono);font-size:12px;line-height:1.75;overflow-x:auto;margin:12px 0}
+pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7280}pre .bad{color:#f87171}pre .good{color:#86efac}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-col{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.compare-head{padding:10px 16px;font-size:12.5px;font-weight:500;border-bottom:1px solid var(--border)}
+.compare-head.bad{background:var(--red-bg);color:var(--red)}
+.compare-head.good{background:var(--green-bg);color:var(--green)}
+.compare-body{padding:14px 16px;font-size:12.5px;color:var(--text-secondary);line-height:1.7}
+.compare-body ul{margin:6px 0 6px 16px}
+.compare-body li{margin-bottom:4px}
+.compare-body li.x::marker{content:"✗  ";color:var(--red)}
+.compare-body li.o::marker{content:"✓  ";color:var(--green)}
+.decision-box{background:var(--green-bg);border:2px solid var(--green-b);border-radius:8px;padding:20px 24px;margin:20px 0}
+.decision-box .decision-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:8px}
+.decision-box .decision-title{font-size:16px;font-weight:500;color:var(--green);margin-bottom:8px}
+.decision-box .decision-body{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.req-block{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:12px 0}
+.req-row{display:grid;grid-template-columns:24px 1fr;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:start;font-size:13px}
+.req-row:last-child{border-bottom:none}
+.req-row .num{font-family:var(--mono);font-size:11px;color:var(--text-muted);padding-top:2px}
+.req-row .content{color:var(--text-secondary);line-height:1.6}
+.req-row .content strong{color:var(--text-primary);font-weight:500}
+.req-row .content code{font-size:11px}
+.bq-table{background:#1c1b18;border-radius:6px;padding:16px 20px;margin:12px 0;font-family:var(--mono);font-size:12px;line-height:1.8;color:#d4d0c8;overflow-x:auto}
+.bq-table .header{color:#9ca3af;border-bottom:1px solid #374151;padding-bottom:6px;margin-bottom:8px}
+.bq-table .row-good{color:#86efac}
+.bq-table .row-bad{color:#f87171}
+.bq-table .col{display:inline-block;min-width:160px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Decision Record · 决策记录</div>
+    <div class="name">Event ID &amp; Dual-Track Architecture</div>
+    <div class="ver">DECISION-TRK-001 · v1.0</div>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Problem 问题</div>
+    <a class="nl" href="#problem">§1 Root cause</a>
+    <a class="nl" href="#symptom">§2 Symptom in BQ</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Options 方案对比</div>
+    <a class="nl" href="#option-a">§3 Option A — Two tracks</a>
+    <a class="nl" href="#option-b">§4 Option B — GTM only</a>
+    <a class="nl" href="#comparison">§5 Comparison</a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">Decision 决策</div>
+    <a class="nl" href="#decision">§6 Adopted solution</a>
+    <a class="nl" href="#requirements">§7 Required actions</a>
+    <a class="nl" href="#migration">§8 Migration sequence</a>
+    <a class="nl" href="#bq-result">§9 Expected BQ result</a>
+  </div>
+</nav>
+
+<main class="main">
+<div class="doc-header">
+  <div class="eyebrow">Decision Record · 决策记录</div>
+  <h1><strong>Event ID Uniqueness</strong> &amp; Dual-Track Architecture</h1>
+  <div class="desc">
+    Documents the root cause of duplicate event_id in BigQuery, compares two architectural options, and records the adopted solution.
+    <span style="display:block;color:var(--text-muted);font-size:12px;margin-top:3px">记录 BigQuery 中 event_id 重复的根本原因、两种架构方案的对比，以及最终采用的解决方案。</span>
+  </div>
+  <div class="meta-pills">
+    <div class="mp"><span class="l">Doc</span><span class="v">DECISION-TRK-001</span></div>
+    <div class="mp"><span class="l">Status</span><span class="v">Adopted 已采纳</span></div>
+    <div class="mp"><span class="l">Affects</span><span class="v">Frontend · GTM · BigQuery</span></div>
+  </div>
+</div>
+
+<!-- §1 ROOT CAUSE -->
+<section class="section" id="problem">
+  <div class="stag">§1</div>
+  <h2>Root cause <span class="zh">根本原因</span></h2>
+
+  <p class="sdesc">The problem originates from having <strong>two sources</strong> pushing e-commerce events into the dataLayer at the same time — the frontend pushing directly, and GTM converting from custom events.</p>
+
+  <h3>How the conflict happens</h3>
+  <p class="sdesc">The e-commerce event model (GA4 Enhanced Ecommerce) is designed to push <strong>multiple items in one batch</strong>. The custom event model pushes <strong>one item at a time</strong>. When both run simultaneously, the same user action generates multiple records with conflicting or missing <code>event_id</code> values.</p>
+
+  <pre><span class="c">── Frontend pushes (custom events — one per card) ──────────────────</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">event_id</span>: <span class="s">"evt_001"</span>, <span class="k">content_id</span>: <span class="s">"cmp_001"</span> });
+dataLayer.push({ <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">event_id</span>: <span class="s">"evt_002"</span>, <span class="k">content_id</span>: <span class="s">"cmp_002"</span> });
+dataLayer.push({ <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">event_id</span>: <span class="s">"evt_003"</span>, <span class="k">content_id</span>: <span class="s">"cmp_003"</span> });
+
+<span class="c">── Frontend ALSO pushes (e-commerce — batch, no event_id) ──────────</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="bad">"view_item_list"</span>,   <span class="c">// ← no event_id</span>
+  <span class="k">ecommerce</span>: {
+    <span class="k">items</span>: [
+      { <span class="k">item_id</span>: <span class="s">"cmp_001"</span>, <span class="k">index</span>: <span class="n">1</span> },
+      { <span class="k">item_id</span>: <span class="s">"cmp_002"</span>, <span class="k">index</span>: <span class="n">2</span> },
+      { <span class="k">item_id</span>: <span class="s">"cmp_003"</span>, <span class="k">index</span>: <span class="n">3</span> }  <span class="c">// ← 3 items, 1 event</span>
+    ]
+  }
+});</pre>
+
+  <div class="callout c-warn"><strong>Two sources, two different shapes.</strong> Custom events are 1-to-1 (one push per card, with event_id). E-commerce events are 1-to-N (one push for all visible cards, no event_id). They cannot be joined in BigQuery.<span class="zh">两种来源，两种数据形态。自定义事件是一卡一推（有 event_id），电商事件是一次批量推送（无 event_id）。两者在 BQ 里无法 join。</span></div>
+</section>
+
+<!-- §2 SYMPTOM -->
+<section class="section" id="symptom">
+  <div class="stag">§2</div>
+  <h2>Symptom in BigQuery <span class="zh">BQ 中的症状</span></h2>
+
+  <p class="sdesc">With both sources active, BigQuery receives conflicting data for the same user action:</p>
+
+  <div class="bq-table">
+    <div class="header"><span class="col">event_id</span><span class="col">event</span><span class="col">content_id</span><span class="col">items count</span></div>
+    <div class="row-good"><span class="col">evt_001</span><span class="col">content_impression</span><span class="col">cmp_001</span><span class="col">—</span></div>
+    <div class="row-good"><span class="col">evt_002</span><span class="col">content_impression</span><span class="col">cmp_002</span><span class="col">—</span></div>
+    <div class="row-good"><span class="col">evt_003</span><span class="col">content_impression</span><span class="col">cmp_003</span><span class="col">—</span></div>
+    <div class="row-bad"><span class="col">NULL</span><span class="col">view_item_list</span><span class="col">cmp_001</span><span class="col">3 items in 1 row</span></div>
+    <div class="row-bad"><span class="col">NULL</span><span class="col">view_item_list</span><span class="col">cmp_002</span><span class="col">↑ same event</span></div>
+    <div class="row-bad"><span class="col">NULL</span><span class="col">view_item_list</span><span class="col">cmp_003</span><span class="col">↑ same event</span></div>
+  </div>
+
+  <p class="sdesc" style="margin-top:12px">Three consequences:</p>
+  <div class="callout c-red">
+    <strong>1. event_id is NULL</strong> on all view_item_list rows — impossible to join with content_impression.<br>
+    <strong>2. 3 items share 1 event</strong> — the batch push cannot be split into individual records without data transformation.<br>
+    <strong>3. Double counting</strong> — the same impression is counted once in content_impression and once inside the batch view_item_list.<span class="zh">1. view_item_list 的 event_id 全为 NULL，无法与 content_impression join。2. 3 个内容共享 1 个事件，批量 push 无法拆分成独立记录。3. 同一次曝光被计算两次。</span>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §3 OPTION A -->
+<section class="section" id="option-a">
+  <div class="stag">§3</div>
+  <h2>Option A — Frontend pushes both tracks <span class="zh">方案 A：前端直接推送两套</span></h2>
+
+  <p class="sdesc">Frontend continues to push both <code>content_impression</code> (custom) and <code>view_item_list</code> (e-commerce) directly. GTM consumes both.</p>
+
+  <pre><span class="c">// Frontend pushes BOTH for the same card</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">event_id</span>: <span class="s">"evt_001"</span>, <span class="k">content_id</span>: <span class="s">"cmp_001"</span> });
+dataLayer.push({ <span class="k">event</span>: <span class="bad">"view_item_list"</span>, <span class="k">ecommerce</span>: { <span class="k">items</span>: [{ <span class="k">item_id</span>: <span class="s">"cmp_001"</span> }] } });
+<span class="c">// ↑ No event_id — cannot be linked to content_impression in BQ</span></pre>
+
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-head bad">✗ Disadvantages</div>
+      <div class="compare-body">
+        <ul>
+          <li class="x">event_id missing from e-commerce events — BQ join impossible</li>
+          <li class="x">Frontend must maintain two separate push logics for every component</li>
+          <li class="x">Every new page or component requires updating both tracks</li>
+          <li class="x">QA must test two separate event streams</li>
+          <li class="x">Filter state must be duplicated into e-commerce item fields manually</li>
+          <li class="x">High maintenance cost — two sources can drift out of sync silently</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-head good">✓ Advantages</div>
+      <div class="compare-body">
+        <ul>
+          <li class="o">E-commerce events visible directly in dataLayer for debugging</li>
+          <li class="o">No GTM dependency for e-commerce data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4 OPTION B -->
+<section class="section" id="option-b">
+  <div class="stag">§4</div>
+  <h2>Option B — GTM as the only conversion layer <span class="zh">方案 B：GTM 作为唯一转换层</span></h2>
+
+  <p class="sdesc">Frontend pushes only custom events (<code>content_impression</code>, <code>content_click</code>, <code>content_view</code>). GTM reads each event and generates the corresponding GA4 e-commerce event, carrying the same <code>event_id</code>.</p>
+
+  <pre><span class="c">── Frontend pushes (custom events only) ────────────────────────────</span>
+dataLayer.push({ <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">event_id</span>: <span class="s">"evt_001"</span>, <span class="k">content_id</span>: <span class="s">"cmp_001"</span> });
+
+<span class="c">── GTM converts automatically ───────────────────────────────────────</span>
+<span class="c">// GTM Tag reads event_id from dataLayer and fires:</span>
+gtag(<span class="s">'event'</span>, <span class="good">'view_item_list'</span>, {
+  <span class="k">event_id</span>: <span class="s">"evt_001"</span>,  <span class="c">// ← same event_id as content_impression</span>
+  <span class="k">items</span>: [{ <span class="k">item_id</span>: <span class="s">"cmp_001"</span> }]
+});</pre>
+
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-head good">✓ Advantages</div>
+      <div class="compare-body">
+        <ul>
+          <li class="o">event_id is identical in both events — BQ join works perfectly</li>
+          <li class="o">Frontend writes one push per card — no duplication of logic</li>
+          <li class="o">New pages only need to implement the custom event — e-commerce follows automatically</li>
+          <li class="o">Filter state flows from custom event to e-commerce automatically via GTM mapping</li>
+          <li class="o">Single source of truth — only one event stream to QA and maintain</li>
+          <li class="o">GTM field mapping is the single place to update if GA4 e-commerce schema changes</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-head bad">✗ Disadvantages</div>
+      <div class="compare-body">
+        <ul>
+          <li class="x">E-commerce events depend on GTM being correctly configured</li>
+          <li class="x">GTM Preview required to verify e-commerce output</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 COMPARISON -->
+<section class="section" id="comparison">
+  <div class="stag">§5</div>
+  <h2>Comparison <span class="zh">方案对比</span></h2>
+
+  <div class="tw"><table>
+    <thead><tr><th>Criteria 维度</th><th>Option A — Frontend both</th><th>Option B — GTM only ✓</th></tr></thead>
+    <tbody>
+      <tr><td>event_id uniqueness in BQ</td><td>❌ NULL on e-commerce events</td><td>✅ Same ID on both events</td></tr>
+      <tr><td>BQ join capability</td><td>❌ Cannot join</td><td>✅ Exact 1:1 join</td></tr>
+      <tr><td>Frontend work per new page</td><td>❌ Two push logics</td><td>✅ One push logic</td></tr>
+      <tr><td>Filter state in GA4 e-commerce</td><td>❌ Manual duplication</td><td>✅ Auto-mapped by GTM</td></tr>
+      <tr><td>Maintenance cost</td><td>❌ Two streams can drift</td><td>✅ One source of truth</td></tr>
+      <tr><td>QA complexity</td><td>❌ Two streams to verify</td><td>✅ One stream + GTM Preview</td></tr>
+      <tr><td>GA4 e-commerce reports</td><td>✅ Works</td><td>✅ Works</td></tr>
+      <tr><td>Risk of double counting in BQ</td><td>❌ High</td><td>✅ None</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
+
+<!-- §6 DECISION -->
+<section class="section" id="decision">
+  <div class="stag">§6</div>
+  <h2>Adopted solution <span class="zh">采纳方案</span></h2>
+
+  <div class="decision-box">
+    <div class="decision-label">Decision 决策</div>
+    <div class="decision-title">Option B — GTM as the only e-commerce conversion layer</div>
+    <div class="decision-body">
+      Frontend pushes <strong>custom events only</strong>. GTM converts <code>content_impression</code> → <code>view_item_list</code>, <code>content_click</code> → <code>select_item</code>, <code>content_view</code> → <code>view_item</code>. The same <code>event_id</code> is carried from the frontend push into the GTM-generated e-commerce event, guaranteeing uniqueness in BigQuery.
+      <span class="zh" style="display:block;margin-top:8px;font-size:12px;opacity:.85">前端只推送自定义事件。GTM 负责转换三个电商事件。event_id 从前端 push 透传到 GTM 生成的电商事件，保证 BigQuery 中的唯一性。</span>
+    </div>
+  </div>
+
+  <h3>Event responsibility split</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event</th><th>Who pushes</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><code>content_impression</code></td><td>Frontend</td><td>Custom event — rich dimensions for BQ analysis</td></tr>
+      <tr><td><code>view_item_list</code></td><td><strong>GTM only</strong> — frontend must NOT push</td><td>Converted from content_impression — event_id inherited</td></tr>
+      <tr><td><code>content_click</code></td><td>Frontend</td><td>Custom event</td></tr>
+      <tr><td><code>select_item</code></td><td><strong>GTM only</strong> — frontend must NOT push</td><td>Converted from content_click — event_id inherited</td></tr>
+      <tr><td><code>content_view</code></td><td>Frontend</td><td>Custom event</td></tr>
+      <tr><td><code>view_item</code></td><td><strong>GTM only</strong> — frontend must NOT push</td><td>Converted from content_view — event_id inherited</td></tr>
+      <tr><td><code>begin_checkout</code></td><td>Frontend</td><td>No custom equivalent — frontend pushes directly, GTM passes through</td></tr>
+      <tr><td><code>purchase</code></td><td>Frontend</td><td>Requires transaction_id from backend — frontend pushes directly, GTM passes through</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §7 REQUIREMENTS -->
+<section class="section" id="requirements">
+  <div class="stag">§7</div>
+  <h2>Required actions <span class="zh">必须执行的操作</span></h2>
+
+  <div class="req-block">
+    <div class="req-row">
+      <div class="num">01</div>
+      <div class="content"><strong>Frontend: remove direct push of view_item_list</strong><br>Any existing code that pushes <code>view_item_list</code> directly to the dataLayer must be removed. GTM will generate this event automatically from <code>content_impression</code>.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">02</div>
+      <div class="content"><strong>Frontend: remove direct push of select_item</strong><br>Any existing code that pushes <code>select_item</code> directly must be removed. GTM will generate it from <code>content_click</code>.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">03</div>
+      <div class="content"><strong>Frontend: remove direct push of view_item</strong><br>Any existing code that pushes <code>view_item</code> directly must be removed. GTM will generate it from <code>content_view</code>.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">04</div>
+      <div class="content"><strong>Frontend: generate event_id on every dataLayer.push</strong><br>Use <code>crypto.randomUUID()</code>. Generate once per push — do NOT reuse across events. See IMPL-TRK-001 §1 for the helper function.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">05</div>
+      <div class="content"><strong>GTM: configure conversion Tags for the three e-commerce events</strong><br>Configure <code>GA4 - view_item_list</code>, <code>GA4 - select_item</code>, <code>GA4 - view_item</code> Tags as documented in IMPL-TRK-GTM-001 §4–§6. Each Tag must read <code>{{DLV - event_id}}</code> and include it in the GA4 event payload.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">06</div>
+      <div class="content"><strong>GTM: verify event_id flows through in Preview</strong><br>In GTM Preview, confirm that the <code>event_id</code> value in the fired <code>view_item_list</code> Tag matches the <code>event_id</code> in the triggering <code>content_impression</code> dataLayer entry.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §8 MIGRATION -->
+<section class="section" id="migration">
+  <div class="stag">§8</div>
+  <h2>Migration sequence <span class="zh">迁移顺序</span></h2>
+
+  <div class="callout c-warn"><strong>Do NOT delete frontend code and configure GTM at the same time.</strong> Complete GTM setup and verify first, then remove frontend pushes. This ensures GA4 report data has zero interruption.<span class="zh">不要同时删除前端代码和配置 GTM。先完成 GTM 配置并验证，再删除前端 push，确保 GA4 报表数据零中断。</span></div>
+
+  <div class="req-block">
+    <div class="req-row">
+      <div class="num">01</div>
+      <div class="content"><strong>Configure GTM conversion Tags</strong><br>Set up <code>GA4 - view_item_list</code>, <code>GA4 - select_item</code>, <code>GA4 - view_item</code> Tags in GTM as documented in IMPL-TRK-GTM-001 §4–§6. Do NOT publish yet.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">02</div>
+      <div class="content"><strong>Verify in GTM Preview</strong><br>Use GTM Preview mode to confirm: (a) each Tag fires on the correct trigger event, (b) <code>event_id</code> in the fired Tag matches the <code>event_id</code> in the triggering dataLayer entry, (c) field mapping is correct.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">03</div>
+      <div class="content"><strong>Publish GTM</strong><br>Publish the GTM container. At this point both the GTM-generated e-commerce events AND the frontend-pushed e-commerce events are active simultaneously. This is temporary and expected.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">04</div>
+      <div class="content"><strong>Verify GA4 real-time report</strong><br>In GA4 → Reports → Realtime, confirm <code>view_item_list</code>, <code>select_item</code>, <code>view_item</code> are appearing. Check that the Purchase Journey funnel shows data in all stages.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">05</div>
+      <div class="content"><strong>Frontend removes three direct pushes</strong><br>Remove all frontend code that directly pushes <code>view_item_list</code>, <code>select_item</code>, <code>view_item</code>. Deploy the frontend change.</div>
+    </div>
+    <div class="req-row">
+      <div class="num">06</div>
+      <div class="content"><strong>Final verification</strong><br>After frontend deploy: (a) confirm GA4 e-commerce events are still appearing (now only from GTM), (b) confirm BQ <code>event_id</code> is no longer NULL on e-commerce events, (c) confirm no duplicate rows per <code>event_id</code>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §9 BQ RESULT -->
+<section class="section" id="bq-result">
+  <div class="stag">§9</div>
+  <h2>Expected BigQuery result <span class="zh">预期 BQ 结果</span></h2>
+
+  <p class="sdesc">After the solution is implemented, every event_id appears exactly twice — once for the custom event and once for the e-commerce event. This enables a precise 1:1 join.</p>
+
+  <div class="bq-table">
+    <div class="header"><span class="col">event_id</span><span class="col">event</span><span class="col">content_id</span></div>
+    <div class="row-good"><span class="col">evt_001</span><span class="col">content_impression</span><span class="col">cmp_001</span></div>
+    <div class="row-good"><span class="col">evt_001</span><span class="col">view_item_list</span><span class="col">cmp_001</span></div>
+    <div class="row-good"><span class="col">evt_002</span><span class="col">content_impression</span><span class="col">cmp_002</span></div>
+    <div class="row-good"><span class="col">evt_002</span><span class="col">view_item_list</span><span class="col">cmp_002</span></div>
+    <div class="row-good"><span class="col">evt_003</span><span class="col">content_click</span><span class="col">cmp_001</span></div>
+    <div class="row-good"><span class="col">evt_003</span><span class="col">select_item</span><span class="col">cmp_001</span></div>
+  </div>
+
+  <div class="callout c-green"><strong>BQ join query:</strong>
+    <pre style="margin-top:8px;background:#0f2e1a">SELECT ci.content_id, ci.filter_audience, ci.impression_position,
+       vil.item_list_name
+FROM events ci
+JOIN events vil ON ci.event_id = vil.event_id
+WHERE ci.event = <span class="s">'content_impression'</span>
+  AND vil.event = <span class="s">'view_item_list'</span></pre>
+  </div>
+</section>
+
+</main>
+</div>
+</body>
+</html>
