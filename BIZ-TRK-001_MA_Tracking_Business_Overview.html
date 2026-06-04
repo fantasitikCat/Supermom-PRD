@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MA Message Tracking — Business Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f2;--surface:#fff;--border:#e2e0d8;--border-strong:#c8c5ba;
+  --text-primary:#1a1917;--text-secondary:#5c5a54;--text-muted:#9c9a93;
+  --accent-soft:#f0ede6;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --teal:#0f7a6e;--teal-light:#e8f7f5;--teal-border:#8dd4cc;--teal-dark:#0a5a52;
+  --green:#1a6b45;--green-bg:#edf7f2;--green-b:#a8d8c0;
+  --amber:#7a4f00;--amber-bg:#fef7e6;--amber-b:#f5d080;
+  --red:#8b1a1a;--red-bg:#fdf0f0;--red-b:#f0b0b0;
+  --blue:#0f3a6e;--blue-bg:#edf3fb;--blue-b:#b0cef0;
+  --purple:#4a1a7a;--purple-bg:#f5edf9;--purple-b:#d8b0f0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:15px;line-height:1.7;color:var(--text-primary);background:var(--bg)}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:10px 32px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:500;border-left:3px solid var(--teal);padding-left:9px}
+.topbar-id{font-family:var(--mono);font-size:10px;color:var(--text-muted)}
+.lang-toggle{display:flex;gap:3px;background:var(--accent-soft);border-radius:5px;padding:3px;border:1px solid var(--border)}
+.lang-btn{padding:3px 16px;border:none;border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s}
+.lang-btn.active{background:var(--teal);color:#fff}
+
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;background:var(--surface);border-right:1px solid var(--border)}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--teal-border);border-radius:2px}
+.sidebar-stripe{height:4px;background:linear-gradient(90deg,var(--teal),#26c6b8)}
+.sidebar-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.sidebar-tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:3px}
+.sidebar-title{font-size:12px;font-weight:500;color:var(--text-primary);line-height:1.4}
+.ngl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);padding:8px 18px 3px}
+.nl{display:block;padding:5px 18px;font-size:12.5px;color:var(--text-secondary);text-decoration:none;border-left:2px solid transparent;transition:all .12s;line-height:1.4}
+.nl:hover{color:var(--text-primary);background:var(--teal-light);border-left-color:var(--teal-border)}
+.nl.active{color:var(--teal);background:var(--teal-light);border-left-color:var(--teal);font-weight:500}
+.nl.sub{padding-left:30px;font-size:11.5px;color:var(--text-muted)}
+.nl.sub:hover{color:var(--teal)}
+.nav-div{height:1px;background:var(--border);margin:8px 18px}
+
+/* wider content area */
+.main{padding:52px 64px 80px;max-width:1000px;width:100%}
+
+.biz-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);border:1px solid var(--teal-border);background:var(--teal-light);padding:3px 10px;border-radius:3px;margin-bottom:16px}
+.cover{margin-bottom:56px;padding-bottom:40px;border-bottom:2px solid var(--text-primary)}
+.cover h1{font-size:28px;font-weight:300;letter-spacing:-.02em;line-height:1.25;margin-bottom:10px}
+.cover h1 strong{font-weight:500}
+.cover-desc{font-size:14px;color:var(--text-secondary);line-height:1.75;margin-bottom:24px}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.meta-cell{background:var(--surface);padding:10px 14px;display:flex;gap:10px;font-size:12px}
+.meta-cell .k{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);width:72px;flex-shrink:0;padding-top:1px}
+.meta-cell .v{color:var(--text-primary);font-weight:500}
+
+.section{margin-bottom:64px;scroll-margin-top:64px}
+.stag{font-family:var(--mono);font-size:10px;color:var(--teal);letter-spacing:.08em;margin-bottom:4px}
+.section h2{font-size:20px;font-weight:500;letter-spacing:-.01em;margin-bottom:10px;line-height:1.3}
+.section-desc{font-size:14px;color:var(--text-secondary);margin-bottom:22px;line-height:1.75}
+.sub-h{font-size:15px;font-weight:500;margin:32px 0 14px;display:flex;align-items:center;gap:8px}
+.sub-h::before{content:'';display:inline-block;width:3px;height:15px;background:var(--teal);border-radius:2px;flex-shrink:0}
+hr.div{border:none;border-top:1px solid var(--border);margin:56px 0}
+
+/* bilingual */
+.bi{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:18px 0}
+.bi-en{padding:16px 20px;font-size:14px;color:var(--text-secondary);line-height:1.8;border-bottom:1px solid var(--border)}
+.bi-zh{padding:16px 20px;font-size:13.5px;color:var(--text-secondary);line-height:1.8;background:#fafaf8}
+
+/* callout */
+.callout{padding:14px 20px;border-radius:6px;border-left:3px solid;margin:18px 0;font-size:13.5px;line-height:1.75}
+.callout strong{font-weight:500}
+.c-teal{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark)}
+.c-green{background:var(--green-bg);border-color:#2e9e68;color:var(--green)}
+.c-amber{background:var(--amber-bg);border-color:#e6a817;color:var(--amber)}
+.c-blue{background:var(--blue-bg);border-color:#378add;color:var(--blue)}
+.c-note{background:var(--accent-soft);border-color:var(--border-strong);color:var(--text-secondary)}
+.c-red{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.c-purple{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+
+/* diagram */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:28px 32px;margin:22px 0;overflow-x:auto}
+.diagram-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:20px}
+.diagram-caption{font-size:12.5px;color:var(--text-muted);margin-top:14px;line-height:1.6;text-align:center}
+
+/* ba grid */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+.ba-card{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.ba-head{padding:12px 18px;font-size:13px;font-weight:500}
+.ba-head.before{background:var(--red-bg);color:var(--red);border-bottom:1px solid var(--red-b)}
+.ba-head.after{background:var(--green-bg);color:var(--green);border-bottom:1px solid var(--green-b)}
+.ba-body{padding:16px 18px;background:var(--surface);font-size:13px;color:var(--text-secondary);line-height:1.8}
+.ba-body li{list-style:none;padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+.ba-body li .ic{flex-shrink:0;margin-top:2px}
+
+/* benefit grid */
+.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:22px 0}
+.benefit-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;border-top:3px solid var(--teal)}
+.benefit-icon{font-size:24px;margin-bottom:10px}
+.benefit-title{font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:4px}
+.benefit-desc{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-top:6px}
+
+/* tables */
+.tw{overflow-x:auto;margin:18px 0;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead tr{background:var(--teal-light)}
+th{padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--teal-dark);border-bottom:1px solid var(--teal-border);white-space:nowrap}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top;line-height:1.65}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--teal-light)}
+td.zh{font-size:12.5px;color:var(--text-muted);border-left:1px dashed var(--border);background:#fafaf8}
+th.zh{border-left:1px dashed var(--teal-border);background:#dff0ed}
+code{font-family:var(--mono);font-size:12px;background:var(--accent-soft);padding:2px 6px;border-radius:3px;color:var(--text-primary);border:1px solid var(--border)}
+
+/* URL example block */
+.url-block{background:#1c1b18;border-radius:8px;padding:18px 22px;margin:16px 0;overflow-x:auto}
+.url-line{font-family:var(--mono);font-size:12.5px;line-height:2;white-space:nowrap}
+.url-base{color:#d4d0c8}
+.url-maref{color:#f48fb1}
+.url-utms{color:#80cbc4}
+.url-val{color:#ffcc80}
+.url-comment{color:#6b7280;font-style:italic}
+
+/* param cards */
+.param-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0}
+.param-card{border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.param-head{padding:10px 16px;font-family:var(--mono);font-size:11px;font-weight:500}
+.param-head.maref{background:#fdf0f4;color:#c0385a;border-bottom:1px solid #f0b0c0}
+.param-head.utm{background:var(--blue-bg);color:var(--blue);border-bottom:1px solid var(--blue-b)}
+.param-body{padding:14px 16px;background:var(--surface);font-size:13px;color:var(--text-secondary);line-height:1.75}
+.param-body li{list-style:none;padding:3px 0;display:flex;gap:8px}
+.param-body li::before{content:'→';color:var(--teal);font-family:var(--mono);font-size:11px;flex-shrink:0;margin-top:2px}
+
+/* crm box */
+.crm-box{background:var(--purple-bg);border:1.5px solid var(--purple-b);border-radius:8px;padding:18px 22px;margin:20px 0}
+.crm-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);margin-bottom:8px;display:block}
+
+/* naming box */
+.naming-box{background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:8px;padding:18px 22px;margin:18px 0}
+.naming-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);margin-bottom:10px;display:block}
+.naming-ex{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.naming-good,.naming-bad{border-radius:6px;padding:12px 14px;font-size:12.5px;line-height:1.7}
+.naming-good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+.naming-bad{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.naming-good strong,.naming-bad strong{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+
+.doc-footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text-muted)}
+
+/* lang switching — text nodes handled by JS */
+.zh-only{display:none}
+.en-only{display:block}
+body.zh-mode .zh-only{display:block}
+body.zh-mode .en-only{display:none}
+/* inline span pairs */
+span.en{display:inline}
+span.zh{display:none}
+body.zh-mode span.en{display:none}
+body.zh-mode span.zh{display:inline}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:28px 20px}.benefit-grid,.ba-grid,.cover-meta,.param-grid,.naming-ex{grid-template-columns:1fr}}
+@media print{.topbar,.sidebar{display:none}.main{max-width:100%}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">MA Tracking</span>
+    <span class="topbar-id">BIZ-TRK-001 · Business Overview · v2.0</span>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-tag">Business Overview</div>
+    <div class="sidebar-title">MA Message Tracking<br>业务概览文档</div>
+  </div>
+  <div class="ngl">Contents</div>
+  <a class="nl" href="#cover"><span class="en-only">Overview</span><span class="zh-only">概述</span></a>
+  <a class="nl" href="#problem">1. <span class="en-only">The Problem</span><span class="zh-only">当前问题</span></a>
+  <a class="nl" href="#solution">2. <span class="en-only">Our Solution</span><span class="zh-only">解决方案</span></a>
+  <a class="nl sub" href="#how-it-works"><span class="en-only">2.1 How it works</span><span class="zh-only">2.1 整体思路</span></a>
+  <a class="nl sub" href="#ma-ref"><span class="en-only">2.2 What is ma_ref?</span><span class="zh-only">2.2 ma_ref 是什么</span></a>
+  <a class="nl sub" href="#utm"><span class="en-only">2.3 UTM Parameters</span><span class="zh-only">2.3 UTM 参数</span></a>
+  <a class="nl sub" href="#full-url"><span class="en-only">2.4 Complete URL</span><span class="zh-only">2.4 完整链接示例</span></a>
+  <a class="nl" href="#crm">3. <span class="en-only">CRM Team Action</span><span class="zh-only">CRM 团队操作</span></a>
+  <a class="nl" href="#journey">4. <span class="en-only">User Journey</span><span class="zh-only">用户链路</span></a>
+  <a class="nl" href="#benefits">5. <span class="en-only">Benefits</span><span class="zh-only">价值</span></a>
+  <a class="nl sub" href="#attribution"><span class="en-only">5.1 Attribution</span><span class="zh-only">5.1 归因</span></a>
+  <a class="nl sub" href="#stitching"><span class="en-only">5.2 Identity Stitching</span><span class="zh-only">5.2 用户拼接</span></a>
+  <a class="nl sub" href="#ga4"><span class="en-only">5.3 GA4 Analysis</span><span class="zh-only">5.3 GA4 分析</span></a>
+  <a class="nl" href="#business-impact">6. <span class="en-only">Business Impact</span><span class="zh-only">业务影响</span></a>
+  <a class="nl" href="#what-changes">7. <span class="en-only">What Changes</span><span class="zh-only">变化说明</span></a>
+  <div class="nav-div"></div>
+  <div class="ngl">Technical PRDs</div>
+  <a class="nl sub" href="./PRD-TRK-007_MA_Message_Tracking_Framework.html">PRD-TRK-007 (Engineering)</a>
+  <a class="nl sub" href="./PRD-TRK-008_MA_Message_Link_Identity_Association.html">PRD-TRK-008 (Engineering)</a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<section class="cover" id="cover">
+  <div class="biz-tag">Business Overview · 业务概览</div>
+  <h1>
+    <span class="en-only">MA Message Tracking<br><strong>How We Know If Our Messages Work</strong></span>
+    <span class="zh-only">MA 消息追踪<br><strong>我们如何知道消息是否真正有效</strong></span>
+  </h1>
+  <div class="cover-desc en-only">
+    Every Email and WhatsApp message we send contains a campaign link. But do users actually click it? Do they visit the page? Do they convert? Right now, we cannot reliably answer these questions. This document explains how we fix that — and what it means for the business.
+  </div>
+  <div class="cover-desc zh-only">
+    我们发出的每一封 Email 和每一条 WhatsApp 消息都包含活动链接。但用户真的点击了吗？访问了页面吗？完成了转化吗？目前，我们无法可靠地回答这些问题。这份文档解释我们如何解决这个问题，以及它对业务意味着什么。
+  </div>
+  <div class="cover-meta">
+    <div class="meta-cell"><span class="k">Doc</span><span class="v">BIZ-TRK-001</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v2.0 · 2026-06-02</span></div>
+    <div class="meta-cell"><span class="k">Audience</span><span class="v">Business, CRM, Marketing, Product</span></div>
+    <div class="meta-cell"><span class="k">Relates to</span><span class="v">PRD-TRK-007, PRD-TRK-008</span></div>
+  </div>
+</section>
+
+<!-- S1 THE PROBLEM -->
+<section class="section" id="problem">
+  <div class="stag">01</div>
+  <h2><span class="en-only">The Problem — What We Cannot See Today</span><span class="zh-only">当前问题 — 我们现在看不到什么</span></h2>
+
+  <div class="ba-grid">
+    <div class="ba-card">
+      <div class="ba-head before">
+        <span class="en-only">❌ What happens today</span>
+        <span class="zh-only">❌ 当前情况</span>
+      </div>
+      <div class="ba-body">
+        <li><span class="ic">😶</span><span class="en-only">We send 10,000 WhatsApp messages. We don't know who clicked.</span><span class="zh-only">我们发出 10,000 条 WhatsApp 消息，但不知道谁点击了。</span></li>
+        <li><span class="ic">😶</span><span class="en-only">A user visits our site from a campaign link. We can't tell which campaign sent them.</span><span class="zh-only">用户通过活动链接访问网站，我们无法判断是哪个活动带来的。</span></li>
+        <li><span class="ic">😶</span><span class="en-only">A user registers after clicking an Email. We can't link that registration back to the Email.</span><span class="zh-only">用户点击 Email 后完成注册，我们无法将这次注册归因到对应的邮件。</span></li>
+        <li><span class="ic">😶</span><span class="en-only">UTM parameters are added manually — inconsistent, unreliable, error-prone.</span><span class="zh-only">UTM 参数靠人工手动添加 — 不一致、不可靠、容易出错。</span></li>
+      </div>
+    </div>
+    <div class="ba-card">
+      <div class="ba-head after">
+        <span class="en-only">✅ What we will be able to do</span>
+        <span class="zh-only">✅ 实现后我们能做到的</span>
+      </div>
+      <div class="ba-body">
+        <li><span class="ic">🎯</span><span class="en-only">Know exactly which user clicked which message link.</span><span class="zh-only">精准知道哪个用户点击了哪条消息链接。</span></li>
+        <li><span class="ic">🎯</span><span class="en-only">Trace every website visit back to the exact campaign, Flow, and message step.</span><span class="zh-only">将每次网站访问追溯到具体的活动、Flow 和消息节点。</span></li>
+        <li><span class="ic">🎯</span><span class="en-only">All UTM parameters generated automatically — consistent, reliable data every time.</span><span class="zh-only">所有 UTM 参数自动生成 — 数据始终一致、可靠。</span></li>
+        <li><span class="ic">🎯</span><span class="en-only">Compare which Flows and messages drive the most conversions.</span><span class="zh-only">对比哪个 Flow 和哪条消息带来了最多转化。</span></li>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title"><span class="en-only">The Gap We Are Closing</span><span class="zh-only">我们正在弥补的断链</span></div>
+    <svg viewBox="0 0 740 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="ar" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b1a1a"/></marker>
+        <marker id="ag" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
+      </defs>
+      <!-- TODAY -->
+      <text x="12" y="42" font-size="9" font-family="IBM Plex Mono" fill="#8b1a1a" font-weight="500">TODAY</text>
+      <rect x="58" y="24" width="115" height="38" rx="6" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
+      <text x="115" y="40" text-anchor="middle" font-size="10.5" font-weight="500" fill="#8b1a1a">Send Email/WA</text>
+      <text x="115" y="55" text-anchor="middle" font-size="9.5" fill="#8b1a1a">manual UTM (unreliable)</text>
+      <line x1="173" y1="43" x2="216" y2="43" stroke="#8b1a1a" stroke-width="1.3" marker-end="url(#ar)"/>
+      <rect x="218" y="24" width="115" height="38" rx="6" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
+      <text x="275" y="40" text-anchor="middle" font-size="10.5" font-weight="500" fill="#8b1a1a">User clicks link</text>
+      <text x="275" y="55" text-anchor="middle" font-size="9.5" fill="#8b1a1a">identity unknown</text>
+      <rect x="350" y="18" width="62" height="50" rx="6" fill="#fef7e6" stroke="#f5d080" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="381" y="40" text-anchor="middle" font-size="20" fill="#7a4f00">?</text>
+      <text x="381" y="58" text-anchor="middle" font-size="8.5" fill="#7a4f00">broken link</text>
+      <line x1="333" y1="43" x2="349" y2="43" stroke="#8b1a1a" stroke-width="1.3" stroke-dasharray="3,2"/>
+      <line x1="412" y1="43" x2="428" y2="43" stroke="#8b1a1a" stroke-width="1.3" stroke-dasharray="3,2" marker-end="url(#ar)"/>
+      <rect x="430" y="24" width="115" height="38" rx="6" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
+      <text x="487" y="40" text-anchor="middle" font-size="10.5" font-weight="500" fill="#8b1a1a">Visits website</text>
+      <text x="487" y="55" text-anchor="middle" font-size="9.5" fill="#8b1a1a">no attribution</text>
+      <line x1="545" y1="43" x2="571" y2="43" stroke="#8b1a1a" stroke-width="1.3" stroke-dasharray="3,2" marker-end="url(#ar)"/>
+      <rect x="573" y="24" width="115" height="38" rx="6" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.2"/>
+      <text x="630" y="40" text-anchor="middle" font-size="10.5" font-weight="500" fill="#8b1a1a">Converts</text>
+      <text x="630" y="55" text-anchor="middle" font-size="9.5" fill="#8b1a1a">cannot be traced back</text>
+
+      <!-- AFTER -->
+      <text x="12" y="130" font-size="9" font-family="IBM Plex Mono" fill="#1a6b45" font-weight="500">AFTER</text>
+      <rect x="58" y="112" width="115" height="38" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
+      <text x="115" y="128" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Send Email/WA</text>
+      <text x="115" y="143" text-anchor="middle" font-size="9.5" fill="#1a6b45">auto ma_ref + UTM ✓</text>
+      <line x1="173" y1="131" x2="216" y2="131" stroke="#1a6b45" stroke-width="1.3" marker-end="url(#ag)"/>
+      <rect x="218" y="112" width="115" height="38" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
+      <text x="275" y="128" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">User clicks link</text>
+      <text x="275" y="143" text-anchor="middle" font-size="9.5" fill="#1a6b45">identity resolved ✓</text>
+      <rect x="350" y="106" width="62" height="50" rx="5" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.5"/>
+      <text x="381" y="128" text-anchor="middle" font-size="20" fill="#1a6b45">✓</text>
+      <text x="381" y="146" text-anchor="middle" font-size="8.5" fill="#1a6b45">tracked</text>
+      <line x1="333" y1="131" x2="349" y2="131" stroke="#1a6b45" stroke-width="1.3" marker-end="url(#ag)"/>
+      <line x1="412" y1="131" x2="428" y2="131" stroke="#1a6b45" stroke-width="1.3" marker-end="url(#ag)"/>
+      <rect x="430" y="112" width="115" height="38" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
+      <text x="487" y="128" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Visits website</text>
+      <text x="487" y="143" text-anchor="middle" font-size="9.5" fill="#1a6b45">GA4 records ✓</text>
+      <line x1="545" y1="131" x2="571" y2="131" stroke="#1a6b45" stroke-width="1.3" marker-end="url(#ag)"/>
+      <rect x="573" y="112" width="115" height="38" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
+      <text x="630" y="128" text-anchor="middle" font-size="10.5" font-weight="500" fill="#1a6b45">Converts</text>
+      <text x="630" y="143" text-anchor="middle" font-size="9.5" fill="#1a6b45">fully attributed ✓</text>
+    </svg>
+    <div class="diagram-caption">
+      <span class="en-only">Today the tracking chain breaks. After this, every step is connected — automatically.</span>
+      <span class="zh-only">目前追踪链路断裂。实现后，每个步骤自动串联。</span>
+    </div>
+  </div>
+</section>
+
+<!-- S2 SOLUTION -->
+<section class="section" id="solution">
+  <div class="stag">02</div>
+  <h2><span class="en-only">Our Solution — How It Works</span><span class="zh-only">解决方案 — 原理说明</span></h2>
+
+  <div class="sub-h" id="how-it-works">
+    <span class="en-only">2.1 The Big Picture</span>
+    <span class="zh-only">2.1 整体思路</span>
+  </div>
+
+  <div class="callout c-teal">
+    <strong><span class="en-only">The core idea:</span><span class="zh-only">核心思路：</span></strong>
+    <span class="en-only"> Every campaign link we send now automatically carries two types of tracking code: <code>ma_ref</code> (our internal tracking) and <code>UTM parameters</code> (for GA4 reports). Both are generated by the system — zero manual work for anyone.</span>
+    <span class="zh-only"> 我们发出的每条活动链接，现在自动携带两种追踪码：<code>ma_ref</code>（系统内部追踪）和 <code>UTM 参数</code>（用于 GA4 报告）。两者均由系统自动生成，任何人都不需要手动操作。</span>
+  </div>
+
+  <!-- 2.2 ma_ref -->
+  <div class="sub-h" id="ma-ref">
+    <span class="en-only">2.2 What is ma_ref — Our Internal Tracking Code</span>
+    <span class="zh-only">2.2 ma_ref — 系统内部追踪码</span>
+  </div>
+
+  <div class="bi">
+    <div class="bi-en en-only">
+      Think of <code>ma_ref</code> like a <strong>barcode on a parcel</strong>. The barcode tells the system where it came from, who it's for, and which shipment batch it belongs to. The customer never sees it — it works invisibly.<br><br>
+      <code>ma_ref</code> works the same way. It's an encrypted code attached to every campaign link. When a user clicks it, the system instantly knows: <strong>which user clicked, which Flow sent the message, which specific message step it was, and which channel (Email or WhatsApp)</strong>. The code is fully encrypted — no personal data (name, phone, email) is ever visible in the URL.
+    </div>
+    <div class="bi-zh zh-only">
+      把 <code>ma_ref</code> 想象成<strong>快递包裹上的条形码</strong>。条形码告诉系统包裹从哪里来、发给谁、属于哪批货物。客户完全看不到它，它在后台无感运行。<br><br>
+      <code>ma_ref</code> 的原理完全一样。它是附加在每条活动链接上的加密码。用户点击后，系统立刻知道：<strong>哪个用户点击了、哪个 Flow 发送了消息、是哪个具体的消息节点、以及渠道是 Email 还是 WhatsApp</strong>。这个码经过完整加密——URL 中不含任何个人信息（姓名、手机号、邮箱）。
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title"><span class="en-only">What ma_ref carries — decoded by the system (invisible to users)</span><span class="zh-only">ma_ref 携带的信息 — 由系统解码（用户不可见）</span></div>
+    <svg viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="p1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
+      </defs>
+      <rect x="10" y="10" width="700" height="40" rx="6" fill="#1c1b18"/>
+      <text x="24" y="27" font-size="11.5" fill="#d4d0c8" font-family="IBM Plex Mono">welovesupermom.com/campaign/123</text>
+      <text x="370" y="27" font-size="11.5" fill="#f48fb1" font-family="IBM Plex Mono">?ma_ref=</text>
+      <text x="440" y="27" font-size="11.5" fill="#ffcc80" font-family="IBM Plex Mono">aB3xK9mPqR2v</text>
+      <text x="24" y="44" font-size="9" fill="#6b7280" font-family="IBM Plex Mono">← landing page URL</text>
+      <text x="370" y="44" font-size="9" fill="#f48fb1" font-family="IBM Plex Mono">← tracking param</text>
+      <text x="440" y="44" font-size="9" fill="#ffcc80" font-family="IBM Plex Mono">← encrypted — no personal data</text>
+      <line x1="360" y1="50" x2="360" y2="72" stroke="#0f7a6e" stroke-width="1.2" marker-end="url(#p1)"/>
+      <text x="360" y="68" text-anchor="middle" font-size="9.5" fill="#0f7a6e">
+        <tspan class="en-only-text">System decodes into →</tspan>
+      </text>
+      <!-- 4 decoded boxes -->
+      <rect x="10"  y="80" width="164" height="60" rx="6" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.2"/>
+      <text x="92" y="102" text-anchor="middle" font-size="11" font-weight="500" fill="#0f7a6e" class="svg-text" data-en="Who received it" data-zh="收件人是谁">Who received it</text>
+      <text x="92" y="118" text-anchor="middle" font-size="10" fill="#5c5a54" class="svg-text" data-en="User identity" data-zh="用户身份标识">User identity</text>
+      <text x="92" y="132" text-anchor="middle" font-size="9.5" fill="#9c9a93" class="svg-text" data-en="(anonymous or known)" data-zh="（匿名或已知用户）">(anonymous or known)</text>
+
+      <rect x="184" y="80" width="164" height="60" rx="6" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.2"/>
+      <text x="266" y="102" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e" class="svg-text" data-en="Which campaign Flow" data-zh="哪个活动 Flow">Which campaign Flow</text>
+      <text x="266" y="118" text-anchor="middle" font-size="10" fill="#5c5a54" class="svg-text" data-en="MA Flow ID" data-zh="MA Flow ID">MA Flow ID</text>
+      <text x="266" y="132" text-anchor="middle" font-size="9.5" fill="#9c9a93" class="svg-text" data-en="e.g. Onboarding Flow" data-zh="例：新用户引导 Flow">e.g. Onboarding Flow</text>
+
+      <rect x="358" y="80" width="164" height="60" rx="6" fill="#fef7e6" stroke="#f5d080" stroke-width="1.2"/>
+      <text x="440" y="102" text-anchor="middle" font-size="11" font-weight="500" fill="#7a4f00" class="svg-text" data-en="Which message step" data-zh="哪个消息节点">Which message step</text>
+      <text x="440" y="118" text-anchor="middle" font-size="10" fill="#5c5a54" class="svg-text" data-en="MA Node ID" data-zh="MA Node ID">MA Node ID</text>
+      <text x="440" y="132" text-anchor="middle" font-size="9.5" fill="#9c9a93" class="svg-text" data-en="e.g. Day 3 reminder" data-zh="例：第 3 天提醒">e.g. Day 3 reminder</text>
+
+      <rect x="532" y="80" width="178" height="60" rx="6" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.2"/>
+      <text x="621" y="102" text-anchor="middle" font-size="11" font-weight="500" fill="#1a6b45" class="svg-text" data-en="Which channel" data-zh="哪个渠道">Which channel</text>
+      <text x="621" y="118" text-anchor="middle" font-size="10" fill="#5c5a54" class="svg-text" data-en="Email or WhatsApp" data-zh="Email 或 WhatsApp">Email or WhatsApp</text>
+      <text x="621" y="132" text-anchor="middle" font-size="9.5" fill="#9c9a93" class="svg-text" data-en="channel attribution" data-zh="渠道归因">channel attribution</text>
+
+      <rect x="10" y="150" width="700" height="22" rx="4" fill="#f0ede6" stroke="#c8c5ba" stroke-width="0.8"/>
+      <text x="360" y="165" text-anchor="middle" font-size="10" fill="#5c5a54" class="svg-text" data-en="🔒  Fully encrypted — no personal data (name, phone, email) ever visible in the URL. Identity is resolved securely by the system." data-zh="🔒  完全加密 — URL 中永远不含个人信息（姓名、手机号、邮箱）。用户身份由系统在后台安全解析。">🔒  Fully encrypted — no personal data (name, phone, email) ever visible in the URL. Identity is resolved securely by the system.</text>
+    </svg>
+  </div>
+
+  <!-- 2.3 UTM -->
+  <div class="sub-h" id="utm">
+    <span class="en-only">2.3 UTM Parameters — What GA4 Uses for Reports</span>
+    <span class="zh-only">2.3 UTM 参数 — GA4 报告使用的数据</span>
+  </div>
+
+  <div class="bi">
+    <div class="bi-en en-only">
+      While <code>ma_ref</code> is our internal system code, <strong>UTM parameters are the standard way GA4 and Google Analytics understand where traffic comes from</strong>. They are separate from <code>ma_ref</code> and serve a different purpose — they make your campaign data visible and filterable in GA4 reports.<br><br>
+      The key difference from today: <strong>UTM parameters used to be added manually by people — which meant inconsistent data, typos, and missing values. Now the system generates them automatically every single time, making the data completely reliable.</strong>
+    </div>
+    <div class="bi-zh zh-only">
+      <code>ma_ref</code> 是我们的系统内部追踪码，而 <strong>UTM 参数是 GA4 和 Google Analytics 理解流量来源的标准方式</strong>。它们与 <code>ma_ref</code> 相互独立，服务于不同目的——让活动数据在 GA4 报告中清晰可见、可筛选。<br><br>
+      与当前最大的区别：<strong>UTM 参数以前由人工手动添加——导致数据不一致、拼写错误、遗漏等问题。现在系统每次自动生成，数据完全可靠。</strong>
+    </div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en-only">UTM Parameter</span><span class="zh-only">UTM 参数</span></th>
+          <th><span class="en-only">Value (auto-generated)</span><span class="zh-only">值（系统自动生成）</span></th>
+          <th><span class="en-only">What it means in GA4</span><span class="zh-only">在 GA4 中的含义</span></th>
+          <th class="zh"><span class="en-only">Business value</span><span class="zh-only">业务价值</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>utm_source</code></td>
+          <td><code>crm</code> <span style="font-size:11px;color:var(--text-muted)">— fixed, system-set</span></td>
+          <td>
+            <span class="en-only">Identifies traffic as coming from our CRM / MA system. In GA4 Acquisition report, you can filter all sessions where source = crm.</span>
+            <span class="zh-only">标识流量来自我们的 CRM / MA 系统。在 GA4 流量获取报告中，可以筛选所有 source = crm 的会话。</span>
+          </td>
+          <td class="zh">
+            <span class="en-only">Separates MA-driven traffic from organic, paid, and direct traffic in all reports</span>
+            <span class="zh-only">在所有报告中将 MA 驱动的流量与自然流量、付费流量、直接流量区分开来</span>
+          </td>
+        </tr>
+        <tr>
+          <td><code>utm_medium</code></td>
+          <td>
+            <code>whatsapp</code> or <code>email</code>
+            <span style="font-size:11px;color:var(--text-muted);display:block">auto-set by channel</span>
+          </td>
+          <td>
+            <span class="en-only">Identifies the channel type. GA4 uses this to separate Email-driven sessions from WhatsApp-driven sessions in reports.</span>
+            <span class="zh-only">标识渠道类型。GA4 用此区分 Email 驱动的会话和 WhatsApp 驱动的会话。</span>
+          </td>
+          <td class="zh">
+            <span class="en-only">Directly compare Email vs WhatsApp performance — clicks, conversions, drop-off rates</span>
+            <span class="zh-only">直接对比 Email vs WhatsApp 的表现——点击率、转化率、流失率</span>
+          </td>
+        </tr>
+        <tr>
+          <td><code>utm_campaign</code></td>
+          <td>
+            <span class="en-only"><strong>MA Flow name</strong> — taken directly from the Flow's name in the system</span>
+            <span class="zh-only"><strong>MA Flow 的名称</strong> — 直接从系统中的 Flow 名称获取</span>
+            <span style="font-size:11px;color:var(--text-muted);display:block">e.g. onboarding_new_user_2026</span>
+          </td>
+          <td>
+            <span class="en-only">Identifies which campaign (Flow) drove this traffic. GA4 shows performance broken down by campaign name — click rate, sessions, conversions per Flow.</span>
+            <span class="zh-only">标识哪个活动（Flow）带来了流量。GA4 按活动名称展示表现——每个 Flow 的点击率、会话数、转化数。</span>
+          </td>
+          <td class="zh">
+            <span class="en-only">Compare performance across all Flows side by side in one GA4 report</span>
+            <span class="zh-only">在一张 GA4 报告中并排对比所有 Flow 的表现</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="naming-box">
+    <span class="naming-label">
+      <span class="en-only">⚠️ Important: Flow naming affects GA4 report clarity</span>
+      <span class="zh-only">⚠️ 重要：Flow 命名直接影响 GA4 报告的可读性</span>
+    </span>
+    <div class="en-only" style="font-size:13.5px;color:var(--amber);line-height:1.75">
+      Since <code>utm_campaign</code> is taken directly from the Flow's name, <strong>how you name your Flows determines how data appears in GA4 reports</strong>. A well-named Flow makes reports immediately readable. A poorly named Flow makes reports confusing and unusable.
+    </div>
+    <div class="zh-only" style="font-size:13.5px;color:var(--amber);line-height:1.75">
+      由于 <code>utm_campaign</code> 直接取自 Flow 的名称，<strong>Flow 的命名方式决定了 GA4 报告中的数据展示效果</strong>。命名清晰的 Flow 让报告一目了然，命名随意的 Flow 会让报告难以阅读和使用。
+    </div>
+    <div class="naming-ex">
+      <div class="naming-good">
+        <strong>✅ Good naming</strong>
+        <code>onboarding_new_user_2026</code><br>
+        <code>reengagement_inactive_30d</code><br>
+        <code>promo_mothers_day_sg</code><br>
+        <span style="font-size:12px;margin-top:6px;display:block">
+          <span class="en-only">→ In GA4 you immediately know which campaign performed</span>
+          <span class="zh-only">→ 在 GA4 中一眼就知道是哪个活动的表现</span>
+        </span>
+      </div>
+      <div class="naming-bad">
+        <strong>❌ Poor naming</strong>
+        <code>flow_001</code><br>
+        <code>test</code><br>
+        <code>new flow copy 2</code><br>
+        <span style="font-size:12px;margin-top:6px;display:block">
+          <span class="en-only">→ GA4 report shows meaningless labels — impossible to analyse</span>
+          <span class="zh-only">→ GA4 报告显示无意义标签，无法分析</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.4 Full URL -->
+  <div class="sub-h" id="full-url">
+    <span class="en-only">2.4 Complete URL Example — What Is Actually Sent</span>
+    <span class="zh-only">2.4 完整链接示例 — 实际发出的链接长什么样</span>
+  </div>
+
+  <div class="bi">
+    <div class="bi-en en-only">
+      When a user receives an Email or WhatsApp message, the campaign link they click looks completely normal. Behind the scenes, the system has automatically attached both <code>ma_ref</code> and UTM parameters. Here is what a real link looks like:
+    </div>
+    <div class="bi-zh zh-only">
+      当用户收到 Email 或 WhatsApp 消息时，他们点击的活动链接看起来完全正常。在后台，系统已自动附加了 <code>ma_ref</code> 和 UTM 参数。以下是一条真实链接的样子：
+    </div>
+  </div>
+
+  <div class="url-block">
+    <div class="url-line"><span class="url-base">https://welovesupermom.com/campaign/mothers-day</span></div>
+    <div class="url-line"><span class="url-maref">  ?ma_ref=aB3xK9mPqR2vLn7w</span>  <span class="url-comment">← internal tracking (encrypted, system only)</span></div>
+    <div class="url-line"><span class="url-utms">  &amp;utm_source=crm</span>              <span class="url-comment">← GA4: traffic from CRM/MA system (auto)</span></div>
+    <div class="url-line"><span class="url-utms">  &amp;utm_medium=whatsapp</span>          <span class="url-comment">← GA4: channel is WhatsApp (auto)</span></div>
+    <div class="url-line"><span class="url-utms">  &amp;utm_campaign=promo_mothers_day_sg</span>  <span class="url-comment">← GA4: campaign = Flow name (auto)</span></div>
+  </div>
+
+  <div class="callout c-green">
+    <strong><span class="en-only">100% automatic — nobody manually writes this URL.</span><span class="zh-only">100% 自动生成 — 没有任何人手动拼写这条 URL。</span></strong>
+    <span class="en-only"> The business team sets the base landing page URL (e.g. <code>welovesupermom.com/campaign/mothers-day</code>). Everything after the <code>?</code> is added by the system automatically at send time. This guarantees consistent, reliable, error-free data in every report.</span>
+    <span class="zh-only"> 业务团队只设置基础落地页 URL（例如 <code>welovesupermom.com/campaign/mothers-day</code>）。<code>?</code> 之后的所有内容由系统在发送时自动添加。这保证了每份报告中的数据始终一致、可靠、无误。</span>
+  </div>
+
+  <div class="param-grid">
+    <div class="param-card">
+      <div class="param-head maref">ma_ref — Internal System Tracking</div>
+      <div class="param-body">
+        <li><span class="en-only">Used by: Backend system only</span><span class="zh-only">使用方：仅后端系统</span></li>
+        <li><span class="en-only">Contains: user identity token + Flow ID + Node ID + channel</span><span class="zh-only">包含：用户身份 token + Flow ID + Node ID + 渠道</span></li>
+        <li><span class="en-only">Visible in GA4 reports: No (encrypted)</span><span class="zh-only">在 GA4 报告中可见：否（加密）</span></li>
+        <li><span class="en-only">Who defines it: System, fully automatic</span><span class="zh-only">谁定义：系统，完全自动</span></li>
+        <li><span class="en-only">Purpose: Identity resolution + attribution matching</span><span class="zh-only">用途：用户身份解析 + 归因匹配</span></li>
+      </div>
+    </div>
+    <div class="param-card">
+      <div class="param-head utm">UTM Parameters — GA4 Report Tracking</div>
+      <div class="param-body">
+        <li><span class="en-only">Used by: GA4, Google Analytics, reporting dashboards</span><span class="zh-only">使用方：GA4、Google Analytics、数据报告</span></li>
+        <li><span class="en-only">Contains: source (crm) + medium (channel) + campaign (Flow name)</span><span class="zh-only">包含：source (crm) + medium（渠道）+ campaign（Flow 名称）</span></li>
+        <li><span class="en-only">Visible in GA4 reports: Yes — directly filterable</span><span class="zh-only">在 GA4 报告中可见：是 — 可直接筛选</span></li>
+        <li><span class="en-only">Who defines it: System automatic (Flow name = utm_campaign)</span><span class="zh-only">谁定义：系统自动（Flow 名称 = utm_campaign）</span></li>
+        <li><span class="en-only">Purpose: Campaign performance analysis in reports</span><span class="zh-only">用途：报告中的活动效果分析</span></li>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S3 CRM TEAM ACTION -->
+<section class="section" id="crm">
+  <div class="stag">03</div>
+  <h2><span class="en-only">CRM Team — One Important Action Required</span><span class="zh-only">CRM 团队 — 一个重要操作说明</span></h2>
+
+  <div class="crm-box">
+    <span class="crm-label">
+      <span class="en-only">📋 CRM Team Action Required</span>
+      <span class="zh-only">📋 CRM 团队操作要求</span>
+    </span>
+    <div class="en-only" style="font-size:14px;color:var(--purple);line-height:1.8">
+      <strong>WhatsApp templates with campaign links must use Dynamic URL buttons — not Static URL buttons.</strong><br><br>
+      This is the only technical requirement for CRM. Here's the difference:
+    </div>
+    <div class="zh-only" style="font-size:14px;color:var(--purple);line-height:1.8">
+      <strong>包含活动链接的 WhatsApp 模板，必须使用动态 URL 按钮（Dynamic URL），不能使用静态 URL 按钮（Static URL）。</strong><br><br>
+      这是 CRM 团队唯一的技术要求。区别如下：
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title"><span class="en-only">Dynamic URL vs Static URL — Why It Matters</span><span class="zh-only">动态 URL vs 静态 URL — 为什么重要</span></div>
+    <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <!-- Static — left -->
+      <rect x="20" y="10" width="320" height="190" rx="8" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1.5"/>
+      <rect x="20" y="10" width="320" height="36" rx="8" fill="#f0b0b0"/>
+      <rect x="20" y="34" width="320" height="12" fill="#f0b0b0"/>
+      <text x="180" y="32" text-anchor="middle" font-size="12" font-weight="500" fill="#8b1a1a" class="svg-text" data-en="❌  Static URL Button" data-zh="❌  静态 URL 按钮">❌  Static URL Button</text>
+
+      <text x="40" y="72" font-size="11" fill="#8b1a1a" class="svg-text" data-en="URL is fixed at template creation:" data-zh="URL 在模板创建时固定：">URL is fixed at template creation:</text>
+      <rect x="40" y="80" width="280" height="26" rx="4" fill="#1c1b18"/>
+      <text x="50" y="97" font-size="10" fill="#f48fb1" font-family="IBM Plex Mono">welovesupermom.com/campaign/123</text>
+
+      <text x="40" y="128" font-size="11" fill="#8b1a1a" class="svg-text" data-en="System CANNOT append ma_ref or UTM:" data-zh="系统无法追加 ma_ref 或 UTM：">System CANNOT append ma_ref or UTM:</text>
+      <rect x="40" y="136" width="280" height="26" rx="4" fill="#1c1b18"/>
+      <text x="50" y="153" font-size="10" fill="#8b1a1a" font-family="IBM Plex Mono">URL cannot be modified after approval</text>
+
+      <rect x="40" y="172" width="280" height="18" rx="4" fill="#fdf0f0" stroke="#f0b0b0" stroke-width="1"/>
+      <text x="180" y="185" text-anchor="middle" font-size="10" fill="#8b1a1a" class="svg-text" data-en="Result: No tracking data at all" data-zh="结果：完全没有追踪数据">Result: No tracking data at all</text>
+
+      <!-- Dynamic — right -->
+      <rect x="380" y="10" width="320" height="190" rx="8" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.5"/>
+      <rect x="380" y="10" width="320" height="36" rx="8" fill="#a8d8c0"/>
+      <rect x="380" y="34" width="320" height="12" fill="#a8d8c0"/>
+      <text x="540" y="32" text-anchor="middle" font-size="12" font-weight="500" fill="#1a6b45" class="svg-text" data-en="✅  Dynamic URL Button" data-zh="✅  动态 URL 按钮">✅  Dynamic URL Button</text>
+
+      <text x="400" y="72" font-size="11" fill="#1a6b45" class="svg-text" data-en="CRM sets base URL only:" data-zh="CRM 只设置基础 URL：">CRM sets base URL only:</text>
+      <rect x="400" y="80" width="280" height="26" rx="4" fill="#1c1b18"/>
+      <text x="410" y="97" font-size="10" fill="#a5d6a7" font-family="IBM Plex Mono">welovesupermom.com/campaign/123</text>
+
+      <text x="400" y="128" font-size="11" fill="#1a6b45" class="svg-text" data-en="System automatically appends at send time:" data-zh="系统在发送时自动追加：">System automatically appends at send time:</text>
+      <rect x="400" y="136" width="280" height="26" rx="4" fill="#1c1b18"/>
+      <text x="410" y="148" font-size="9.5" fill="#f48fb1" font-family="IBM Plex Mono">?ma_ref=aB3xK9mP</text>
+      <text x="410" y="160" font-size="9.5" fill="#80cbc4" font-family="IBM Plex Mono">&amp;utm_source=crm&amp;utm_medium=whatsapp&amp;utm_campaign=...</text>
+
+      <rect x="400" y="172" width="280" height="18" rx="4" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1"/>
+      <text x="540" y="185" text-anchor="middle" font-size="10" fill="#1a6b45" class="svg-text" data-en="Result: Full tracking — automatic ✓" data-zh="结果：完整追踪，全自动 ✓">Result: Full tracking — automatic ✓</text>
+    </svg>
+    <div class="diagram-caption">
+      <span class="en-only">Dynamic URL is already the standard for most templates. This is a reminder to keep it that way — and make sure any new templates follow the same rule.</span>
+      <span class="zh-only">动态 URL 已经是大多数模板的标准。这里是提醒保持这一标准——并确保所有新建模板遵循同样的规则。</span>
+    </div>
+  </div>
+
+  <div class="callout c-note">
+    <strong><span class="en-only">What the system does automatically after CRM sets Dynamic URL:</span><span class="zh-only">CRM 设置动态 URL 后，系统自动处理的事情：</span></strong>
+    <span class="en-only"> (1) Converts the base URL to a dynamic URL format → (2) Generates ma_ref token per recipient → (3) Appends UTM parameters from Flow name → (4) Submits template to Meta API → (5) Sends to users. <strong>CRM does not need to do any of steps 2–5.</strong></span>
+    <span class="zh-only"> (1) 将基础 URL 转换为动态 URL 格式 → (2) 为每个收件人生成 ma_ref token → (3) 从 Flow 名称附加 UTM 参数 → (4) 提交模板至 Meta API → (5) 发送给用户。<strong>CRM 团队不需要处理第 2–5 步中的任何事情。</strong></span>
+  </div>
+</section>
+
+<!-- S4 USER JOURNEY -->
+<section class="section" id="journey">
+  <div class="stag">04</div>
+  <h2><span class="en-only">The User Journey — Complete Picture</span><span class="zh-only">用户行为链路 — 完整图景</span></h2>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title"><span class="en-only">From Message Send to Conversion — Every Step Connected</span><span class="zh-only">从消息发送到转化 — 每个步骤全部串联</span></div>
+    <svg viewBox="0 0 720 370" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:'IBM Plex Sans',sans-serif;">
+      <defs>
+        <marker id="j1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#0f7a6e"/></marker>
+        <marker id="j2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a6b45"/></marker>
+      </defs>
+
+      <rect x="20" y="10" width="680" height="62" rx="8" fill="#e8f7f5" stroke="#8dd4cc" stroke-width="1.3"/>
+      <text x="40" y="34" font-size="11.5" font-weight="500" fill="#0f7a6e" class="svg-text" data-en="① Business sets landing page URL. System auto-generates ma_ref + UTM and sends." data-zh="① 业务同学设置落地页 URL，系统自动生成 ma_ref + UTM 并发送。">① Business sets landing page URL. System auto-generates ma_ref + UTM and sends.</text>
+      <text x="40" y="52" font-size="10" fill="#5c5a54" class="svg-text" data-en="Link contains: ?ma_ref=xxx&amp;utm_source=crm&amp;utm_medium=whatsapp&amp;utm_campaign=onboarding_new_user — all automatic" data-zh="链接包含：?ma_ref=xxx&amp;utm_source=crm&amp;utm_medium=whatsapp&amp;utm_campaign=onboarding_new_user — 全部自动">Link contains: ?ma_ref=xxx&amp;utm_source=crm&amp;utm_medium=whatsapp&amp;utm_campaign=onboarding_new_user — all automatic</text>
+
+      <line x1="360" y1="72" x2="360" y2="98" stroke="#0f7a6e" stroke-width="1.5" marker-end="url(#j1)"/>
+
+      <rect x="20" y="100" width="680" height="62" rx="8" fill="#edf3fb" stroke="#b0cef0" stroke-width="1.3"/>
+      <text x="40" y="124" font-size="11.5" font-weight="500" fill="#0f3a6e" class="svg-text" data-en="② User clicks link — visits website" data-zh="② 用户点击链接 — 访问网站">② User clicks link — visits website</text>
+      <text x="40" y="142" font-size="10" fill="#5c5a54" class="svg-text" data-en="System reads ma_ref → identifies user + Flow + Node. GA4 reads UTM → records campaign source in reports." data-zh="系统读取 ma_ref → 识别用户 + Flow + Node。GA4 读取 UTM → 在报告中记录活动来源。">System reads ma_ref → identifies user + Flow + Node. GA4 reads UTM → records campaign source in reports.</text>
+
+      <line x1="360" y1="162" x2="360" y2="188" stroke="#0f7a6e" stroke-width="1.5" marker-end="url(#j1)"/>
+
+      <rect x="20" y="190" width="680" height="62" rx="8" fill="#fef7e6" stroke="#f5d080" stroke-width="1.3"/>
+      <text x="40" y="214" font-size="11.5" font-weight="500" fill="#7a4f00" class="svg-text" data-en="③ User browses (anonymous or logged in) — all behaviour captured" data-zh="③ 用户浏览网站（匿名或已登录）— 所有行为被记录">③ User browses (anonymous or logged in) — all behaviour captured</text>
+      <text x="40" y="232" font-size="10" fill="#5c5a54" class="svg-text" data-en="Even anonymous visits are attributed to the campaign. If user registers later, the full journey is stitched together automatically." data-zh="即便是匿名访问，也归因到对应活动。如果用户稍后注册，完整链路自动拼接。">Even anonymous visits are attributed to the campaign. If user registers later, the full journey is stitched together automatically.</text>
+
+      <line x1="360" y1="252" x2="360" y2="278" stroke="#1a6b45" stroke-width="1.5" marker-end="url(#j2)"/>
+
+      <rect x="20" y="280" width="680" height="62" rx="8" fill="#edf7f2" stroke="#a8d8c0" stroke-width="1.8"/>
+      <text x="40" y="304" font-size="11.5" font-weight="500" fill="#1a6b45" class="svg-text" data-en="④ User converts — full attribution visible in GA4 and campaign reports" data-zh="④ 用户转化 — 完整归因在 GA4 和活动报告中清晰可见">④ User converts — full attribution visible in GA4 and campaign reports</text>
+      <text x="40" y="322" font-size="10" fill="#5c5a54" class="svg-text" data-en="GA4 shows: source=crm / medium=whatsapp / campaign=onboarding_new_user → 340 conversions this month from this Flow." data-zh="GA4 显示：source=crm / medium=whatsapp / campaign=onboarding_new_user → 本月该 Flow 带来 340 次转化。">GA4 shows: source=crm / medium=whatsapp / campaign=onboarding_new_user → 340 conversions this month from this Flow.</text>
+
+      <rect x="20" y="350" width="680" height="14" rx="4" fill="#f0ede6" stroke="#c8c5ba" stroke-width="0.8"/>
+      <text x="360" y="361" text-anchor="middle" font-size="9.5" fill="#5c5a54" class="svg-text" data-en="ma_ref handles identity stitching (internal) · UTM parameters drive GA4 report dimensions (visible to business)" data-zh="ma_ref 处理身份拼接（内部）· UTM 参数驱动 GA4 报告维度（业务可见）">ma_ref handles identity stitching (internal) · UTM parameters drive GA4 report dimensions (visible to business)</text>
+    </svg>
+  </div>
+</section>
+
+<!-- S5 BENEFITS -->
+<section class="section" id="benefits">
+  <div class="stag">05</div>
+  <h2><span class="en-only">Business Benefits</span><span class="zh-only">业务价值</span></h2>
+
+  <div class="sub-h" id="attribution">
+    <span class="en-only">5.1 Accurate Attribution — Know What's Working</span>
+    <span class="zh-only">5.1 精准归因 — 知道什么真正有效</span>
+  </div>
+  <div class="bi">
+    <div class="bi-en en-only">
+      Attribution means knowing which message caused which outcome. With the combination of <code>ma_ref</code> (internal tracking) and UTM parameters (GA4 reporting), we can now answer questions that were previously impossible:<br><br>
+      <em>"Our Day 3 WhatsApp reminder in the Onboarding Flow drove 340 registrations last month, with a 12% click-to-register rate. The Day 7 Email performed 40% better for paid users."</em>
+    </div>
+    <div class="bi-zh zh-only">
+      归因是指知道哪条消息导致了哪个结果。通过 <code>ma_ref</code>（内部追踪）和 UTM 参数（GA4 报告）的结合，我们现在能回答以前根本无法回答的问题：<br><br>
+      <em>"上个月，新手引导 Flow 中第 3 天的 WhatsApp 提醒带来了 340 次注册，点击注册率 12%。付费用户中第 7 天 Email 的表现比第 3 天 WhatsApp 高 40%。"</em>
+    </div>
+  </div>
+
+  <div class="sub-h" id="stitching">
+    <span class="en-only">5.2 Identity Stitching — Connecting the Same Person Across Sessions</span>
+    <span class="zh-only">5.2 用户身份拼接 — 跨会话识别同一个人</span>
+  </div>
+  <div class="bi">
+    <div class="bi-en en-only">
+      <strong>Common scenario:</strong> A user receives our WhatsApp, clicks the link, browses anonymously for 10 minutes, then closes the app. Three days later they return directly and register.<br><br>
+      <strong>Without tracking:</strong> the WhatsApp click and the registration are two disconnected events.<br>
+      <strong>With ma_ref:</strong> the system remembers the WhatsApp click. When they register 3 days later, the system stitches the full journey together — "received WhatsApp → browsed → registered" — all attributed to the correct campaign.
+    </div>
+    <div class="bi-zh zh-only">
+      <strong>常见场景：</strong>用户收到我们的 WhatsApp，点击链接，匿名浏览 10 分钟后关闭了应用。三天后他们直接回来完成了注册。<br><br>
+      <strong>没有追踪时：</strong>WhatsApp 点击和注册是两个断开的事件。<br>
+      <strong>有了 ma_ref 后：</strong>系统记住了 WhatsApp 点击。当他们 3 天后注册，系统自动将完整链路拼接——「收到 WhatsApp → 浏览 → 注册」——全部归因到正确的活动。
+    </div>
+  </div>
+
+  <div class="sub-h" id="ga4">
+    <span class="en-only">5.3 GA4 Analysis — What You Will See in Reports</span>
+    <span class="zh-only">5.3 GA4 分析 — 报告中你将看到什么</span>
+  </div>
+  <div class="bi">
+    <div class="bi-en en-only">All data flows directly into GA4. No new tools to learn. The UTM parameters make your campaign data appear as standard GA4 dimensions — source, medium, and campaign — that you can filter, compare, and build dashboards from.</div>
+    <div class="bi-zh zh-only">所有数据直接流入 GA4，无需学习任何新工具。UTM 参数让你的活动数据作为标准 GA4 维度显示——source、medium 和 campaign——可以直接筛选、对比并构建仪表盘。</div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en-only">GA4 Report</span><span class="zh-only">GA4 报告</span></th>
+          <th><span class="en-only">What you can now see</span><span class="zh-only">现在你能看到什么</span></th>
+          <th class="zh"><span class="en-only">Business question answered</span><span class="zh-only">解答的业务问题</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong><span class="en-only">Acquisition Report</span><span class="zh-only">流量获取报告</span></strong></td>
+          <td><span class="en-only">Sessions by source=crm, split by medium (whatsapp / email) and campaign (Flow name)</span><span class="zh-only">source=crm 的会话，按 medium（whatsapp / email）和 campaign（Flow 名称）细分</span></td>
+          <td class="zh"><span class="en-only">Which campaign messages are driving the most website visits?</span><span class="zh-only">哪些活动消息带来了最多网站访问？</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Conversion Report</span><span class="zh-only">转化报告</span></strong></td>
+          <td><span class="en-only">Conversions attributed to specific Flow (utm_campaign) + channel (utm_medium)</span><span class="zh-only">转化归因到具体 Flow（utm_campaign）+ 渠道（utm_medium）</span></td>
+          <td class="zh"><span class="en-only">Which Flow drives the most registrations / purchases?</span><span class="zh-only">哪个 Flow 带来了最多注册 / 购买？</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Channel Comparison</span><span class="zh-only">渠道对比</span></strong></td>
+          <td><span class="en-only">Filter utm_medium=whatsapp vs utm_medium=email — compare side by side</span><span class="zh-only">筛选 utm_medium=whatsapp vs utm_medium=email，并排对比</span></td>
+          <td class="zh"><span class="en-only">Does WhatsApp or Email drive better conversions for this campaign?</span><span class="zh-only">对于这个活动，WhatsApp 还是 Email 带来了更好的转化？</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Audience Segments</span><span class="zh-only">受众分群</span></strong></td>
+          <td><span class="en-only">Build segments: users who came from utm_campaign=onboarding but didn't convert → retarget via Google / Meta Ads</span><span class="zh-only">构建分群：来自 utm_campaign=onboarding 但未转化的用户 → 通过 Google / Meta 广告再触达</span></td>
+          <td class="zh"><span class="en-only">Who clicked our campaign but didn't convert — retarget them</span><span class="zh-only">谁点击了活动但未转化 — 对他们进行再营销</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Funnel Exploration</span><span class="zh-only">漏斗分析</span></strong></td>
+          <td><span class="en-only">WA/Email click → page visit → registration → purchase, broken down by campaign</span><span class="zh-only">WA/Email 点击 → 页面访问 → 注册 → 购买，按活动细分</span></td>
+          <td class="zh"><span class="en-only">Where are users dropping off after clicking our campaign links?</span><span class="zh-only">点击活动链接后，用户在哪个环节流失最多？</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- S6 BUSINESS IMPACT -->
+<section class="section" id="business-impact">
+  <div class="stag">06</div>
+  <h2><span class="en-only">Business Impact — What This Enables</span><span class="zh-only">业务影响 — 这将带来什么</span></h2>
+  <div class="benefit-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">🎯</div>
+      <div class="benefit-title"><span class="en-only">Smarter Campaign Decisions</span><span class="zh-only">更智慧的活动决策</span></div>
+      <div class="benefit-desc"><span class="en-only">Stop guessing which messages work. Real attribution data from GA4 shows exactly which Flow and which message step drives conversions.</span><span class="zh-only">不再猜测哪些消息有效。GA4 的真实归因数据精确显示哪个 Flow 和哪个消息节点带来了转化。</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📊</div>
+      <div class="benefit-title"><span class="en-only">Reliable, Consistent Data</span><span class="zh-only">可靠一致的数据</span></div>
+      <div class="benefit-desc"><span class="en-only">UTM parameters are generated by the system — no more human error, typos, or missing values. Every campaign is tracked the same way, every time.</span><span class="zh-only">UTM 参数由系统生成——不再有人为错误、拼写错误或遗漏。每次活动的追踪方式完全一致。</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📈</div>
+      <div class="benefit-title"><span class="en-only">Better Ad Retargeting</span><span class="zh-only">更精准的广告再营销</span></div>
+      <div class="benefit-desc"><span class="en-only">Build audiences from campaign behaviour — retarget users who clicked but didn't convert via Google and Meta Ads.</span><span class="zh-only">基于活动行为构建受众——通过 Google 和 Meta 广告再触达点击但未转化的用户。</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">👤</div>
+      <div class="benefit-title"><span class="en-only">Complete User Journeys</span><span class="zh-only">完整的用户旅程</span></div>
+      <div class="benefit-desc"><span class="en-only">Know the full story — from first campaign touch to final conversion, even across multiple sessions days apart.</span><span class="zh-only">了解完整故事——从第一次活动触达到最终转化，即便跨越多个会话和多天。</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">⚡</div>
+      <div class="benefit-title"><span class="en-only">Zero Extra Work for Business</span><span class="zh-only">业务团队零额外工作量</span></div>
+      <div class="benefit-desc"><span class="en-only">Set the landing page URL as usual. All tracking — ma_ref, UTM parameters, token generation — is fully automatic.</span><span class="zh-only">像往常一样设置落地页 URL。所有追踪工作——ma_ref、UTM 参数、token 生成——全部自动完成。</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🔒</div>
+      <div class="benefit-title"><span class="en-only">Privacy-Safe by Design</span><span class="zh-only">设计上保护用户隐私</span></div>
+      <div class="benefit-desc"><span class="en-only">No personal data in links. ma_ref is encrypted. UTM parameters contain no user identity. Compliant with privacy standards.</span><span class="zh-only">链接中不含个人信息。ma_ref 经过加密，UTM 参数不含用户身份。符合隐私合规标准。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- S7 WHAT CHANGES -->
+<section class="section" id="what-changes">
+  <div class="stag">07</div>
+  <h2><span class="en-only">What Changes — Summary for Each Team</span><span class="zh-only">变化说明 — 各团队摘要</span></h2>
+
+  <div class="callout c-green">
+    <strong><span class="en-only">Short answer: almost nothing changes for business teams.</span><span class="zh-only">简短回答：业务团队几乎没有任何变化。</span></strong>
+    <span class="en-only"> The system handles all tracking automatically. You get better data without doing anything differently — except naming your Flows clearly.</span>
+    <span class="zh-only"> 系统自动处理所有追踪工作。你将获得更好的数据，而无需改变任何操作——除了给 Flow 起一个清晰有意义的名字。</span>
+  </div>
+
+  <div class="tw" style="margin-top:20px">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en-only">Team</span><span class="zh-only">团队</span></th>
+          <th><span class="en-only">Action Required</span><span class="zh-only">需要操作的事项</span></th>
+          <th><span class="en-only">What the System Does</span><span class="zh-only">系统自动处理的事项</span></th>
+          <th class="zh"><span class="en-only">Change level</span><span class="zh-only">变化程度</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong><span class="en-only">CRM / MA Team</span><span class="zh-only">CRM / MA 团队</span></strong></td>
+          <td>
+            <span class="en-only">① Use Dynamic URL for WA templates (not Static URL)<br>② Name Flows clearly (affects utm_campaign in GA4)</span>
+            <span class="zh-only">① WA 模板使用动态 URL（不用静态 URL）<br>② Flow 命名清晰（影响 GA4 中的 utm_campaign）</span>
+          </td>
+          <td><span class="en-only">Generates ma_ref + all UTM parameters automatically at send time</span><span class="zh-only">发送时自动生成 ma_ref + 所有 UTM 参数</span></td>
+          <td class="zh"><span style="color:var(--green);font-weight:500">🟢 <span class="en-only">Minimal</span><span class="zh-only">极小</span></span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Marketing / Analytics</span><span class="zh-only">市场 / 数据分析</span></strong></td>
+          <td><span class="en-only">Use GA4 Acquisition and Conversion reports — filter by source=crm, medium, campaign</span><span class="zh-only">使用 GA4 流量获取和转化报告 — 按 source=crm、medium、campaign 筛选</span></td>
+          <td><span class="en-only">Populates GA4 with reliable, consistent UTM data automatically</span><span class="zh-only">自动向 GA4 填入可靠一致的 UTM 数据</span></td>
+          <td class="zh"><span style="color:var(--teal);font-weight:500">🔵 <span class="en-only">New capability</span><span class="zh-only">新增能力</span></span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Business / Product</span><span class="zh-only">业务 / 产品</span></strong></td>
+          <td><span class="en-only">Name Flows with meaningful names. Review attribution reports in GA4.</span><span class="zh-only">给 Flow 起有意义的名称。在 GA4 中查看归因报告。</span></td>
+          <td><span class="en-only">Everything — ma_ref, UTM, token generation, identity resolution</span><span class="zh-only">所有事情——ma_ref、UTM、token 生成、用户身份解析</span></td>
+          <td class="zh"><span style="color:var(--green);font-weight:500">🟢 <span class="en-only">Minimal</span><span class="zh-only">极小</span></span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en-only">Engineering</span><span class="zh-only">工程团队</span></strong></td>
+          <td><span class="en-only">No action — system handles parameter generation and appending automatically</span><span class="zh-only">无需操作——系统自动处理参数生成和追加</span></td>
+          <td><span class="en-only">Backend processes all new parameters automatically per PRD-TRK-007/008</span><span class="zh-only">后端按 PRD-TRK-007/008 自动处理所有新参数</span></td>
+          <td class="zh"><span style="color:var(--green);font-weight:500">🟢 <span class="en-only">Auto</span><span class="zh-only">全自动</span></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="div">
+
+<div class="callout c-teal">
+  <strong><span class="en-only">Questions?</span><span class="zh-only">有问题？</span></strong>
+  <span class="en-only"> For technical implementation details, refer to PRD-TRK-007 (MA Message Tracking Framework) and PRD-TRK-008 (MA Message Link Identity Association). For business questions about reports or campaign setup, reach out to the Product team.</span>
+  <span class="zh-only"> 技术实现细节请参阅 PRD-TRK-007（MA 消息追踪框架）和 PRD-TRK-008（MA 消息链接 Identity 关联）。关于报告使用和活动配置的业务问题，请联系产品团队。</span>
+</div>
+
+<div class="doc-footer">
+  <span>BIZ-TRK-001 · v2.0 · 2026-06-02 · Business Overview</span>
+  <span>© 2026 Supermom Product Team</span>
+</div>
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  const isZh = lang === 'zh';
+  document.body.classList.toggle('zh-mode', isZh);
+  document.getElementById('btn-en').classList.toggle('active', !isZh);
+  document.getElementById('btn-zh').classList.toggle('active', isZh);
+
+  // Update SVG text nodes with data-en / data-zh
+  document.querySelectorAll('.svg-text').forEach(el => {
+    const txt = isZh ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+    if (txt) el.textContent = txt;
+  });
+
+  // The decode label in svg
+  const decodeLbl = document.querySelector('text.en-only-text');
+  if (decodeLbl) decodeLbl.textContent = isZh ? '系统解码为 →' : 'System decodes into →';
+}
+
+// Sidebar active state
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nl').forEach(i => {
+        i.classList.remove('active');
+        if (i.getAttribute('href') === '#' + e.target.id) i.classList.add('active');
+      });
+    }
+  });
+}, { rootMargin: '-10% 0px -80% 0px' });
+document.querySelectorAll('[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
