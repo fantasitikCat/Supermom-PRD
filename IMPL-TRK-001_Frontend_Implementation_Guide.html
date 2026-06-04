@@ -196,38 +196,59 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
 <!-- §2 POSITION -->
 <section class="section" id="position">
   <div class="stag">§2</div>
-  <h2>impression_position — Load More pagination <span class="zh">分页位置计算</span></h2>
-  <p class="sdesc">Position must be <strong>global</strong> across all loaded pages. Reset to 1 only when the list is refreshed (e.g. filter change).</p>
-  <pre><span class="k">let</span> loadedCount = 0; <span class="c">// reset on filter change</span>
+  <h2>content_impression — two modes <span class="zh">两种触发模式</span></h2>
 
-<span class="k">function</span> onItemsLoaded(newItems) {
-  newItems.forEach((item, i) => {
-    <span class="c">// Observe each item with IntersectionObserver</span>
-    observer.observe(item.element, {
-      impressionPosition: loadedCount + i + <span class="n">1</span>
-    });
-  });
-  loadedCount += newItems.length;
-}
+  <div class="callout c-info"><strong>Phase 1 note / 当前阶段说明：</strong> Viewport-based impression tracking (IntersectionObserver) is not yet implemented. Currently all items are pushed when the list renders. This will be upgraded to viewport-based in Phase 2.<span class="zh">当前阶段未实现视口检测（IntersectionObserver）。现在是列表渲染完成后立即 push 所有 item。Phase 2 升级为真实视口曝光。</span></div>
 
-<span class="c">// On filter change — reset counter</span>
-<span class="k">function</span> onFilterChange() {
-  loadedCount = <span class="n">0</span>;
-}
+  <h3>Mode A — Banner &amp; recommendation_widget: one push per item</h3>
+  <p class="sdesc">Position analysis is important here. Push individually, each with a unique event_id and impression_position at root level.</p>
+  <pre><span class="c">// Each card fires separately — e.g. 3 banner cards = 3 pushes</span>
+dataLayer.push({ <span class="k">event_id</span>: crypto.randomUUID(), <span class="k">event</span>: <span class="s">"content_impression"</span>,
+  <span class="k">component_type</span>: <span class="s">"banner"</span>, <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">impression_position</span>: <span class="n">1</span> });
 
-<span class="c">// IntersectionObserver callback — example for /giveaway</span>
-<span class="k">function</span> onImpression(item) {
-  pushEvent({
-    <span class="k">event</span>: <span class="s">"content_impression"</span>,
-    <span class="k">page_type</span>: <span class="s">"listing"</span>,
-    <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-    <span class="k">content_id</span>: item.content_id,
-    <span class="k">content_type</span>: item.content_type,
-    <span class="k">filter_audience</span>: filterAudience,  <span class="c">// read current filter state variable</span>
-    <span class="k">impression_position</span>: item.impressionPosition
-  });
-}</pre>
-  <div class="callout c-note"><strong>Intersection Observer settings：</strong> threshold: 0.5 (≥50% visible) · delay: 1000ms (≥1s duration) · Fire once per content_id per session.</div>
+dataLayer.push({ <span class="k">event_id</span>: crypto.randomUUID(), <span class="k">event</span>: <span class="s">"content_impression"</span>,
+  <span class="k">component_type</span>: <span class="s">"banner"</span>, <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">impression_position</span>: <span class="n">2</span> });</pre>
+
+  <h3>Mode B — Listing page lists: one push per page load with items array</h3>
+  <p class="sdesc">Position analysis is less critical here (no viewport detection). Push once per load with all items in an array. On Load More, push again with the next batch — impression_position must continue from previous page.</p>
+  <pre><span class="c">// First load — 10 items, positions 1-10</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),  <span class="c">// one ID for this batch</span>
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"all"</span>,  <span class="c">// filter fields stay at root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// ... up to cmp_010, impression_position: 10</span>
+  ]
+});
+
+<span class="c">// User clicks Load More — push button_click first</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">button_action_type</span>: <span class="s">"load_more"</span>,
+  <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
+});
+
+<span class="c">// Next batch loads — positions CONTINUE from 11, do NOT reset to 1</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"all"</span>,
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_011"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">11</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_012"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">12</span> },
+    <span class="c">// ... up to impression_position: 20</span>
+  ]
+});
+
+<span class="c">// On filter change — impression_position RESETS to 1</span></pre>
 </section>
 
 <hr class="div">
@@ -304,17 +325,44 @@ pushEvent({
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>   <span class="c">// all | pregnant | kids_0_2y | kids_3y_above | family</span>
 });</pre>
 
-  <h3>4.3 content_impression — carry current filter state</h3>
-  <pre>pushEvent({
+  <h3>4.3 content_impression — array push on list render</h3>
+  <pre><span class="c">// List renders — push all items in one event with items array</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
-  <span class="c">// no content_category — lead_gen content does not have this field</span>
-  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// current Tab value: all | pregnant | kids_0_2y | kids_3y_above | family</span>
-  <span class="k">impression_position</span>: <span class="n">2</span>
+  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// current Tab value — root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// ... all items in this page</span>
+  ]
 });</pre>
 
-  <h3>4.4 content_click</h3>
+  <h3>4.4 Load More</h3>
+  <pre><span class="c">// Step 1: button_click when user taps Load More</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">button_action_type</span>: <span class="s">"load_more"</span>,
+  <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
+});
+
+<span class="c">// Step 2: next batch loads — impression_position continues from 11</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_011"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">11</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_012"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">12</span> },
+    <span class="c">// ...</span>
+  ]
+});</pre>
+
+  <h3>4.5 content_click</h3>
   <pre>pushEvent({
   <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
@@ -353,14 +401,26 @@ pushEvent({
   <span class="k">tab_value</span>: <span class="s">"ugc"</span>  <span class="c">// all | ugc | survey | referral</span>
 });</pre>
 
-  <h3>5.3 content_impression</h3>
-  <pre>pushEvent({
+  <h3>5.3 content_impression — array push</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
-  <span class="c">// no content_category — ugc/survey/referral content does not have this field</span>
-  <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// current Tab value: all | ugc | survey | referral</span>
-  <span class="k">impression_position</span>: <span class="n">1</span>
+  <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// current Tab: all | ugc | survey | referral — root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// ...</span>
+  ]
+});</pre>
+
+  <h3>5.4 Load More</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">button_action_type</span>: <span class="s">"load_more"</span>,
+  <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
 });</pre>
 
   <h3>5.4 OTP — "Log in or join free" sidebar button</h3>
@@ -423,28 +483,43 @@ pushEvent({
   <span class="k">filter_life_stage</span>: <span class="s">"3_6y"</span>  <span class="c">// all_stages | trimester_1 | trimester_2 | trimester_3 | 0_3m | 4_6m | 7_12m | 1_3y | 3_6y | 6_12y | 12y_above</span>
 });</pre>
 
-  <h3>6.6 content_impression — All WhatsApp Groups list, carry BOTH filter states</h3>
-  <pre>pushEvent({
+  <h3>6.6 content_impression — All WhatsApp Groups list, array push with BOTH filter states</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"group_list"</span>,
-  <span class="k">content_id</span>: <span class="s">"grp_001"</span>, <span class="k">content_type</span>: <span class="s">"community_group"</span>,
-  <span class="k">filter_group_type</span>: <span class="s">"birth_club"</span>,  <span class="c">// current top-level Tab: all | birth_club | interests | neighbourhood</span>
-  <span class="k">filter_life_stage</span>: <span class="s">"3_6y"</span>,         <span class="c">// current Birth Club dropdown: all_stages | trimester_1 | ... | 12y_above</span>
-  <span class="k">impression_position</span>: <span class="n">1</span>
+  <span class="k">filter_group_type</span>: <span class="s">"birth_club"</span>,  <span class="c">// current top-level Tab — root level</span>
+  <span class="k">filter_life_stage</span>: <span class="s">"3_6y"</span>,         <span class="c">// current Birth Club dropdown — root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"grp_001"</span>, <span class="k">content_type</span>: <span class="s">"community_group"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"grp_002"</span>, <span class="k">content_type</span>: <span class="s">"community_group"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// ...</span>
+  ]
 });</pre>
 
-  <h3>6.7 content_click</h3>
-  <pre>pushEvent({
+  <h3>6.7 Load More</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"group_list"</span>,
+  <span class="k">button_action_type</span>: <span class="s">"load_more"</span>,
+  <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
+});</pre>
+
+  <h3>6.9 content_click</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"group_list"</span>,
   <span class="k">content_id</span>: <span class="s">"grp_001"</span>, <span class="k">content_type</span>: <span class="s">"community_group"</span>,
-  <span class="k">filter_group_type</span>: <span class="s">"birth_club"</span>,  <span class="c">// same as current impression</span>
+  <span class="k">filter_group_type</span>: <span class="s">"birth_club"</span>,
   <span class="k">filter_life_stage</span>: <span class="s">"3_6y"</span>,
   <span class="k">clicked_position</span>: <span class="n">1</span>
 });</pre>
 
-  <h3>6.8 Join button — OTP trigger</h3>
-  <pre>pushEvent({
+  <h3>6.10 Join button — OTP trigger</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
   <span class="k">source_component</span>: <span class="s">"group_join"</span>,
@@ -473,14 +548,17 @@ pushEvent({
   <span class="k">filter_life_stage</span>: <span class="s">"0_3m"</span>  <span class="c">// trimester_1 | trimester_2 | trimester_3 | 0_3m | 4_6m | 7_12m | 1_3y | 3_6y | 6_12y | 12y_above (NO all_stages)</span>
 });</pre>
 
-  <h3>7.3 Flashcard content_impression</h3>
-  <pre>pushEvent({
+  <h3>7.3 Flashcard content_impression — array push</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
-  <span class="k">component_type</span>: <span class="s">"article_list"</span>,  <span class="c">// flashcard list component</span>
-  <span class="k">content_id</span>: <span class="s">"fc_001"</span>, <span class="k">content_type</span>: <span class="s">"flashcard"</span>,
-  <span class="k">content_category</span>: <span class="s">"health_protection_finance"</span>,  <span class="c">// from API — flashcard's own category</span>
-  <span class="k">filter_life_stage</span>: <span class="s">"0_3m"</span>,  <span class="c">// current top Tab value</span>
-  <span class="k">impression_position</span>: <span class="n">1</span>
+  <span class="k">component_type</span>: <span class="s">"article_list"</span>,
+  <span class="k">filter_life_stage</span>: <span class="s">"0_3m"</span>,  <span class="c">// current top Tab value — root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"fc_001"</span>, <span class="k">content_type</span>: <span class="s">"flashcard"</span>, <span class="k">content_category</span>: <span class="s">"health_protection_finance"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"fc_002"</span>, <span class="k">content_type</span>: <span class="s">"flashcard"</span>, <span class="k">content_category</span>: <span class="s">"baby_essentials"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// ...</span>
+  ]
 });</pre>
 
   <h3>7.4 Article section — life_stage dropdown (has all_stages)</h3>
@@ -497,15 +575,18 @@ pushEvent({
   <span class="k">filter_content_category</span>: <span class="s">"baby_essentials"</span>  <span class="c">// all | baby_essentials | care_recovery | education_learning | health_protection_finance | mom_body_identity | pregnancy_birth | product_guide_reviews</span>
 });</pre>
 
-  <h3>7.6 Article content_impression — carry BOTH article filter states</h3>
-  <pre>pushEvent({
+  <h3>7.6 Article content_impression — array push with BOTH filter states at root</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"article_list"</span>,
-  <span class="k">content_id</span>: <span class="s">"art_001"</span>, <span class="k">content_type</span>: <span class="s">"article"</span>,
-  <span class="k">content_category</span>: <span class="s">"baby_essentials"</span>,   <span class="c">// from API — article's own category tag</span>
-  <span class="k">filter_life_stage</span>: <span class="s">"all_stages"</span>,        <span class="c">// current article section life_stage dropdown value</span>
-  <span class="k">filter_content_category</span>: <span class="s">"baby_essentials"</span>,  <span class="c">// current article section category filter value</span>
-  <span class="k">impression_position</span>: <span class="n">3</span>
+  <span class="k">filter_life_stage</span>: <span class="s">"all_stages"</span>,          <span class="c">// current article life_stage dropdown — root level</span>
+  <span class="k">filter_content_category</span>: <span class="s">"baby_essentials"</span>,  <span class="c">// current article category filter — root level</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"art_001"</span>, <span class="k">content_type</span>: <span class="s">"article"</span>, <span class="k">content_category</span>: <span class="s">"baby_essentials"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"art_002"</span>, <span class="k">content_type</span>: <span class="s">"article"</span>, <span class="k">content_category</span>: <span class="s">"care_recovery"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    <span class="c">// content_category per item comes from API — may differ from filter_content_category</span>
+  ]
 });</pre>
 </section>
 
