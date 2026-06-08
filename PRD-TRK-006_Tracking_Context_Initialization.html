@@ -221,7 +221,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.0 · 2026-05-25</span>
+    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.2 · 2026-06-08</span>
   </div>
 </div>
 
@@ -233,7 +233,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">Tracking Context Initialization &amp; Login Identity Tracking</div>
-    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.0</div>
+    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.2</div>
   </div>
 
   <div class="ngl">Navigation</div>
@@ -256,6 +256,10 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl" href="#s10">10. Privacy &amp; Compliance</a>
   <a class="nl" href="#s11">11. Acceptance Criteria</a>
   <a class="nl" href="#s12">12. Risks &amp; Mitigations</a>
+  <a class="nl" href="#s13">13. Frontend Implementation Guide</a>
+  <a class="nl sub" href="#s13-seq">13.1 Unified Init Sequence</a>
+  <a class="nl sub" href="#s13-tokens">13.2 Token Reference</a>
+  <a class="nl sub" href="#s13-matrix">13.3 Cross-PRD Responsibility</a>
   <div class="nav-div"></div>
   <a class="nl" href="#glossary">Glossary</a>
   <a class="nl" href="#signoff">Sign-off</a>
@@ -275,11 +279,11 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">DOC ID</span><span class="v" style="font-family:var(--mono);color:var(--pink);font-size:12px;">PRD-TRK-CTX-001</span></div>
-    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.0</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.2</span></div>
     <div class="meta-cell"><span class="k">TYPE</span><span class="v">PRD / Frontend + Identity</span></div>
     <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
     <div class="meta-cell"><span class="k">OWNER</span><span class="v">Product Team</span></div>
-    <div class="meta-cell"><span class="k">UPDATED</span><span class="v">2026-05-25</span></div>
+    <div class="meta-cell"><span class="k">UPDATED</span><span class="v">2026-06-08</span></div>
     <div class="meta-cell"><span class="k">SYSTEM</span><span class="v"><span class="badge b-pink">Tracking Foundation</span></span></div>
     <div class="meta-cell"><span class="k">SYSTEMS</span><span class="v">
       <span class="badge b-blue">GA4</span>&nbsp;<span class="badge b-blue">GTM</span>&nbsp;<span class="badge b-blue">TikTok</span>&nbsp;<span class="badge b-blue">Meta</span>&nbsp;<span class="badge b-blue">Audience Gallery</span>
@@ -372,7 +376,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td class="field">Delivery</td><td>Returned directly in login API response — Frontend does NOT compute hash</td><td class="zh">由登录接口直接返回，前端不自行计算</td></tr>
       <tr><td class="field">Storage</td><td>Memory or <code>sessionStorage</code> only — must NOT write to <code>localStorage</code></td><td class="zh">仅存于内存或 sessionStorage，禁止写入 localStorage</td></tr>
       <tr><td class="field">On Logout</td><td>hashed_uid must be cleared immediately upon logout</td><td class="zh">用户登出后立即清除 hashed_uid</td></tr>
-      <tr><td class="field">On Refresh</td><td>Re-fetched from session restore API — not persisted client-side</td><td class="zh">刷新后从 session 恢复接口重新获取，不在客户端持久化</td></tr>
+      <tr><td class="field">On Refresh</td><td>Re-fetched from session restore API — not persisted client-side. See Session Restore Specification below.</td><td class="zh">刷新后从 session 恢复接口重新获取，不在客户端持久化。详见下方 Session Restore 规范。</td></tr>
     </tbody>
   </table></div>
 
@@ -386,6 +390,46 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   }
 }</pre>
   </div>
+
+  <div class="sub-h">2.4 Session Restore Specification — hashed_uid on Page Refresh</div>
+  <div class="sdesc">页面刷新后 sessionStorage 被清空，hashed_uid 不能从客户端恢复。前端必须在初始化阶段通过 session 恢复接口重新获取。</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Rule</th><th>Detail</th><th class="zh">规范说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Restore timing</td><td>Frontend calls session restore API <strong>before</strong> <code>initTracking()</code> — hashed_uid must be available at STEP 4 (tracking_initialized push)</td><td class="zh">在 initTracking() 执行前调用，确保 STEP 4 推送时 hashed_uid 已就绪</td></tr>
+      <tr><td class="field">API endpoint</td><td>Existing session / auth-check API — Backend returns <code>hashed_uid</code> in response if user session is valid. No dedicated new endpoint required.</td><td class="zh">复用现有 session / auth-check 接口，后端在 session 有效时返回 hashed_uid，不需要新建接口</td></tr>
+      <tr><td class="field">Backend responsibility</td><td>Backend must include <code>hashed_uid</code> in the session restore response — same field as login API response</td><td class="zh">后端在 session 恢复接口的 response 中必须包含 hashed_uid 字段，与登录接口保持一致</td></tr>
+      <tr><td class="field">Session invalid / not logged in</td><td>API returns no <code>hashed_uid</code> → Frontend proceeds as anonymous (Flow 1)</td><td class="zh">session 无效或未登录时不返回 hashed_uid，前端按匿名流程处理</td></tr>
+      <tr><td class="field">Restore timeout</td><td>If session restore API times out, proceed as anonymous — do NOT block <code>initTracking()</code></td><td class="zh">接口超时时按匿名处理，不阻塞初始化流程</td></tr>
+      <tr><td class="field">Storage after restore</td><td>Write restored <code>hashed_uid</code> to <code>sessionStorage</code> — same storage rule as post-login</td><td class="zh">恢复后写入 sessionStorage，与登录后存储规则一致</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">Page refresh — hashed_uid restore before initTracking()</span></div>
+    <pre><span class="k">async function</span> <span class="n">restoreSession</span>() {
+  <span class="k">try</span> {
+    <span class="k">const</span> res = <span class="k">await</span> fetchWithTimeout(<span class="s">'/api/auth/session'</span>, { timeout: <span class="v">3000</span> });
+    <span class="k">if</span> (res?.user?.hashed_uid) {
+      sessionStorage.setItem(<span class="s">'hashed_uid'</span>, res.user.hashed_uid); <span class="c">// restore to sessionStorage</span>
+      <span class="k">return</span> res.user.hashed_uid;
+    }
+  } <span class="k">catch</span> (e) {
+    console.warn(<span class="s">'[Tracking] session restore failed'</span>, e); <span class="c">// silent fail — proceed as anonymous</span>
+  }
+  <span class="k">return null</span>;
+}
+
+<span class="c">// Page load entry point — restore BEFORE initTracking</span>
+<span class="k">const</span> hashedUid = <span class="k">await</span> restoreSession();
+<span class="k">await</span> initTracking(hashedUid); <span class="c">// hashed_uid passed in, not re-fetched inside</span></pre>
+  </div>
+
+  <div class="callout c-note">
+    <strong>Session restore API response</strong> — Backend must return <code>hashed_uid</code> in the same format as the login API response. If the existing session endpoint does not currently include this field, Backend must add it before frontend implementation begins.
+  </div>
+
 </section>
 
 <!-- S3 Identity Architecture Diagram -->
@@ -818,14 +862,80 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     <thead><tr><th>Scenario</th><th class="zh">场景说明</th><th>Fallback Behavior</th><th class="zh">降级处理</th><th>Notes</th><th class="zh">备注</th></tr></thead>
     <tbody>
       <tr><td>GA4 not loaded / timeout</td><td class="zh">GA4 未加载或超时</td><td><code>anonymous_id</code> omitted; <code>tracking_initialized</code> still pushed</td><td class="zh">anonymous_id 留空，但 tracking_initialized 仍正常推送</td><td>Do NOT generate UUID replacement</td><td class="zh">禁止用 UUID 替代，否则污染 identity graph</td></tr>
-      <tr><td>hashed_uid API timeout</td><td class="zh">hashed_uid 接口超时</td><td>Push <code>login_status: logged_in</code> without hashed_uid; push supplemental login event when API resolves</td><td class="zh">先推送不含 hashed_uid 的事件；接口返回后补发 login event</td><td>Eventual consistency acceptable</td><td class="zh">最终一致性可接受</td></tr>
+      <tr><td>hashed_uid API timeout</td><td class="zh">hashed_uid 接口超时</td><td>Push <code>login_status: logged_in</code> without hashed_uid; push supplemental login event when API resolves. See Supplemental Login Event Specification below.</td><td class="zh">先推送不含 hashed_uid 的事件；接口返回后补发 login event。详见下方补发规范。</td><td>Eventual consistency acceptable</td><td class="zh">最终一致性可接受</td></tr>
       <tr><td><code>dataLayer</code> not initialized</td><td class="zh">dataLayer 未初始化</td><td>Initialize <code>window.dataLayer = window.dataLayer || []</code> before any push</td><td class="zh">push 前先确保 dataLayer 初始化</td><td>Standard GTM pattern</td><td class="zh">GTM 标准做法</td></tr>
       <tr><td>GTM not loaded</td><td class="zh">GTM 未加载</td><td><code>dataLayer.push</code> executes normally — GTM consumes queue on load</td><td class="zh">正常执行 push，GTM 加载后自动消费队列</td><td>dataLayer is decoupled from GTM</td><td class="zh">dataLayer 与 GTM 解耦，互不阻塞</td></tr>
       <tr><td>Network unavailable</td><td class="zh">网络不可用</td><td>Silent fail — no retry, no block</td><td class="zh">静默失败，不重试，不阻塞</td><td>Tracking is best-effort</td><td class="zh">tracking 是尽力而为，非强依赖</td></tr>
       <tr><td>Cookie consent denied</td><td class="zh">用户拒绝 Cookie 授权</td><td>Skip all tracking — do not push any event</td><td class="zh">跳过所有 tracking，不推送任何事件</td><td>See Section 10 for consent rules</td><td class="zh">详见第 10 节合规规范</td></tr>
     </tbody>
   </table></div>
-</section>
+
+  <div class="sub-h">7.1 Supplemental Login Event Specification</div>
+  <div class="sdesc">当登录接口在推送 login event 时尚未返回 hashed_uid（超时或延迟），前端先推送不含 hashed_uid 的事件，待接口返回后补发完整 login event。</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Action</th><th>Owner</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">1 — 立即推送</td><td>Push <code>login</code> event with <code>login_status: logged_in</code> but without <code>hashed_uid</code> — do NOT wait for API</td><td><span class="team team-fe">Frontend</span></td><td class="zh">登录成功后立即推送，不等待 hashed_uid 接口返回，不阻塞登录流程</td></tr>
+      <tr><td class="field">2 — 等待接口</td><td>Continue waiting for hashed_uid API response in background (max 10s timeout)</td><td><span class="team team-fe">Frontend</span></td><td class="zh">后台等待接口返回，最长等待 10 秒，超时后放弃补发</td></tr>
+      <tr><td class="field">3 — 补发事件</td><td>When API resolves: push supplemental <code>login</code> event with complete payload including <code>hashed_uid</code></td><td><span class="team team-fe">Frontend</span></td><td class="zh">接口返回后补发完整 login event，包含 hashed_uid</td></tr>
+      <tr><td class="field">4 — 后端处理</td><td>Backend receives supplemental event — uses <code>anonymous_id</code> + <code>session_id</code> to match with the earlier incomplete event and complete stitching</td><td><span class="team team-be">Backend</span></td><td class="zh">后端收到补发事件后，通过 anonymous_id + session_id 与之前的不完整事件匹配，完成 stitching</td></tr>
+      <tr><td class="field">5 — 超时放弃</td><td>If API does not resolve within 10s — silent abandon. Backend identity stitching will complete on next page load when session restore returns hashed_uid.</td><td><span class="team team-fe">Frontend</span></td><td class="zh">10 秒超时后静默放弃，下次页面加载时 session restore 会带回 hashed_uid 完成 stitching</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">Supplemental login event — push immediately then supplement on resolve</span></div>
+    <pre><span class="k">async function</span> <span class="n">onLoginSuccess</span>(cachedClientId, cachedSessionId, hashedUidPromise) {
+
+  <span class="c">// Step 1: push immediately without hashed_uid — do NOT block</span>
+  dataLayer.push({
+    <span class="n">event</span>:        <span class="s">"login"</span>,
+    <span class="n">anonymous_id</span>: cachedClientId  ?? <span class="k">undefined</span>,
+    <span class="n">session_id</span>:   cachedSessionId ?? <span class="k">undefined</span>,
+    <span class="n">login_status</span>: <span class="s">"logged_in"</span>
+    <span class="c">// hashed_uid intentionally omitted — not yet available</span>
+  });
+
+  <span class="c">// Step 2-3: wait for hashed_uid in background, max 10s</span>
+  <span class="k">try</span> {
+    <span class="k">const</span> hashedUid = <span class="k">await</span> Promise.race([
+      hashedUidPromise,
+      <span class="k">new</span> Promise((_, reject) => setTimeout(() => reject(<span class="k">new</span> Error(<span class="s">'timeout'</span>)), <span class="v">10000</span>))
+    ]);
+
+    <span class="k">if</span> (hashedUid) {
+      sessionStorage.setItem(<span class="s">'hashed_uid'</span>, hashedUid);
+
+      <span class="c">// Step 3: push supplemental event with complete payload</span>
+      dataLayer.push({
+        <span class="n">event</span>:        <span class="s">"login"</span>,
+        <span class="n">anonymous_id</span>: cachedClientId  ?? <span class="k">undefined</span>, <span class="c">// ← same IDs as Step 1</span>
+        <span class="n">session_id</span>:   cachedSessionId ?? <span class="k">undefined</span>, <span class="c">// ← must be identical</span>
+        <span class="n">hashed_uid</span>:   hashedUid,
+        <span class="n">login_status</span>: <span class="s">"logged_in"</span>
+      });
+    }
+  } <span class="k">catch</span> (e) {
+    console.warn(<span class="s">'[Tracking] supplemental login event abandoned'</span>, e);
+    <span class="c">// Step 5: silent abandon — stitching completes on next page load via session restore</span>
+  }
+}</pre>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Rule</th><th>Detail</th><th class="zh">规范说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">IDs must match</td><td>Supplemental event must use the <strong>exact same</strong> <code>anonymous_id</code> and <code>session_id</code> as the initial login event — Backend uses these to match the two events</td><td class="zh">补发事件必须使用与第一次 login event 完全相同的 anonymous_id 和 session_id，后端依此匹配两条事件</td></tr>
+      <tr><td class="field">Backend dedup</td><td>Backend must handle receiving two <code>login</code> events for the same session — the second (with hashed_uid) completes the stitching; the first is not discarded</td><td class="zh">后端需处理同一 session 收到两条 login event 的情况——第二条（含 hashed_uid）完成 stitching，第一条不丢弃</td></tr>
+      <tr><td class="field">Supplemental timeout</td><td>10 seconds — longer than the initial 3s GA4 timeout, as login API is a critical business call with higher reliability expectation</td><td class="zh">补发超时设为 10 秒，长于 GA4 的 3 秒超时，因为登录接口是核心业务接口，可靠性预期更高</td></tr>
+      <tr><td class="field">No re-fetch of IDs</td><td><code>anonymous_id</code> and <code>session_id</code> must be the cached values from initialization — never re-fetched at supplemental push time</td><td class="zh">补发时使用初始化时缓存的 IDs，绝不重新获取</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn">
+    <strong>Backend prerequisite：</strong>后端在收到不含 hashed_uid 的 login event 时，必须以 <code>anonymous_id + session_id</code> 为 key 暂存这条记录，等待后续补发。若 10 秒内未收到补发事件，该条记录通过下次页面加载的 <code>tracking_initialized</code>（含 hashed_uid）完成 stitching。这个处理逻辑需要在后端 identity stitching 模块中明确实现。
+  </div>
 
 <!-- S8 Multi-tab -->
 <section class="section" id="s8">
@@ -980,6 +1090,161 @@ onConsentGranted(<span class="k">async</span> () => {
   </table></div>
 </section>
 
+<!-- S13 Frontend Implementation Guide -->
+<section class="section" id="s13">
+  <div class="stag">13</div>
+  <h2>Frontend Implementation Guide <span class="en">前端实现总览</span></h2>
+  <div class="sdesc">本章节是前端工程师的单一实现入口。Tracking 体系跨越多份 PRD（006 / 008 / 009），但所有前端工作共享同一个初始化入口。阅读本章节后，无需同时翻阅其他文档即可完成前端实现。</div>
+
+  <div class="callout c-pink">
+    <strong>核心原则：</strong>所有 tracking 初始化工作必须通过<strong>统一入口模块</strong>执行。不允许 008 或 009 各自独立初始化 GA4 ID——anonymous_id 和 session_id 只获取一次，由初始化模块持有，后续逻辑作为条件分支挂载其上。
+  </div>
+
+  <!-- 13.1 Unified Init Sequence -->
+  <div class="sub-h" id="s13-seq">13.1 Unified Initialization Sequence <span class="en">统一初始化执行序列</span></div>
+  <div class="sdesc">以下是每次页面加载时前端的完整执行顺序，覆盖所有 tracking 场景。每一步标注了对应的来源 PRD。</div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">Pseudocode</span><span class="code-label">Frontend Tracking — Unified Entry Point</span></div>
+    <pre><span class="k">async function</span> <span class="n">initTracking</span>() {
+
+  <span class="c">// ─── STEP 1: Consent gate ───────────────────────────── PRD-TRK-006 §10</span>
+  <span class="k">if</span> (!consentGranted()) <span class="k">return</span>; <span class="c">// 用户未授权 Cookie → 停止所有 tracking</span>
+
+  <span class="c">// ─── STEP 2: Fetch GA4 IDs (once, shared by all PRDs) ── PRD-TRK-006 §5</span>
+  <span class="k">const</span> [clientId, sessionId] = <span class="k">await</span> Promise.all([
+    getGA4ClientId(),   <span class="c">// anonymous_id = GA4 client_id，3s 超时</span>
+    getGA4SessionId()   <span class="c">// session_id = GA4 ga_session_id，3s 超时</span>
+  ]);
+  <span class="c">// 超时时为 undefined，不生成 UUID 替代</span>
+
+  <span class="c">// ─── STEP 3: Read URL params ─────────────────────────── PRD-TRK-008 §5</span>
+  <span class="k">const</span> maRef    = getURLParam(<span class="s">'ma_ref'</span>);    <span class="c">// MA 消息链接 token（007/008）</span>
+  <span class="k">const</span> aimaRef  = getURLParam(<span class="s">'aima_ref'</span>); <span class="c">// Aima 对话链接 token（009）</span>
+
+  <span class="c">// ─── STEP 4: Push tracking_initialized ──────────────── PRD-TRK-006 §4</span>
+  <span class="k">const</span> hashedUid = getCurrentHashedUid(); <span class="c">// 已登录时从 session 获取</span>
+  dataLayer.push({
+    <span class="n">event</span>:        <span class="s">"tracking_initialized"</span>,
+    <span class="n">anonymous_id</span>: clientId  ?? <span class="k">undefined</span>,
+    <span class="n">session_id</span>:   sessionId ?? <span class="k">undefined</span>,
+    ...(hashedUid && { <span class="n">hashed_uid</span>: hashedUid }),
+    <span class="n">login_status</span>: hashedUid ? <span class="s">"logged_in"</span> : <span class="s">"anonymous"</span>
+  });
+
+  <span class="c">// ─── STEP 5: MA link identity resolution ─────────────── PRD-TRK-008 §5</span>
+  <span class="k">if</span> (maRef) {
+    <span class="k">await</span> resolveMARef({ maRef, anonymous_id: clientId, session_id: sessionId });
+    <span class="c">// resolve 成功后 push ma_identity_associated event（详见 PRD-TRK-008 §11）</span>
+  }
+
+  <span class="c">// ─── STEP 6: Aima Widget init (widget 场景) ──────────── PRD-TRK-009 §9</span>
+  <span class="k">if</span> (isAimaWidgetPage()) {
+    initAimaWidget({
+      <span class="n">runtime_source</span>: <span class="s">"website_widget"</span>,
+      <span class="n">ga_session_id</span>:  sessionId,   <span class="c">// 复用 STEP 2 已获取的值，不重复请求</span>
+      <span class="n">ga_client_id</span>:   clientId
+    });
+  }
+
+  <span class="c">// ─── STEP 7: Login event（登录成功时触发，不在页面初始化中）</span>
+  <span class="c">//            见 PRD-TRK-006 §4.3 Flow 3 — 使用与 STEP 2 相同的 IDs</span>
+
+}</pre>
+  </div>
+
+  <div class="callout c-red">
+    <strong>禁止事项：</strong>
+    008 的 resolve 逻辑和 009 的 Widget 初始化<strong>不得各自独立获取 GA4 client_id / session_id</strong>。两者必须复用 STEP 2 中已获取的值，避免时序竞争和重复异步请求。
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Action</th><th>来源 PRD</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">1</td><td>Check Cookie consent</td><td><span class="badge b-pink">006 §10</span></td><td class="zh">所有 tracking 的前置门控，未授权直接退出</td></tr>
+      <tr><td class="field">2</td><td>Fetch GA4 client_id + session_id（并行，3s 超时）</td><td><span class="badge b-pink">006 §5–6</span></td><td class="zh">全局唯一获取，所有后续步骤共用</td></tr>
+      <tr><td class="field">3</td><td>Read <code>ma_ref</code> and <code>aima_ref</code> from URL</td><td><span class="badge b-blue">008 §5</span> <span class="badge b-blue">009 §7</span></td><td class="zh">URL 参数读取，无则跳过对应步骤</td></tr>
+      <tr><td class="field">4</td><td>Push <code>tracking_initialized</code> to dataLayer</td><td><span class="badge b-pink">006 §4</span></td><td class="zh">每次页面加载必须推送，无论后续步骤结果如何</td></tr>
+      <tr><td class="field">5</td><td>If <code>ma_ref</code> → call <code>resolve-ma-ref</code> API</td><td><span class="badge b-blue">008 §5–6</span></td><td class="zh">条件执行；完成后推送 <code>ma_identity_associated</code></td></tr>
+      <tr><td class="field">6</td><td>If Widget page → init Aima Widget with GA4 context</td><td><span class="badge b-blue">009 §9</span></td><td class="zh">传入已有 session/client ID，不重新获取</td></tr>
+      <tr><td class="field">7</td><td>On login success → push <code>login</code> event（独立触发）</td><td><span class="badge b-pink">006 §4.3</span></td><td class="zh">使用 STEP 2 缓存的 IDs，登录后不得重新获取</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- 13.2 Token Reference -->
+  <div class="sub-h" id="s13-tokens">13.2 Token Reference — 三种 Token 区分 <span class="en">What frontend reads vs what it never touches</span></div>
+  <div class="sdesc">前端会在 URL 中看到三种 tracking token，职责截然不同。下表明确前端对每种 token 的处理方式。</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Token</th><th>出现位置</th><th>前端职责</th><th>前端禁止</th><th class="zh">来源 PRD</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="field">anonymous_id</td>
+        <td>GA4 内部（不在 URL）</td>
+        <td>通过 <code>gtag('get', ..., 'client_id')</code> 获取；推送进 dataLayer；传给 resolve API</td>
+        <td>自行生成 UUID 替代；登录后重新生成</td>
+        <td class="zh"><span class="badge b-pink">006 §2</span></td>
+      </tr>
+      <tr>
+        <td class="field">hashed_uid</td>
+        <td>Login API response</td>
+        <td>从登录接口 response 读取；存入 sessionStorage；登录时推送进 dataLayer</td>
+        <td>自行计算 SHA-256；写入 localStorage；传给第三方平台</td>
+        <td class="zh"><span class="badge b-pink">006 §2</span></td>
+      </tr>
+      <tr>
+        <td class="field">ma_ref</td>
+        <td>URL 参数 <code>?ma_ref=</code></td>
+        <td>读取 URL 参数；原样传给 <code>resolve-ma-ref</code> API；不做任何解析</td>
+        <td>解码 JWT；解析 payload；执行 identity 逻辑</td>
+        <td class="zh"><span class="badge b-blue">007/008</span></td>
+      </tr>
+      <tr>
+        <td class="field">aima_ref</td>
+        <td>URL 参数 <code>?aima_ref=</code></td>
+        <td>读取 URL 参数；作为 GA4 event 参数随 <code>recommendation_click</code> 传出</td>
+        <td>解码 token；执行任何 identity 或 resolve 操作</td>
+        <td class="zh"><span class="badge b-blue">009</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn">
+    <strong>ma_ref ≠ aima_ref ≠ hashed_uid</strong> — 三个 token 服务于不同系统，不可混用。<code>ma_ref</code> 是 MA 批量消息追踪（PRD-TRK-007/008）；<code>aima_ref</code> 是 Aima 对话消息追踪（PRD-TRK-009）；<code>hashed_uid</code> 是登录用户身份标识（本文档）。URL 中可能同时存在 <code>ma_ref</code> 或 <code>aima_ref</code>，但不会同时出现两者。
+  </div>
+
+  <!-- 13.3 Cross-PRD Responsibility Matrix -->
+  <div class="sub-h" id="s13-matrix">13.3 Frontend Cross-PRD Responsibility Matrix <span class="en">前端跨文档职责汇总</span></div>
+  <div class="sdesc">前端在整个 Tracking 体系中的所有职责汇总。每项职责对应唯一来源 PRD，无重叠，无遗漏。</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>职责</th><th>触发时机</th><th>关键约束</th><th>来源 PRD</th></tr></thead>
+    <tbody>
+      <tr><td>检查 Cookie consent</td><td>每次页面加载，最优先</td><td>未授权时跳过所有 tracking，不推送任何事件</td><td><span class="badge b-pink">006 §10</span></td></tr>
+      <tr><td>获取 GA4 client_id（anonymous_id）</td><td>页面加载，consent 通过后</td><td>3s 超时；失败时为 undefined，不用 UUID 替代</td><td><span class="badge b-pink">006 §5</span></td></tr>
+      <tr><td>获取 GA4 ga_session_id（session_id）</td><td>同上，与 client_id 并行</td><td>同一页面生命周期内缓存，不重复获取</td><td><span class="badge b-pink">006 §6</span></td></tr>
+      <tr><td>推送 <code>tracking_initialized</code></td><td>每次页面加载</td><td>必须推送，即使 GA4 ID 获取失败；不阻塞页面</td><td><span class="badge b-pink">006 §4</span></td></tr>
+      <tr><td>推送 <code>login</code> event</td><td>登录成功后立即触发</td><td>使用初始化时缓存的 IDs，不重新获取</td><td><span class="badge b-pink">006 §4.3</span></td></tr>
+      <tr><td>登出时清除 hashed_uid</td><td>用户登出时</td><td>从 sessionStorage 清除；不清除 anonymous_id</td><td><span class="badge b-pink">006 §2</span></td></tr>
+      <tr><td>读取 URL 中的 <code>ma_ref</code></td><td>页面加载时，tracking_initialized 之后</td><td>仅读取，不解析内容</td><td><span class="badge b-blue">008 §5</span></td></tr>
+      <tr><td>调用 <code>POST /tracking/resolve-ma-ref</code></td><td>URL 含 <code>ma_ref</code> 时</td><td>3s 超时；失败静默跳过，不阻塞页面</td><td><span class="badge b-blue">008 §5</span></td></tr>
+      <tr><td>推送 <code>ma_identity_associated</code></td><td>resolve API 成功返回后</td><td>expired / invalid / 超时时不推送</td><td><span class="badge b-blue">008 §11</span></td></tr>
+      <tr><td>Widget 初始化时传入 <code>runtime_source</code></td><td>Aima Widget 页面加载时</td><td>必须传 <code>"website_widget"</code>；同时传已有 GA4 session 上下文</td><td><span class="badge b-blue">009 §9</span></td></tr>
+      <tr><td>触发 <code>recommendation_click</code> GA4 event</td><td>用户在 Widget 内点击链接时</td><td>包含 <code>aima_ref</code> 和 <code>runtime_source</code> 参数</td><td><span class="badge b-blue">009 §9</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-note">
+    <strong>明确不属于前端的工作：</strong>UUID 生成 / hashed_uid 计算 / Identity stitching / ma_ref 解码 / aima_ref 解码 / 任何 token 的签名或验证 / 主动传递 active uid 给 Backend。以上全部由 Backend 负责。
+  </div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">给前端同学的一句话总结</span>
+    你只需要实现一个统一的 <code>initTracking()</code> 入口函数。它负责：① consent 检查 → ② 一次性获取 GA4 IDs → ③ 推送 tracking_initialized → ④ 按条件分支处理 ma_ref（调 resolve API）和 aima_ref（传给 Widget）。登录事件单独处理。所有 token 只读取、只传递，不解析、不计算。
+  </div>
+
+</section>
+
 <hr class="div">
 
 <!-- GLOSSARY -->
@@ -1036,13 +1301,15 @@ onConsentGranted(<span class="k">async</span> () => {
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.2</td><td>2026-06-08</td><td>Product Team</td><td>Filled two specification gaps. (1) Added Section 2.4: Session Restore Specification — defines hashed_uid recovery timing on page refresh, session restore API contract, Backend response requirement, timeout behaviour, and storage rule. (2) Added Section 7.1: Supplemental Login Event Specification — defines the two-step push flow when hashed_uid API is delayed, supplemental event payload, 10s timeout, IDs matching requirement, and Backend dedup handling.</td></tr>
+      <tr><td>v1.1</td><td>2026-06-08</td><td>Product Team</td><td>Added Section 13: Frontend Implementation Guide. Provides a unified frontend entry point covering all tracking PRDs (006 / 008 / 009). Includes: unified initialization sequence pseudocode with per-step PRD references, token reference table (anonymous_id / hashed_uid / ma_ref / aima_ref), and cross-PRD frontend responsibility matrix. Addresses risk of frontend teams implementing 008 and 009 as independent modules.</td></tr>
       <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full tracking flow spec, 3 SVG diagrams, GA4 retrieval spec, error handling, multi-tab rules, responsibility matrix, acceptance criteria, risk matrix, glossary.</td></tr>
     </tbody>
   </table></div>
 </section>
 
 <div class="doc-footer">
-  <span>PRD-TRK-CTX-001 · v1.0 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>PRD-TRK-CTX-001 · v1.2 · CONFIDENTIAL — INTERNAL USE ONLY</span>
   <span>© 2026 Supermom Product Team</span>
 </div>
 
