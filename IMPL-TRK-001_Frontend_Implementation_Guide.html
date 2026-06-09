@@ -105,7 +105,8 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   <div class="nav-group">
     <div class="ngl">Detail &amp; Form 详情/表单</div>
     <a class="nl" href="#detail">§8 Detail page</a>
-    <a class="nl" href="#form">§9 Form &amp; Thank you</a>
+    <a class="nl" href="#form">§9 Form, Thank you &amp; Bigfunnel</a>
+    <a class="nl" href="#search">§9b Search</a>
   </div>
   <div class="nav-group">
     <div class="ngl">OTP Flow OTP流程</div>
@@ -668,15 +669,178 @@ pushEvent({
 
   <h3>9.2 purchase — fires on same tick as form_submit</h3>
   <div class="callout c-note"><code>purchase</code> fires together with <code>form_submit</code> after Backend confirms. Include the same <code>transaction_id</code>. GTM will use this to generate the GA4 e-commerce purchase event.</div>
-  <pre>pushEvent({
+  <pre><span class="c">// Standard purchase — lead_gen / survey / ugc</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
   <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
-  <span class="k">transaction_id</span>: <span class="s">"txn_abc123"</span>  <span class="c">// same as form_submit</span>
+  <span class="k">transaction_id</span>: <span class="s">"txn_abc123"</span>  <span class="c">// from Backend response</span>
 });</pre>
 
-  <h3>9.3 Thank you page</h3>
-  <pre>pushEvent({ <span class="k">event</span>: <span class="s">"page_view"</span>, <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
-  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span> });</pre>
+  <h3>9.3 Bigfunnel — begin_checkout and purchase</h3>
+  <div class="callout c-note"><strong>Bigfunnel = one begin_checkout, one purchase.</strong> User submits once, Backend returns one <code>transaction_id</code> (= <code>answer_id</code> in the business database). Sub-leadgen conversion details are stored in the backend and can be joined in BQ via <code>transaction_id = answer_id</code>.<span class="zh">Bigfunnel：一次 begin_checkout，一次 purchase。Backend 返回一个 transaction_id（即业务数据库的 answer_id）。子活动转化明细存在后端，通过 transaction_id = answer_id 在 BQ 中 join。</span></div>
+  <pre><span class="c">// Step 1: user clicks "Join" on bigfunnel detail page</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"begin_checkout"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">content_id</span>: <span class="s">"bigfunnel_001"</span>, <span class="k">content_type</span>: <span class="s">"bigfunnel"</span>
+});
+
+<span class="c">// Step 2: Backend confirms — one purchase, one transaction_id (= answer_id)</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
+  <span class="k">content_id</span>: <span class="s">"bigfunnel_001"</span>, <span class="k">content_type</span>: <span class="s">"bigfunnel"</span>,
+  <span class="k">transaction_id</span>: <span class="s">"ans_abc123"</span>  <span class="c">// answer_id from Backend — use this to join sub-leadgen details in BQ</span>
+});</pre>
+
+  <div class="callout c-info"><strong>BQ join for sub-leadgen conversion details:</strong>
+  <pre style="margin-top:8px;background:#0f2e1a">SELECT p.transaction_id, p.content_id AS bigfunnel_id,
+       sub.leadgen_id, sub.leadgen_name
+FROM events p
+JOIN bigfunnel_answers sub
+  ON p.transaction_id = sub.answer_id
+WHERE p.event_name = <span class="s">'purchase'</span>
+  AND p.content_type = <span class="s">'bigfunnel'</span></pre>
+  </div>
+
+  <h3>9.4 Thank you page</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"page_view"</span>, <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>
+});</pre>
+
+  <h3>9.5 Thank you page — AI recommendation widget</h3>
+  <div class="callout c-note">Fires one push per recommended item. Mixed content types possible (lead_gen / ugc / survey / article).</div>
+  <pre><span class="c">// Each recommended item fires separately</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"thankyou_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"ai_recommended"</span>,
+  <span class="k">source_campaign_id</span>: <span class="s">"cmp_001"</span>,  <span class="c">// the campaign user just converted on</span>
+  <span class="k">impression_position</span>: <span class="n">1</span>
+});
+
+<span class="c">// User clicks a recommendation</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"thankyou_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
+  <span class="k">clicked_position</span>: <span class="n">1</span>
+});</pre>
+</section>
+
+<hr class="div">
+
+<!-- §9b SEARCH -->
+<section class="section" id="search">
+  <div class="stag">§9b</div>
+  <h2>Search — global <span class="zh">全局搜索</span></h2>
+  <div class="callout c-note">Search bar is present on all pages in the top navigation. Results appear in a dropdown — no separate search results page.<span class="zh">搜索框在所有页面顶部导航中存在，结果在下拉框中展示，无独立搜索结果页。</span></div>
+
+  <h3>Search event flow</h3>
+  <div class="flow">
+    <span class="flow-event">search_submit</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-cond">has results</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">search_result_view</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">search_result_click</span>
+  </div>
+  <div class="flow">
+    <span class="flow-event">search_submit</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-cond">no results</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">search_no_result</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-cond">user clicks Ask Aima</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">chat_open / otp_popup_view</span>
+  </div>
+
+  <h3>Search events — complete payloads</h3>
+  <pre><span class="c">// 1. User submits search query</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"search_submit"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,  <span class="c">// use current page_type</span>
+  <span class="k">component_type</span>: <span class="s">"search_bar"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search"</span>,
+  <span class="k">search_topic</span>: <span class="s">"eczema cream"</span>  <span class="c">// raw search keyword</span>
+});
+
+<span class="c">// 2a. Results found — dropdown shows results</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"search_result_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"search_result"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>,
+  <span class="k">search_topic</span>: <span class="s">"eczema cream"</span>,
+  <span class="k">result_count</span>: <span class="n">8</span>
+});
+
+<span class="c">// 3. User clicks a result</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"search_result_click"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"search_result"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>,
+  <span class="k">search_topic</span>: <span class="s">"eczema cream"</span>,
+  <span class="k">clicked_content_id</span>: <span class="s">"art_001"</span>,
+  <span class="k">clicked_content_type</span>: <span class="s">"article"</span>,
+  <span class="k">clicked_position</span>: <span class="n">2</span>
+});
+
+<span class="c">// 2b. No results found</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"search_no_result"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"search_result"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>,
+  <span class="k">search_topic</span>: <span class="s">"eczema cream"</span>
+});
+
+<span class="c">// 4a. User clicks "Ask Aima" — already logged in</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});
+
+<span class="c">// 4b. User clicks "Ask Aima" — not logged in → OTP</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>,
+  <span class="k">source_page</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>
+});</pre>
+
+  <h3>BQ — how to analyse search conversion</h3>
+  <pre><span class="c">-- Did users who clicked a search result eventually convert?
+-- Join search_result_click with purchase via session_id</span>
+SELECT
+  src.search_topic,
+  src.clicked_content_id,
+  COUNT(DISTINCT src.session_id) AS clicked_sessions,
+  COUNT(DISTINCT p.session_id)   AS converted_sessions
+FROM events src
+LEFT JOIN events p
+  ON src.session_id = p.session_id
+  AND p.event_name = <span class="s">'purchase'</span>
+  AND p.event_timestamp > src.event_timestamp
+WHERE src.event_name = <span class="s">'search_result_click'</span>
+GROUP BY <span class="n">1</span>, <span class="n">2</span></pre>
 </section>
 
 <hr class="div">
@@ -914,21 +1078,33 @@ pushEvent({
   <h2>component_name — complete list <span class="zh">组件实例名称清单</span></h2>
   <p class="sdesc">Used in OTP events when multiple components of the same type exist on one page. Naming rule: <code>{page}_{zone}</code>.<span class="zh">当同页存在多个相同类型组件时使用。命名规则：{页面}_{区域}。</span></p>
   <div class="tw"><table>
-    <thead><tr><th>component_name</th><th>Page</th><th>Description</th></tr></thead>
+    <thead><tr><th>component_name</th><th>Page</th><th>component_type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td><code>homepage_hero_chat</code></td><td>homepage</td><td>Top hero area AIMA chat widget</td></tr>
-      <tr><td><code>homepage_guidance_tabs</code></td><td>homepage</td><td>Trusted Guidance → Ask Aima Tab (Chat with Aima button) · Meaningful Rewards → Missions CTA</td></tr>
-      <tr><td><code>homepage_social_proof</code></td><td>homepage</td><td>"Trusted by millions" pink section Join Village</td></tr>
-      <tr><td><code>navigation_register_btn</code></td><td>any</td><td>Top nav register/login button</td></tr>
-      <tr><td><code>giveaway_village_join</code></td><td>/giveaway</td><td>Sidebar "Log in or join free"</td></tr>
-      <tr><td><code>earn_village_join</code></td><td>/earn</td><td>Sidebar "Log in or join free"</td></tr>
-      <tr><td><code>connect_group_join</code></td><td>/connect</td><td>Group list item Join button</td></tr>
-      <tr><td><code>detail_campaign_join</code></td><td>/detail</td><td>Campaign detail "Join to enter" CTA</td></tr>
-      <tr><td><code>detail_group_join</code></td><td>/detail</td><td>Group detail Join button</td></tr>
-      <tr><td><code>flashcard_answer_option</code></td><td>/detail</td><td>Flashcard answer option click</td></tr>
-      <tr><td><code>flashcard_poll_option</code></td><td>/detail</td><td>Poll vote option in flashcard detail</td></tr>
-      <tr><td><code>onboarding_profile_popup</code></td><td>any</td><td>Post-registration profile setup popup</td></tr>
-      <tr><td><code>profile_setup_page</code></td><td>/profile</td><td>Standalone profile setup page form</td></tr>
+      <tr><td><code>homepage_banner</code></td><td>homepage</td><td>banner</td><td>Homepage hero banner area</td></tr>
+      <tr><td><code>homepage_recommendation</code></td><td>homepage</td><td>recommendation_widget</td><td>Homepage recommendation widget</td></tr>
+      <tr><td><code>homepage_hero_chat</code></td><td>homepage</td><td>chat_widget</td><td>Top hero area AIMA chat widget</td></tr>
+      <tr><td><code>homepage_guidance_tabs</code></td><td>homepage</td><td>tab</td><td>Trusted Guidance → Ask Aima Tab · Meaningful Rewards → Missions CTA</td></tr>
+      <tr><td><code>homepage_social_proof</code></td><td>homepage</td><td>banner</td><td>"Trusted by millions" pink section Join Village CTA</td></tr>
+      <tr><td><code>giveaway_campaign_list</code></td><td>/giveaway</td><td>campaign_list</td><td>Giveaway listing page campaign list</td></tr>
+      <tr><td><code>giveaway_village_join</code></td><td>/giveaway</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
+      <tr><td><code>earn_campaign_list</code></td><td>/earn</td><td>campaign_list</td><td>Earn listing page campaign list</td></tr>
+      <tr><td><code>earn_village_join</code></td><td>/earn</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
+      <tr><td><code>connect_recommendation</code></td><td>/connect</td><td>recommendation_widget</td><td>Recommended groups section (logged-in users only)</td></tr>
+      <tr><td><code>connect_group_list</code></td><td>/connect</td><td>group_list</td><td>All WhatsApp Groups list</td></tr>
+      <tr><td><code>connect_group_join</code></td><td>/connect</td><td>otp_popup</td><td>Group Join button OTP trigger</td></tr>
+      <tr><td><code>guide_flashcard_list</code></td><td>/guide</td><td>article_list</td><td>Flashcard list section</td></tr>
+      <tr><td><code>guide_article_list</code></td><td>/guide</td><td>article_list</td><td>Article list section</td></tr>
+      <tr><td><code>detail_recommendation</code></td><td>/detail</td><td>recommendation_widget</td><td>Related content recommendation on detail page</td></tr>
+      <tr><td><code>detail_campaign_join</code></td><td>/detail</td><td>otp_popup</td><td>Campaign detail "Join to enter" CTA</td></tr>
+      <tr><td><code>detail_group_join</code></td><td>/detail</td><td>otp_popup</td><td>Group detail Join button</td></tr>
+      <tr><td><code>thankyou_recommendation</code></td><td>/thank_you</td><td>recommendation_widget</td><td>Post-conversion AI recommendation widget</td></tr>
+      <tr><td><code>global_search</code></td><td>all pages</td><td>search_bar</td><td>Global search bar in top navigation</td></tr>
+      <tr><td><code>global_search_results</code></td><td>all pages</td><td>search_result</td><td>Search results dropdown · also used as source for "Ask Aima" when no results</td></tr>
+      <tr><td><code>flashcard_answer_option</code></td><td>/detail</td><td>otp_popup</td><td>Flashcard answer option click</td></tr>
+      <tr><td><code>flashcard_poll_option</code></td><td>/detail</td><td>otp_popup</td><td>Poll vote option in flashcard detail</td></tr>
+      <tr><td><code>navigation_register_btn</code></td><td>any</td><td>navigation</td><td>Top nav register/login button</td></tr>
+      <tr><td><code>onboarding_profile_popup</code></td><td>any</td><td>popup</td><td>Post-registration profile setup popup</td></tr>
+      <tr><td><code>profile_setup_page</code></td><td>/profile</td><td>form</td><td>Standalone profile setup page form</td></tr>
     </tbody>
   </table></div>
 </section>

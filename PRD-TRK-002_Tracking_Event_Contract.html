@@ -443,11 +443,10 @@ dataLayer.push({
       <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Owner</th></tr></thead>
       <tbody>
         <tr><td><code>component_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"recommendation_widget"</code></td><td><span class="own ofe">Frontend</span></td></tr>
+        <tr><td><code>component_name</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"homepage_recommendation"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>content_id</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"cmp_002"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"campaign"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>campaign_id</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"cmp_002"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>campaign_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"survey"</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"nutrition"</code></td><td><span class="own ocms">CMS</span></td></tr>
+        <tr><td><code>content_type</code></td><td>string</td><td><span class="req ryes">YES</span></td><td><code>"lead_gen"</code></td><td><span class="own obe">Backend</span></td></tr>
+        <tr><td><code>content_category</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"baby_essentials"</code></td><td><span class="own ocms">CMS</span></td></tr>
         <tr><td><code>recommendation_source</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"rule_based"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>source_campaign_id</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"cmp_001"</code></td><td><span class="own obe">Backend</span></td></tr>
         <tr><td><code>impression_position</code></td><td>integer</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>1</code></td><td><span class="own ofe">Frontend</span></td></tr>
@@ -456,25 +455,40 @@ dataLayer.push({
         <tr><td><code>filter_group_type</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"birth_club"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>filter_audience</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"pregnant"</code></td><td><span class="own ofe">Frontend</span></td></tr>
         <tr><td><code>tab_value</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"ugc"</code></td><td><span class="own ofe">Frontend</span></td></tr>
-        <tr><td><code>link_url</code></td><td>string</td><td><span class="req rcond">CONDITIONAL</span></td><td><code>"https://..."</code></td><td><span class="own obe">Backend</span></td></tr>
-        <tr><td><code>link_domain</code></td><td>string</td><td><span class="req rno">NO</span></td><td><code>"example.com"</code></td><td><span class="own obe">Backend</span></td></tr>
       </tbody>
     </table></div>
     <p style="font-size:11px;color:var(--text-muted);margin:6px 0 10px;">CONDITIONAL fields: see <a href="#conditional" style="color:var(--blue);">§04 conditional rules</a> · 条件必填见第 04 节</p>
-    <pre><span class="c">// content_impression — AIMA recommendation on thank_you page</span>
-<span class="c">// 场景：thank_you 页 AIMA 推荐内容曝光</span>
+    <pre><span class="c">// content_impression — homepage recommendation widget (per item, one push each)</span>
 dataLayer.push({
-  <span class="k">event</span>: <span class="s">"content_impression"</span>,
-  <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
   <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
-  <span class="k">recommendation_source</span>: <span class="s">"aima"</span>,
-  <span class="k">source_campaign_id</span>: <span class="s">"cmp_001"</span>,  <span class="c">// 当前所在活动 current context</span>
-  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>,          <span class="c">// 被推荐的内容 recommended item</span>
-  <span class="k">content_type</span>: <span class="s">"campaign"</span>,
-  <span class="k">campaign_id</span>: <span class="s">"cmp_002"</span>,
-  <span class="k">campaign_type</span>: <span class="s">"survey"</span>,
-  <span class="k">content_category</span>: <span class="s">"nutrition"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"rule_based"</span>,
   <span class="k">impression_position</span>: <span class="n">1</span>
+});
+
+<span class="c">// content_impression — thank_you page AI recommendation (per item)</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"thank_you"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"thankyou_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"ai_recommended"</span>,
+  <span class="k">source_campaign_id</span>: <span class="s">"cmp_001"</span>,
+  <span class="k">impression_position</span>: <span class="n">1</span>
+});
+
+<span class="c">// content_impression — /giveaway listing (array push)</span>
+dataLayer.push({
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">2</span> }
+  ]
 });</pre>
   </div>
 </div>
