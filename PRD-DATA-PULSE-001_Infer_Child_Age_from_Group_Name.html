@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-DATA-PULSE-001 Pulse EDD → Child Age Inference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #fff; --border: #e2e0d8; --border-strong: #c8c5ba;
+  --text-primary: #1a1917; --text-secondary: #5c5a54; --text-muted: #9c9a93;
+  --accent-soft: #f0ede6; --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  --pink: #d63f7a; --pink-mid: #e8608a; --pink-light: #fce8f1; --pink-border: #f0b8d4; --pink-muted: #b83368;
+  --green: #1a6b45; --green-bg: #edf7f2; --green-b: #a8d8c0;
+  --amber: #7a4f00; --amber-bg: #fef7e6; --amber-b: #f5d080;
+  --blue: #0f3a6e; --blue-bg: #edf3fb; --blue-b: #b0cef0;
+  --teal: #0a5a52; --teal-bg: #e8f7f5; --teal-b: #8dd4cc;
+  --purple: #4a1a7a; --purple-bg: #f5edf9; --purple-b: #d8b0f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); font-size: 14px; line-height: 1.65; color: var(--text-primary); background: var(--bg); }
+
+.lang-bar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 9px 28px; }
+.lang-bar-left { display: flex; align-items: center; gap: 16px; }
+.lang-bar-logo { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); font-weight: 500; border-left: 3px solid var(--pink); padding-left: 8px; }
+.lang-bar-id { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .06em; }
+.lang-toggle { display: flex; gap: 3px; background: var(--accent-soft); border-radius: 5px; padding: 3px; border: 1px solid var(--border); }
+.lang-btn { padding: 3px 14px; border: none; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all .15s; letter-spacing: .05em; }
+.lang-btn.active { background: var(--pink); color: #fff; }
+
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+.sidebar { position: sticky; top: 41px; height: calc(100vh - 41px); overflow-y: auto; background: var(--surface); border-right: 1px solid var(--border); }
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--pink-border); border-radius: 2px; }
+.sidebar-stripe { height: 4px; background: linear-gradient(90deg, var(--pink) 0%, #f06292 50%, #ff8a65 100%); }
+.sidebar-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.sidebar-module { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); margin-bottom: 3px; }
+.sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+.sidebar-ver { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.ngl { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 3px; }
+.nl { display: block; padding: 5px 20px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: all .12s; line-height: 1.4; }
+.nl:hover { color: var(--text-primary); background: var(--pink-light); border-left-color: var(--pink-border); }
+.nav-div { height: 1px; background: var(--border); margin: 10px 20px; }
+
+.main { padding: 48px 56px; max-width: 900px; }
+
+.cover { margin-bottom: 52px; padding-bottom: 36px; border-bottom: 2px solid var(--text-primary); }
+.doc-module-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink-border); background: var(--pink-light); padding: 3px 10px; border-radius: 3px; margin-bottom: 14px; }
+.cover h1 { font-size: 26px; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.cover h1 strong { font-weight: 500; }
+.cover .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.65; }
+
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.meta-cell { background: var(--surface); padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+.meta-cell .k { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); width: 80px; flex-shrink: 0; padding-top: 1px; }
+.meta-cell .v { color: var(--text-primary); font-weight: 500; }
+
+.badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.b-draft { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-b); }
+.b-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-b); }
+.b-tbd   { background: var(--accent-soft); color: var(--text-muted); border: 1px solid var(--border); }
+.b-pink  { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); }
+
+.team { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+.team-pulse   { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-b); }
+.team-gallery { background: var(--pink-light); color: var(--pink-muted); border: 1px solid var(--pink-border); }
+
+.section { margin-bottom: 56px; scroll-margin-top: 60px; }
+.stag { font-family: var(--mono); font-size: 10px; color: var(--pink); letter-spacing: .08em; margin-bottom: 4px; }
+.section h2 { font-size: 18px; font-weight: 500; letter-spacing: -.01em; margin-bottom: 6px; line-height: 1.3; }
+.sdesc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.65; }
+hr.div { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+.sub-h { font-size: 14px; font-weight: 500; margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-h::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--pink); border-radius: 2px; flex-shrink: 0; }
+
+.tw { overflow-x: auto; margin: 12px 0; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead tr { background: var(--pink-light); }
+th { padding: 8px 13px; text-align: left; font-weight: 500; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--pink-muted); border-bottom: 1px solid var(--pink-border); white-space: nowrap; }
+td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--pink-light); }
+.field { font-family: var(--mono); font-size: 11px; color: var(--pink); font-weight: 500; }
+td code, .sdesc code, .callout code, .step-desc code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; color: var(--text-primary); border: 1px solid var(--border); }
+
+.code-wrap { border-radius: 6px; border: 1px solid var(--border); overflow: hidden; margin: 12px 0; }
+.code-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; background: var(--accent-soft); border-bottom: 1px solid var(--border); }
+.code-lang { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; }
+.code-label { font-family: var(--mono); font-size: 10px; color: var(--pink); }
+pre { background: #1c1b18; color: #d4d0c8; padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; }
+pre .k { color: #f48fb1; } pre .s { color: #a5d6a7; } pre .c { color: #6b7280; font-style: italic; } pre .n { color: #80cbc4; } pre .v { color: #ffcc80; }
+
+.callout { padding: 12px 16px; border-radius: 5px; border-left: 3px solid; margin: 14px 0; font-size: 13px; line-height: 1.65; }
+.callout strong { font-weight: 500; }
+.c-pink  { background: var(--pink-light); border-color: var(--pink); color: var(--pink-muted); }
+.c-info  { background: var(--blue-bg); border-color: #378add; color: var(--blue); }
+.c-warn  { background: var(--amber-bg); border-color: #e6a817; color: var(--amber); }
+.c-green { background: var(--green-bg); border-color: #2e9e68; color: var(--green); }
+.c-note  { background: var(--accent-soft); border-color: var(--border-strong); color: var(--text-secondary); }
+.c-teal  { background: var(--teal-bg); border-color: var(--teal-b); color: var(--teal); }
+
+.flow { margin: 20px 0 24px; position: relative; }
+.flow::before { content: ''; position: absolute; left: 18px; top: 38px; bottom: 38px; width: 1px; background: var(--pink-border); }
+.flow-step { display: flex; gap: 16px; align-items: flex-start; padding: 14px 0; position: relative; }
+.step-num { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: var(--pink-light); border: 1px solid var(--pink-border); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--pink); position: relative; z-index: 1; }
+.step-num.teal { background: var(--teal-bg); border-color: var(--teal-b); color: var(--teal); }
+.step-body { flex: 1; padding-top: 4px; }
+.step-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.step-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+.step-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+.resp-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+.resp-block { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+.resp-block.pulse-block  { border-top: 3px solid var(--teal-b); }
+.resp-block.gallery-block { border-top: 3px solid var(--pink-border); }
+.resp-block-title { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.resp-block.pulse-block .resp-block-title  { color: var(--teal); }
+.resp-block.gallery-block .resp-block-title { color: var(--pink-muted); }
+.resp-item { font-size: 12.5px; color: var(--text-secondary); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; }
+.resp-item:last-child { border-bottom: none; }
+.rd { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; margin-top: 9px; }
+.rd.teal { background: var(--teal); }
+.rd.pink { background: var(--pink); }
+
+.sf-flow { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+.sf-node { border: 1px solid var(--border); border-radius: 6px; padding: 12px 20px; min-width: 380px; text-align: center; }
+.sf-node.sf-pulse   { border-color: var(--teal-b); background: var(--teal-bg); }
+.sf-node.sf-gallery { border-color: var(--pink-border); background: var(--pink-light); }
+.sf-node.sf-bq      { border-color: var(--blue-b); background: var(--blue-bg); }
+.sf-badge { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 3px; color: var(--text-muted); }
+.sf-node.sf-pulse .sf-badge   { color: var(--teal); }
+.sf-node.sf-gallery .sf-badge { color: var(--pink-muted); }
+.sf-node.sf-bq .sf-badge      { color: var(--blue); }
+.sf-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.sf-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sf-arrow { font-size: 18px; color: var(--pink-border); padding: 4px 0; }
+
+.example-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin: 10px 0; font-size: 12.5px; }
+.example-box .ex-title { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--pink); margin-bottom: 10px; }
+.ex-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: baseline; }
+.ex-row:last-child { margin-bottom: 0; }
+.ex-k { font-family: var(--mono); font-size: 11px; color: var(--text-muted); width: 200px; flex-shrink: 0; }
+.ex-v { font-family: var(--mono); font-size: 12px; color: var(--pink); font-weight: 500; }
+
+.open-q { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 10px 0; }
+.open-q-row { display: grid; grid-template-columns: 28px 1fr; border-bottom: 1px solid var(--border); }
+.open-q-row:last-child { border-bottom: none; }
+.open-q-row > div { padding: 10px 14px; font-size: 12.5px; color: var(--text-secondary); }
+.open-q-row > div:first-child { background: var(--pink-light); font-family: var(--mono); font-size: 11px; color: var(--pink-muted); display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--pink-border); }
+
+/* null bucket row */
+tr.null-row td { color: var(--text-muted); font-style: italic; }
+
+.zh-only { display: block; }
+.en-only { display: none; }
+body.lang-en .zh-only { display: none; }
+body.lang-en .en-only { display: block; }
+span.zh-only { display: inline; }
+span.en-only { display: none; }
+body.lang-en span.zh-only { display: none; }
+body.lang-en span.en-only { display: inline; }
+
+.doc-footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .main { padding: 24px 20px; } .meta-grid { grid-template-columns: 1fr; } .resp-2col { grid-template-columns: 1fr; } }
+@media print { .lang-bar, .sidebar { display: none; } .main { max-width: 100%; } }
+</style>
+</head>
+<body class="lang-zh">
+
+<div class="lang-bar">
+  <div class="lang-bar-left">
+    <div class="lang-bar-logo">PRD · Data · Pulse Enrichment</div>
+    <div class="lang-bar-id">PRD-DATA-PULSE-001 · v1.2</div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-zh" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-stripe"></div>
+  <div class="sidebar-header">
+    <div class="sidebar-module">PRD · Data</div>
+    <div class="sidebar-title">
+      <span class="zh-only">Pulse EDD → 孩子年龄推断</span>
+      <span class="en-only">Pulse EDD → Child Age Inference</span>
+    </div>
+    <div class="sidebar-ver">PRD-DATA-PULSE-001 · v1.2</div>
+  </div>
+  <div class="ngl"><span class="zh-only">概览</span><span class="en-only">Overview</span></div>
+  <a class="nl" href="#background">§1 <span class="zh-only">背景</span><span class="en-only">Background</span></a>
+  <a class="nl" href="#objective">§2 <span class="zh-only">目标</span><span class="en-only">Objective</span></a>
+  <a class="nl" href="#ownership">§3 <span class="zh-only">职责划分</span><span class="en-only">Ownership</span></a>
+  <div class="nav-div"></div>
+  <div class="ngl"><span class="zh-only">规格</span><span class="en-only">Spec</span></div>
+  <a class="nl" href="#sources">§4 <span class="zh-only">数据来源</span><span class="en-only">Data sources</span></a>
+  <a class="nl" href="#flow">§5 <span class="zh-only">处理流程</span><span class="en-only">Processing flow</span></a>
+  <a class="nl" href="#pulse-logic">§6 <span class="zh-only">Pulse 推断逻辑</span><span class="en-only">Pulse inference logic</span></a>
+  <a class="nl" href="#schema">§7 <span class="zh-only">输出字段</span><span class="en-only">Output fields</span></a>
+  <a class="nl" href="#refresh">§8 <span class="zh-only">更新机制</span><span class="en-only">Refresh mechanism</span></a>
+  <div class="nav-div"></div>
+  <div class="ngl"><span class="zh-only">决策</span><span class="en-only">Decisions</span></div>
+  <a class="nl" href="#decisions">§9 <span class="zh-only">关键决策</span><span class="en-only">Key decisions</span></a>
+  <a class="nl" href="#out-of-scope">§10 <span class="zh-only">不在范围内</span><span class="en-only">Out of scope</span></a>
+  <a class="nl" href="#open-questions">§11 <span class="zh-only">待确认问题</span><span class="en-only">Open questions</span></a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="doc-module-tag">PRD · Data · Pulse Enrichment</div>
+  <h1>
+    <strong class="zh-only">Pulse EDD → 孩子年龄推断</strong>
+    <strong class="en-only">Pulse EDD → Child Age Inference</strong>
+  </h1>
+  <div class="sub">
+    <span class="zh-only">Pulse 通过 LLM 识别群名中的 EDD，计算估算月龄并映射至统一年龄枚举，输出至 BigQuery；Gallery 可直接消费枚举，也可基于月龄自定义映射规则。</span>
+    <span class="en-only">Pulse uses LLM to detect EDD signals in group names, computes estimated child age in months, maps to a standard age enum, and writes results to BigQuery. Gallery can consume the enum directly or apply its own mapping rules based on the raw month value.</span>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-cell"><span class="k">Doc</span><span class="v">PRD-DATA-PULSE-001</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">1.2</span></div>
+    <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
+    <div class="meta-cell"><span class="k">LLM</span><span class="v">Gemini 2.5 Flash</span></div>
+    <div class="meta-cell"><span class="k"><span class="zh-only">处理方</span><span class="en-only">Producer</span></span><span class="v"><span class="team team-pulse">Pulse</span></span></div>
+    <div class="meta-cell"><span class="k"><span class="zh-only">消费方</span><span class="en-only">Consumer</span></span><span class="v"><span class="team team-gallery">Gallery</span></span></div>
+    <div class="meta-cell"><span class="k"><span class="zh-only">刷新频率</span><span class="en-only">Refresh</span></span><span class="v"><span class="zh-only">每月 1 号</span><span class="en-only">1st of each month</span></span></div>
+    <div class="meta-cell"><span class="k"><span class="zh-only">目标表</span><span class="en-only">Destination</span></span><span class="v">BigQuery</span></div>
+  </div>
+</div>
+
+<!-- §1 BACKGROUND -->
+<section class="section" id="background">
+  <div class="stag">§1</div>
+  <h2><span class="zh-only">背景</span><span class="en-only">Background</span></h2>
+  <p class="sdesc">
+    <span class="zh-only">Pulse 能识别用户所属的 EDD Group，例如 EDD = Nov 2025、EDD = Jan 2026。Gallery 希望支持按照孩子年龄段进行用户圈选，但无法直接从 EDD Group 推断孩子年龄，因此需要由 Pulse 负责年龄推断并输出统一的年龄枚举。</span>
+    <span class="en-only">Pulse can identify which EDD groups a user belongs to — e.g. EDD = Nov 2025, EDD = Jan 2026. Gallery needs to support user segmentation by child age range, but cannot directly infer child age from EDD groups. Pulse will handle the inference and output a standardized age enum.</span>
+  </p>
+  <p class="sdesc">
+    <span class="zh-only">Gallery 希望支持的圈选年龄段包括：0–3 months、4–6 months、7–12 months、1–3 years、4–6 years、12 years+，以及 prenatal（孩子尚未出生）。</span>
+    <span class="en-only">Gallery's target age segments are: 0–3 months, 4–6 months, 7–12 months, 1–3 years, 4–6 years, 12 years+, and prenatal (child not yet born).</span>
+  </p>
+  <div class="callout c-info">
+    <strong><span class="zh-only">为什么由 Pulse 处理？</span><span class="en-only">Why handled by Pulse?</span></strong>
+    <span class="zh-only"> Pulse 已接入 Vertex AI / Gemini 2.5 Flash，LLM pipeline 已就绪，复用成本低。Pulse 输出预计算结果，减少 Gallery 侧的计算负担；Gallery 如有自定义需求，可基于原始月龄字段自行处理。</span>
+    <span class="en-only"> Pulse already runs a Vertex AI / Gemini 2.5 Flash pipeline. Reuse cost is low. Pulse outputs precomputed values to reduce Gallery's computational burden; if Gallery has custom requirements, it can map from the raw month field.</span>
+  </div>
+</section>
+
+<!-- §2 OBJECTIVE -->
+<section class="section" id="objective">
+  <div class="stag">§2</div>
+  <h2><span class="zh-only">目标</span><span class="en-only">Objective</span></h2>
+  <p class="sdesc">
+    <span class="zh-only">Pulse 完成从群名识别 EDD → 计算估算月龄 → 映射年龄枚举的全链路，每月定期刷新，输出结果供 Gallery 及其他下游直接消费。</span>
+    <span class="en-only">Pulse owns the full pipeline: group name → EDD detection → estimated age in months → age enum mapping, refreshed monthly and available for Gallery and other downstream consumers.</span>
+  </p>
+
+  <div class="sub-h"><span class="zh-only">验收标准</span><span class="en-only">Success criteria</span></div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">标准</span><span class="en-only">Criterion</span></th>
+      <th><span class="zh-only">定义</span><span class="en-only">Definition</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="zh-only">EDD 识别</span><span class="en-only">EDD detection</span></td><td><span class="zh-only">所有含可解析 EDD 的群名被正确识别；非 EDD 群无误报</span><span class="en-only">All parseable EDD group names identified correctly; no false positives on non-EDD groups</span></td></tr>
+      <tr><td><span class="zh-only">月龄计算准确</span><span class="en-only">Age computation accuracy</span></td><td><span class="zh-only"><code>estimated_child_age_month</code> = (当前年 − EDD年) × 12 + (当前月 − EDD月)，结果与预期一致</span><span class="en-only"><code>estimated_child_age_month</code> = (current year − EDD year) × 12 + (current month − EDD month), matches expected value</span></td></tr>
+      <tr><td><span class="zh-only">枚举全覆盖</span><span class="en-only">Full enum coverage</span></td><td><span class="zh-only">所有记录均有 <code>estimated_child_age_group</code>；<code>prenatal</code> 不被丢弃；84–143 月龄记录为 <code>null</code></span><span class="en-only">Every row has <code>estimated_child_age_group</code>; <code>prenatal</code> rows kept; 84–143 months stored as <code>null</code></span></td></tr>
+      <tr><td><span class="zh-only">定期刷新</span><span class="en-only">Monthly refresh</span></td><td><span class="zh-only">每月 1 号自动执行，<code>estimated_child_age_month</code> 和 <code>estimated_child_age_group</code> 随时间正确更新</span><span class="en-only">Auto-runs on the 1st of each month; both fields update correctly as time passes</span></td></tr>
+      <tr><td><span class="zh-only">来源溯源</span><span class="en-only">Traceability</span></td><td><span class="zh-only">每条记录保留 <code>edd_year</code>、<code>edd_month</code> 及来源群组信息</span><span class="en-only">Each row retains <code>edd_year</code>, <code>edd_month</code>, and source group information</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §3 OWNERSHIP -->
+<section class="section" id="ownership">
+  <div class="stag">§3</div>
+  <h2><span class="zh-only">职责划分</span><span class="en-only">Ownership &amp; responsibility</span></h2>
+
+  <div class="resp-2col">
+    <div class="resp-block pulse-block">
+      <div class="resp-block-title">Pulse <span class="zh-only">负责（全链路）</span><span class="en-only">owns (full pipeline)</span></div>
+      <div class="resp-item"><span class="rd teal"></span><span class="zh-only">LLM 解析群名，提取 <code>edd_year</code> / <code>edd_month</code></span><span class="en-only">LLM parsing of group names to extract <code>edd_year</code> / <code>edd_month</code></span></div>
+      <div class="resp-item"><span class="rd teal"></span><span class="zh-only">计算 <code>estimated_child_age_month</code></span><span class="en-only">Computing <code>estimated_child_age_month</code></span></div>
+      <div class="resp-item"><span class="rd teal"></span><span class="zh-only">映射 <code>estimated_child_age_group</code> 枚举</span><span class="en-only">Mapping <code>estimated_child_age_group</code> enum</span></div>
+      <div class="resp-item"><span class="rd teal"></span><span class="zh-only">每月 1 号定期刷新</span><span class="en-only">Monthly refresh on the 1st</span></div>
+      <div class="resp-item"><span class="rd teal"></span><span class="zh-only">将结果写入 BQ 约定表</span><span class="en-only">Writing results to agreed BQ table</span></div>
+    </div>
+    <div class="resp-block gallery-block">
+      <div class="resp-block-title">Gallery <span class="zh-only">消费方（可选扩展）</span><span class="en-only">consumer (optional extension)</span></div>
+      <div class="resp-item"><span class="rd pink"></span><span class="zh-only">直接使用 <code>estimated_child_age_group</code> 做圈选（默认路径）</span><span class="en-only">Directly consume <code>estimated_child_age_group</code> for segmentation (default path)</span></div>
+      <div class="resp-item"><span class="rd pink"></span><span class="zh-only">若有自定义规则，基于 <code>estimated_child_age_month</code> 自行映射</span><span class="en-only">If custom rules needed, map from <code>estimated_child_age_month</code> independently</span></div>
+      <div class="resp-item"><span class="rd pink"></span><span class="zh-only">维护下游分析逻辑（Gallery 侧）</span><span class="en-only">Owning downstream analysis logic on Gallery's side</span></div>
+    </div>
+  </div>
+
+  <div class="callout c-teal">
+    <strong><span class="zh-only">设计原则：</span><span class="en-only">Design principle:</span></strong>
+    <span class="zh-only"> Pulse 同时输出原始月龄（<code>estimated_child_age_month</code>）和默认枚举（<code>estimated_child_age_group</code>）。Gallery 有选择权——简单场景直接用枚举，复杂场景基于月龄自定义。枚举边界如需调整，由双方协商后更新 Pulse 的映射逻辑。</span>
+    <span class="en-only"> Pulse outputs both the raw month value (<code>estimated_child_age_month</code>) and the default enum (<code>estimated_child_age_group</code>). Gallery has the choice — use the enum directly for simple cases, or map from the raw month for custom rules. If bucket boundaries need changing, both teams agree and Pulse updates the mapping logic.</span>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §4 DATA SOURCES -->
+<section class="section" id="sources">
+  <div class="stag">§4</div>
+  <h2><span class="zh-only">数据来源</span><span class="en-only">Data sources</span></h2>
+  <p class="sdesc">
+    <span class="zh-only">两张来源表均在 BigQuery <code>supermom_data_center</code> 下，由 Pulse 维护，Gallery 只读。</span>
+    <span class="en-only">Both source tables are in BigQuery under <code>supermom_data_center</code>, maintained by Pulse. Gallery has read-only access.</span>
+  </p>
+
+  <div class="sub-h">pulse_whatsapp_groups</div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">字段</span><span class="en-only">Field</span></th>
+      <th><span class="zh-only">类型</span><span class="en-only">Type</span></th>
+      <th><span class="zh-only">说明</span><span class="en-only">Description</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="field">id</span></td><td>STRING</td><td><span class="zh-only">群组主键</span><span class="en-only">Group primary key</span></td></tr>
+      <tr><td><span class="field">name</span></td><td>STRING</td><td><span class="zh-only">群名，传入 LLM 解析 EDD</span><span class="en-only">Group name; passed to LLM for EDD extraction</span></td></tr>
+      <tr><td><span class="field">country</span></td><td>STRING</td><td><span class="zh-only">仅参考</span><span class="en-only">Reference only</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h">pulse_whatsapp_group_member_list</div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">字段</span><span class="en-only">Field</span></th>
+      <th><span class="zh-only">类型</span><span class="en-only">Type</span></th>
+      <th><span class="zh-only">说明</span><span class="en-only">Description</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="field">group_id</span></td><td>STRING</td><td><span class="zh-only">关联 <code>pulse_whatsapp_groups.id</code></span><span class="en-only">Join key to <code>pulse_whatsapp_groups.id</code></span></td></tr>
+      <tr><td><span class="field">user_id</span></td><td>STRING</td><td><span class="zh-only">统一用户 ID；未映射时为 null</span><span class="en-only">Unified user ID; null if not yet mapped</span></td></tr>
+      <tr><td><span class="field">member</span></td><td>STRING</td><td><span class="zh-only">Pulse 原始成员标识符</span><span class="en-only">Raw Pulse member identifier</span></td></tr>
+      <tr><td><span class="field">phone_number</span></td><td>STRING</td><td></td></tr>
+      <tr><td><span class="field">country_code</span></td><td>STRING</td><td></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §5 PROCESSING FLOW -->
+<section class="section" id="flow">
+  <div class="stag">§5</div>
+  <h2><span class="zh-only">处理流程</span><span class="en-only">Processing flow</span></h2>
+
+  <div class="sf-flow">
+    <div class="sf-node sf-bq">
+      <div class="sf-badge">BigQuery · Source</div>
+      <div class="sf-label">pulse_whatsapp_groups · group name</div>
+    </div>
+    <div class="sf-arrow">↓</div>
+    <div class="sf-node sf-pulse">
+      <div class="sf-badge">Pulse · Step 1</div>
+      <div class="sf-label"><span class="zh-only">LLM 识别 EDD → 提取 edd_year / edd_month</span><span class="en-only">LLM detects EDD → extracts edd_year / edd_month</span></div>
+    </div>
+    <div class="sf-arrow">↓</div>
+    <div class="sf-node sf-pulse">
+      <div class="sf-badge">Pulse · Step 2</div>
+      <div class="sf-label"><span class="zh-only">计算 estimated_child_age_month</span><span class="en-only">Compute estimated_child_age_month</span></div>
+      <div class="sf-sub">(current_year − edd_year) × 12 + (current_month − edd_month)</div>
+    </div>
+    <div class="sf-arrow">↓</div>
+    <div class="sf-node sf-pulse">
+      <div class="sf-badge">Pulse · Step 3</div>
+      <div class="sf-label"><span class="zh-only">映射 estimated_child_age_group 枚举</span><span class="en-only">Map to estimated_child_age_group enum</span></div>
+      <div class="sf-sub"><span class="zh-only">含 prenatal；84–143 月龄暂为 null</span><span class="en-only">Includes prenatal; 84–143 months stored as null</span></div>
+    </div>
+    <div class="sf-arrow">↓</div>
+    <div class="sf-node sf-bq">
+      <div class="sf-badge">BigQuery · Output</div>
+      <div class="sf-label"><span class="zh-only">结果表（表名 TBD）</span><span class="en-only">Output table (name TBD)</span></div>
+      <div class="sf-sub"><span class="zh-only">每月 1 号全量刷新</span><span class="en-only">Full refresh on 1st of each month</span></div>
+    </div>
+    <div class="sf-arrow">↓</div>
+    <div class="sf-node sf-gallery">
+      <div class="sf-badge">Gallery · Consumer</div>
+      <div class="sf-label"><span class="zh-only">直接使用枚举 或 基于月龄自定义映射</span><span class="en-only">Use enum directly or custom-map from month value</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- §6 PULSE INFERENCE LOGIC -->
+<section class="section" id="pulse-logic">
+  <div class="stag">§6</div>
+  <h2><span class="zh-only">Pulse 推断逻辑</span><span class="en-only">Pulse inference logic</span></h2>
+
+  <!-- Step 1 -->
+  <div class="sub-h"><span class="zh-only">Step 1 · LLM 识别 EDD</span><span class="en-only">Step 1 · LLM EDD detection</span></div>
+  <p class="sdesc">
+    <span class="zh-only">每次调用传入一个群名，Gemini 2.5 Flash 判断是否含 EDD 信号并提取年月。仅返回合法 JSON，不得有前缀文字。</span>
+    <span class="en-only">Each call passes one group name to Gemini 2.5 Flash. The model determines whether an EDD signal exists and extracts year and month. Returns valid JSON only — no preamble.</span>
+  </p>
+  <div class="code-wrap">
+    <div class="code-head">
+      <span class="code-lang">LLM Output Schema</span>
+      <span class="code-label">Pulse · Gemini 2.5 Flash</span>
+    </div>
+    <pre><span class="k">{
+  "has_edd":    </span><span class="v">boolean</span><span class="k">,
+  "edd_year":   </span><span class="v">number | null</span><span class="k">,
+  "edd_month":  </span><span class="v">number | null</span><span class="k">,        </span><span class="c">// 1–12</span>
+  <span class="k">"confidence": </span><span class="v">"high" | "medium" | "low" | null</span>
+<span class="k">}</span>
+
+<span class="c">Rules:
+  - Return has_edd: false when uncertain (never guess)
+  - If confidence is "low", set has_edd: false
+  - Only write to BQ when confidence is "high" or "medium"</span></pre>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="sub-h"><span class="zh-only">Step 2 · 计算估算月龄</span><span class="en-only">Step 2 · Compute estimated age in months</span></div>
+  <div class="code-wrap">
+    <div class="code-head">
+      <span class="code-lang">Formula</span>
+      <span class="code-label"><span class="zh-only">按月估算，无具体日期</span><span class="en-only">Month-level estimate, no exact date</span></span>
+    </div>
+    <pre><span class="n">estimated_child_age_month</span> =
+    (<span class="v">current_year</span> - <span class="v">edd_year</span>) * 12
+  + (<span class="v">current_month</span> - <span class="v">edd_month</span>)
+
+<span class="c">Example:
+  current_month = 2026-06
+  EDD           = 2025-11
+  result        = (2026-2025)*12 + (6-11) = 12 - 5 = 7 months</span>
+
+<span class="c">Prenatal example:
+  current_month = 2026-06
+  EDD           = 2026-09
+  result        = (2026-2026)*12 + (6-9) = -3 months  → prenatal</span></pre>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="sub-h"><span class="zh-only">Step 3 · 映射年龄枚举</span><span class="en-only">Step 3 · Age enum mapping</span></div>
+  <div class="tw"><table>
+    <thead><tr>
+      <th>estimated_child_age_group</th>
+      <th>UI <span class="zh-only">显示</span><span class="en-only">label</span></th>
+      <th><span class="zh-only">月龄范围</span><span class="en-only">Month range</span></th>
+      <th><span class="zh-only">说明</span><span class="en-only">Note</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="field">prenatal</span></td><td>Prenatal</td><td>age &lt; 0</td><td><span class="zh-only">孩子尚未出生，EDD 在未来</span><span class="en-only">Child not yet born; EDD is in the future</span></td></tr>
+      <tr><td><span class="field">0-3_months</span></td><td>0–3 months</td><td>0 ≤ age &lt; 4</td><td></td></tr>
+      <tr><td><span class="field">4-6_months</span></td><td>4–6 months</td><td>4 ≤ age &lt; 7</td><td></td></tr>
+      <tr><td><span class="field">7-12_months</span></td><td>7–12 months</td><td>7 ≤ age &lt; 13</td><td></td></tr>
+      <tr><td><span class="field">1-3_years_old</span></td><td>1–3 years</td><td>13 ≤ age &lt; 48</td><td></td></tr>
+      <tr><td><span class="field">4-6_years_old</span></td><td>4–6 years</td><td>48 ≤ age &lt; 84</td><td></td></tr>
+      <tr class="null-row"><td><span class="field">null</span></td><td>—</td><td>84 ≤ age &lt; 144</td><td><span class="zh-only">7–11 岁暂不覆盖，记为 null</span><span class="en-only">Ages 7–11 not covered yet; stored as null</span></td></tr>
+      <tr><td><span class="field">12-onwards</span></td><td>12 years+</td><td>age ≥ 144</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn">
+    <strong><span class="zh-only">7–11 岁缺口：</span><span class="en-only">7–11 year gap:</span></strong>
+    <span class="zh-only"> 84–143 月龄（7–11 岁）当前无对应枚举，<code>estimated_child_age_group</code> 写为 <code>null</code>。<code>estimated_child_age_month</code> 仍正常输出，Gallery 可按需自行处理这段数据。未来如需覆盖，更新 Pulse 映射逻辑即可。</span>
+    <span class="en-only"> Ages 84–143 months (7–11 years) have no enum value; <code>estimated_child_age_group</code> is written as <code>null</code>. <code>estimated_child_age_month</code> is still populated so Gallery can handle this range independently. Future coverage requires updating Pulse's mapping logic only.</span>
+  </div>
+
+  <!-- Example -->
+  <div class="sub-h"><span class="zh-only">完整示例</span><span class="en-only">End-to-end example</span></div>
+  <div class="example-box">
+    <div class="ex-title">Example · EDD = Nov 2025, current = Jun 2026</div>
+    <div class="ex-row"><span class="ex-k">edd_year</span><span class="ex-v">2025</span></div>
+    <div class="ex-row"><span class="ex-k">edd_month</span><span class="ex-v">11</span></div>
+    <div class="ex-row"><span class="ex-k">estimated_child_age_month</span><span class="ex-v">7</span></div>
+    <div class="ex-row"><span class="ex-k">estimated_child_age_group</span><span class="ex-v">7-12_months</span></div>
+  </div>
+  <div class="example-box">
+    <div class="ex-title">Example · EDD = Sep 2026, current = Jun 2026 (prenatal)</div>
+    <div class="ex-row"><span class="ex-k">edd_year</span><span class="ex-v">2026</span></div>
+    <div class="ex-row"><span class="ex-k">edd_month</span><span class="ex-v">9</span></div>
+    <div class="ex-row"><span class="ex-k">estimated_child_age_month</span><span class="ex-v">−3</span></div>
+    <div class="ex-row"><span class="ex-k">estimated_child_age_group</span><span class="ex-v">prenatal</span></div>
+  </div>
+</section>
+
+<!-- §7 OUTPUT SCHEMA -->
+<section class="section" id="schema">
+  <div class="stag">§7</div>
+  <h2><span class="zh-only">输出字段</span><span class="en-only">Output fields</span></h2>
+  <p class="sdesc">
+    <span class="zh-only">Pulse 输出表（表名 TBD），粒度为每个（成员 × 群组）一行。同一用户在多个 EDD 群中 → 多条记录，不去重。</span>
+    <span class="en-only">Pulse output table (name TBD). Grain: one row per (member × group). A user in multiple EDD groups produces multiple rows — no deduplication.</span>
+  </p>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">字段</span><span class="en-only">Field</span></th>
+      <th><span class="zh-only">类型</span><span class="en-only">Type</span></th>
+      <th><span class="zh-only">可空</span><span class="en-only">Nullable</span></th>
+      <th><span class="zh-only">说明</span><span class="en-only">Description</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="field">uid</span></td><td>STRING</td><td>YES</td><td><span class="zh-only">统一用户 ID；未映射时为 null</span><span class="en-only">Unified user ID; null if not yet mapped</span></td></tr>
+      <tr><td><span class="field">member</span></td><td>STRING</td><td>NO</td><td><span class="zh-only">Pulse 原始成员标识符</span><span class="en-only">Raw Pulse member identifier</span></td></tr>
+      <tr><td><span class="field">phone_number</span></td><td>STRING</td><td>YES</td><td></td></tr>
+      <tr><td><span class="field">country_code</span></td><td>STRING</td><td>YES</td><td></td></tr>
+      <tr><td><span class="field">source_group_id</span></td><td>STRING</td><td>NO</td><td><span class="zh-only">来源群组 ID</span><span class="en-only">Source group ID</span></td></tr>
+      <tr><td><span class="field">source_group_name</span></td><td>STRING</td><td>NO</td><td><span class="zh-only">来源群组名称（用于审计）</span><span class="en-only">Source group name (for audit)</span></td></tr>
+      <tr><td><span class="field">edd_year</span></td><td>INTEGER</td><td>NO</td><td><span class="zh-only">LLM 提取的 EDD 年份</span><span class="en-only">EDD year extracted by LLM</span></td></tr>
+      <tr><td><span class="field">edd_month</span></td><td>INTEGER</td><td>NO</td><td><span class="zh-only">LLM 提取的 EDD 月份（1–12）</span><span class="en-only">EDD month extracted by LLM (1–12)</span></td></tr>
+      <tr><td><span class="field">estimated_child_age_month</span></td><td>INTEGER</td><td>NO</td><td><span class="zh-only">计算出的估算月龄；负数 = prenatal</span><span class="en-only">Computed estimated age in months; negative = prenatal</span></td></tr>
+      <tr><td><span class="field">estimated_child_age_group</span></td><td>STRING</td><td>YES</td><td><span class="zh-only">年龄枚举值；7–11 岁段为 null</span><span class="en-only">Age enum value; null for 7–11 year range</span></td></tr>
+      <tr><td><span class="field">llm_confidence</span></td><td>STRING</td><td>NO</td><td><span class="zh-only"><code>high</code> 或 <code>medium</code>（low 已被过滤）</span><span class="en-only"><code>high</code> or <code>medium</code> (low filtered out)</span></td></tr>
+      <tr><td><span class="field">refreshed_at</span></td><td>TIMESTAMP</td><td>NO</td><td><span class="zh-only">本次刷新的时间戳</span><span class="en-only">Timestamp of this refresh run</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout c-green">
+    <strong><span class="zh-only">粒度：</span><span class="en-only">Grain:</span></strong>
+    <span class="zh-only"> 每个（成员 × 来源群组）= 一行。成员在 3 个 EDD 群中 → 3 条记录，不去重。</span>
+    <span class="en-only"> One row per (member × source group). A member in 3 EDD groups → 3 rows, no deduplication.</span>
+  </div>
+</section>
+
+<!-- §8 REFRESH -->
+<section class="section" id="refresh">
+  <div class="stag">§8</div>
+  <h2><span class="zh-only">更新机制</span><span class="en-only">Refresh mechanism</span></h2>
+  <p class="sdesc">
+    <span class="zh-only">由于孩子年龄随时间变化，Pulse 需要定期重新计算月龄和枚举值。</span>
+    <span class="en-only">Since child age changes over time, Pulse must periodically recompute age months and enum values.</span>
+  </p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-num teal">1</div>
+      <div class="step-body">
+        <div class="step-title"><span class="zh-only">触发时间</span><span class="en-only">Trigger</span></div>
+        <div class="step-desc"><span class="zh-only">每月 1 号自动执行全量刷新</span><span class="en-only">Automatic full refresh on the 1st of each month</span></div>
+        <div class="step-tags"><span class="team team-pulse">Pulse</span></div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num teal">2</div>
+      <div class="step-body">
+        <div class="step-title"><span class="zh-only">更新内容</span><span class="en-only">What gets updated</span></div>
+        <div class="step-desc"><span class="zh-only">以当月为基准重新计算所有记录的 <code>estimated_child_age_month</code>，并重新映射 <code>estimated_child_age_group</code></span><span class="en-only">Recompute <code>estimated_child_age_month</code> for all records using the current month as base, then remap <code>estimated_child_age_group</code></span></div>
+        <div class="step-tags"><span class="team team-pulse">Pulse</span></div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num teal">3</div>
+      <div class="step-body">
+        <div class="step-title"><span class="zh-only">写入策略</span><span class="en-only">Write strategy</span></div>
+        <div class="step-desc"><span class="zh-only">全量替换输出表（TBD：可根据工程需求改为 upsert）；<code>refreshed_at</code> 更新为本次运行时间戳</span><span class="en-only">Full table replace (TBD: can be changed to upsert based on engineering needs); <code>refreshed_at</code> updated to this run's timestamp</span></div>
+        <div class="step-tags"><span class="team team-pulse">Pulse</span></div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num teal">4</div>
+      <div class="step-body">
+        <div class="step-title"><span class="zh-only">LLM 解析是否每月重跑？</span><span class="en-only">Does LLM parsing re-run monthly?</span></div>
+        <div class="step-desc"><span class="zh-only">建议：LLM 仅在群名新增或变更时触发，不随月度刷新重跑（群名不变则 <code>edd_year</code>/<code>edd_month</code> 不变）。月度刷新仅重新计算月龄和枚举。</span><span class="en-only">Recommended: LLM only runs when a group name is added or changed, not on every monthly refresh (group name unchanged → <code>edd_year</code>/<code>edd_month</code> unchanged). Monthly refresh only recomputes age months and enum.</span></div>
+        <div class="step-tags"><span class="team team-pulse">Pulse</span><span class="badge b-tbd" style="font-size:10px">TBD</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- §9 KEY DECISIONS -->
+<section class="section" id="decisions">
+  <div class="stag">§9</div>
+  <h2><span class="zh-only">关键决策</span><span class="en-only">Key decisions</span></h2>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">决策点</span><span class="en-only">Decision</span></th>
+      <th><span class="zh-only">选择</span><span class="en-only">Choice</span></th>
+      <th><span class="zh-only">理由</span><span class="en-only">Rationale</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="zh-only">全链路由 Pulse 处理</span><span class="en-only">Pulse owns full pipeline</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定</span><span class="en-only">Confirmed</span></span></td>
+        <td><span class="zh-only">Pulse 已有 LLM 基础设施；减少 Gallery 侧计算负担；Gallery 如有自定义需求可基于原始月龄自行处理</span><span class="en-only">Pulse already has LLM infrastructure; reduces Gallery's compute burden; Gallery can still customize from raw month value</span></td>
+      </tr>
+      <tr>
+        <td><span class="zh-only">同时输出月龄 + 枚举</span><span class="en-only">Output both month value and enum</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定</span><span class="en-only">Confirmed</span></span></td>
+        <td><span class="zh-only">枚举供 Gallery 直接消费；原始月龄保留灵活性，Gallery 未来有自定义规则时无需等待 Pulse 变更</span><span class="en-only">Enum enables direct consumption; raw month value preserves flexibility so Gallery doesn't need Pulse changes for custom rules</span></td>
+      </tr>
+      <tr>
+        <td><span class="zh-only">prenatal 保留</span><span class="en-only">Keep prenatal records</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定</span><span class="en-only">Confirmed</span></span></td>
+        <td><span class="zh-only">产前用户是有效的 Gallery 圈选目标，不应排除</span><span class="en-only">Prenatal users are a valid Gallery segment and should not be excluded</span></td>
+      </tr>
+      <tr>
+        <td><span class="zh-only">7–11 岁暂不覆盖</span><span class="en-only">7–11 years not covered</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定（暂时）</span><span class="en-only">Confirmed (for now)</span></span></td>
+        <td><span class="zh-only">当前 Gallery 无此年龄段圈选需求；月龄仍正常输出，Gallery 可自行处理；未来有需求再更新枚举映射</span><span class="en-only">Gallery has no current segmentation need for this range; raw month value is still available; enum can be extended when needed</span></td>
+      </tr>
+      <tr>
+        <td><span class="zh-only">每月 1 号定期刷新</span><span class="en-only">Monthly refresh on 1st</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定</span><span class="en-only">Confirmed</span></span></td>
+        <td><span class="zh-only">年龄随时间变化，月级别刷新足够精确且成本合理</span><span class="en-only">Age changes over time; monthly granularity is sufficiently accurate and cost-effective</span></td>
+      </tr>
+      <tr>
+        <td><span class="zh-only">多记录不去重</span><span class="en-only">Multiple rows per user kept</span></td>
+        <td><span class="badge b-green"><span class="zh-only">确定</span><span class="en-only">Confirmed</span></span></td>
+        <td><span class="zh-only">不同群组可能对应不同孩子；下游自行决定使用哪条</span><span class="en-only">Different groups may represent different children; downstream decides which record to use</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §10 OUT OF SCOPE -->
+<section class="section" id="out-of-scope">
+  <div class="stag">§10</div>
+  <h2><span class="zh-only">不在范围内</span><span class="en-only">Out of scope</span></h2>
+  <div class="tw"><table>
+    <thead><tr>
+      <th><span class="zh-only">事项</span><span class="en-only">Item</span></th>
+      <th><span class="zh-only">原因</span><span class="en-only">Reason</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span class="zh-only">推断记录与现有孩子档案数据合并</span><span class="en-only">Merging inferred records with existing child profile data</span></td><td><span class="zh-only">由下游消费方处理</span><span class="en-only">Handled by downstream consumers</span></td></tr>
+      <tr><td><span class="zh-only">从群名以外的来源推断孩子年龄</span><span class="en-only">Inferring child age from sources other than group name</span></td><td><span class="zh-only">未来迭代，本 PRD 仅覆盖群名</span><span class="en-only">Future iteration; this PRD covers group name only</span></td></tr>
+      <tr><td><span class="zh-only">实时或流式 pipeline</span><span class="en-only">Real-time or streaming pipeline</span></td><td><span class="zh-only">批量月度任务；群名变动不频繁</span><span class="en-only">Batch monthly job; group names change infrequently</span></td></tr>
+      <tr><td><span class="zh-only">7–11 岁枚举覆盖</span><span class="en-only">Enum coverage for 7–11 years</span></td><td><span class="zh-only">当前无需求；原始月龄已输出供 Gallery 自行处理</span><span class="en-only">No current requirement; raw month value available for Gallery to process</span></td></tr>
+      <tr><td><span class="zh-only">回填历史推断数据</span><span class="en-only">Backfilling historical inferences</span></td><td><span class="zh-only">任务基于当前状态运行，不做历史重放</span><span class="en-only">Job runs against current state; no historical replay</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- §11 OPEN QUESTIONS -->
+<section class="section" id="open-questions">
+  <div class="stag">§11</div>
+  <h2><span class="zh-only">待确认问题</span><span class="en-only">Open questions</span></h2>
+  <div class="open-q">
+    <div class="open-q-row">
+      <div>Q1</div>
+      <div><span class="zh-only"><strong>输出表命名与 dataset</strong> — Pulse 输出表放哪个 dataset？表名如何确定？</span><span class="en-only"><strong>Output table name &amp; dataset</strong> — Which dataset should the Pulse output table live in? What should it be named?</span></div>
+    </div>
+    <div class="open-q-row">
+      <div>Q2</div>
+      <div><span class="zh-only"><strong>LLM 触发策略</strong> — LLM 解析是否只在群名新增/变更时触发，还是每月随刷新全量重跑？</span><span class="en-only"><strong>LLM trigger strategy</strong> — Should LLM parsing run only on group name add/change, or re-run in full on every monthly refresh?</span></div>
+    </div>
+    <div class="open-q-row">
+      <div>Q3</div>
+      <div><span class="zh-only"><strong>写入策略</strong> — 月度刷新时全量替换输出表，还是 upsert？</span><span class="en-only"><strong>Write strategy</strong> — Full table replace or upsert on monthly refresh?</span></div>
+    </div>
+    <div class="open-q-row">
+      <div>Q4</div>
+      <div><span class="zh-only"><strong>枚举变更流程</strong> — 未来如需新增 7–11 岁枚举或调整边界，由谁提需求、谁执行、走什么流程？</span><span class="en-only"><strong>Enum change process</strong> — If 7–11 year coverage or boundary changes are needed in the future, who requests it, who implements it, and what is the process?</span></div>
+    </div>
+    <div class="open-q-row">
+      <div>Q5</div>
+      <div><span class="zh-only"><strong>归属与对接人</strong> — Pulse 输出表的 owner 是谁？Gallery 侧对接人是谁？</span><span class="en-only"><strong>Ownership</strong> — Who owns the Pulse output table? Who is Gallery's point of contact?</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="doc-footer">
+  <span>PRD-DATA-PULSE-001 · v1.2</span>
+  <span>Pulse × Gallery · <span class="zh-only">草稿</span><span class="en-only">Draft</span></span>
+</div>
+
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.className = 'lang-' + lang;
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+}
+</script>
+</body>
+</html>

@@ -90,6 +90,10 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
     <div class="ver">IMPL-TRK-001 · v1.0</div>
   </div>
   <div class="nav-group">
+    <div class="ngl">Changelog 更新记录</div>
+    <a class="nl" href="#changelog" style="color:var(--red);font-weight:500">⚡ v1.2 最新更新</a>
+  </div>
+  <div class="nav-group">
     <div class="ngl">Setup 初始化</div>
     <a class="nl" href="#setup">§1 event_id &amp; filter state</a>
     <a class="nl" href="#position">§2 impression_position 计算</a>
@@ -136,13 +140,70 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </div>
   <div class="meta-pills">
     <div class="mp"><span class="l">Doc</span><span class="v">IMPL-TRK-001</span></div>
-    <div class="mp"><span class="l">Version</span><span class="v">1.0</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">1.2</span></div>
     <div class="mp"><span class="l">Parent</span><span class="v">PRD-TRK-002 v2.3</span></div>
     <div class="mp"><span class="l">Audience</span><span class="v">Frontend Engineer</span></div>
   </div>
 </div>
 
-<!-- §1 SETUP -->
+<!-- CHANGELOG -->
+<section class="section" id="changelog">
+  <div class="stag">更新记录</div>
+  <h2>Changelog <span class="zh">变更记录</span></h2>
+  <div class="callout c-warn"><strong>If you have already started implementation, check this section first.</strong> Only sections marked below have changed — you do not need to re-read the full document.<span class="zh">如果你已经开始实施，先看这里。只有标注的章节有变化，不需要重读全文。</span></div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Version</th><th>Date</th><th>Section</th><th>Change 变更</th></tr></thead>
+    <tbody>
+      <tr>
+        <td rowspan="8"><strong>v1.2</strong></td>
+        <td rowspan="8">Jun 2026</td>
+        <td>§4.2</td>
+        <td><span class="new">NEW</span> /giveaway 推荐组件 — <code>giveaway_recommendation</code> 数组 push 示例</td>
+      </tr>
+      <tr>
+        <td>§4.5</td>
+        <td><span class="new">UPDATED</span> content_click 拆为两种情况：推荐组件点击 vs 列表点击，字段不同</td>
+      </tr>
+      <tr>
+        <td>§5.2</td>
+        <td><span class="new">NEW</span> /earn 推荐组件 — <code>earn_recommendation</code> 数组 push 示例，混合内容类型</td>
+      </tr>
+      <tr>
+        <td>§5.5</td>
+        <td><span class="new">NEW</span> /earn content_click 两种情况：推荐组件 vs 列表</td>
+      </tr>
+      <tr>
+        <td>§13</td>
+        <td><span class="new">UPDATED</span> AIMA 完整入口覆盖：7个入口，含浮动按钮、详情页 AIMA widget、闪卡 Dive deeper、搜索无结果 Ask Aima</td>
+      </tr>
+      <tr>
+        <td>§13.2</td>
+        <td><span class="new">UPDATED</span> chat_message_sent 区分手动输入（<code>is_quick_reply: false</code>）和快捷回复（<code>is_quick_reply: true</code>）</td>
+      </tr>
+      <tr>
+        <td>§13.3</td>
+        <td><span class="new">NEW</span> chat_close 事件示例</td>
+      </tr>
+      <tr>
+        <td>§14</td>
+        <td><span class="new">UPDATED</span> component_name 清单新增：<code>giveaway_recommendation</code> · <code>earn_recommendation</code> · <code>detail_aima_widget</code> · <code>flashcard_dive_deeper</code> · <code>floating_aima_button</code></td>
+      </tr>
+      <tr>
+        <td rowspan="2"><strong>v1.1</strong></td>
+        <td rowspan="2">Jun 2026</td>
+        <td>全局</td>
+        <td><span class="new">UPDATED</span> <code>component_name</code> 从仅 OTP 必填改为 <code>content_impression</code> 和 <code>content_click</code> 也必填</td>
+      </tr>
+      <tr>
+        <td>全局</td>
+        <td><span class="new">NEW</span> <code>content_title</code> 新增字段 — content_click 和 content_view 必填，从 CMS/API 返回</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="div">
 <section class="section" id="setup">
   <div class="stag">§1</div>
   <h2>Setup — event_id &amp; filter state <span class="zh">初始化</span></h2>
@@ -319,29 +380,55 @@ pushEvent({
   <pre>pushEvent({ <span class="k">event</span>: <span class="s">"page_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">filter_audience</span>: <span class="s">"all"</span> });</pre>
 
-  <h3>4.2 Tab filter click</h3>
+  <h3>4.2 Recommendation widget — top of page (logged-in users)</h3>
+  <div class="callout c-note">Array push — fires once when recommendation section renders. <code>recommendation_source: "rule_based"</code> — based on user profile.<span class="zh">数组 push，推荐区块渲染完成时触发一次。基于用户 profile 的规则推荐。</span></div>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"giveaway_recommendation"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"rule_based"</span>,
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Free Baby Box by Drypers"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Win a Stroller"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_003"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Baby Skincare Trial"</span>, <span class="k">impression_position</span>: <span class="n">3</span> }
+  ]
+});
+
+<span class="c">// User clicks a recommendation card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"giveaway_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">content_title</span>: <span class="s">"Free Baby Box by Drypers"</span>,
+  <span class="k">clicked_position</span>: <span class="n">1</span>
+});</pre>
+
+  <h3>4.3 Tab filter click</h3>
   <pre>pushEvent({
   <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"tab"</span>, <span class="k">button_action_type</span>: <span class="s">"apply_filter"</span>,
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>   <span class="c">// all | pregnant | kids_0_2y | kids_3y_above | family</span>
 });</pre>
 
-  <h3>4.3 content_impression — array push on list render</h3>
-  <pre><span class="c">// List renders — push all items in one event with items array</span>
-dataLayer.push({
+  <h3>4.3 content_impression — campaign list array push</h3>
+  <pre>dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// current Tab value — root level</span>
+  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
   <span class="k">items</span>: [
-    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
-    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Free Baby Box by Drypers"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Win a Stroller"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
     <span class="c">// ... all items in this page</span>
   ]
 });</pre>
 
   <h3>4.4 Load More</h3>
-  <pre><span class="c">// Step 1: button_click when user taps Load More</span>
+  <pre><span class="c">// Step 1: button_click</span>
 dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
@@ -350,31 +437,48 @@ dataLayer.push({
   <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
 });
 
-<span class="c">// Step 2: next batch loads — impression_position continues from 11</span>
+<span class="c">// Step 2: next batch — impression_position continues from 11</span>
 dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
   <span class="k">items</span>: [
-    { <span class="k">content_id</span>: <span class="s">"cmp_011"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">11</span> },
-    { <span class="k">content_id</span>: <span class="s">"cmp_012"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">impression_position</span>: <span class="n">12</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_011"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Baby Skincare Trial"</span>, <span class="k">impression_position</span>: <span class="n">11</span> },
     <span class="c">// ...</span>
   ]
 });</pre>
 
   <h3>4.5 content_click</h3>
-  <pre>pushEvent({
+  <pre><span class="c">// Click on recommendation widget card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"giveaway_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">content_title</span>: <span class="s">"Free Baby Box by Drypers"</span>,
+  <span class="k">clicked_position</span>: <span class="n">1</span>
+  <span class="c">// no filter_audience — recommendation widget has no filter context</span>
+});
+
+<span class="c">// Click on campaign list card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
-  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// same value as current impression filter_audience</span>
+  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_005"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">content_title</span>: <span class="s">"Win a Stroller"</span>,
+  <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// carry current filter state</span>
   <span class="k">clicked_position</span>: <span class="n">2</span>
 });</pre>
 
-  <h3>4.5 OTP — "Log in or join free" sidebar button</h3>
+  <h3>4.6 OTP — "Log in or join free" sidebar button</h3>
   <div class="callout c-note">Push <code>otp_popup_view</code> when popup appears. See §10 for full OTP sequence.</div>
-  <pre>pushEvent({
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
   <span class="k">source_component</span>: <span class="s">"village_join"</span>,
@@ -392,30 +496,87 @@ dataLayer.push({
   <div class="callout c-note"><strong>/earn Tab is content_type switching — use switch_tab, not apply_filter.</strong> The Tab changes which content types are shown, not a filter dimension.<span class="zh">/earn 的 Tab 切换的是内容类型，使用 switch_tab，不是 apply_filter。</span></div>
 
   <h3>5.1 page_view</h3>
-  <pre>pushEvent({ <span class="k">event</span>: <span class="s">"page_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
-  <span class="k">tab_value</span>: <span class="s">"all"</span> });  <span class="c">// initial tab state, always "all" on load</span></pre>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"page_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">tab_value</span>: <span class="s">"all"</span>  <span class="c">// initial tab state</span>
+});</pre>
 
-  <h3>5.2 Tab switch</h3>
-  <pre>pushEvent({
+  <h3>5.2 Recommendation widget — top of page (logged-in users)</h3>
+  <div class="callout c-note">Array push — mixed content types (ugc / survey / referral). <code>recommendation_source: "rule_based"</code>.<span class="zh">数组 push，混合内容类型。基于规则推荐。</span></div>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_recommendation"</span>,
+  <span class="k">recommendation_source</span>: <span class="s">"rule_based"</span>,
+  <span class="k">tab_value</span>: <span class="s">"all"</span>,  <span class="c">// current tab state</span>
+  <span class="k">items</span>: [
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"The BabyPrep Masterclass"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"survey"</span>, <span class="k">content_title</span>: <span class="s">"Preparing for Baby's Arrival"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_003"</span>, <span class="k">content_type</span>: <span class="s">"referral"</span>, <span class="k">content_title</span>: <span class="s">"Refer a pregnant mom"</span>, <span class="k">impression_position</span>: <span class="n">3</span> }
+  ]
+});
+
+<span class="c">// User clicks a recommendation card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"survey"</span>,
+  <span class="k">content_title</span>: <span class="s">"Preparing for Baby's Arrival"</span>,
+  <span class="k">clicked_position</span>: <span class="n">2</span>
+});</pre>
+
+  <h3>5.3 Tab switch</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"tab"</span>, <span class="k">button_action_type</span>: <span class="s">"switch_tab"</span>,
   <span class="k">tab_value</span>: <span class="s">"ugc"</span>  <span class="c">// all | ugc | survey | referral</span>
 });</pre>
 
-  <h3>5.3 content_impression — array push</h3>
+  <h3>5.4 content_impression — campaign list array push</h3>
   <pre>dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// current Tab: all | ugc | survey | referral — root level</span>
+  <span class="k">component_name</span>: <span class="s">"earn_campaign_list"</span>,
+  <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// current Tab: all | ugc | survey | referral</span>
   <span class="k">items</span>: [
-    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
-    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">content_title</span>: <span class="s">"Share your experience"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
+    { <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">content_title</span>: <span class="s">"Write a review"</span>, <span class="k">impression_position</span>: <span class="n">2</span> },
     <span class="c">// ...</span>
   ]
 });</pre>
 
-  <h3>5.4 Load More</h3>
+  <h3>5.5 content_click</h3>
+  <pre><span class="c">// Click on recommendation widget card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"recommendation_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_recommendation"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_002"</span>, <span class="k">content_type</span>: <span class="s">"survey"</span>,
+  <span class="k">content_title</span>: <span class="s">"Preparing for Baby's Arrival"</span>,
+  <span class="k">clicked_position</span>: <span class="n">2</span>
+  <span class="c">// no tab_value — recommendation widget has no tab context</span>
+});
+
+<span class="c">// Click on campaign list card</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
+  <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_campaign_list"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_005"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
+  <span class="k">content_title</span>: <span class="s">"Share your experience"</span>,
+  <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// carry current tab state</span>
+  <span class="k">clicked_position</span>: <span class="n">3</span>
+});</pre>
+
+  <h3>5.6 Load More</h3>
   <pre>dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"button_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
@@ -424,8 +585,9 @@ dataLayer.push({
   <span class="k">current_page</span>: <span class="n">1</span>, <span class="k">loaded_count</span>: <span class="n">10</span>
 });</pre>
 
-  <h3>5.4 OTP — "Log in or join free" sidebar button</h3>
-  <pre>pushEvent({
+  <h3>5.7 OTP — "Log in or join free" sidebar button</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
   <span class="k">source_component</span>: <span class="s">"village_join"</span>,
@@ -1053,21 +1215,144 @@ pushEvent({
 <section class="section" id="aima">
   <div class="stag">§13</div>
   <h2>AIMA chat <span class="zh">AIMA 聊天</span></h2>
+  <div class="callout c-note"><strong>Three events only / 只追踪三个事件：</strong> <code>chat_open</code> · <code>chat_message_sent</code> · <code>chat_close</code>. Do not track AIMA replies or scroll behaviour.<span class="zh">只追踪这三个事件，不追踪 AIMA 回复内容或滚动行为。</span></div>
+  <div class="callout c-warn"><strong>chat_open must fire AFTER login completes.</strong> If user is not logged in, OTP fires first. chat_open fires only after login/sign_up succeeds.<span class="zh">chat_open 必须在登录完成后触发。未登录时先走 OTP 流程，login/sign_up 成功后才触发 chat_open。</span></div>
 
-  <h3>13.1 chat_open</h3>
-  <pre>pushEvent({
+  <h3>13.1 chat_open — all entry points</h3>
+
+  <h4>// Floating button (homepage / flashcard listing / connect listing / giveaway / earn)</h4>
+  <pre><span class="c">// Already logged in</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,  <span class="c">// use current page_type</span>
+  <span class="k">component_type</span>: <span class="s">"floating_button"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+  <span class="c">// no component_name — only one floating button per page</span>
+});
+
+<span class="c">// Not logged in → OTP first, then chat_open after login</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>,
+  <span class="k">source_page</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_name</span>: <span class="s">"floating_aima_button"</span>
+});</pre>
+
+  <h4>// Homepage hero chat widget</h4>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
   <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_hero_chat"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});</pre>
+
+  <h4>// Homepage Guidance tabs → Ask Aima</h4>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_guidance_tabs"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});</pre>
+
+  <h4>// Article detail page — right side AIMA widget</h4>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"detail_aima_widget"</span>,
+  <span class="k">content_type</span>: <span class="s">"article"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});</pre>
+
+  <h4>// Flashcard detail — "Continue with Aima"</h4>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"detail_aima_widget"</span>,
+  <span class="k">content_type</span>: <span class="s">"flashcard"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});</pre>
+
+  <h4>// Flashcard detail — "Dive deeper" after selecting an option</h4>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"flashcard_dive_deeper"</span>,
+  <span class="k">content_type</span>: <span class="s">"flashcard"</span>,
+  <span class="k">content_id</span>: <span class="s">"fc_001"</span>,  <span class="c">// current flashcard ID</span>
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});</pre>
+
+  <h4>// Search no result — "Ask Aima"</h4>
+  <pre><span class="c">// Already logged in</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_open"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,  <span class="c">// current page_type</span>
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>,
+  <span class="k">source_component</span>: <span class="s">"aima_open"</span>
+});
+
+<span class="c">// Not logged in → OTP first</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"otp_popup_view"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
   <span class="k">source_component</span>: <span class="s">"aima_open"</span>,
-  <span class="k">component_name</span>: <span class="s">"homepage_hero_chat"</span>  <span class="c">// see component_name list §14</span>
+  <span class="k">source_page</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_name</span>: <span class="s">"global_search_results"</span>
 });</pre>
 
   <h3>13.2 chat_message_sent</h3>
-  <pre>pushEvent({
+  <div class="callout c-warn">Never include message content — PII risk.<span class="zh">禁止传递消息内容，存在 PII 风险。</span></div>
+  <pre><span class="c">// Manual message</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"chat_message_sent"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
-  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>
-  <span class="c">// DO NOT include message content — PII risk</span>
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_hero_chat"</span>,
+  <span class="k">is_quick_reply</span>: <span class="b">false</span>
+});
+
+<span class="c">// Quick reply button clicked</span>
+dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_message_sent"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_hero_chat"</span>,
+  <span class="k">is_quick_reply</span>: <span class="b">true</span>
 });</pre>
+
+  <h3>13.3 chat_close</h3>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"chat_close"</span>, <span class="k">page_type</span>: <span class="s">"homepage"</span>,
+  <span class="k">component_type</span>: <span class="s">"chat_widget"</span>,
+  <span class="k">component_name</span>: <span class="s">"homepage_hero_chat"</span>  <span class="c">// same as chat_open</span>
+});</pre>
+
+  <h3>13.4 Complete flow — not logged in</h3>
+  <div class="flow">
+    <span class="flow-event">user clicks AIMA</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">otp_popup_view</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">... OTP flow ...</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">login / sign_up</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">chat_open</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">chat_message_sent</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-event">chat_close</span>
+  </div>
 </section>
 
 <hr class="div">
@@ -1086,8 +1371,10 @@ pushEvent({
       <tr><td><code>homepage_guidance_tabs</code></td><td>homepage</td><td>tab</td><td>Trusted Guidance → Ask Aima Tab · Meaningful Rewards → Missions CTA</td></tr>
       <tr><td><code>homepage_social_proof</code></td><td>homepage</td><td>banner</td><td>"Trusted by millions" pink section Join Village CTA</td></tr>
       <tr><td><code>giveaway_campaign_list</code></td><td>/giveaway</td><td>campaign_list</td><td>Giveaway listing page campaign list</td></tr>
+      <tr><td><code>giveaway_recommendation</code></td><td>/giveaway</td><td>recommendation_widget</td><td>Top of page recommendation widget — rule_based, lead_gen content</td></tr>
       <tr><td><code>giveaway_village_join</code></td><td>/giveaway</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
       <tr><td><code>earn_campaign_list</code></td><td>/earn</td><td>campaign_list</td><td>Earn listing page campaign list</td></tr>
+      <tr><td><code>earn_recommendation</code></td><td>/earn</td><td>recommendation_widget</td><td>Top of page recommendation widget — rule_based, mixed content types</td></tr>
       <tr><td><code>earn_village_join</code></td><td>/earn</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
       <tr><td><code>connect_recommendation</code></td><td>/connect</td><td>recommendation_widget</td><td>Recommended groups section (logged-in users only)</td></tr>
       <tr><td><code>connect_group_list</code></td><td>/connect</td><td>group_list</td><td>All WhatsApp Groups list</td></tr>
@@ -1095,14 +1382,17 @@ pushEvent({
       <tr><td><code>guide_flashcard_list</code></td><td>/guide</td><td>article_list</td><td>Flashcard list section</td></tr>
       <tr><td><code>guide_article_list</code></td><td>/guide</td><td>article_list</td><td>Article list section</td></tr>
       <tr><td><code>detail_recommendation</code></td><td>/detail</td><td>recommendation_widget</td><td>Related content recommendation on detail page</td></tr>
+      <tr><td><code>detail_aima_widget</code></td><td>/detail</td><td>chat_widget</td><td>AIMA widget on article/flashcard detail — use content_type to distinguish</td></tr>
       <tr><td><code>detail_campaign_join</code></td><td>/detail</td><td>otp_popup</td><td>Campaign detail "Join to enter" CTA</td></tr>
       <tr><td><code>detail_group_join</code></td><td>/detail</td><td>otp_popup</td><td>Group detail Join button</td></tr>
+      <tr><td><code>flashcard_dive_deeper</code></td><td>/detail (flashcard)</td><td>chat_widget</td><td>"Dive deeper" button after selecting a flashcard option</td></tr>
+      <tr><td><code>flashcard_answer_option</code></td><td>/detail (flashcard)</td><td>otp_popup</td><td>Flashcard answer option click</td></tr>
+      <tr><td><code>flashcard_poll_option</code></td><td>/detail (flashcard)</td><td>otp_popup</td><td>Poll vote option in flashcard detail</td></tr>
       <tr><td><code>thankyou_recommendation</code></td><td>/thank_you</td><td>recommendation_widget</td><td>Post-conversion AI recommendation widget</td></tr>
       <tr><td><code>global_search</code></td><td>all pages</td><td>search_bar</td><td>Global search bar in top navigation</td></tr>
-      <tr><td><code>global_search_results</code></td><td>all pages</td><td>search_result</td><td>Search results dropdown · also used as source for "Ask Aima" when no results</td></tr>
-      <tr><td><code>flashcard_answer_option</code></td><td>/detail</td><td>otp_popup</td><td>Flashcard answer option click</td></tr>
-      <tr><td><code>flashcard_poll_option</code></td><td>/detail</td><td>otp_popup</td><td>Poll vote option in flashcard detail</td></tr>
+      <tr><td><code>global_search_results</code></td><td>all pages</td><td>search_result</td><td>Search results dropdown · also source for "Ask Aima" when no results</td></tr>
       <tr><td><code>navigation_register_btn</code></td><td>any</td><td>navigation</td><td>Top nav register/login button</td></tr>
+      <tr><td><code>floating_aima_button</code></td><td>all top-level pages</td><td>floating_button</td><td>Right bottom floating AIMA button</td></tr>
       <tr><td><code>onboarding_profile_popup</code></td><td>any</td><td>popup</td><td>Post-registration profile setup popup</td></tr>
       <tr><td><code>profile_setup_page</code></td><td>/profile</td><td>form</td><td>Standalone profile setup page form</td></tr>
     </tbody>
