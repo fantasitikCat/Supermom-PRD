@@ -91,7 +91,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </div>
   <div class="nav-group">
     <div class="ngl">Changelog 更新记录</div>
-    <a class="nl" href="#changelog" style="color:var(--red);font-weight:500">⚡ v1.2 最新更新</a>
+    <a class="nl" href="#changelog" style="color:var(--red);font-weight:500">⚡ v1.3 最新更新</a>
   </div>
   <div class="nav-group">
     <div class="ngl">Setup 初始化</div>
@@ -140,7 +140,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </div>
   <div class="meta-pills">
     <div class="mp"><span class="l">Doc</span><span class="v">IMPL-TRK-001</span></div>
-    <div class="mp"><span class="l">Version</span><span class="v">1.2</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">1.3</span></div>
     <div class="mp"><span class="l">Parent</span><span class="v">PRD-TRK-002 v2.3</span></div>
     <div class="mp"><span class="l">Audience</span><span class="v">Frontend Engineer</span></div>
   </div>
@@ -155,6 +155,20 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Section</th><th>Change 变更</th></tr></thead>
     <tbody>
+      <tr>
+        <td rowspan="3"><strong>v1.3</strong></td>
+        <td rowspan="3">Jun 2026</td>
+        <td>§14</td>
+        <td><span class="new">UPDATED</span> component_name 清单加入命名来源标注：业务命名 / 优化命名 / 自定义</td>
+      </tr>
+      <tr>
+        <td>全局示例</td>
+        <td><span class="new">UPDATED</span> 以下 component_name 对齐业务命名：<code>homepage_next_best_offer</code> · <code>perks_page_list</code> · <code>earn_page_list</code> · <code>connect_page_community_groups</code> · <code>card_tracker</code></td>
+      </tr>
+      <tr>
+        <td>§14</td>
+        <td><span class="new">UPDATED</span> 以下命名优化为标准名：<code>thankyou_recommendation</code>（原 thank_you_page_related_lead_gen）· <code>global_search_results</code>（原 search_results）</td>
+      </tr>
       <tr>
         <td rowspan="8"><strong>v1.2</strong></td>
         <td rowspan="8">Jun 2026</td>
@@ -418,7 +432,7 @@ dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"perks_page_list"</span>,
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
   <span class="k">items</span>: [
     { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Free Baby Box by Drypers"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
@@ -442,7 +456,7 @@ dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"perks_page_list"</span>,
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,
   <span class="k">items</span>: [
     { <span class="k">content_id</span>: <span class="s">"cmp_011"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>, <span class="k">content_title</span>: <span class="s">"Baby Skincare Trial"</span>, <span class="k">impression_position</span>: <span class="n">11</span> },
@@ -468,7 +482,7 @@ dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">component_name</span>: <span class="s">"giveaway_campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"perks_page_list"</span>,
   <span class="k">content_id</span>: <span class="s">"cmp_005"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
   <span class="k">content_title</span>: <span class="s">"Win a Stroller"</span>,
   <span class="k">filter_audience</span>: <span class="s">"pregnant"</span>,  <span class="c">// carry current filter state</span>
@@ -542,7 +556,7 @@ dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_impression"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">component_name</span>: <span class="s">"earn_campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_page_list"</span>,
   <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// current Tab: all | ugc | survey | referral</span>
   <span class="k">items</span>: [
     { <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>, <span class="k">content_title</span>: <span class="s">"Share your experience"</span>, <span class="k">impression_position</span>: <span class="n">1</span> },
@@ -569,7 +583,7 @@ dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
   <span class="k">event</span>: <span class="s">"content_click"</span>, <span class="k">page_type</span>: <span class="s">"listing"</span>,
   <span class="k">component_type</span>: <span class="s">"campaign_list"</span>,
-  <span class="k">component_name</span>: <span class="s">"earn_campaign_list"</span>,
+  <span class="k">component_name</span>: <span class="s">"earn_page_list"</span>,
   <span class="k">content_id</span>: <span class="s">"cmp_005"</span>, <span class="k">content_type</span>: <span class="s">"ugc"</span>,
   <span class="k">content_title</span>: <span class="s">"Share your experience"</span>,
   <span class="k">tab_value</span>: <span class="s">"ugc"</span>,  <span class="c">// carry current tab state</span>
@@ -1361,42 +1375,176 @@ dataLayer.push({
 <section class="section" id="component-names">
   <div class="stag">§14</div>
   <h2>component_name — complete list <span class="zh">组件实例名称清单</span></h2>
-  <p class="sdesc">Used in OTP events when multiple components of the same type exist on one page. Naming rule: <code>{page}_{zone}</code>.<span class="zh">当同页存在多个相同类型组件时使用。命名规则：{页面}_{区域}。</span></p>
-  <div class="tw"><table>
-    <thead><tr><th>component_name</th><th>Page</th><th>component_type</th><th>Description</th></tr></thead>
+  <p class="sdesc">Used in <code>content_impression</code>, <code>content_click</code> and all OTP events. Also used as <code>item_list_name</code> in GA4 e-commerce Tags via GTM.<span class="zh">在 content_impression、content_click 和 OTP 事件中必填。GTM 中用作 GA4 电商事件的 item_list_name。</span></p>
+
+  <div class="callout c-info">
+    <strong>Naming source legend / 命名来源说明：</strong><br><br>
+    <span style="display:inline-block;margin:3px 4px;padding:3px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;">业务命名</span> Adopted from business team — frontend must use this exact value<br><br>
+    <span style="display:inline-block;margin:3px 4px;padding:3px 10px;border-radius:3px;background:#fef7e6;color:#7a4f00;border:1px solid #f5d080;font-family:var(--mono);font-size:11px;white-space:nowrap;">优化命名</span> Business provided a name but we standardised it — frontend must use the new value<br><br>
+    <span style="display:inline-block;margin:3px 4px;padding:3px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;">自定义</span> Not defined by business — we defined this ourselves
+  </div>
+
+  <div style="overflow-x:auto;margin:12px 0;border-radius:6px;border:1px solid var(--border)">
+  <table style="width:100%;min-width:860px;border-collapse:collapse;font-size:12.5px">
+    <thead><tr style="background:var(--accent-soft)">
+      <th style="padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;min-width:220px">component_name</th>
+      <th style="padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;min-width:100px">来源</th>
+      <th style="padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;min-width:100px">Page</th>
+      <th style="padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;min-width:160px">component_type</th>
+      <th style="padding:10px 16px;text-align:left;font-weight:500;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);border-bottom:1px solid var(--border)">Description</th>
+    </tr></thead>
     <tbody>
-      <tr><td><code>homepage_banner</code></td><td>homepage</td><td>banner</td><td>Homepage hero banner area</td></tr>
-      <tr><td><code>homepage_recommendation</code></td><td>homepage</td><td>recommendation_widget</td><td>Homepage recommendation widget</td></tr>
-      <tr><td><code>homepage_hero_chat</code></td><td>homepage</td><td>chat_widget</td><td>Top hero area AIMA chat widget</td></tr>
-      <tr><td><code>homepage_guidance_tabs</code></td><td>homepage</td><td>tab</td><td>Trusted Guidance → Ask Aima Tab · Meaningful Rewards → Missions CTA</td></tr>
-      <tr><td><code>homepage_social_proof</code></td><td>homepage</td><td>banner</td><td>"Trusted by millions" pink section Join Village CTA</td></tr>
-      <tr><td><code>giveaway_campaign_list</code></td><td>/giveaway</td><td>campaign_list</td><td>Giveaway listing page campaign list</td></tr>
-      <tr><td><code>giveaway_recommendation</code></td><td>/giveaway</td><td>recommendation_widget</td><td>Top of page recommendation widget — rule_based, lead_gen content</td></tr>
-      <tr><td><code>giveaway_village_join</code></td><td>/giveaway</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
-      <tr><td><code>earn_campaign_list</code></td><td>/earn</td><td>campaign_list</td><td>Earn listing page campaign list</td></tr>
-      <tr><td><code>earn_recommendation</code></td><td>/earn</td><td>recommendation_widget</td><td>Top of page recommendation widget — rule_based, mixed content types</td></tr>
-      <tr><td><code>earn_village_join</code></td><td>/earn</td><td>popup</td><td>Sidebar "Log in or join free" CTA</td></tr>
-      <tr><td><code>connect_recommendation</code></td><td>/connect</td><td>recommendation_widget</td><td>Recommended groups section (logged-in users only)</td></tr>
-      <tr><td><code>connect_group_list</code></td><td>/connect</td><td>group_list</td><td>All WhatsApp Groups list</td></tr>
-      <tr><td><code>connect_group_join</code></td><td>/connect</td><td>otp_popup</td><td>Group Join button OTP trigger</td></tr>
-      <tr><td><code>guide_flashcard_list</code></td><td>/guide</td><td>article_list</td><td>Flashcard list section</td></tr>
-      <tr><td><code>guide_article_list</code></td><td>/guide</td><td>article_list</td><td>Article list section</td></tr>
-      <tr><td><code>detail_recommendation</code></td><td>/detail</td><td>recommendation_widget</td><td>Related content recommendation on detail page</td></tr>
-      <tr><td><code>detail_aima_widget</code></td><td>/detail</td><td>chat_widget</td><td>AIMA widget on article/flashcard detail — use content_type to distinguish</td></tr>
-      <tr><td><code>detail_campaign_join</code></td><td>/detail</td><td>otp_popup</td><td>Campaign detail "Join to enter" CTA</td></tr>
-      <tr><td><code>detail_group_join</code></td><td>/detail</td><td>otp_popup</td><td>Group detail Join button</td></tr>
-      <tr><td><code>flashcard_dive_deeper</code></td><td>/detail (flashcard)</td><td>chat_widget</td><td>"Dive deeper" button after selecting a flashcard option</td></tr>
-      <tr><td><code>flashcard_answer_option</code></td><td>/detail (flashcard)</td><td>otp_popup</td><td>Flashcard answer option click</td></tr>
-      <tr><td><code>flashcard_poll_option</code></td><td>/detail (flashcard)</td><td>otp_popup</td><td>Poll vote option in flashcard detail</td></tr>
-      <tr><td><code>thankyou_recommendation</code></td><td>/thank_you</td><td>recommendation_widget</td><td>Post-conversion AI recommendation widget</td></tr>
-      <tr><td><code>global_search</code></td><td>all pages</td><td>search_bar</td><td>Global search bar in top navigation</td></tr>
-      <tr><td><code>global_search_results</code></td><td>all pages</td><td>search_result</td><td>Search results dropdown · also source for "Ask Aima" when no results</td></tr>
-      <tr><td><code>navigation_register_btn</code></td><td>any</td><td>navigation</td><td>Top nav register/login button</td></tr>
-      <tr><td><code>floating_aima_button</code></td><td>all top-level pages</td><td>floating_button</td><td>Right bottom floating AIMA button</td></tr>
-      <tr><td><code>onboarding_profile_popup</code></td><td>any</td><td>popup</td><td>Post-registration profile setup popup</td></tr>
-      <tr><td><code>profile_setup_page</code></td><td>/profile</td><td>form</td><td>Standalone profile setup page form</td></tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>homepage_next_best_offer</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">业务命名</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">homepage</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">recommendation_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Homepage recommendation widget</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>homepage_hero_chat</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">homepage</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">chat_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Top hero area AIMA chat widget</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>homepage_guidance_tabs</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">homepage</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">tab</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Trusted Guidance → Ask Aima Tab · Meaningful Rewards → Missions CTA</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>homepage_social_proof</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">homepage</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">banner</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">"Trusted by millions" pink section Join Village CTA</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>perks_page_list</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">业务命名</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/giveaway</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">campaign_list</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Giveaway (perks) listing page campaign list</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>giveaway_recommendation</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/giveaway</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">recommendation_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Top of page recommendation widget — rule_based, lead_gen content</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>giveaway_village_join</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/giveaway</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Sidebar "Log in or join free" CTA</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>earn_page_list</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">业务命名</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/earn</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">campaign_list</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Earn listing page campaign list</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>earn_recommendation</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/earn</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">recommendation_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Top of page recommendation widget — rule_based, mixed content types</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>earn_village_join</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/earn</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Sidebar "Log in or join free" CTA</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>connect_recommendation</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/connect</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">recommendation_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Recommended groups section (logged-in users only)</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>connect_page_community_groups</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">业务命名</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/connect</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">group_list</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">All WhatsApp Groups list</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>connect_group_join</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/connect</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">otp_popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Group Join button OTP trigger</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>card_tracker</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf3fb;color:#0f3a6e;border:1px solid #b0cef0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">业务命名</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/guide</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">article_list</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Flashcard list section</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>guide_article_list</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/guide</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">article_list</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Article list section</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>detail_recommendation</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">recommendation_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Related content recommendation on detail page</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>detail_aima_widget</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">chat_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">AIMA widget on article/flashcard detail — use content_type to distinguish</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>detail_campaign_join</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">otp_popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Campaign detail "Join to enter" CTA</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>detail_group_join</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">otp_popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Group detail Join button</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>flashcard_dive_deeper</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail (flashcard)</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">chat_widget</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">"Dive deeper" button after selecting a flashcard option</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>flashcard_answer_option</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail (flashcard)</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">otp_popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Flashcard answer option click</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>flashcard_poll_option</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/detail (flashcard)</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">otp_popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Poll vote option in flashcard detail</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>thankyou_recommendation</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#fef7e6;color:#7a4f00;border:1px solid #f5d080;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">优化命名</span></td>
+        <td>/thank_you</td><td>recommendation_widget</td><td>Post-conversion AI recommendation widget<br><span style="font-size:11px;color:var(--text-muted)">业务原名：thank_you_page_related_lead_gen</span></td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>global_search_results</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#fef7e6;color:#7a4f00;border:1px solid #f5d080;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">优化命名</span></td>
+        <td>all pages</td><td>search_result</td><td>Search results dropdown · also source for "Ask Aima" when no results<br><span style="font-size:11px;color:var(--text-muted)">业务原名：search_results</span></td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>global_search</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">all pages</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">search_bar</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Global search bar in top navigation</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>navigation_register_btn</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">any</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">navigation</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Top nav register/login button</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>floating_aima_button</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">all top-level pages</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">floating_button</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Right bottom floating AIMA button</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>onboarding_profile_popup</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">any</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">popup</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Post-registration profile setup popup</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;"><code>profile_setup_page</code></td>
+        <td><span style="display:inline-block;padding:4px 10px;border-radius:3px;background:#edf7f2;color:#1a6b45;border:1px solid #a8d8c0;font-family:var(--mono);font-size:11px;white-space:nowrap;font-weight:500;">自定义</span></td>
+        <td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">/profile</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">form</td><td style="padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle;">Standalone profile setup page form</td>
+      </tr>
     </tbody>
-  </table></div>
+  </table>
+  </div>
+
+  <div class="callout c-warn"><strong>业务命名 not yet mapped / 业务已定义但暂未实施：</strong>
+  <code>discover_page_cards</code> · <code>discover_page_articles</code> · <code>card_tracker</code>(待确认) · <code>events_page_list</code> · <code>connect_page_upcoming_event</code> · <code>bigfunnel_list</code> · <code>thank_you_page_other_related</code> — these will be mapped in future releases.<span class="zh">以上业务命名暂未在 tracking 中实施，后续版本补充。</span></div>
 </section>
 
 </main>
