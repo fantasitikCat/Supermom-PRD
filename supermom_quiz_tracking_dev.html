@@ -198,6 +198,12 @@
     <a class="nav-item" href="#e-result-view">
       <span class="nav-dot dot-push"></span>result_view
     </a>
+    <a class="nav-item" href="#e-otp-popup">
+      <span class="nav-dot dot-push"></span>otp_popup_view
+    </a>
+    <a class="nav-item" href="#e-otp-verify">
+      <span class="nav-dot dot-push"></span>otp_verify_success
+    </a>
   </div>
   <div class="nav-group">
     <div class="nav-label" data-en>GTM Events (No Code)</div>
@@ -243,11 +249,11 @@
   <div class="page-eyebrow" data-zh>前端实施文档 · GA4 Tracking</div>
   <h1 class="page-title" data-en>Supermom Mom Archetype Quiz<br>Tracking Implementation</h1>
   <h1 class="page-title" data-zh>Supermom 妈妈人格测试<br>Tracking 实施规格</h1>
-  <p class="page-desc" data-en>This guide tells you exactly what to build, when to fire each event, and what parameters to pass. You only need to write <strong>2 dataLayer.push calls</strong>. The rest is handled by GTM with no code changes from your side.</p>
-  <p class="page-desc" data-zh>本文档告诉你需要写什么、什么时候触发、传哪些参数。你只需要写 <strong>2 个 dataLayer.push</strong>，其余 4 个事件由 GTM 无代码处理。</p>
+  <p class="page-desc" data-en>This guide tells you exactly what to build, when to fire each event, and what parameters to pass. You need to write <strong>4 dataLayer.push calls</strong>. The rest is handled by GTM with no code changes from your side.</p>
+  <p class="page-desc" data-zh>本文档告诉你需要写什么、什么时候触发、传哪些参数。你需要写 <strong>4 个 dataLayer.push</strong>，其余 4 个事件由 GTM 无代码处理。</p>
   <div class="meta-row">
-    <span class="tag tag-pink" data-en>2 dataLayer.push required</span>
-    <span class="tag tag-pink" data-zh>前端只需写 2 个 push</span>
+    <span class="tag tag-pink" data-en>4 dataLayer.push required</span>
+    <span class="tag tag-pink" data-zh>前端需写 4 个 push</span>
     <span class="tag tag-amber" data-en>4 events via GTM (no code)</span>
     <span class="tag tag-amber" data-zh>4 个事件 GTM 处理</span>
     <span class="tag tag-green" data-en>1 event auto-collected</span>
@@ -261,14 +267,14 @@
   <div class="summary-card">
     <div class="summary-label" data-en>Total Events</div>
     <div class="summary-label" data-zh>事件总数</div>
-    <div class="summary-value">7</div>
+    <div class="summary-value">9</div>
     <div class="summary-sub" data-en>Full user journey</div>
     <div class="summary-sub" data-zh>覆盖完整用户旅程</div>
   </div>
   <div class="summary-card">
     <div class="summary-label" data-en>You Need to Write</div>
     <div class="summary-label" data-zh>前端需要写</div>
-    <div class="summary-value" style="color:var(--accent)">2</div>
+    <div class="summary-value" style="color:var(--accent)">4</div>
     <div class="summary-sub" data-en>dataLayer.push calls</div>
     <div class="summary-sub" data-zh>个 dataLayer.push</div>
   </div>
@@ -336,14 +342,30 @@
       </tr>
       <tr class="row-push">
         <td>4</td>
-        <td><code style="background:var(--accent-light);color:var(--accent)">form_submit</code></td>
-        <td data-en>Lead form API returns 200</td><td data-zh>表单提交 API 返回 200</td>
+        <td><code style="background:var(--accent-light);color:var(--accent)">otp_popup_view</code></td>
+        <td data-en>OTP popup appears after quiz complete</td><td data-zh>完成题目后 OTP 弹窗出现</td>
         <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
-        <td data-en>Push in API success callback</td><td data-zh>在 API 成功回调里 push</td>
-        <td><span class="badge badge-conv">✦</span></td>
+        <td data-en>Push when OTP popup renders</td><td data-zh>OTP 弹窗渲染时 push</td>
+        <td><span class="badge badge-no">N</span></td>
       </tr>
       <tr class="row-push">
         <td>5</td>
+        <td><code style="background:var(--accent-light);color:var(--accent)">otp_verify_success</code></td>
+        <td data-en>OTP verified — backend returns user type</td><td data-zh>OTP 验证成功，后端返回新老用户标识</td>
+        <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
+        <td data-en>Push with <code>user_type</code> from API response</td><td data-zh>从 API 返回值读取 <code>user_type</code> 并 push</td>
+        <td><span class="badge badge-no">N</span></td>
+      </tr>
+      <tr class="row-push">
+        <td>6</td>
+        <td><code style="background:var(--accent-light);color:var(--accent)">form_submit</code></td>
+        <td data-en>Lead form API returns 200</td><td data-zh>表单提交 API 返回 200</td>
+        <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
+        <td data-en>Push with <code>user_type</code> stored from OTP step</td><td data-zh>带上 OTP 步骤存下的 <code>user_type</code> push</td>
+        <td><span class="badge badge-conv">✦</span></td>
+      </tr>
+      <tr class="row-push">
+        <td>7</td>
         <td><code style="background:var(--accent-light);color:var(--accent)">result_view</code></td>
         <td data-en>Result page renders with type visible</td><td data-zh>结果页渲染完成，类型名称可见</td>
         <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
@@ -351,7 +373,7 @@
         <td><span class="badge badge-conv">✦</span></td>
       </tr>
       <tr class="row-gtm">
-        <td>6</td>
+        <td>8</td>
         <td><code style="background:var(--amber-light);color:var(--amber)">result_share</code></td>
         <td data-en>User clicks the Share button</td><td data-zh>用户点击分享按钮</td>
         <td><span class="badge badge-gtm">GTM Click</span></td>
@@ -371,7 +393,7 @@
 </div>
 
 <!-- FRONTEND PUSH -->
-<div class="group-label gl-push">● <span data-en>Frontend Push — You Write These 2</span><span data-zh>前端 Push — 你需要写的 2 个</span></div>
+<div class="group-label gl-push">● <span data-en>Frontend Push — You Write These 4</span><span data-zh>前端 Push — 你需要写的 4 个</span></div>
 
 <!-- form_submit -->
 <div class="event-card" id="e-form-submit">
@@ -401,14 +423,20 @@
       <div data-en><strong>Critical:</strong> Fire ONLY inside the API success callback. If the API fails, do NOT fire this event.</div>
       <div data-zh><strong>关键：</strong>必须在 API 成功回调里触发，API 失败时绝对不能触发。</div>
     </div>
-<pre><code><span class="kw">async function</span> <span class="fn">handleFormSubmit</span>() {
+<pre><code><span class="cmt">// Store user_type from OTP step (see otp_verify_success below)</span>
+<span class="kw">let</span> userType = <span class="str">''</span>;
+
+<span class="kw">async function</span> <span class="fn">handleFormSubmit</span>() {
   <span class="kw">try</span> {
     <span class="kw">const</span> response = <span class="kw">await</span> api.<span class="fn">submitLeadForm</span>(formData);
 
     <span class="kw">if</span> (response.status === <span class="num">200</span>) {
-      <span class="cmt">// ✅ Fire AFTER API success</span>
+      <span class="cmt">// ✅ Fire AFTER API success, carry user_type from OTP step</span>
       window.dataLayer = window.dataLayer || [];
-      dataLayer.<span class="fn">push</span>({ <span class="key">'event'</span>: <span class="str">'form_submit'</span> });
+      dataLayer.<span class="fn">push</span>({
+        <span class="key">'event'</span>: <span class="str">'form_submit'</span>,
+        <span class="key">'user_type'</span>: userType  <span class="cmt">// 'new_user' or 'existing_user'</span>
+      });
 
       <span class="fn">showResultPage</span>(response.data.assigned_type);
     }
@@ -419,8 +447,8 @@
 }</code></pre>
     <div class="callout ci">
       <span class="callout-icon">ℹ️</span>
-      <div data-en>No extra parameters needed. GA4 automatically reads UTM params from the page URL.</div>
-      <div data-zh>不需要额外参数，GA4 会自动从页面 URL 读取 UTM 参数。</div>
+      <div data-en><code>user_type</code> is stored in the <code>otp_verify_success</code> step and re-used here. GA4 automatically reads UTM params from the page URL — no need to push them manually.</div>
+      <div data-zh><code>user_type</code> 在 <code>otp_verify_success</code> 步骤存入变量，在这里复用。GA4 会自动从 URL 读取 UTM 参数，不需要手动 push。</div>
     </div>
   </div>
 </div>
@@ -489,6 +517,89 @@
 <hr class="divider">
 
 <!-- GTM EVENTS -->
+<!-- otp_popup_view -->
+<div class="event-card" id="e-otp-popup">
+  <div class="event-card-header">
+    <span style="font-size:18px">📱</span>
+    <span class="event-name">otp_popup_view</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span>
+    </div>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>When to fire</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>OTP popup appears on screen after quiz complete</div>
+      <div class="em-value" data-zh>完成题目后 OTP 验证弹窗出现在屏幕上</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Why we need this</div><div class="em-label" data-zh>为什么需要</div>
+      <div class="em-value" data-en>Measures how many users reached the OTP step vs dropped off before submitting</div>
+      <div class="em-value" data-zh>衡量有多少用户进入了 OTP 步骤，用于分析 OTP 前的流失</div>
+    </div>
+  </div>
+  <div class="event-card-body">
+<pre><code><span class="cmt">// Fire when OTP popup renders — no parameters needed</span>
+window.dataLayer = window.dataLayer || [];
+dataLayer.<span class="fn">push</span>({
+  <span class="key">'event'</span>: <span class="str">'otp_popup_view'</span>
+});</code></pre>
+  </div>
+</div>
+
+<!-- otp_verify_success -->
+<div class="event-card" id="e-otp-verify">
+  <div class="event-card-header">
+    <span style="font-size:18px">✅</span>
+    <span class="event-name">otp_verify_success</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span>
+    </div>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>When to fire</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>OTP verified successfully — backend returns user type</div>
+      <div class="em-value" data-zh>OTP 验证成功，后端返回是否为新用户</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Key parameter</div><div class="em-label" data-zh>核心参数</div>
+      <div class="em-value"><code>user_type</code> — <span data-en>read from API response <code>is_new_user</code></span><span data-zh>从 API 返回的 <code>is_new_user</code> 读取</span></div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout cw">
+      <span class="callout-icon">⚠️</span>
+      <div data-en><strong>Store <code>userType</code> as a variable</strong> after this push — you will reuse it in the <code>form_submit</code> event. This is the only place the backend tells us whether the user is new or existing.</div>
+      <div data-zh><strong>push 后将 <code>userType</code> 存为变量</strong>，在后续的 <code>form_submit</code> 事件中复用。这是后端唯一一次告诉我们用户是新还是老的时机。</div>
+    </div>
+<pre><code><span class="cmt">// OTP verify success API callback</span>
+<span class="kw">async function</span> <span class="fn">handleOTPVerify</span>(otpCode) {
+  <span class="kw">const</span> response = <span class="kw">await</span> api.<span class="fn">verifyOTP</span>(otpCode);
+
+  <span class="kw">if</span> (response.status === <span class="num">200</span>) {
+    <span class="cmt">// Store for reuse in form_submit</span>
+    userType = response.data.is_new_user ? <span class="str">'new_user'</span> : <span class="str">'existing_user'</span>;
+
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.<span class="fn">push</span>({
+      <span class="key">'event'</span>: <span class="str">'otp_verify_success'</span>,
+      <span class="key">'user_type'</span>: userType
+    });
+
+    <span class="fn">showLeadForm</span>(); <span class="cmt">// proceed to show the form</span>
+  }
+}</code></pre>
+    <div class="callout ci">
+      <span class="callout-icon">ℹ️</span>
+      <div data-en><code>user_type</code> valid values: <code>'new_user'</code> or <code>'existing_user'</code>. These map directly from <code>is_new_user: true/false</code> in the API response.</div>
+      <div data-zh><code>user_type</code> 合法值：<code>'new_user'</code> 或 <code>'existing_user'</code>，直接从 API 返回的 <code>is_new_user: true/false</code> 映射。</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
 <div class="group-label gl-gtm">● <span data-en>GTM Events — Just Add These HTML IDs</span><span data-zh>GTM 事件 — 只需加 HTML id 属性</span></div>
 
 <div class="callout cg">
@@ -743,8 +854,10 @@
       <h4 data-en>dataLayer.push checks</h4>
       <h4 data-zh>dataLayer.push 验证</h4>
       <ul class="checklist">
-        <li><span class="ci-check">□</span><span data-en>Submit form successfully → <code>form_submit</code> fires AFTER API call, not on click</span><span data-zh>表单提交成功 → <code>form_submit</code> 在 API 返回后触发，不是点击时</span></li>
-        <li><span class="ci-check">□</span><span data-en>Trigger API error → <code>form_submit</code> does NOT fire</span><span data-zh>触发 API 错误 → <code>form_submit</code> 不触发</span></li>
+        <li><span class="ci-check">□</span><span data-en>After Q11 submit, OTP popup appears → <code>otp_popup_view</code> fires</span><span data-zh>Q11 提交后 OTP 弹窗出现 → <code>otp_popup_view</code> 触发</span></li>
+        <li><span class="ci-check">□</span><span data-en>OTP verified → <code>otp_verify_success</code> fires with <code>user_type</code> = <code>'new_user'</code> or <code>'existing_user'</code></span><span data-zh>OTP 验证成功 → <code>otp_verify_success</code> 触发，<code>user_type</code> 有合法值</span></li>
+        <li><span class="ci-check">□</span><span data-en>Submit form → <code>form_submit</code> fires AFTER API call with correct <code>user_type</code> carried over from OTP step</span><span data-zh>表单提交 → <code>form_submit</code> 在 API 返回后触发，携带 OTP 步骤的 <code>user_type</code></span></li>
+        <li><span class="ci-check">□</span><span data-en>API error → <code>form_submit</code> does NOT fire</span><span data-zh>API 报错 → <code>form_submit</code> 不触发</span></li>
         <li><span class="ci-check">□</span><span data-en>Result page loads → <code>result_view</code> fires with valid non-null <code>assigned_type</code></span><span data-zh>结果页加载 → <code>result_view</code> 触发，<code>assigned_type</code> 有合法非空值</span></li>
         <li><span class="ci-check">□</span><span data-en><code>assigned_type</code> matches one of the 5 valid enum values</span><span data-zh><code>assigned_type</code> 是 5 个合法枚举值之一，无拼写错误</span></li>
       </ul>
@@ -769,8 +882,8 @@
 </section>
 
 <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;color:var(--ink-muted);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
-  <span>Supermom Quiz · Frontend Tracking Guide · v2.0</span>
-  <span>utm_campaign: 2026_sg_mom_quiz · 2 push · 4 GTM · 1 auto</span>
+  <span>Supermom Quiz · Frontend Tracking Guide · v3.0</span>
+  <span>utm_campaign: 2026_sg_mom_quiz · 4 push · 4 GTM · 1 auto · 9 events</span>
 </div>
 
 </main>
