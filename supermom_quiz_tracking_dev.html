@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supermom Quiz — Frontend Tracking Implementation Guide</title>
+<style>
+  :root {
+    --ink: #1a1a2e; --ink-soft: #3d3d5c; --ink-muted: #6b6b8a;
+    --bg: #f8f8fc; --bg-card: #ffffff; --bg-alt: #f0f0f6;
+    --accent: #e84393; --accent-light: #fce8f3;
+    --teal: #0d9488; --teal-light: #e0f5f3;
+    --amber: #d97706; --amber-light: #fef3c7;
+    --violet: #7c3aed; --violet-light: #ede9fe;
+    --green: #16a34a; --green-light: #dcfce7;
+    --red: #dc2626; --red-light: #fee2e2;
+    --border: #e2e2ec;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
+    --radius: 10px; --radius-sm: 6px;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono: 'Cascadia Code','Fira Code','Consolas',monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.7; }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Language toggle */
+  .lang-toggle { position: fixed; top: 16px; right: 20px; z-index: 999; display: flex; gap: 4px; background: var(--ink); border-radius: 20px; padding: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  .lang-btn { padding: 4px 14px; border-radius: 16px; border: none; background: transparent; color: #9090b8; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px; }
+  .lang-btn.active { background: var(--accent); color: #fff; }
+
+  /* Sidebar */
+  .sidebar { width: 232px; min-width: 232px; background: var(--ink); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-header { padding: 22px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .sidebar-logo { font-size: 15px; font-weight: 800; color: #fff; }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-sub { font-size: 10px; color: #8888aa; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-audience { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: rgba(232,67,147,0.18); color: var(--accent); }
+  .nav-group { padding: 10px 0 4px; }
+  .nav-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #555577; padding: 8px 18px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 18px; color: #9090b8; text-decoration: none; font-size: 12px; border-left: 2px solid transparent; transition: all 0.12s; }
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(232,67,147,0.08); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-push { background: var(--accent); }
+  .dot-gtm { background: var(--amber); }
+  .dot-auto { background: var(--green); }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); }
+
+  /* Main */
+  .main { flex: 1; padding: 40px 48px; max-width: 980px; }
+
+  /* Page header */
+  .page-header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .page-eyebrow { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 8px; }
+  .page-title { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 10px; }
+  .page-desc { color: var(--ink-muted); font-size: 13.5px; max-width: 580px; line-height: 1.85; }
+  .meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .tag-pink { background: var(--accent-light); color: var(--accent); }
+  .tag-amber { background: var(--amber-light); color: var(--amber); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-teal { background: var(--teal-light); color: var(--teal); }
+
+  /* Summary bar */
+  .summary-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
+  .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .summary-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-muted); margin-bottom: 4px; }
+  .summary-value { font-size: 22px; font-weight: 800; color: var(--ink); }
+  .summary-sub { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+
+  /* Legend */
+  .legend { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); }
+  .lb { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
+  .lb-push { background: var(--accent-light); color: var(--accent); }
+  .lb-gtm { background: var(--amber-light); color: var(--amber); }
+  .lb-auto { background: var(--green-light); color: var(--green); }
+
+  /* Section */
+  .section { margin-bottom: 48px; scroll-margin-top: 20px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+  .section-num { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+  .section-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  h4 { font-size: 11.5px; font-weight: 700; color: var(--ink); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Event card */
+  .event-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden; }
+  .event-card-header { padding: 13px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .event-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+  .event-card-meta { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .em-item { padding: 10px 18px; border-right: 1px solid var(--border); }
+  .em-item:last-child { border-right: none; }
+  .em-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-muted); margin-bottom: 3px; }
+  .em-value { font-size: 12.5px; color: var(--ink-soft); }
+  .event-card-body { padding: 16px 18px; }
+
+  /* Badge */
+  .badge { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; white-space: nowrap; }
+  .badge-push { background: var(--accent-light); color: var(--accent); }
+  .badge-gtm { background: var(--amber-light); color: var(--amber); }
+  .badge-auto { background: var(--green-light); color: var(--green); }
+  .badge-conv { background: #fff0f6; color: #c4007c; border: 1px solid #f9a8d4; }
+  .badge-no { background: #f3f4f6; color: #9ca3af; }
+
+  /* Code */
+  pre { background: #1a1a2e; color: #c8d6e8; border-radius: var(--radius); padding: 16px 18px; font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; margin: 10px 0 12px; border: 1px solid #252540; }
+  code { font-family: var(--mono); font-size: 11.5px; background: var(--accent-light); color: var(--accent); padding: 1px 5px; border-radius: 3px; }
+  pre code { background: none; color: inherit; padding: 0; font-size: 12px; }
+  .kw{color:#c792ea}.str{color:#c3e88d}.num{color:#f78c6c}.key{color:#82aaff}.cmt{color:#546e7a;font-style:italic}.fn{color:#ffcb6b}
+
+  /* Callout */
+  .callout { border-radius: var(--radius); padding: 12px 15px; margin-bottom: 12px; display: flex; gap: 9px; font-size: 13px; line-height: 1.75; }
+  .callout-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .ci { background: var(--teal-light); border-left: 3px solid var(--teal); }
+  .cw { background: var(--amber-light); border-left: 3px solid var(--amber); }
+  .ce { background: var(--red-light); border-left: 3px solid var(--red); }
+  .cp { background: var(--accent-light); border-left: 3px solid var(--accent); }
+  .cg { background: var(--green-light); border-left: 3px solid var(--green); }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead { background: var(--ink); }
+  thead th { padding: 9px 13px; text-align: left; font-size: 10px; font-weight: 700; color: #c8c8e0; letter-spacing: 0.6px; text-transform: uppercase; white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8f8fe; }
+  tbody td { padding: 9px 13px; vertical-align: top; color: var(--ink-soft); line-height: 1.6; }
+  td:first-child { font-weight: 600; color: var(--ink); font-family: var(--mono); font-size: 12px; }
+
+  /* URL box */
+  .url-box { background: #1a1a2e; border-radius: var(--radius); padding: 14px 18px; font-family: var(--mono); font-size: 12px; overflow-x: auto; margin-bottom: 12px; line-height: 2.1; border: 1px solid #252540; }
+  .up{color:#82aaff}.uv{color:#ffcb6b}.ug{color:#546e7a;font-style:italic}.ub{color:#c3e88d}
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li { display: flex; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--ink-soft); align-items: flex-start; }
+  .checklist li:last-child { border-bottom: none; }
+  .ci-check { color: var(--teal); font-size: 13px; margin-top: 2px; flex-shrink: 0; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+  .group-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+  .gl-push { color: var(--accent); }
+  .gl-gtm { color: var(--amber); }
+  .gl-auto { color: var(--green); }
+
+  /* Overview rows */
+  .row-push { background: #fff8fc; }
+  .row-gtm { background: #fffcf5; }
+  .row-auto { background: #f6fef9; }
+
+  /* i18n */
+  [data-zh] { display: none; }
+  body.zh [data-en] { display: none; }
+  body.zh [data-zh] { display: initial; }
+  body.zh span[data-zh] { display: inline; }
+  body.zh div[data-zh] { display: block; }
+  body.zh td[data-zh] { display: table-cell; }
+</style>
+</head>
+<body class="en" id="overview">
+
+<!-- Language toggle -->
+<div class="lang-toggle">
+  <button class="lang-btn active" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('zh')">中文</button>
+</div>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Super<span>m</span>om Quiz</div>
+    <div class="sidebar-sub" data-en>Frontend Implementation Guide</div>
+    <div class="sidebar-sub" data-zh>前端实施文档</div>
+    <div class="sidebar-audience" data-en>For Frontend Dev</div>
+    <div class="sidebar-audience" data-zh>前端开发</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Overview</div>
+    <div class="nav-label" data-zh>总览</div>
+    <a class="nav-item" href="#overview">
+      <span class="nav-dot" style="background:#6b6b8a"></span>
+      <span data-en>Summary</span><span data-zh>方案总览</span>
+    </a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Frontend Push Events</div>
+    <div class="nav-label" data-zh>前端 Push 事件</div>
+    <a class="nav-item" href="#e-form-submit">
+      <span class="nav-dot dot-push"></span>form_submit
+    </a>
+    <a class="nav-item" href="#e-result-view">
+      <span class="nav-dot dot-push"></span>result_view
+    </a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>GTM Events (No Code)</div>
+    <div class="nav-label" data-zh>GTM 事件（无需代码）</div>
+    <a class="nav-item" href="#e-quiz-start">
+      <span class="nav-dot dot-gtm"></span>quiz_start
+    </a>
+    <a class="nav-item" href="#e-quiz-complete">
+      <span class="nav-dot dot-gtm"></span>quiz_complete
+    </a>
+    <a class="nav-item" href="#e-result-share">
+      <span class="nav-dot dot-gtm"></span>result_share
+    </a>
+    <a class="nav-item" href="#e-cta-click">
+      <span class="nav-dot dot-gtm"></span>cta_click
+    </a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Auto Collected</div>
+    <div class="nav-label" data-zh>自动收集</div>
+    <a class="nav-item" href="#e-page-view">
+      <span class="nav-dot dot-auto"></span>page_view
+    </a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Reference</div>
+    <div class="nav-label" data-zh>参考</div>
+    <a class="nav-item" href="#utm">
+      <span data-en>UTM &amp; URL Params</span><span data-zh>UTM 参数规范</span>
+    </a>
+    <a class="nav-item" href="#qa">
+      <span data-en>QA Checklist</span><span data-zh>QA 检查清单</span>
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- Header -->
+<div class="page-header">
+  <div class="page-eyebrow" data-en>Frontend Implementation Guide · GA4 Tracking</div>
+  <div class="page-eyebrow" data-zh>前端实施文档 · GA4 Tracking</div>
+  <h1 class="page-title" data-en>Supermom Mom Archetype Quiz<br>Tracking Implementation</h1>
+  <h1 class="page-title" data-zh>Supermom 妈妈人格测试<br>Tracking 实施规格</h1>
+  <p class="page-desc" data-en>This guide tells you exactly what to build, when to fire each event, and what parameters to pass. You only need to write <strong>2 dataLayer.push calls</strong>. The rest is handled by GTM with no code changes from your side.</p>
+  <p class="page-desc" data-zh>本文档告诉你需要写什么、什么时候触发、传哪些参数。你只需要写 <strong>2 个 dataLayer.push</strong>，其余 4 个事件由 GTM 无代码处理。</p>
+  <div class="meta-row">
+    <span class="tag tag-pink" data-en>2 dataLayer.push required</span>
+    <span class="tag tag-pink" data-zh>前端只需写 2 个 push</span>
+    <span class="tag tag-amber" data-en>4 events via GTM (no code)</span>
+    <span class="tag tag-amber" data-zh>4 个事件 GTM 处理</span>
+    <span class="tag tag-green" data-en>1 event auto-collected</span>
+    <span class="tag tag-green" data-zh>1 个事件自动收集</span>
+    <span class="tag tag-teal">utm_campaign: 2026_sg_mom_quiz</span>
+  </div>
+</div>
+
+<!-- Summary bar -->
+<div class="summary-bar">
+  <div class="summary-card">
+    <div class="summary-label" data-en>Total Events</div>
+    <div class="summary-label" data-zh>事件总数</div>
+    <div class="summary-value">7</div>
+    <div class="summary-sub" data-en>Full user journey</div>
+    <div class="summary-sub" data-zh>覆盖完整用户旅程</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label" data-en>You Need to Write</div>
+    <div class="summary-label" data-zh>前端需要写</div>
+    <div class="summary-value" style="color:var(--accent)">2</div>
+    <div class="summary-sub" data-en>dataLayer.push calls</div>
+    <div class="summary-sub" data-zh>个 dataLayer.push</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label" data-en>GTM Handles</div>
+    <div class="summary-label" data-zh>GTM 处理</div>
+    <div class="summary-value" style="color:var(--amber)">4</div>
+    <div class="summary-sub" data-en>No code from you</div>
+    <div class="summary-sub" data-zh>你只需加 HTML id</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label" data-en>Conversion Events</div>
+    <div class="summary-label" data-zh>转化事件</div>
+    <div class="summary-value" style="color:#c4007c">3</div>
+    <div class="summary-sub">form_submit · result_view · cta_click</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <span style="font-size:12px;font-weight:700;color:var(--ink-muted)" data-en>Type:</span>
+  <span style="font-size:12px;font-weight:700;color:var(--ink-muted)" data-zh>实施方式：</span>
+  <div class="legend-item"><span class="lb lb-push" data-en>Frontend Push</span><span class="lb lb-push" data-zh>前端 Push</span> <span data-en>You write the code</span><span data-zh>你来写代码</span></div>
+  <div class="legend-item"><span class="lb lb-gtm">GTM</span> <span data-en>Just add HTML element id</span><span data-zh>只需在 HTML 元素加 id</span></div>
+  <div class="legend-item"><span class="lb lb-auto" data-en>Auto</span><span class="lb lb-auto" data-zh>自动</span> <span data-en>Zero work needed</span><span data-zh>无需任何操作</span></div>
+</div>
+
+<!-- Overview table -->
+<div class="table-wrap" style="margin-bottom:32px">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th data-en>Event</th><th data-zh>事件</th>
+        <th data-en>When to Fire</th><th data-zh>触发时机</th>
+        <th data-en>How</th><th data-zh>实施方式</th>
+        <th data-en>Your Action</th><th data-zh>你需要做什么</th>
+        <th data-en>Conversion</th><th data-zh>转化</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="row-auto">
+        <td>1</td>
+        <td><code style="background:var(--green-light);color:var(--green)">page_view</code></td>
+        <td data-en>User lands on quiz page</td><td data-zh>用户进入活动页</td>
+        <td><span class="badge badge-auto" data-en>Auto</span><span class="badge badge-auto" data-zh>自动</span></td>
+        <td data-en>Nothing</td><td data-zh>什么都不用做</td>
+        <td><span class="badge badge-no">N</span></td>
+      </tr>
+      <tr class="row-gtm">
+        <td>2</td>
+        <td><code style="background:var(--amber-light);color:var(--amber)">quiz_start</code></td>
+        <td data-en>User clicks "Take the Quiz"</td><td data-zh>用户点击「开始测试」</td>
+        <td><span class="badge badge-gtm">GTM Click</span></td>
+        <td data-en>Add <code>id="quiz-start-btn"</code> to button</td><td data-zh>按钮加 <code>id="quiz-start-btn"</code></td>
+        <td><span class="badge badge-no">N</span></td>
+      </tr>
+      <tr class="row-gtm">
+        <td>3</td>
+        <td><code style="background:var(--amber-light);color:var(--amber)">quiz_complete</code></td>
+        <td data-en>User submits last question (Q11)</td><td data-zh>用户提交第 11 题</td>
+        <td><span class="badge badge-gtm">GTM Click</span></td>
+        <td data-en>Add <code>id="quiz-submit-btn"</code> to Q11 button only</td><td data-zh>Q11 提交按钮加 <code>id="quiz-submit-btn"</code></td>
+        <td><span class="badge badge-no">N</span></td>
+      </tr>
+      <tr class="row-push">
+        <td>4</td>
+        <td><code style="background:var(--accent-light);color:var(--accent)">form_submit</code></td>
+        <td data-en>Lead form API returns 200</td><td data-zh>表单提交 API 返回 200</td>
+        <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
+        <td data-en>Push in API success callback</td><td data-zh>在 API 成功回调里 push</td>
+        <td><span class="badge badge-conv">✦</span></td>
+      </tr>
+      <tr class="row-push">
+        <td>5</td>
+        <td><code style="background:var(--accent-light);color:var(--accent)">result_view</code></td>
+        <td data-en>Result page renders with type visible</td><td data-zh>结果页渲染完成，类型名称可见</td>
+        <td><span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span></td>
+        <td data-en>Push after result component mounts</td><td data-zh>结果组件 mount 后 push</td>
+        <td><span class="badge badge-conv">✦</span></td>
+      </tr>
+      <tr class="row-gtm">
+        <td>6</td>
+        <td><code style="background:var(--amber-light);color:var(--amber)">result_share</code></td>
+        <td data-en>User clicks the Share button</td><td data-zh>用户点击分享按钮</td>
+        <td><span class="badge badge-gtm">GTM Click</span></td>
+        <td data-en>Add <code>id="share-btn"</code> to share button</td><td data-zh>分享按钮加 <code>id="share-btn"</code></td>
+        <td><span class="badge badge-no">N</span></td>
+      </tr>
+      <tr class="row-gtm">
+        <td>7</td>
+        <td><code style="background:var(--amber-light);color:var(--amber)">cta_click</code></td>
+        <td data-en>User clicks CTA to enter 3.0</td><td data-zh>用户点击进入 3.0 的 CTA</td>
+        <td><span class="badge badge-gtm">GTM Click</span></td>
+        <td data-en>Construct CTA href with <code>quiz_type</code> param</td><td data-zh>动态构造含 <code>quiz_type</code> 的 href</td>
+        <td><span class="badge badge-conv">✦</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FRONTEND PUSH -->
+<div class="group-label gl-push">● <span data-en>Frontend Push — You Write These 2</span><span data-zh>前端 Push — 你需要写的 2 个</span></div>
+
+<!-- form_submit -->
+<div class="event-card" id="e-form-submit">
+  <div class="event-card-header">
+    <span style="font-size:18px">📋</span>
+    <span class="event-name">form_submit</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span>
+      <span class="badge badge-conv">✦ <span data-en>Conversion</span><span data-zh>转化</span></span>
+    </div>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>When to fire</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>Lead form API returns <strong>200 success</strong></div>
+      <div class="em-value" data-zh>表单提交 API 返回 <strong>200 成功</strong>后</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>When NOT to fire</div><div class="em-label" data-zh>不触发的情况</div>
+      <div class="em-value" data-en>On button click, or if API returns error</div>
+      <div class="em-value" data-zh>按钮点击时，或 API 报错时</div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout ce">
+      <span class="callout-icon">🚫</span>
+      <div data-en><strong>Critical:</strong> Fire ONLY inside the API success callback. If the API fails, do NOT fire this event.</div>
+      <div data-zh><strong>关键：</strong>必须在 API 成功回调里触发，API 失败时绝对不能触发。</div>
+    </div>
+<pre><code><span class="kw">async function</span> <span class="fn">handleFormSubmit</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> response = <span class="kw">await</span> api.<span class="fn">submitLeadForm</span>(formData);
+
+    <span class="kw">if</span> (response.status === <span class="num">200</span>) {
+      <span class="cmt">// ✅ Fire AFTER API success</span>
+      window.dataLayer = window.dataLayer || [];
+      dataLayer.<span class="fn">push</span>({ <span class="key">'event'</span>: <span class="str">'form_submit'</span> });
+
+      <span class="fn">showResultPage</span>(response.data.assigned_type);
+    }
+  } <span class="kw">catch</span> (error) {
+    <span class="cmt">// ❌ Do NOT push anything here</span>
+    <span class="fn">showErrorMessage</span>(error);
+  }
+}</code></pre>
+    <div class="callout ci">
+      <span class="callout-icon">ℹ️</span>
+      <div data-en>No extra parameters needed. GA4 automatically reads UTM params from the page URL.</div>
+      <div data-zh>不需要额外参数，GA4 会自动从页面 URL 读取 UTM 参数。</div>
+    </div>
+  </div>
+</div>
+
+<!-- result_view -->
+<div class="event-card" id="e-result-view">
+  <div class="event-card-header">
+    <span style="font-size:18px">🎯</span>
+    <span class="event-name">result_view</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <span class="badge badge-push" data-en>Frontend Push</span><span class="badge badge-push" data-zh>前端 Push</span>
+      <span class="badge badge-conv">✦ <span data-en>Conversion</span><span data-zh>转化</span></span>
+    </div>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>When to fire</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>After result page renders and type name is <strong>visible</strong></div>
+      <div class="em-value" data-zh>结果页渲染完成、类型名称<strong>对用户可见</strong>后</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Key parameter</div><div class="em-label" data-zh>核心参数</div>
+      <div class="em-value"><code>assigned_type</code> — <span data-en>must not be null</span><span data-zh>不能为空</span></div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout cw">
+      <span class="callout-icon">⚠️</span>
+      <div data-en><strong>assigned_type must not be null or undefined.</strong> Validate before pushing. This value is also used to build the CTA URL for 3.0 attribution.</div>
+      <div data-zh><strong>assigned_type 不能为 null 或 undefined。</strong> push 前先验证。这个值也用于构造进入 3.0 的 URL。</div>
+    </div>
+<pre><code><span class="kw">function</span> <span class="fn">onResultPageReady</span>(assignedType) {
+  <span class="kw">if</span> (!assignedType) {
+    console.<span class="fn">error</span>(<span class="str">'assigned_type missing'</span>);
+    <span class="kw">return</span>;
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  dataLayer.<span class="fn">push</span>({
+    <span class="key">'event'</span>: <span class="str">'result_view'</span>,
+    <span class="key">'assigned_type'</span>: assignedType  <span class="cmt">// e.g. 'the_informed_mom'</span>
+  });
+
+  <span class="fn">setCTAHref</span>(assignedType); <span class="cmt">// build CTA URL (see cta_click section)</span>
+}</code></pre>
+    <h4 data-en>assigned_type — Valid Values</h4>
+    <h4 data-zh>assigned_type — 合法枚举值</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th data-en>Value (exact string)</th><th data-zh>值（严格匹配）</th>
+          <th data-en>Display Name</th><th data-zh>显示名称</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>the_informed_mom</td><td data-en>The Informed Mom</td><td data-zh>The Informed Mom</td></tr>
+          <tr><td>the_trust_your_gut_mom</td><td data-en>The Trust-Your-Gut Mom</td><td data-zh>The Trust-Your-Gut Mom</td></tr>
+          <tr><td>the_village_mom</td><td data-en>The Village Mom</td><td data-zh>The Village Mom</td></tr>
+          <tr><td>the_out_in_the_world_mom</td><td data-en>The Out-In-The-World Mom</td><td data-zh>The Out-In-The-World Mom</td></tr>
+          <tr><td>the_go_to_mom</td><td data-en>The Go-To Mom</td><td data-zh>The Go-To Mom</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- GTM EVENTS -->
+<div class="group-label gl-gtm">● <span data-en>GTM Events — Just Add These HTML IDs</span><span data-zh>GTM 事件 — 只需加 HTML id 属性</span></div>
+
+<div class="callout cg">
+  <span class="callout-icon">✓</span>
+  <div data-en>For these 4 events, GTM listens for clicks. <strong>You write zero JavaScript.</strong> Just add the correct <code>id</code> attribute to the right HTML element. Confirm IDs with the GTM team if your element structure differs.</div>
+  <div data-zh>这 4 个事件由 GTM 监听点击自动触发，<strong>你不需要写任何 JavaScript。</strong> 只需在对应 HTML 元素加上正确的 <code>id</code>。如果元素结构不同，请和 GTM 团队确认。</div>
+</div>
+
+<!-- quiz_start -->
+<div class="event-card" id="e-quiz-start">
+  <div class="event-card-header">
+    <span style="font-size:18px">▶️</span>
+    <span class="event-name">quiz_start</span>
+    <span class="badge badge-gtm" style="margin-left:auto">GTM Click</span>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>Fires when</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>User clicks "Take the Quiz"</div><div class="em-value" data-zh>用户点击「开始测试」按钮</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Your action</div><div class="em-label" data-zh>你需要做</div>
+      <div class="em-value" data-en>Add <code>id="quiz-start-btn"</code> to the button</div>
+      <div class="em-value" data-zh>给按钮加 <code>id="quiz-start-btn"</code></div>
+    </div>
+  </div>
+  <div class="event-card-body">
+<pre><code><span class="cmt">&lt;!-- Add id to the "Take the Quiz" button --&gt;</span>
+&lt;<span class="kw">button</span> <span class="key">id</span>=<span class="str">"quiz-start-btn"</span>&gt;Take the Quiz&lt;/<span class="kw">button</span>&gt;</code></pre>
+  </div>
+</div>
+
+<!-- quiz_complete -->
+<div class="event-card" id="e-quiz-complete">
+  <div class="event-card-header">
+    <span style="font-size:18px">✅</span>
+    <span class="event-name">quiz_complete</span>
+    <span class="badge badge-gtm" style="margin-left:auto">GTM Click</span>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>Fires when</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>User submits <strong>last question Q11</strong></div>
+      <div class="em-value" data-zh>用户提交<strong>第 11 题（最后一题）</strong></div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Your action</div><div class="em-label" data-zh>你需要做</div>
+      <div class="em-value" data-en>Add <code>id="quiz-submit-btn"</code> to Q11 submit <strong>only</strong></div>
+      <div class="em-value" data-zh><code>id="quiz-submit-btn"</code> <strong>只加在 Q11 的按钮上</strong></div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout cw">
+      <span class="callout-icon">⚠️</span>
+      <div data-en>This ID must only be on the <strong>Q11 submit button</strong>, not on all question buttons. If all questions share one button element (state-based), let the GTM team know.</div>
+      <div data-zh>这个 id 只能加在 <strong>Q11 的提交按钮</strong>上，不能加在所有题目的按钮上。如果所有题目共用同一个按钮元素（通过状态切换），请提前告知 GTM 团队。</div>
+    </div>
+<pre><code><span class="cmt">&lt;!-- Only on Q11's submit button --&gt;</span>
+&lt;<span class="kw">button</span> <span class="key">id</span>=<span class="str">"quiz-submit-btn"</span>&gt;Submit&lt;/<span class="kw">button</span>&gt;</code></pre>
+  </div>
+</div>
+
+<!-- result_share -->
+<div class="event-card" id="e-result-share">
+  <div class="event-card-header">
+    <span style="font-size:18px">📤</span>
+    <span class="event-name">result_share</span>
+    <span class="badge badge-gtm" style="margin-left:auto">GTM Click</span>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>Fires when</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>User clicks the Share button</div><div class="em-value" data-zh>用户点击分享按钮</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Your action</div><div class="em-label" data-zh>你需要做</div>
+      <div class="em-value" data-en>Add <code>id="share-btn"</code> to the share button</div>
+      <div class="em-value" data-zh>分享按钮加 <code>id="share-btn"</code></div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout ci">
+      <span class="callout-icon">ℹ️</span>
+      <div data-en>We track <strong>click intent only</strong>. Whether the user completed sharing on Instagram is not trackable from web. Your share logic (navigator.share / WhatsApp fallback) stays unchanged.</div>
+      <div data-zh>我们只 track <strong>点击意图</strong>，用户是否真正在 Instagram 完成分享无法从 Web 端得知。你的分享逻辑（navigator.share / WhatsApp fallback）不需要改动。</div>
+    </div>
+<pre><code><span class="cmt">&lt;!-- Share button --&gt;</span>
+&lt;<span class="kw">button</span> <span class="key">id</span>=<span class="str">"share-btn"</span> <span class="key">onclick</span>=<span class="str">"handleShare()"</span>&gt;Share&lt;/<span class="kw">button</span>&gt;
+
+<span class="cmt">// Your existing share logic — no changes needed</span>
+<span class="kw">function</span> <span class="fn">handleShare</span>() {
+  <span class="kw">if</span> (navigator.share) {
+    navigator.<span class="fn">share</span>({ title: <span class="str">'My Mom Type'</span>, url: window.location.href });
+  } <span class="kw">else</span> {
+    window.<span class="fn">open</span>(<span class="str">`https://wa.me/?text=${encodeURIComponent(shareText)}`</span>);
+  }
+}</code></pre>
+  </div>
+</div>
+
+<!-- cta_click -->
+<div class="event-card" id="e-cta-click">
+  <div class="event-card-header">
+    <span style="font-size:18px">🏆</span>
+    <span class="event-name">cta_click</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <span class="badge badge-gtm">GTM Click</span>
+      <span class="badge badge-conv">✦ <span data-en>Conversion</span><span data-zh>转化</span></span>
+    </div>
+  </div>
+  <div class="event-card-meta">
+    <div class="em-item">
+      <div class="em-label" data-en>Fires when</div><div class="em-label" data-zh>触发时机</div>
+      <div class="em-value" data-en>User clicks CTA to enter Supermom 3.0</div>
+      <div class="em-value" data-zh>用户点击进入 Supermom 3.0 的 CTA 按钮</div>
+    </div>
+    <div class="em-item">
+      <div class="em-label" data-en>Your action</div><div class="em-label" data-zh>你需要做</div>
+      <div class="em-value" data-en>Build CTA href dynamically with <code>quiz_type</code> param</div>
+      <div class="em-value" data-zh>动态构造含 <code>quiz_type</code> 参数的 CTA href</div>
+    </div>
+  </div>
+  <div class="event-card-body">
+    <div class="callout cp">
+      <span class="callout-icon">📌</span>
+      <div data-en>GTM fires the event automatically on click. Your job: make sure the href has <code>quiz_type</code> and that <code>utm_content</code> is passed through unchanged from the original ad URL.</div>
+      <div data-zh>GTM 自动监听点击触发事件。你的职责：确保 href 里包含 <code>quiz_type</code>，且 <code>utm_content</code> 原样透传，不能修改。</div>
+    </div>
+<pre><code><span class="kw">function</span> <span class="fn">setCTAHref</span>(assignedType) {
+  <span class="kw">const</span> p = <span class="kw">new</span> <span class="fn">URLSearchParams</span>(window.location.search);
+
+  <span class="kw">const</span> params = <span class="kw">new</span> <span class="fn">URLSearchParams</span>({
+    utm_source:   p.<span class="fn">get</span>(<span class="str">'utm_source'</span>)   || <span class="str">''</span>,
+    utm_medium:   p.<span class="fn">get</span>(<span class="str">'utm_medium'</span>)   || <span class="str">''</span>,
+    utm_campaign: p.<span class="fn">get</span>(<span class="str">'utm_campaign'</span>) || <span class="str">'2026_sg_mom_quiz'</span>,
+    utm_content:  p.<span class="fn">get</span>(<span class="str">'utm_content'</span>)  || <span class="str">''</span>,  <span class="cmt">// pass through unchanged</span>
+    quiz_type:    assignedType                     <span class="cmt">// business attribution param</span>
+  });
+
+  <span class="kw">const</span> base = <span class="str">`https://supermom.com/3.0/${assignedType}`</span>;
+  document.<span class="fn">getElementById</span>(<span class="str">'cta-btn'</span>).href = <span class="str">`${base}?${params}`</span>;
+}
+
+<span class="cmt">&lt;!-- CTA button --&gt;</span>
+&lt;<span class="kw">a</span> <span class="key">id</span>=<span class="str">"cta-btn"</span> <span class="key">href</span>=<span class="str">"#"</span>&gt;Explore Supermom 3.0 →&lt;/<span class="kw">a</span>&gt;</code></pre>
+
+    <h4 data-en>Example output URL</h4><h4 data-zh>输出 URL 示例</h4>
+    <div class="url-box">
+      <span class="ug">https://supermom.com/3.0/the_informed_mom</span><br>
+      &nbsp;&nbsp;?<span class="up">utm_source</span>=<span class="uv">meta</span><br>
+      &nbsp;&nbsp;&amp;<span class="up">utm_medium</span>=<span class="uv">paid_social</span><br>
+      &nbsp;&nbsp;&amp;<span class="up">utm_campaign</span>=<span class="uv">2026_sg_mom_quiz</span><br>
+      &nbsp;&nbsp;&amp;<span class="up">utm_content</span>=<span class="uv">video_v1</span>&nbsp;&nbsp;<span class="ug">← <span data-en>unchanged from ad team</span><span data-zh>投放团队的值，不改</span></span><br>
+      &nbsp;&nbsp;&amp;<span class="ub">quiz_type</span>=<span class="uv">the_informed_mom</span>&nbsp;&nbsp;<span class="ug">← <span data-en>you write this</span><span data-zh>你写入这个</span></span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- AUTO -->
+<div class="group-label gl-auto">● <span data-en>Auto Collected — Nothing To Do</span><span data-zh>自动收集 — 无需任何操作</span></div>
+<div class="event-card" id="e-page-view">
+  <div class="event-card-header">
+    <span style="font-size:18px">🌐</span>
+    <span class="event-name">page_view</span>
+    <span class="badge badge-auto" style="margin-left:auto" data-en>GA4 Auto</span>
+    <span class="badge badge-auto" style="margin-left:auto" data-zh>GA4 自动</span>
+  </div>
+  <div class="event-card-body">
+    <div class="callout cg">
+      <span class="callout-icon">✓</span>
+      <div data-en>GA4 collects this automatically. GA4 also reads <code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code>, <code>utm_content</code> from the URL automatically. Do not push these into dataLayer.</div>
+      <div data-zh>GA4 自动收集，无需任何代码。GA4 同时自动从 URL 读取所有 UTM 参数，不需要在 dataLayer 里手动 push。</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- UTM -->
+<section class="section" id="utm">
+  <div class="section-header">
+    <span class="section-num">REF</span>
+    <h2 class="section-title" data-en>UTM &amp; URL Parameters</h2>
+    <h2 class="section-title" data-zh>UTM 参数规范</h2>
+  </div>
+  <div class="grid-2">
+    <div>
+      <h4 data-en>Inbound UTM (ad → quiz page)</h4>
+      <h4 data-zh>入站 UTM（广告 → 活动页）</h4>
+      <div class="callout cg">
+        <span class="callout-icon">✓</span>
+        <div data-en>GA4 reads all UTM params automatically. Do not re-push in JavaScript. Just make sure no redirect strips the query string.</div>
+        <div data-zh>GA4 自动读取，不需要在 JS 里重复 push。只需确保跳转时不丢失 URL 参数。</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Param</th>
+            <th data-en>Owner</th><th data-zh>负责方</th>
+            <th data-en>Your action</th><th data-zh>你的操作</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>utm_source</td><td data-en>Ad team</td><td data-zh>投放团队</td><td data-en>Nothing</td><td data-zh>不处理</td></tr>
+            <tr><td>utm_medium</td><td data-en>Ad team</td><td data-zh>投放团队</td><td data-en>Nothing</td><td data-zh>不处理</td></tr>
+            <tr><td>utm_campaign</td><td data-en>Ad team</td><td data-zh>投放团队</td><td data-en>Nothing</td><td data-zh>不处理</td></tr>
+            <tr><td>utm_content</td><td data-en>Ad team</td><td data-zh>投放团队</td><td data-en>Pass through unchanged</td><td data-zh>原样透传，不改</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h4 data-en>Outbound params (quiz → 3.0)</h4>
+      <h4 data-zh>出站参数（活动页 → 3.0）</h4>
+      <div class="callout cp">
+        <span class="callout-icon">📌</span>
+        <div data-en><code>quiz_type</code> is the only param you add. All UTM params are read from the current URL and passed through unchanged.</div>
+        <div data-zh><code>quiz_type</code> 是唯一需要你写入的参数，其余 UTM 参数全部从当前 URL 读取并原样传递。</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Param</th>
+            <th data-en>Source</th><th data-zh>来源</th>
+            <th data-en>Your action</th><th data-zh>你的操作</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>utm_source</td><td data-en>Current URL</td><td data-zh>当前页 URL</td><td data-en>Pass through</td><td data-zh>透传</td></tr>
+            <tr><td>utm_medium</td><td data-en>Current URL</td><td data-zh>当前页 URL</td><td data-en>Pass through</td><td data-zh>透传</td></tr>
+            <tr><td>utm_campaign</td><td data-en>Current URL</td><td data-zh>当前页 URL</td><td data-en>Pass through</td><td data-zh>透传</td></tr>
+            <tr><td>utm_content</td><td data-en>Current URL</td><td data-zh>当前页 URL</td><td data-en>Pass through, do NOT modify</td><td data-zh>透传，绝对不能修改</td></tr>
+            <tr><td><strong>quiz_type</strong></td><td data-en>API response</td><td data-zh>API 返回值</td><td data-en><strong>You write this</strong></td><td data-zh><strong>你写入这个</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QA -->
+<section class="section" id="qa">
+  <div class="section-header">
+    <span class="section-num">QA</span>
+    <h2 class="section-title" data-en>QA Checklist</h2>
+    <h2 class="section-title" data-zh>QA 检查清单</h2>
+  </div>
+  <p style="color:var(--ink-muted);font-size:13px;margin-bottom:16px" data-en>Use GTM Preview + GA4 DebugView side by side. Walk the full journey before sign-off.</p>
+  <p style="color:var(--ink-muted);font-size:13px;margin-bottom:16px" data-zh>使用 GTM Preview + GA4 DebugView 同时验证，完整走一遍用户旅程后再交付。</p>
+  <div class="grid-2">
+    <div>
+      <h4 data-en>dataLayer.push checks</h4>
+      <h4 data-zh>dataLayer.push 验证</h4>
+      <ul class="checklist">
+        <li><span class="ci-check">□</span><span data-en>Submit form successfully → <code>form_submit</code> fires AFTER API call, not on click</span><span data-zh>表单提交成功 → <code>form_submit</code> 在 API 返回后触发，不是点击时</span></li>
+        <li><span class="ci-check">□</span><span data-en>Trigger API error → <code>form_submit</code> does NOT fire</span><span data-zh>触发 API 错误 → <code>form_submit</code> 不触发</span></li>
+        <li><span class="ci-check">□</span><span data-en>Result page loads → <code>result_view</code> fires with valid non-null <code>assigned_type</code></span><span data-zh>结果页加载 → <code>result_view</code> 触发，<code>assigned_type</code> 有合法非空值</span></li>
+        <li><span class="ci-check">□</span><span data-en><code>assigned_type</code> matches one of the 5 valid enum values</span><span data-zh><code>assigned_type</code> 是 5 个合法枚举值之一，无拼写错误</span></li>
+      </ul>
+    </div>
+    <div>
+      <h4 data-en>HTML IDs &amp; URL checks</h4>
+      <h4 data-zh>HTML id 和 URL 验证</h4>
+      <ul class="checklist">
+        <li><span class="ci-check">□</span><span data-en>Click "Take the Quiz" → <code>quiz_start</code> fires in GTM Preview</span><span data-zh>点击「开始测试」→ GTM Preview 中 <code>quiz_start</code> 触发</span></li>
+        <li><span class="ci-check">□</span><span data-en>Click Q11 submit → <code>quiz_complete</code> fires (not Q1–Q10)</span><span data-zh>点击 Q11 提交 → <code>quiz_complete</code> 触发（Q1-Q10 不触发）</span></li>
+        <li><span class="ci-check">□</span><span data-en>Click Share → <code>result_share</code> fires in GTM Preview</span><span data-zh>点击分享 → GTM Preview 中 <code>result_share</code> 触发</span></li>
+        <li><span class="ci-check">□</span><span data-en>CTA href contains <code>quiz_type</code> and <code>utm_content</code> is unchanged</span><span data-zh>CTA href 含 <code>quiz_type</code>，<code>utm_content</code> 与原 URL 一致未被修改</span></li>
+        <li><span class="ci-check">□</span><span data-en>Click CTA → <code>cta_click</code> fires and navigates to correct 3.0 URL</span><span data-zh>点击 CTA → <code>cta_click</code> 触发，跳转到正确的 3.0 URL</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout cp" style="margin-top:8px">
+    <span class="callout-icon">🎯</span>
+    <div data-en><strong>Minimum sign-off:</strong> All 7 events appear in GA4 DebugView. <code>result_view</code> has valid <code>assigned_type</code>. 3.0 URL contains <code>quiz_type</code> and original <code>utm_content</code> is unchanged.</div>
+    <div data-zh><strong>最低交付标准：</strong>GA4 DebugView 中 7 个事件全部出现。<code>result_view</code> 有合法 <code>assigned_type</code>。3.0 URL 含 <code>quiz_type</code> 且 <code>utm_content</code> 未被修改。</div>
+  </div>
+</section>
+
+<div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;color:var(--ink-muted);font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
+  <span>Supermom Quiz · Frontend Tracking Guide · v2.0</span>
+  <span>utm_campaign: 2026_sg_mom_quiz · 2 push · 4 GTM · 1 auto</span>
+</div>
+
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.className = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+}
+const sections = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(i => i.classList.remove('active'));
+      const a = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-60px 0px -55% 0px' });
+sections.forEach(s => obs.observe(s));
+navItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(item.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
