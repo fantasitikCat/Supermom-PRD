@@ -221,7 +221,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.3 · 2026-06-23</span>
+    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.4 · 2026-06-23</span>
   </div>
 </div>
 
@@ -233,7 +233,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">Tracking Context Initialization &amp; Login Identity Tracking</div>
-    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.3</div>
+    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.4</div>
   </div>
 
   <div class="ngl">Navigation</div>
@@ -243,6 +243,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl sub" href="#s2-anon">2.1 anonymous_id</a>
   <a class="nl sub" href="#s2-uid">2.2 hashed_uid</a>
   <a class="nl sub" href="#s2-hash">2.3 Hashed UID Spec</a>
+  <a class="nl sub" href="#s2-rawstore">2.3.1 Raw Mapping Storage</a>
+  <a class="nl sub" href="#s2-schema">2.3.2 Schema Constraint</a>
   <a class="nl" href="#s3">3. Identity Architecture</a>
   <a class="nl" href="#s4">4. Tracking Flows</a>
   <a class="nl sub" href="#s4-flow1">4.1 Anonymous Visit</a>
@@ -280,7 +282,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">DOC ID</span><span class="v" style="font-family:var(--mono);color:var(--pink);font-size:12px;">PRD-TRK-CTX-001</span></div>
-    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.3</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.4</span></div>
     <div class="meta-cell"><span class="k">TYPE</span><span class="v">PRD / Frontend + Identity</span></div>
     <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
     <div class="meta-cell"><span class="k">OWNER</span><span class="v">Product Team</span></div>
@@ -384,6 +386,76 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="callout c-red">
     <strong>Login API Request must include anonymous_id:</strong> The Backend Identity Layer's <code>anonymous_id → hashed_uid</code> stitching (shown in Section 3) can only execute if Backend receives the <code>anonymous_id</code> at login time. This is NOT carried by the <code>login</code> dataLayer event — that event is consumed by GTM, not by Supermom's own Backend. Frontend must explicitly include <code>anonymous_id</code> as a parameter in the actual login HTTP request.<br>
     <span style="font-size:12px;margin-top:6px;display:block;color:#8b1a1a;">⚠ Login API 的 Request payload 必须包含 anonymous_id，否则 Backend 无法执行 Section 3 描述的 identity stitching。dataLayer 的 login event 推送给的是 GTM，不会到达 Supermom 自己的 Backend，两者是完全独立的两条路径，不能互相替代。</span>
+  </div>
+
+  <div class="callout c-warn">
+    <strong>Stitching only executes after auth success — not merely on API call:</strong> Sending <code>anonymous_id</code> in the login request body does not by itself trigger stitching. Backend must first verify the OTP/credentials; only on successful authentication — after <code>hashed_uid</code> is generated — does Backend consume the request's <code>anonymous_id</code> to perform stitching. A failed login attempt's <code>anonymous_id</code> must never be written to any identity table.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#7a4f00;">⚠ 调用登录接口本身不等于触发 stitching。Backend 必须先验证 OTP/凭证，只有验证通过、生成 hashed_uid 之后，才会用这次请求里的 anonymous_id 执行 stitching。登录失败的请求,其 anonymous_id 不应被写入任何身份表。</span>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JavaScript</span><span class="code-label">Backend — stitching fires only after auth succeeds, not on request receipt</span></div>
+    <pre><span class="k">async function</span> <span class="n">handleLogin</span>(req) {
+  <span class="k">const</span> { phone, otp, anonymous_id } = req.body;
+
+  <span class="k">const</span> isValid = <span class="k">await</span> verifyOTP(phone, otp);
+  <span class="k">if</span> (!isValid) {
+    <span class="k">return</span> res.status(<span class="v">401</span>).json({ error: <span class="s">'invalid_otp'</span> });
+    <span class="c">// ← stops here. anonymous_id from this request is never used or stored.</span>
+  }
+
+  <span class="c">// Only reached on successful auth</span>
+  <span class="k">const</span> hashedUid = generateHashedUid(uid); <span class="c">// SHA-256(uid)</span>
+
+  <span class="c">// ─── Identity Stitching fires HERE, and only here ───</span>
+  <span class="k">await</span> recordIdentityMapping(anonymous_id, hashedUid);
+
+  <span class="k">return</span> res.json({ token, user: { hashed_uid: hashedUid } });
+}</pre>
+  </div>
+
+  <div class="sub-h" id="s2-rawstore">2.3.1 Raw Mapping Storage — Decoupled from Full Identity Stitching <span class="en">原始映射存储与完整 Stitching 解耦</span></div>
+  <div class="sdesc">Identity Stitching is not a single monolithic capability — it spans a spectrum from "store the raw pair" to "resolve conflicts and build a unified graph." This PRD may ship before the full Identity Graph (cross-device merge, conflict resolution per Section 8.1) is built. Storing the raw <code>anonymous_id ↔ hashed_uid</code> pair requires none of that logic and can ship independently.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Capability</th><th class="zh">能力</th><th>Requires full Identity Graph?</th><th class="zh">是否依赖完整 Identity Graph</th></tr></thead>
+    <tbody>
+      <tr><td>Store raw <code>(anonymous_id, hashed_uid, logged_in_at)</code> on successful login</td><td class="zh">登录成功时存储原始映射对</td><td><span class="badge b-green">No — plain INSERT</span></td><td class="zh">不依赖，纯 INSERT</td></tr>
+      <tr><td>Detect that an <code>anonymous_id</code> was previously bound to a <em>different</em> <code>hashed_uid</code> (shared device conflict)</td><td class="zh">检测共享设备冲突</td><td><span class="badge b-red">Yes</span></td><td class="zh">依赖，需要 Stitching 业务逻辑</td></tr>
+      <tr><td>Merge multiple <code>anonymous_id</code>s known to belong to the same <code>hashed_uid</code> (multi-device)</td><td class="zh">多设备身份合并</td><td><span class="badge b-red">Yes</span></td><td class="zh">依赖，需要 Stitching 业务逻辑</td></tr>
+      <tr><td>Build queryable Identity Graph for downstream (Audience Gallery, Attribution, CDP)</td><td class="zh">构建供下游查询的 Identity Graph</td><td><span class="badge b-red">Yes</span></td><td class="zh">依赖，需要在 Stitching 结果之上构建</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-pink">
+    <strong>It is safe to store the raw mapping before the full Stitching system is built.</strong> This is the same decoupling principle used in PRD-TRK-008 Section 9 (Pre-launch Raw Capture) — storage requires no business logic, resolution does. The one constraint that matters at storage time is the schema: see below.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#0a5a52;">在完整 Stitching 系统建好之前，先存储原始映射是安全的。这跟 PRD-TRK-008 Section 9（Pre-launch Raw Capture）是同一个解耦原则——存储不需要业务逻辑，解析才需要。存储阶段唯一需要注意的是表结构设计，见下方。</span>
+  </div>
+
+  <div class="sub-h" id="s2-schema">2.3.2 Schema Constraint — Primary Key Must Be anonymous_id, Not hashed_uid <span class="en">主键约束：必须设在 anonymous_id，不能设在 hashed_uid</span></div>
+  <div class="sdesc">The relationship is many anonymous_ids → one hashed_uid (multi-device login), never the reverse. This dictates where the uniqueness constraint goes.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Design</th><th>Detail</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field"><span class="badge b-red">Wrong</span></td><td><code>PRIMARY KEY (hashed_uid)</code> — second login from a different device would violate the unique constraint and fail to write</td><td class="zh">错误设计：若主键设在 hashed_uid 上，用户换设备登录的第二条记录会因主键冲突写入失败</td></tr>
+      <tr><td class="field"><span class="badge b-green">Correct</span></td><td><code>PRIMARY KEY (anonymous_id)</code> — <code>hashed_uid</code> gets a plain (non-unique) index only, so it can legitimately repeat across multiple rows</td><td class="zh">正确设计：主键设在 anonymous_id 上，hashed_uid 只建普通索引（非唯一），允许同一个 hashed_uid 在多行中重复出现</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">SQL</span><span class="code-label">login_identity_raw_log — minimal schema, no business logic</span></div>
+    <pre><span class="k">CREATE TABLE</span> login_identity_raw_log (
+  anonymous_id   VARCHAR <span class="k">PRIMARY KEY</span>,   <span class="c">-- one row per anonymous_id; overwritten on next login (see Section 8.1)</span>
+  hashed_uid     VARCHAR <span class="k">NOT NULL</span>,      <span class="c">-- plain index only, NOT unique — same hashed_uid can repeat across rows</span>
+  logged_in_at   TIMESTAMP <span class="k">NOT NULL</span>
+);
+<span class="k">CREATE INDEX</span> idx_hashed_uid <span class="k">ON</span> login_identity_raw_log(hashed_uid); <span class="c">-- non-unique, supports reverse lookup "which devices did this user log in from"</span></pre>
+  </div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">两种"一对多"，方向相反，性质不同</span>
+    一个 hashed_uid 对应多个 anonymous_id（同一账号多设备登录）——这是<strong>正常的业务事实</strong>，表结构要允许它发生（不在 hashed_uid 上加唯一约束）。一个 anonymous_id 对应多个不同的 hashed_uid（共享设备被不同人登录，跨 session 发生）——这是<strong>已知风险场景</strong>，v1.0 接受最新登录覆盖旧记录的行为（详见 Section 8.1）。两者看起来都是"一对多"，但方向相反，处理方式也不同：前者允许多行共存，后者是单行覆盖。
   </div>
 
   <div class="code-wrap">
@@ -1347,6 +1419,7 @@ onConsentGranted(<span class="k">async</span> () => {
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.4</td><td>2026-06-23</td><td>Product Team</td><td>Clarified that Identity Stitching fires only after OTP/auth succeeds — not merely on the login API being called; a failed login's anonymous_id is never stored. Added Section 2.3.1: Raw Mapping Storage — establishes that storing the raw anonymous_id/hashed_uid pair is decoupled from the full Identity Stitching system (same principle as PRD-TRK-008 Section 9) and can ship first. Added Section 2.3.2: Schema Constraint — specifies that the raw mapping table's primary key must be anonymous_id (not hashed_uid), since the relationship is many anonymous_ids → one hashed_uid (multi-device login), with example schema.</td></tr>
       <tr><td>v1.3</td><td>2026-06-23</td><td>Product Team</td><td>Fixed leftover SALT reference in Section 3 architecture diagram (text already updated in v1.x, diagram was not). Added Section 8.1: Known Limitation — Shared Device Across Sessions, documenting the accepted risk of anonymous_id binding being overwritten when a shared device is used by different real users across sessions, plus corresponding Risks table entry. Added explicit Login API Request payload specification requiring anonymous_id (previously only the Response was documented) and corresponding Frontend Responsibility Matrix row. Added design clarification callout: anonymous browsing without ma_ref or login intentionally does not sync to Backend — GA4/BigQuery capture is sufficient.</td></tr>
       <tr><td>v1.2</td><td>2026-06-08</td><td>Product Team</td><td>Filled two specification gaps. (1) Added Section 2.4: Session Restore Specification — defines hashed_uid recovery timing on page refresh, session restore API contract, Backend response requirement, timeout behaviour, and storage rule. (2) Added Section 7.1: Supplemental Login Event Specification — defines the two-step push flow when hashed_uid API is delayed, supplemental event payload, 10s timeout, IDs matching requirement, and Backend dedup handling.</td></tr>
       <tr><td>v1.1</td><td>2026-06-08</td><td>Product Team</td><td>Added Section 13: Frontend Implementation Guide. Provides a unified frontend entry point covering all tracking PRDs (006 / 008 / 009). Includes: unified initialization sequence pseudocode with per-step PRD references, token reference table (anonymous_id / hashed_uid / ma_ref / aima_ref), and cross-PRD frontend responsibility matrix. Addresses risk of frontend teams implementing 008 and 009 as independent modules.</td></tr>
@@ -1356,7 +1429,7 @@ onConsentGranted(<span class="k">async</span> () => {
 </section>
 
 <div class="doc-footer">
-  <span>PRD-TRK-CTX-001 · v1.3 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>PRD-TRK-CTX-001 · v1.4 · CONFIDENTIAL — INTERNAL USE ONLY</span>
   <span>© 2026 Supermom Product Team</span>
 </div>
 

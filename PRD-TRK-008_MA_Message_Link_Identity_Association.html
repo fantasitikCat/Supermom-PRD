@@ -126,7 +126,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-008 · v1.2 · 2026-06-23</span>
+    <span class="lang-bar-id">PRD-TRK-008 · v1.3 · 2026-06-23</span>
   </div>
 </div>
 
@@ -136,7 +136,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">MA Message Link Identity Association</div>
-    <div class="sidebar-ver">PRD-TRK-008 · v1.2</div>
+    <div class="sidebar-ver">PRD-TRK-008 · v1.3</div>
   </div>
   <div class="ngl">Navigation</div>
   <a class="nl" href="#cover">Cover &amp; Doc Info</a>
@@ -192,7 +192,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">Doc ID</span><span class="v">PRD-TRK-008</span></div>
-    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.2</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.3</span></div>
     <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
     <div class="meta-cell"><span class="k">Domain</span><span class="v">Foundation → Tracking</span></div>
     <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-25</span></div>
@@ -479,9 +479,19 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
 
   <div class="callout c-note">
-    <strong>Relationship to PRD-TRK-006 Identity Graph:</strong> <code>identity_association_current</code> is a lightweight, MA-attribution-scoped table — it does not replace or duplicate the general <code>anonymous_id ↔ hashed_uid</code> stitching performed by the Backend Identity Layer (PRD-TRK-006 Section 3, Section 9). The Identity Graph remains the authoritative source for final identity resolution; this table only tracks which MA flow/node/channel a given association originated from for attribution reporting.<br>
-    <span style="font-size:12px;margin-top:6px;display:block;color:#5c5a54;">说明：identity_association_current 是 MA 归因维度的轻量表，不替代、不重复 PRD-TRK-006 Backend Identity Layer 做的通用 anonymous_id ↔ hashed_uid stitching。最终身份判定仍以 006 的 Identity Graph 为权威来源，本表只负责记录这次关联来自哪个 MA flow/node/channel，用于归因报表。</span>
+    <strong>Relationship to PRD-TRK-006 Identity Graph:</strong> <code>identity_association_current</code> is a lightweight, MA-attribution-scoped table — it does not replace or duplicate the general <code>anonymous_id ↔ hashed_uid</code> stitching performed by the Backend Identity Layer. As of PRD-TRK-006 v1.4, that general stitching has its own concrete raw storage table — <code>login_identity_raw_log</code> (PRD-TRK-006 Section 2.3.1/2.3.2), populated on every successful login, primary key <code>anonymous_id</code>, no uniqueness constraint on <code>hashed_uid</code> (supports multi-device). The Identity Graph remains the authoritative source for final identity resolution once built on top of that table; <code>identity_association_current</code> only tracks which MA flow/node/channel a given association originated from for attribution reporting — it is not a substitute for <code>login_identity_raw_log</code>.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#5c5a54;">说明：identity_association_current 是 MA 归因维度的轻量表，不替代、不重复 Backend Identity Layer 做的通用 anonymous_id ↔ hashed_uid stitching。截至 PRD-TRK-006 v1.4，通用 stitching 已经有自己的具体落地表 —— login_identity_raw_log（PRD-TRK-006 Section 2.3.1/2.3.2），在每次登录成功时写入，主键为 anonymous_id，hashed_uid 不加唯一约束（支持多设备）。最终身份判定仍以建立在这张表之上的 Identity Graph 为权威来源；identity_association_current 只负责记录这次关联来自哪个 MA flow/node/channel，用于归因报表，不能替代 login_identity_raw_log。</span>
   </div>
+
+  <div class="tw" style="margin-top:12px"><table>
+    <thead><tr><th>Table</th><th>Defined in</th><th>Written when</th><th class="zh">触发时机</th></tr></thead>
+    <tbody>
+      <tr><td class="field">login_identity_raw_log</td><td>PRD-TRK-006 §2.3.1/2.3.2</td><td>Every successful login</td><td class="zh">每次登录成功</td></tr>
+      <tr><td class="field">ma_ref_raw_log</td><td>PRD-TRK-008 §9</td><td>Every page load where <code>ma_ref</code> is present in URL (regardless of resolve success)</td><td class="zh">URL 含 ma_ref 时,无论 resolve 是否成功</td></tr>
+      <tr><td class="field">identity_association_current</td><td>PRD-TRK-008 §10.1</td><td>Successful <code>resolve-ma-ref</code> (Case A/B/C) or Login Re-association (this section)</td><td class="zh">resolve-ma-ref 成功，或本节的 Login Re-association</td></tr>
+    </tbody>
+  </table></div>
+  <div class="sdesc" style="margin-top:8px">These three tables serve different trigger scenarios and do not overwrite or contradict each other. They converge on the same <code>hashed_uid</code> value once a user logs in — <code>identity_association_current</code>'s <code>primary_identity_id</code> is upgraded to match what <code>login_identity_raw_log</code> already recorded for that <code>anonymous_id</code>.</div>
 
   <div class="callout c-warn">
     <strong>Known limitation — shared device (see PRD-TRK-006 Section 8.1):</strong> Since <code>identity_association_current</code> stores one record per <code>anonymous_id</code>, the same shared-device limitation documented in PRD-TRK-006 applies here: if a device is used by different real users across different sessions, this table's record is overwritten by the most recent login rather than isolated per session. This PRD does not duplicate that explanation — refer to PRD-TRK-006 Section 8.1 for the full rationale and accepted-risk decision. The same decision (not engineering session-scoped binding in v1.0, low-frequency scenario) applies to this table.
@@ -865,6 +875,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.3</td><td>2026-06-23</td><td>Product Team</td><td>Updated Section 8 relationship callout: replaced stale reference to PRD-TRK-006 "Section 3, Section 9" with the concrete login_identity_raw_log table now defined in PRD-TRK-006 Section 2.3.1/2.3.2. Added a comparison table clarifying the three raw/current tables across both PRDs (login_identity_raw_log, ma_ref_raw_log, identity_association_current) — their trigger scenarios and how they converge on the same hashed_uid without contradicting each other.</td></tr>
       <tr><td>v1.2</td><td>2026-06-23</td><td>Product Team</td><td>Added Section 9: Pre-launch Raw Capture — decouples raw ma_ref storage from full Identity Stitching execution so click data is not lost while PRD-TRK-006 ships ahead of this PRD's full logic. Defines POST /tracking/log-ma-ref-raw minimal endpoint, ma_ref_raw_log staging table, and the reconciliation batch job to run once Section 6–8 logic is live. Updated Section 8 (Login Re-association): replaced duplicated shared-device risk explanation with a reference to PRD-TRK-006 Section 8.1; added clarification on the relationship between identity_association_current and PRD-TRK-006's Identity Graph. Section numbers 9–18 renumbered to 10–19 to accommodate new Section 9.</td></tr>
       <tr><td>v1.1</td><td>2026-05-26</td><td>Product Team</td><td>Updated terminology: replaced decode/encode with JWT verify/sign throughout. Added JWT signature verification note to Backend Responsibilities. Added ma_ref_invalid field to API response schema and Frontend error handling. Updated Token Security Spec to reference JWT HS256. Updated Risks table to reference JWT exp instead of Redis TTL. Updated Glossary.</td></tr>
       <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full MA link identity association spec: Case A/B/C, login re-association, token security, API contract, data tables, downstream data rules, error handling, acceptance criteria, glossary.</td></tr>
@@ -873,7 +884,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <div class="doc-footer">
-  <span>PRD-TRK-008 · v1.2 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>PRD-TRK-008 · v1.3 · CONFIDENTIAL — INTERNAL USE ONLY</span>
   <span>© 2026 Supermom Product Team</span>
 </div>
 
