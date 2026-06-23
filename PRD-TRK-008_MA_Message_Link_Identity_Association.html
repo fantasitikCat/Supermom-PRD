@@ -126,7 +126,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-008 · v1.0 · 2026-05-25</span>
+    <span class="lang-bar-id">PRD-TRK-008 · v1.2 · 2026-06-23</span>
   </div>
 </div>
 
@@ -136,7 +136,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">MA Message Link Identity Association</div>
-    <div class="sidebar-ver">PRD-TRK-008 · v1.0</div>
+    <div class="sidebar-ver">PRD-TRK-008 · v1.2</div>
   </div>
   <div class="ngl">Navigation</div>
   <a class="nl" href="#cover">Cover &amp; Doc Info</a>
@@ -154,19 +154,23 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl sub" href="#s7-b">7.2 Case B — Matched</a>
   <a class="nl sub" href="#s7-c">7.3 Case C — Conflict</a>
   <a class="nl" href="#s8">8. Login Re-association</a>
-  <a class="nl" href="#s9">9. Data Tables</a>
-  <a class="nl sub" href="#s9-current">9.1 Current Table</a>
-  <a class="nl sub" href="#s9-log">9.2 Event Log</a>
-  <a class="nl sub" href="#s9-index">9.3 Index Definitions</a>
-  <a class="nl" href="#s10">10. API Contract</a>
-  <a class="nl" href="#s11">11. Frontend Event Spec</a>
-  <a class="nl" href="#s12">12. Frontend Error Handling</a>
-  <a class="nl" href="#s13">13. GTM Responsibilities</a>
-  <a class="nl" href="#s14">14. Downstream Data Rules</a>
-  <a class="nl" href="#s15">15. Security Rules</a>
-  <a class="nl" href="#s16">16. Responsibility Matrix</a>
-  <a class="nl" href="#s17">17. Risks &amp; Mitigations</a>
-  <a class="nl" href="#s18">18. Acceptance Criteria</a>
+  <a class="nl" href="#s9">9. Pre-launch Raw Capture</a>
+  <a class="nl sub" href="#s9-endpoint">9.1 Raw Capture Endpoint</a>
+  <a class="nl sub" href="#s9-table">9.2 ma_ref_raw_log Table</a>
+  <a class="nl sub" href="#s9-reconcile">9.3 Reconciliation on Full Launch</a>
+  <a class="nl" href="#s10">10. Data Tables</a>
+  <a class="nl sub" href="#s10-current">10.1 Current Table</a>
+  <a class="nl sub" href="#s10-log">10.2 Event Log</a>
+  <a class="nl sub" href="#s10-index">10.3 Index Definitions</a>
+  <a class="nl" href="#s11">11. API Contract</a>
+  <a class="nl" href="#s12">12. Frontend Event Spec</a>
+  <a class="nl" href="#s13">13. Frontend Error Handling</a>
+  <a class="nl" href="#s14">14. GTM Responsibilities</a>
+  <a class="nl" href="#s15">15. Downstream Data Rules</a>
+  <a class="nl" href="#s16">16. Security Rules</a>
+  <a class="nl" href="#s17">17. Responsibility Matrix</a>
+  <a class="nl" href="#s18">18. Risks &amp; Mitigations</a>
+  <a class="nl" href="#s19">19. Acceptance Criteria</a>
   <a class="nl" href="#glossary">Glossary</a>
   <a class="nl" href="#signoff">Sign-off</a>
   <a class="nl" href="#revision">Revision History</a>
@@ -188,7 +192,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">Doc ID</span><span class="v">PRD-TRK-008</span></div>
-    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.0</span></div>
+    <div class="meta-cell"><span class="k">Version</span><span class="v">v1.2</span></div>
     <div class="meta-cell"><span class="k">Status</span><span class="v"><span class="badge b-draft">Draft</span></span></div>
     <div class="meta-cell"><span class="k">Domain</span><span class="v">Foundation → Tracking</span></div>
     <div class="meta-cell"><span class="k">Date</span><span class="v">2026-05-25</span></div>
@@ -473,14 +477,103 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="callout c-warn">
     <strong>Scope boundary:</strong> Re-association only applies within the same GA4 session window. If the GA4 session has expired (30-min timeout) before login, re-association is not triggered. Cross-session identity stitching is handled by the Backend Identity Graph and is out of scope for this PRD.
   </div>
+
+  <div class="callout c-note">
+    <strong>Relationship to PRD-TRK-006 Identity Graph:</strong> <code>identity_association_current</code> is a lightweight, MA-attribution-scoped table — it does not replace or duplicate the general <code>anonymous_id ↔ hashed_uid</code> stitching performed by the Backend Identity Layer (PRD-TRK-006 Section 3, Section 9). The Identity Graph remains the authoritative source for final identity resolution; this table only tracks which MA flow/node/channel a given association originated from for attribution reporting.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#5c5a54;">说明：identity_association_current 是 MA 归因维度的轻量表，不替代、不重复 PRD-TRK-006 Backend Identity Layer 做的通用 anonymous_id ↔ hashed_uid stitching。最终身份判定仍以 006 的 Identity Graph 为权威来源，本表只负责记录这次关联来自哪个 MA flow/node/channel，用于归因报表。</span>
+  </div>
+
+  <div class="callout c-warn">
+    <strong>Known limitation — shared device (see PRD-TRK-006 Section 8.1):</strong> Since <code>identity_association_current</code> stores one record per <code>anonymous_id</code>, the same shared-device limitation documented in PRD-TRK-006 applies here: if a device is used by different real users across different sessions, this table's record is overwritten by the most recent login rather than isolated per session. This PRD does not duplicate that explanation — refer to PRD-TRK-006 Section 8.1 for the full rationale and accepted-risk decision. The same decision (not engineering session-scoped binding in v1.0, low-frequency scenario) applies to this table.
+  </div>
 </section>
 
-<!-- S9 Data Tables -->
+<!-- S9 Pre-launch Raw Capture -->
 <section class="section" id="s9">
   <div class="stag">09</div>
+  <h2>Pre-launch Raw Capture <span class="en">上线前原始数据捕获</span></h2>
+  <div class="sdesc">PRD-TRK-006 (Tracking Context Initialization) typically ships before the full Identity Stitching logic in this PRD (Section 6–8) is complete. This section defines a minimal, decoupled capture mechanism so that <code>ma_ref</code> click data is never permanently lost during that gap.</div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">为什么需要这一节</span>
+    006（Tracking Context Initialization）通常会比本 PRD 完整的 Identity Stitching 逻辑（Section 6–8：JWT 验签、Redis 查询、Case A/B/C 判定）先上线。如果用户在这个窗口期点击了 MA 链接，<code>resolve-ma-ref</code> 调用会因为后端逻辑未就位而失败。<code>ma_ref</code> token 本身有 30 天有效期（JWT exp），一旦超过这个窗口才补开发，数据就永久丢失。本节定义一个不依赖完整业务逻辑的最小化捕获机制，解耦"存储原始数据"与"执行身份判定"这两个动作。
+  </div>
+
+  <div class="callout c-pink">
+    <strong>核心原则：存储 ≠ 执行 Stitching。</strong> Storing a raw <code>ma_ref</code> requires zero business logic — no JWT verification, no Redis lookup, no Case A/B/C judgment. It is a plain <code>INSERT</code>. Executing Identity Stitching requires the full logic in Section 6–8. These two responsibilities are deliberately decoupled so the storage endpoint can ship independently of — and earlier than — the full Identity Stitching system.
+  </div>
+
+  <div class="sub-h" id="s9-endpoint">9.1 Raw Capture Endpoint <span class="en">最小化存储接口</span></div>
+  <div class="sdesc">A minimal endpoint that performs no parsing, no verification, and no identity logic — it only persists the raw fields it receives.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Property</th><th>Specification</th><th class="zh">规范说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">Endpoint</td><td><code>POST /tracking/log-ma-ref-raw</code></td><td class="zh">独立于 resolve-ma-ref 的极简接口</td></tr>
+      <tr><td class="field">Logic</td><td>None — a single <code>INSERT</code> into <code>ma_ref_raw_log</code>. No JWT verification, no Redis lookup, no Case A/B/C evaluation</td><td class="zh">无业务逻辑，仅一次 INSERT，不验证 JWT，不查 Redis，不判断 Case</td></tr>
+      <tr><td class="field">Dependency</td><td>None on Section 6–8 — can be developed and shipped independently, even before Redis / JWT signing infrastructure exists</td><td class="zh">不依赖 Section 6-8 任何逻辑，可独立开发上线，甚至可以在 Redis / JWT 签发体系搭建之前先上线</td></tr>
+      <tr><td class="field">Failure mode</td><td>If this endpoint is also unavailable (e.g. before any Backend exists), Frontend silently skips — same fallback behavior as the full <code>resolve-ma-ref</code> call</td><td class="zh">若此接口也不可用，前端静默跳过，降级行为与 resolve-ma-ref 一致</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">HTTP</span><span class="code-label">POST /tracking/log-ma-ref-raw — Request (fire alongside resolve-ma-ref, independent of its result)</span></div>
+    <pre><span class="c">// Called unconditionally whenever ma_ref is present in the URL —</span>
+<span class="c">// regardless of whether resolve-ma-ref succeeds, fails, or the endpoint doesn't exist yet</span>
+{
+  <span class="n">"ma_ref"</span>:       <span class="s">"abcxyz123"</span>,   <span class="c">// raw token, not parsed</span>
+  <span class="n">"anonymous_id"</span>: <span class="s">"&lt;GA4 client_id&gt;"</span>,
+  <span class="n">"session_id"</span>:   <span class="s">"&lt;GA4 ga_session_id&gt;"</span>,
+  <span class="n">"page_url"</span>:     <span class="s">"https://www.welovesupermom.com/campaign/123?ma_ref=abcxyz123"</span>
+}</pre>
+  </div>
+
+  <div class="callout c-note">
+    <strong>Frontend implementation note:</strong> This call is fired in parallel with (not instead of) the full <code>resolve-ma-ref</code> call from Section 5. It does not block or depend on that call's outcome — it is a pure write-and-forget safety net.
+  </div>
+
+  <div class="sub-h" id="s9-table">9.2 ma_ref_raw_log Table <span class="en">原始数据暂存表</span></div>
+  <div class="sdesc">A staging table with no business fields — purely a holding area for unprocessed MA link visits.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">id</td><td>bigint</td><td>Auto-increment primary key</td><td class="zh">自增主键</td></tr>
+      <tr><td class="field">ma_ref</td><td>string</td><td>Raw token — stored as-is, not decoded</td><td class="zh">原始 token，按原样存储，不解码</td></tr>
+      <tr><td class="field">anonymous_id</td><td>string</td><td>GA4 client_id at capture time</td><td class="zh">捕获时的 GA4 client_id</td></tr>
+      <tr><td class="field">session_id</td><td>string</td><td>GA4 ga_session_id at capture time</td><td class="zh">捕获时的 GA4 ga_session_id</td></tr>
+      <tr><td class="field">page_url</td><td>string</td><td>Entry page URL</td><td class="zh">访问入口 URL</td></tr>
+      <tr><td class="field">received_at</td><td>timestamp</td><td>Capture timestamp</td><td class="zh">捕获时间戳</td></tr>
+      <tr><td class="field">processed</td><td>boolean</td><td>Default <code>false</code> — set to <code>true</code> once reconciled via Section 9.3</td><td class="zh">默认 false，经 9.3 回扫处理后置为 true</td></tr>
+      <tr><td class="field">processed_at</td><td>timestamp, nullable</td><td>Set when reconciliation completes for this row</td><td class="zh">回扫处理完成时写入</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sub-h" id="s9-reconcile">9.3 Reconciliation on Full Launch <span class="en">完整功能上线后的回扫处理</span></div>
+  <div class="sdesc">Once Section 6–8's full Identity Stitching logic is live, a one-time (or periodic, until backlog clears) batch job reconciles every unprocessed row.</div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Action</th><th class="zh">说明</th></tr></thead>
+    <tbody>
+      <tr><td class="field">1</td><td>Query <code>ma_ref_raw_log</code> WHERE <code>processed = false</code></td><td class="zh">查询所有未处理记录</td></tr>
+      <tr><td class="field">2</td><td>For each row, run it through the full Section 6 logic: JWT signature verification → Redis lookup → Case A/B/C evaluation</td><td class="zh">逐条跑完整的 Section 6 逻辑：JWT 验签 → Redis 查询 → Case A/B/C 判定</td></tr>
+      <tr><td class="field">3</td><td>Write result to <code>identity_association_current</code> / <code>identity_association_event_log</code> as normal</td><td class="zh">正常写入 identity_association_current / event_log</td></tr>
+      <tr><td class="field">4</td><td>Mark row as <code>processed = true</code>, set <code>processed_at</code></td><td class="zh">标记已处理</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout c-warn">
+    <strong>Time-sensitive — JWT exp window:</strong> Reconciliation only succeeds for rows where the <code>ma_ref</code> JWT has not yet expired (30-day <code>exp</code>, per Section 6.2 Token Security Spec) and the corresponding Redis entry has not been evicted. The full Identity Stitching system (Section 6–8) must go live within this 30-day window relative to the earliest captured row, or that row's identity resolution is permanently lost — only the raw <code>ma_ref</code> string remains, with no way to re-derive the identity it pointed to.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#7a4f00;">⚠ 时间敏感：回扫处理只能在 ma_ref 的 JWT 未过期（30 天 exp）且 Redis 记录未被清理的情况下成功。完整的 Identity Stitching 系统（Section 6-8）必须在最早一条捕获记录的 30 天窗口内上线，否则这条记录的身份解析将永久丢失——只剩下原始 ma_ref 字符串，无法再还原出它指向的身份。</span>
+  </div>
+</section>
+
+<!-- S10 Data Tables -->
+<section class="section" id="s10">
+  <div class="stag">10</div>
   <h2>Data Tables <span class="en">数据表设计</span></h2>
 
-  <div class="sub-h" id="s9-current">9.1 identity_association_current</div>
+  <div class="sub-h" id="s10-current">10.1 identity_association_current</div>
   <div class="sdesc">Records the current primary identity association for each anonymous_id. One record per anonymous_id.</div>
   <div class="tw"><table>
     <thead><tr><th>Field</th><th>Type</th><th>Description</th><th class="zh">说明</th></tr></thead>
@@ -495,7 +588,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     </tbody>
   </table></div>
 
-  <div class="sub-h" id="s9-log">9.2 identity_association_event_log</div>
+  <div class="sub-h" id="s10-log">10.2 identity_association_event_log</div>
   <div class="sdesc">Append-only log of all association events. Never modified after write.</div>
   <div class="tw"><table>
     <thead><tr><th>Field</th><th>Type</th><th>Description</th><th class="zh">说明</th></tr></thead>
@@ -514,7 +607,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     </tbody>
   </table></div>
 
-  <div class="sub-h" id="s9-index">9.3 Index Definitions</div>
+  <div class="sub-h" id="s10-index">10.3 Index Definitions</div>
   <div class="code-wrap">
     <div class="code-head"><span class="code-lang">SQL</span><span class="code-label">Recommended Index Definitions</span></div>
     <pre><span class="c">-- identity_association_current</span>
@@ -529,8 +622,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S10 API Contract -->
-<section class="section" id="s10">
-  <div class="stag">10</div>
+<section class="section" id="s11">
+  <div class="stag">11</div>
   <h2>API Contract <span class="en">接口规范</span></h2>
   <div class="code-wrap">
     <div class="code-head"><span class="code-lang">HTTP</span><span class="code-label">POST /tracking/resolve-ma-ref — Request Body</span></div>
@@ -558,8 +651,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S11 Frontend Event Spec -->
-<section class="section" id="s11">
-  <div class="stag">11</div>
+<section class="section" id="s12">
+  <div class="stag">12</div>
   <h2>Frontend Event Spec <span class="en">Frontend Event 规范</span></h2>
   <div class="sdesc">After Backend resolve completes, Frontend pushes the following event to dataLayer.</div>
   <div class="code-wrap">
@@ -589,8 +682,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S12 Frontend Error Handling -->
-<section class="section" id="s12">
-  <div class="stag">12</div>
+<section class="section" id="s13">
+  <div class="stag">13</div>
   <h2>Frontend Error Handling <span class="en">Frontend 降级策略</span></h2>
   <div class="sdesc">Tracking failures must never affect the primary business flow. All tracking logic is wrapped in error isolation.</div>
   <div class="tw"><table>
@@ -607,8 +700,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S13 GTM -->
-<section class="section" id="s13">
-  <div class="stag">13</div>
+<section class="section" id="s14">
+  <div class="stag">14</div>
   <h2>GTM Responsibilities <span class="en">GTM 职责</span></h2>
   <div class="tw"><table>
     <thead><tr><th>Responsibility</th><th>Status</th><th class="zh">说明</th></tr></thead>
@@ -621,8 +714,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S14 Downstream Data Rules -->
-<section class="section" id="s14">
-  <div class="stag">14</div>
+<section class="section" id="s15">
+  <div class="stag">15</div>
   <h2>Downstream Data Usage Rules <span class="en">下游数据使用规则</span></h2>
   <div class="tw"><table>
     <thead><tr><th>System</th><th>associated / matched</th><th>conflict</th><th class="zh">冲突行处理说明</th></tr></thead>
@@ -636,8 +729,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S15 Security Rules -->
-<section class="section" id="s15">
-  <div class="stag">15</div>
+<section class="section" id="s16">
+  <div class="stag">16</div>
   <h2>Security Rules <span class="en">安全规则</span></h2>
   <div class="tw"><table>
     <thead><tr><th>Rule</th><th>Status</th><th class="zh">说明</th></tr></thead>
@@ -652,8 +745,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S16 Responsibility Matrix -->
-<section class="section" id="s16">
-  <div class="stag">16</div>
+<section class="section" id="s17">
+  <div class="stag">17</div>
   <h2>Responsibility Matrix <span class="en">职责矩阵</span></h2>
   <div class="tw"><table>
     <thead><tr><th>Responsibility</th><th>Owner</th><th class="zh">说明</th></tr></thead>
@@ -676,8 +769,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S17 Risks -->
-<section class="section" id="s17">
-  <div class="stag">17</div>
+<section class="section" id="s18">
+  <div class="stag">18</div>
   <h2>Risks &amp; Mitigations <span class="en">风险与缓解</span></h2>
   <div class="tw"><table>
     <thead><tr><th>Risk</th><th class="zh">风险说明</th><th>Severity</th><th>Mitigation</th><th class="zh">缓解措施</th></tr></thead>
@@ -692,8 +785,8 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <!-- S18 Acceptance Criteria -->
-<section class="section" id="s18">
-  <div class="stag">18</div>
+<section class="section" id="s19">
+  <div class="stag">19</div>
   <h2>Acceptance Criteria <span class="en">验收标准</span></h2>
   <div class="sub-h">Identity Association</div>
   <div class="tw"><table>
@@ -772,6 +865,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.2</td><td>2026-06-23</td><td>Product Team</td><td>Added Section 9: Pre-launch Raw Capture — decouples raw ma_ref storage from full Identity Stitching execution so click data is not lost while PRD-TRK-006 ships ahead of this PRD's full logic. Defines POST /tracking/log-ma-ref-raw minimal endpoint, ma_ref_raw_log staging table, and the reconciliation batch job to run once Section 6–8 logic is live. Updated Section 8 (Login Re-association): replaced duplicated shared-device risk explanation with a reference to PRD-TRK-006 Section 8.1; added clarification on the relationship between identity_association_current and PRD-TRK-006's Identity Graph. Section numbers 9–18 renumbered to 10–19 to accommodate new Section 9.</td></tr>
       <tr><td>v1.1</td><td>2026-05-26</td><td>Product Team</td><td>Updated terminology: replaced decode/encode with JWT verify/sign throughout. Added JWT signature verification note to Backend Responsibilities. Added ma_ref_invalid field to API response schema and Frontend error handling. Updated Token Security Spec to reference JWT HS256. Updated Risks table to reference JWT exp instead of Redis TTL. Updated Glossary.</td></tr>
       <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full MA link identity association spec: Case A/B/C, login re-association, token security, API contract, data tables, downstream data rules, error handling, acceptance criteria, glossary.</td></tr>
     </tbody>
@@ -779,7 +873,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 </section>
 
 <div class="doc-footer">
-  <span>PRD-TRK-008 · v1.0 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>PRD-TRK-008 · v1.2 · CONFIDENTIAL — INTERNAL USE ONLY</span>
   <span>© 2026 Supermom Product Team</span>
 </div>
 

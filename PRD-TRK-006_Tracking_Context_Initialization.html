@@ -221,7 +221,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
 <div class="lang-bar">
   <div class="lang-bar-left">
     <span class="lang-bar-logo">Tracking Foundation</span>
-    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.2 · 2026-06-08</span>
+    <span class="lang-bar-id">PRD-TRK-CTX-001 · v1.3 · 2026-06-23</span>
   </div>
 </div>
 
@@ -233,7 +233,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="sidebar-header">
     <div class="sidebar-module">Tracking Foundation</div>
     <div class="sidebar-title">Tracking Context Initialization &amp; Login Identity Tracking</div>
-    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.2</div>
+    <div class="sidebar-ver">PRD-TRK-CTX-001 · v1.3</div>
   </div>
 
   <div class="ngl">Navigation</div>
@@ -252,6 +252,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <a class="nl" href="#s6">6. GA4 Session ID Spec</a>
   <a class="nl" href="#s7">7. Error &amp; Fallback</a>
   <a class="nl" href="#s8">8. Multi-tab Handling</a>
+  <a class="nl sub" href="#s8-shared">8.1 Shared Device Limitation</a>
   <a class="nl" href="#s9">9. Responsibility Matrix</a>
   <a class="nl" href="#s10">10. Privacy &amp; Compliance</a>
   <a class="nl" href="#s11">11. Acceptance Criteria</a>
@@ -279,7 +280,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   </div>
   <div class="meta-grid">
     <div class="meta-cell"><span class="k">DOC ID</span><span class="v" style="font-family:var(--mono);color:var(--pink);font-size:12px;">PRD-TRK-CTX-001</span></div>
-    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.2</span></div>
+    <div class="meta-cell"><span class="k">VERSION</span><span class="v">v1.3</span></div>
     <div class="meta-cell"><span class="k">TYPE</span><span class="v">PRD / Frontend + Identity</span></div>
     <div class="meta-cell"><span class="k">STATUS</span><span class="v"><span class="badge b-draft">DRAFT</span></span></div>
     <div class="meta-cell"><span class="k">OWNER</span><span class="v">Product Team</span></div>
@@ -379,6 +380,21 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td class="field">On Refresh</td><td>Re-fetched from session restore API — not persisted client-side. See Session Restore Specification below.</td><td class="zh">刷新后从 session 恢复接口重新获取，不在客户端持久化。详见下方 Session Restore 规范。</td></tr>
     </tbody>
   </table></div>
+
+  <div class="callout c-red">
+    <strong>Login API Request must include anonymous_id:</strong> The Backend Identity Layer's <code>anonymous_id → hashed_uid</code> stitching (shown in Section 3) can only execute if Backend receives the <code>anonymous_id</code> at login time. This is NOT carried by the <code>login</code> dataLayer event — that event is consumed by GTM, not by Supermom's own Backend. Frontend must explicitly include <code>anonymous_id</code> as a parameter in the actual login HTTP request.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#8b1a1a;">⚠ Login API 的 Request payload 必须包含 anonymous_id，否则 Backend 无法执行 Section 3 描述的 identity stitching。dataLayer 的 login event 推送给的是 GTM，不会到达 Supermom 自己的 Backend，两者是完全独立的两条路径，不能互相替代。</span>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-head"><span class="code-lang">JSON</span><span class="code-label">Login API — Request payload (must include anonymous_id)</span></div>
+    <pre>POST /api/auth/login
+{
+  <span class="n">"phone"</span>:        <span class="s">"+65xxxxxxxx"</span>,
+  <span class="n">"otp"</span>:          <span class="s">"123456"</span>,
+  <span class="n">"anonymous_id"</span>: <span class="s">"&lt;GA4 client_id, cached from initTracking() STEP 2&gt;"</span>  <span class="c">// ← required for Backend stitching</span>
+}</pre>
+  </div>
 
   <div class="code-wrap">
     <div class="code-head"><span class="code-lang">JSON</span><span class="code-label">Login API Response — hashed_uid field</span></div>
@@ -522,7 +538,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <rect x="30" y="196" width="140" height="60" rx="6" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
       <text x="100" y="221" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Identity Layer</text>
       <text x="100" y="237" text-anchor="middle" font-size="9" fill="#5c5a54">uid ↔ hashed_uid</text>
-      <text x="100" y="249" text-anchor="middle" font-size="8.5" fill="#9c9a93">SHA-256 + SALT</text>
+      <text x="100" y="249" text-anchor="middle" font-size="8.5" fill="#9c9a93">SHA-256(uid)</text>
 
       <rect x="218" y="196" width="160" height="60" rx="6" fill="#fff" stroke="#b0cef0" stroke-width="1.2"/>
       <text x="298" y="218" text-anchor="middle" font-size="11" font-weight="500" fill="#0f3a6e">Identity Stitching</text>
@@ -936,6 +952,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
   <div class="callout c-warn">
     <strong>Backend prerequisite：</strong>后端在收到不含 hashed_uid 的 login event 时，必须以 <code>anonymous_id + session_id</code> 为 key 暂存这条记录，等待后续补发。若 10 秒内未收到补发事件，该条记录通过下次页面加载的 <code>tracking_initialized</code>（含 hashed_uid）完成 stitching。这个处理逻辑需要在后端 identity stitching 模块中明确实现。
   </div>
+</section>
 
 <!-- S8 Multi-tab -->
 <section class="section" id="s8">
@@ -951,6 +968,28 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
     </tbody>
   </table></div>
   <div class="callout c-note">Multi-tab identity sync uses page refresh as the boundary. Real-time cross-tab synchronization via <code>BroadcastChannel</code> is deferred to a future phase.</div>
+
+  <div class="sub-h" id="s8-shared">8.1 Known Limitation — Shared Device Across Sessions <span class="en">共享设备跨 Session 已知限制</span></div>
+  <div class="sdesc">Distinct from Multi-tab Handling above (same browser, same point in time), this section covers a different scenario: the same physical device used by different real users across different sessions / days.</div>
+
+  <div class="callout c-warn">
+    <strong>Known limitation — accepted for v1.0:</strong> <code>anonymous_id</code> (GA4 <code>client_id</code>) is device/browser-scoped, not person-scoped. If two different real users log in with different accounts on the same device across different sessions (e.g. a shared family tablet), the Backend Identity Layer's <code>anonymous_id → hashed_uid</code> binding is <strong>overwritten by whichever login happened most recently</strong> — it is not isolated per session. This means behavior recorded under the previous login may be incorrectly attributed to the most recent account once stitching runs.<br><br>
+    <span style="font-size:12px;display:block;color:#7a4f00;">⚠ <strong>已知限制：</strong>anonymous_id（GA4 client_id）是设备/浏览器级别的标识，不是"人"级别的标识。如果同一台设备在不同 session / 不同天被不同真实用户登录（例如家庭共享平板），Backend Identity Layer 的 anonymous_id → hashed_uid 绑定会被<strong>最近一次登录覆盖</strong>，不会按 session 隔离。这意味着上一次登录产生的行为，在 stitching 执行后可能被错误归因到最新登录的账号上。</span>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Decision</th><th class="zh">决策</th><th>Rationale</th><th class="zh">理由</th></tr></thead>
+    <tbody>
+      <tr><td>Do NOT implement session-scoped identity binding in v1.0</td><td class="zh">v1.0 不实现按 session 隔离的身份绑定</td><td>Shared-device usage is assessed as a low-frequency scenario for Supermom's user base; the engineering cost of session-scoped binding (schema changes + downstream query changes across Audience Gallery / Journey Analysis) outweighs the benefit at current scale</td><td class="zh">共享设备在 Supermom 用户群中评估为低频场景；按 session 隔离的工程成本（schema 改动 + 下游查询全面改造）在当前规模下不划算</td></tr>
+      <tr><td>Re-evaluate if frequency increases</td><td class="zh">若发生率上升则重新评估</td><td>Monitor the rate of <code>anonymous_id</code> re-associating to a <em>different</em> <code>hashed_uid</code> across sessions via the identity stitching event log. If this rate proves materially higher than assumed, revisit session-scoped binding as a v2 enhancement</td><td class="zh">通过 identity stitching 的 event log 监控 anonymous_id 跨 session 关联到不同 hashed_uid 的发生率；如果实际发生率明显高于预期，作为 v2 增强重新评估按 session 隔离</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="zh-summary">
+    <span class="zh-summary-label">和 Multi-tab Handling 的区别</span>
+    上面的 Multi-tab 是"同一个人，同一时间，开了多个浏览器 Tab"——范围小，影响窗口短。这里讨论的是"不同人，不同时间，共用同一台设备"——本质是设备级标识无法代表人,是 Identity Stitching 架构本身的边界，不是 Tab 管理问题。两者触发条件、影响范围都不同，因此分开记录。
+  </div>
+
 </section>
 
 <!-- S9 Responsibility Matrix -->
@@ -966,6 +1005,7 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td>Retrieve session_id</td><td class="zh">获取 session_id</td><td>Fetch GA4 ga_session_id with timeout + fallback</td><td class="zh">含超时处理与降级策略地获取 GA4 ga_session_id</td><td><span class="team team-fe">Frontend</span></td></tr>
       <tr><td>Push tracking_initialized</td><td class="zh">推送初始化事件</td><td>On every page load, after consent check</td><td class="zh">每次页面加载时推送，需先通过 consent 检查</td><td><span class="team team-fe">Frontend</span></td></tr>
       <tr><td>Push login event</td><td class="zh">推送登录事件</td><td>On successful login, with same IDs + hashed_uid</td><td class="zh">登录成功后推送，使用相同 ID + hashed_uid</td><td><span class="team team-fe">Frontend</span></td></tr>
+      <tr><td>Send anonymous_id in Login API request</td><td class="zh">登录请求中携带 anonymous_id</td><td>Include cached anonymous_id as a request parameter when calling the login HTTP API — separate from the dataLayer login event</td><td class="zh">调用登录接口时,将缓存的 anonymous_id 作为请求参数传入,与 dataLayer 的 login event 是两条独立路径</td><td><span class="team team-fe">Frontend</span></td></tr>
       <tr><td>Identity stability</td><td class="zh">身份 ID 稳定性</td><td>Guarantee anonymous_id and session_id unchanged post-login</td><td class="zh">保证登录后 anonymous_id 和 session_id 不变</td><td><span class="team team-fe">Frontend</span></td></tr>
       <tr><td>Consent gate</td><td class="zh">授权检查门控</td><td>Check Cookie consent before any tracking push</td><td class="zh">推送任何 tracking 事件前先确认用户已授权 Cookie</td><td><span class="team team-fe">Frontend</span></td></tr>
       <tr><td>Error isolation</td><td class="zh">错误隔离</td><td>Wrap all tracking in try/catch — never block business flow</td><td class="zh">所有 tracking 逻辑包裹 try/catch，不阻塞业务主流程</td><td><span class="team team-fe">Frontend</span></td></tr>
@@ -992,6 +1032,11 @@ th.zh { color: var(--pink-muted); background: #dff0ed; letter-spacing: .04em; bo
       <tr><td>Cross-device identity resolution</td><td class="zh">跨设备身份归因</td><td>Multi-device attribution in identity graph</td><td class="zh">在 identity graph 中完成多设备归因</td><td><span class="team team-be">Backend</span></td></tr>
     </tbody>
   </table></div>
+
+  <div class="callout c-info">
+    <strong>Design note — anonymous browsing does NOT sync to Backend by default:</strong> When a user browses anonymously with no <code>ma_ref</code> and no login, <code>anonymous_id</code> is intentionally <strong>not</strong> sent to Supermom's own Backend on every page load. The data is fully captured via GA4 → BigQuery Export (keyed by <code>user_pseudo_id</code>), which is sufficient for Google Ads remarketing and future batch-based audience analysis. Backend only needs to know about an <code>anonymous_id</code> once an identity signal exists (MA link click — PRD-TRK-008, or login — this PRD). This is a deliberate design choice to avoid unnecessary API load, not a gap.<br>
+    <span style="font-size:12px;margin-top:6px;display:block;color:#0f3a6e;">设计说明：纯匿名访问（无 ma_ref、未登录）时，anonymous_id 不会主动同步给 Supermom 自己的 Backend。这部分数据已经通过 GA4 → BigQuery Export（按 user_pseudo_id）完整留存，足以支撑 Google Ads Remarketing 和未来的批量人群分析。Backend 只需要在出现身份信号（MA 链接点击或登录）时才需要知道这个 anonymous_id 的存在。这是为了避免不必要的接口调用负载而做出的设计选择，不是遗漏。</span>
+  </div>
 
   <div class="sub-h">GTM / GA4 Responsibilities</div>
   <div class="tw"><table>
@@ -1086,6 +1131,7 @@ onConsentGranted(<span class="k">async</span> () => {
       <tr><td>GA4 session_id changes mid-session (30-min timeout)</td><td class="zh">GA4 session_id 在 session 中途变化（30分钟超时）</td><td><span class="sev-m">MEDIUM</span></td><td>Cache session_id at tracking_initialized time; do not re-fetch within same page lifecycle</td><td class="zh">初始化时缓存 session_id，同一页面生命周期内不重新获取</td></tr>
       <tr><td>dataLayer events pushed without consent</td><td class="zh">未获取 Cookie 授权就推送 dataLayer 事件</td><td><span class="sev-m">MEDIUM</span></td><td>Consent gate enforced in tracking module; QA test with consent denied</td><td class="zh">tracking 模块强制 consent 门控；QA 需覆盖拒绝授权场景</td></tr>
       <tr><td>Multi-tab login state desync</td><td class="zh">多 Tab 场景下登录状态不同步</td><td><span class="sev-l">LOW</span></td><td>Accepted for v1.0 — tab refresh resolves; v2 may add BroadcastChannel</td><td class="zh">v1.0 可接受，刷新页面即可同步；v2 考虑 BroadcastChannel</td></tr>
+      <tr><td>Shared device across sessions overwrites identity binding</td><td class="zh">共享设备跨 session 覆盖身份绑定</td><td><span class="sev-l">LOW</span></td><td>Accepted for v1.0 — low-frequency scenario; see Section 8.1 for full rationale; monitor event log for re-evaluation trigger</td><td class="zh">v1.0 接受此风险，评估为低频场景；完整理由见 Section 8.1；通过 event log 监控以决定是否需要重新评估</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1135,7 +1181,7 @@ onConsentGranted(<span class="k">async</span> () => {
   <span class="c">// ─── STEP 5: MA link identity resolution ─────────────── PRD-TRK-008 §5</span>
   <span class="k">if</span> (maRef) {
     <span class="k">await</span> resolveMARef({ maRef, anonymous_id: clientId, session_id: sessionId });
-    <span class="c">// resolve 成功后 push ma_identity_associated event（详见 PRD-TRK-008 §11）</span>
+    <span class="c">// resolve 成功后 push ma_identity_associated event（详见 PRD-TRK-008 §12）</span>
   }
 
   <span class="c">// ─── STEP 6: Aima Widget init (widget 场景) ──────────── PRD-TRK-009 §9</span>
@@ -1228,7 +1274,7 @@ onConsentGranted(<span class="k">async</span> () => {
       <tr><td>登出时清除 hashed_uid</td><td>用户登出时</td><td>从 sessionStorage 清除；不清除 anonymous_id</td><td><span class="badge b-pink">006 §2</span></td></tr>
       <tr><td>读取 URL 中的 <code>ma_ref</code></td><td>页面加载时，tracking_initialized 之后</td><td>仅读取，不解析内容</td><td><span class="badge b-blue">008 §5</span></td></tr>
       <tr><td>调用 <code>POST /tracking/resolve-ma-ref</code></td><td>URL 含 <code>ma_ref</code> 时</td><td>3s 超时；失败静默跳过，不阻塞页面</td><td><span class="badge b-blue">008 §5</span></td></tr>
-      <tr><td>推送 <code>ma_identity_associated</code></td><td>resolve API 成功返回后</td><td>expired / invalid / 超时时不推送</td><td><span class="badge b-blue">008 §11</span></td></tr>
+      <tr><td>推送 <code>ma_identity_associated</code></td><td>resolve API 成功返回后</td><td>expired / invalid / 超时时不推送</td><td><span class="badge b-blue">008 §12</span></td></tr>
       <tr><td>Widget 初始化时传入 <code>runtime_source</code></td><td>Aima Widget 页面加载时</td><td>必须传 <code>"website_widget"</code>；同时传已有 GA4 session 上下文</td><td><span class="badge b-blue">009 §9</span></td></tr>
       <tr><td>触发 <code>recommendation_click</code> GA4 event</td><td>用户在 Widget 内点击链接时</td><td>包含 <code>aima_ref</code> 和 <code>runtime_source</code> 参数</td><td><span class="badge b-blue">009 §9</span></td></tr>
     </tbody>
@@ -1301,6 +1347,7 @@ onConsentGranted(<span class="k">async</span> () => {
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change Description</th></tr></thead>
     <tbody>
+      <tr><td>v1.3</td><td>2026-06-23</td><td>Product Team</td><td>Fixed leftover SALT reference in Section 3 architecture diagram (text already updated in v1.x, diagram was not). Added Section 8.1: Known Limitation — Shared Device Across Sessions, documenting the accepted risk of anonymous_id binding being overwritten when a shared device is used by different real users across sessions, plus corresponding Risks table entry. Added explicit Login API Request payload specification requiring anonymous_id (previously only the Response was documented) and corresponding Frontend Responsibility Matrix row. Added design clarification callout: anonymous browsing without ma_ref or login intentionally does not sync to Backend — GA4/BigQuery capture is sufficient.</td></tr>
       <tr><td>v1.2</td><td>2026-06-08</td><td>Product Team</td><td>Filled two specification gaps. (1) Added Section 2.4: Session Restore Specification — defines hashed_uid recovery timing on page refresh, session restore API contract, Backend response requirement, timeout behaviour, and storage rule. (2) Added Section 7.1: Supplemental Login Event Specification — defines the two-step push flow when hashed_uid API is delayed, supplemental event payload, 10s timeout, IDs matching requirement, and Backend dedup handling.</td></tr>
       <tr><td>v1.1</td><td>2026-06-08</td><td>Product Team</td><td>Added Section 13: Frontend Implementation Guide. Provides a unified frontend entry point covering all tracking PRDs (006 / 008 / 009). Includes: unified initialization sequence pseudocode with per-step PRD references, token reference table (anonymous_id / hashed_uid / ma_ref / aima_ref), and cross-PRD frontend responsibility matrix. Addresses risk of frontend teams implementing 008 and 009 as independent modules.</td></tr>
       <tr><td>v1.0</td><td>2026-05-25</td><td>Product Team</td><td>Initial release. Full tracking flow spec, 3 SVG diagrams, GA4 retrieval spec, error handling, multi-tab rules, responsibility matrix, acceptance criteria, risk matrix, glossary.</td></tr>
@@ -1309,7 +1356,7 @@ onConsentGranted(<span class="k">async</span> () => {
 </section>
 
 <div class="doc-footer">
-  <span>PRD-TRK-CTX-001 · v1.2 · CONFIDENTIAL — INTERNAL USE ONLY</span>
+  <span>PRD-TRK-CTX-001 · v1.3 · CONFIDENTIAL — INTERNAL USE ONLY</span>
   <span>© 2026 Supermom Product Team</span>
 </div>
 
