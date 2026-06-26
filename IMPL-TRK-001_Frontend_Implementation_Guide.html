@@ -91,7 +91,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </div>
   <div class="nav-group">
     <div class="ngl">Changelog 更新记录</div>
-    <a class="nl" href="#changelog" style="color:var(--red);font-weight:500">⚡ v1.3 最新更新</a>
+    <a class="nl" href="#changelog" style="color:var(--red);font-weight:500">⚡ v1.4 最新更新</a>
   </div>
   <div class="nav-group">
     <div class="ngl">Setup 初始化</div>
@@ -140,7 +140,7 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   </div>
   <div class="meta-pills">
     <div class="mp"><span class="l">Doc</span><span class="v">IMPL-TRK-001</span></div>
-    <div class="mp"><span class="l">Version</span><span class="v">1.3</span></div>
+    <div class="mp"><span class="l">Version</span><span class="v">1.4</span></div>
     <div class="mp"><span class="l">Parent</span><span class="v">PRD-TRK-002 v2.3</span></div>
     <div class="mp"><span class="l">Audience</span><span class="v">Frontend Engineer</span></div>
   </div>
@@ -155,6 +155,32 @@ pre .k{color:#7dd3fc}pre .s{color:#86efac}pre .n{color:#fbbf24}pre .c{color:#6b7
   <div class="tw"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Section</th><th>Change 变更</th></tr></thead>
     <tbody>
+      <tr>
+        <td rowspan="6"><strong>v1.4</strong></td>
+        <td rowspan="6">Jun 2026</td>
+        <td>§9.2</td>
+        <td><span class="new">BREAKING</span> Frontend must STOP pushing <code>event: "purchase"</code> directly. Replace with <code>submission_success</code> (form/interaction submissions — lead_gen / survey / ugc / bigfunnel / flashcard / vote) and <code>payment_success</code> (real payment, fired on payment gateway callback). GTM converts both into GA4 standard <code>purchase</code> with a new <code>purchase_type</code> parameter (<code>"submission"</code> or <code>"payment"</code>).</td>
+      </tr>
+      <tr>
+        <td>§9.2</td>
+        <td><span class="new">NEW</span> <code>payment_success</code> trigger timing clarified — fires on payment gateway callback success, NOT on "Pay" button click, NOT on redirect to gateway.</td>
+      </tr>
+      <tr>
+        <td>§9.3</td>
+        <td><span class="new">UPDATED</span> Bigfunnel conversion event renamed from <code>purchase</code> to <code>submission_success</code></td>
+      </tr>
+      <tr>
+        <td>§11.1 / §11.2</td>
+        <td><span class="new">UPDATED</span> Flashcard answer and vote conversion event renamed from <code>purchase</code> to <code>submission_success</code></td>
+      </tr>
+      <tr>
+        <td>全局</td>
+        <td><span class="new">NEW</span> <code>purchase_type</code> field — required on submission_success/payment_success. Values: <code>submission</code> (value always 0) · <code>payment</code> (real order value)</td>
+      </tr>
+      <tr>
+        <td>BQ migration</td>
+        <td><span class="new">WARNING</span> Historical data before this release used <code>event_name = "purchase"</code> directly with no <code>purchase_type</code>. Post-release data will have <code>event_name = "submission_success"</code> or <code>"payment_success"</code> as the raw event, with GTM-generated <code>purchase</code> as a second record. BQ queries spanning both periods must handle this discontinuity — see DECISION-TRK-001 for migration guidance.</td>
+      </tr>
       <tr>
         <td rowspan="3"><strong>v1.3</strong></td>
         <td rowspan="3">Jun 2026</td>
@@ -843,18 +869,35 @@ pushEvent({
   <span class="k">transaction_id</span>: <span class="s">"txn_abc123"</span>  <span class="c">// from Backend response</span>
 });</pre>
 
-  <h3>9.2 purchase — fires on same tick as form_submit</h3>
-  <div class="callout c-note"><code>purchase</code> fires together with <code>form_submit</code> after Backend confirms. Include the same <code>transaction_id</code>. GTM will use this to generate the GA4 e-commerce purchase event.</div>
-  <pre><span class="c">// Standard purchase — lead_gen / survey / ugc</span>
-dataLayer.push({
+  <h3>9.2 submission_success / payment_success — conversion events</h3>
+  <div class="callout c-warn"><strong>v2.0 architecture change — do NOT push <code>event: "purchase"</code> directly.</strong> Frontend now pushes <code>submission_success</code> or <code>payment_success</code> as the raw dataLayer event. GTM converts both into GA4's standard <code>purchase</code> event, tagged with a <code>purchase_type</code> parameter so GA4/BQ can still use the standard e-commerce purchase event while BQ retains the distinction at the source.<span class="zh">v2.0 架构变更：前端不再直接 push event: "purchase"。现在 push submission_success 或 payment_success 作为原始 dataLayer 事件，GTM 统一转换为 GA4 标准 purchase 事件，并带上 purchase_type 参数区分来源。</span></div>
+
+  <h4>// submission_success — covers ALL non-payment submissions</h4>
+  <p class="sdesc" style="margin-bottom:8px">Use for: lead_gen · survey · ugc · referral · bigfunnel · flashcard answer · poll vote · any other form/interaction submission. <code>value</code> is always <code>0</code> — no real money changes hands.<span class="zh">覆盖所有非支付类提交：留资、问卷、UGC、推荐、bigfunnel、闪卡答题、投票、其他表单互动。value 始终为 0，没有真实金额。</span></p>
+  <pre>dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
-  <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
+  <span class="k">event</span>: <span class="s">"submission_success"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
   <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
-  <span class="k">transaction_id</span>: <span class="s">"txn_abc123"</span>  <span class="c">// from Backend response</span>
+  <span class="k">transaction_id</span>: <span class="s">"txn_abc123"</span>,  <span class="c">// from Backend response</span>
+  <span class="k">purchase_type</span>: <span class="s">"submission"</span>,
+  <span class="k">value</span>: <span class="n">0</span>,
+  <span class="k">currency</span>: <span class="s">"SGD"</span>
 });</pre>
 
-  <h3>9.3 Bigfunnel — begin_checkout and purchase</h3>
-  <div class="callout c-note"><strong>Bigfunnel = one begin_checkout, one purchase.</strong> User submits once, Backend returns one <code>transaction_id</code> (= <code>answer_id</code> in the business database). Sub-leadgen conversion details are stored in the backend and can be joined in BQ via <code>transaction_id = answer_id</code>.<span class="zh">Bigfunnel：一次 begin_checkout，一次 purchase。Backend 返回一个 transaction_id（即业务数据库的 answer_id）。子活动转化明细存在后端，通过 transaction_id = answer_id 在 BQ 中 join。</span></div>
+  <h4>// payment_success — real payment, fires on payment gateway callback</h4>
+  <div class="callout c-note"><strong>Trigger timing:</strong> NOT when user clicks "Pay" and NOT when redirected to the payment gateway. Fires only when the payment gateway calls back confirming success, and the user lands back on your site. This page is typically a callback/redirect page, not the original form page.<span class="zh">触发时机：不是用户点击支付按钮的瞬间，也不是跳转到支付页面的瞬间。只有支付网关回调确认成功、用户跳回站内时才触发，通常发生在回调页面，不是原始表单页。</span></div>
+  <pre>dataLayer.push({
+  <span class="k">event_id</span>: crypto.randomUUID(),
+  <span class="k">event</span>: <span class="s">"payment_success"</span>, <span class="k">page_type</span>: <span class="s">"payment_callback"</span>,
+  <span class="k">content_id</span>: <span class="s">"cmp_001"</span>, <span class="k">content_type</span>: <span class="s">"lead_gen"</span>,
+  <span class="k">transaction_id</span>: <span class="s">"txn_xyz789"</span>,  <span class="c">// from payment gateway / Backend</span>
+  <span class="k">purchase_type</span>: <span class="s">"payment"</span>,
+  <span class="k">value</span>: <span class="n">49.90</span>,         <span class="c">// real order amount</span>
+  <span class="k">currency</span>: <span class="s">"SGD"</span>
+});</pre>
+
+  <h3>9.3 Bigfunnel — begin_checkout and submission_success</h3>
+  <div class="callout c-note"><strong>Bigfunnel = one begin_checkout, one submission_success.</strong> User submits once, Backend returns one <code>transaction_id</code> (= <code>answer_id</code> in the business database). Sub-leadgen conversion details are stored in the backend and can be joined in BQ via <code>transaction_id = answer_id</code>.<span class="zh">Bigfunnel：一次 begin_checkout，一次 submission_success。Backend 返回一个 transaction_id（即业务数据库的 answer_id）。子活动转化明细存在后端，通过 transaction_id = answer_id 在 BQ 中 join。</span></div>
   <pre><span class="c">// Step 1: user clicks "Join" on bigfunnel detail page</span>
 dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
@@ -862,12 +905,15 @@ dataLayer.push({
   <span class="k">content_id</span>: <span class="s">"bigfunnel_001"</span>, <span class="k">content_type</span>: <span class="s">"bigfunnel"</span>
 });
 
-<span class="c">// Step 2: Backend confirms — one purchase, one transaction_id (= answer_id)</span>
+<span class="c">// Step 2: Backend confirms — one submission_success, one transaction_id (= answer_id)</span>
 dataLayer.push({
   <span class="k">event_id</span>: crypto.randomUUID(),
-  <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
+  <span class="k">event</span>: <span class="s">"submission_success"</span>, <span class="k">page_type</span>: <span class="s">"form"</span>,
   <span class="k">content_id</span>: <span class="s">"bigfunnel_001"</span>, <span class="k">content_type</span>: <span class="s">"bigfunnel"</span>,
-  <span class="k">transaction_id</span>: <span class="s">"ans_abc123"</span>  <span class="c">// answer_id from Backend — use this to join sub-leadgen details in BQ</span>
+  <span class="k">transaction_id</span>: <span class="s">"ans_abc123"</span>,  <span class="c">// answer_id from Backend — use this to join sub-leadgen details in BQ</span>
+  <span class="k">purchase_type</span>: <span class="s">"submission"</span>,
+  <span class="k">value</span>: <span class="n">0</span>,
+  <span class="k">currency</span>: <span class="s">"SGD"</span>
 });</pre>
 
   <div class="callout c-info"><strong>BQ join for sub-leadgen conversion details:</strong>
@@ -876,7 +922,8 @@ dataLayer.push({
 FROM events p
 JOIN bigfunnel_answers sub
   ON p.transaction_id = sub.answer_id
-WHERE p.event_name = <span class="s">'purchase'</span>
+WHERE p.event_name = <span class="s">'purchase'</span>      <span class="c">-- GTM-converted event</span>
+  AND p.purchase_type = <span class="s">'submission'</span>
   AND p.content_type = <span class="s">'bigfunnel'</span></pre>
   </div>
 
@@ -1092,7 +1139,7 @@ pushEvent({ <span class="k">event</span>: <span class="s">"otp_verify_fail"</spa
 <section class="section" id="flashcard">
   <div class="stag">§11</div>
   <h2>Flashcard &amp; Vote <span class="zh">闪卡答题 &amp; 投票</span></h2>
-  <div class="callout c-note"><strong>begin_checkout fires on option click — before OTP check.</strong> purchase fires after OTP completes AND backend confirms the answer/vote submission.<span class="zh">begin_checkout 在用户点击选项的瞬间触发，早于 OTP 检查。purchase 在 OTP 完成且 Backend 确认提交成功后触发。</span></div>
+  <div class="callout c-note"><strong>begin_checkout fires on option click — before OTP check.</strong> submission_success fires after OTP completes AND backend confirms the answer/vote submission.<span class="zh">begin_checkout 在用户点击选项的瞬间触发，早于 OTP 检查。submission_success 在 OTP 完成且 Backend 确认提交成功后触发。</span></div>
 
   <h3>11.1 Flashcard answer flow</h3>
   <div class="flow">
@@ -1106,7 +1153,7 @@ pushEvent({ <span class="k">event</span>: <span class="s">"otp_verify_fail"</spa
     <span class="flow-arrow">→</span>
     <span class="flow-event">login/sign_up</span>
     <span class="flow-arrow">→</span>
-    <span class="flow-event">purchase</span>
+    <span class="flow-event">submission_success</span>
   </div>
   <pre><span class="c">// 1. User clicks answer option — begin_checkout immediately</span>
 pushEvent({
@@ -1125,11 +1172,14 @@ pushEvent({
 
 <span class="c">// 3. OTP completes → login or sign_up fires (see §10)
 
-// 4. Backend confirms answer submission → purchase</span>
+// 4. Backend confirms answer submission → submission_success</span>
 pushEvent({
-  <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">event</span>: <span class="s">"submission_success"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
   <span class="k">content_id</span>: <span class="s">"fc_001"</span>, <span class="k">content_type</span>: <span class="s">"flashcard"</span>,
-  <span class="k">transaction_id</span>: <span class="s">"txn_fc_xyz"</span>  <span class="c">// from Backend response</span>
+  <span class="k">transaction_id</span>: <span class="s">"txn_fc_xyz"</span>,  <span class="c">// from Backend response</span>
+  <span class="k">purchase_type</span>: <span class="s">"submission"</span>,
+  <span class="k">value</span>: <span class="n">0</span>,
+  <span class="k">currency</span>: <span class="s">"SGD"</span>
 });</pre>
 
   <h3>11.2 Vote flow (inside flashcard detail)</h3>
@@ -1148,11 +1198,14 @@ pushEvent({
   <span class="k">component_name</span>: <span class="s">"flashcard_poll_option"</span>
 });
 
-<span class="c">// 3. Backend confirms vote submission → purchase</span>
+<span class="c">// 3. Backend confirms vote submission → submission_success</span>
 pushEvent({
-  <span class="k">event</span>: <span class="s">"purchase"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
+  <span class="k">event</span>: <span class="s">"submission_success"</span>, <span class="k">page_type</span>: <span class="s">"detail"</span>,
   <span class="k">content_id</span>: <span class="s">"fc_001"</span>, <span class="k">content_type</span>: <span class="s">"flashcard"</span>,
-  <span class="k">transaction_id</span>: <span class="s">"txn_vote_xyz"</span>
+  <span class="k">transaction_id</span>: <span class="s">"txn_vote_xyz"</span>,
+  <span class="k">purchase_type</span>: <span class="s">"submission"</span>,
+  <span class="k">value</span>: <span class="n">0</span>,
+  <span class="k">currency</span>: <span class="s">"SGD"</span>
 });</pre>
 </section>
 
