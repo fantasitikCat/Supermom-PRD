@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Media 字段映射逻辑总览 / Media Field Mapping Overview</title>
+<style>
+  :root{
+    --ink:#1a1d23;
+    --sub:#5b6270;
+    --line:#e3e6ea;
+    --bg:#fafafa;
+    --card:#ffffff;
+
+    --whatsapp:#1a8754;
+    --whatsapp-bg:#e8f6ee;
+    --edm:#2563eb;
+    --edm-bg:#eaf1ff;
+    --website:#c2660b;
+    --website-bg:#fdf1e3;
+    --generic:#6b6f76;
+    --generic-bg:#eeeef0;
+    --warn:#c0392b;
+    --warn-bg:#fdecea;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 28px 80px;}
+
+  /* ---- language toggle ---- */
+  .lang-toggle{
+    position:fixed;
+    top:18px;
+    right:24px;
+    z-index:50;
+    display:flex;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  }
+  .lang-toggle button{
+    border:none;
+    background:transparent;
+    font-size:12.5px;
+    font-weight:700;
+    padding:6px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--sub);
+    font-family:inherit;
+  }
+  .lang-toggle button.active{
+    background:var(--ink);
+    color:#fff;
+  }
+  @media (max-width:640px){
+    .lang-toggle{top:10px;right:10px;}
+  }
+
+  header.doc-head{margin-bottom:36px;}
+  header.doc-head h1{font-size:28px;margin:0 0 8px;letter-spacing:-0.01em;}
+  header.doc-head p{margin:0;color:var(--sub);font-size:14.5px;}
+  .updated{
+    display:inline-block;margin-top:14px;font-size:12.5px;color:var(--sub);
+    border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card);
+  }
+
+  /* ---- table of contents ---- */
+  .toc{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;font-size:13px;}
+  .toc-title{font-weight:700;font-size:12.5px;color:var(--sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;}
+  .toc ol{margin:0;padding-left:20px;}
+  .toc li{margin-bottom:4px;}
+  .toc a{color:var(--ink);text-decoration:none;}
+  .toc a:hover{text-decoration:underline;}
+
+  /* ---- legend ---- */
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;}
+  .chip{font-family:"SF Mono",Consolas,monospace;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:6px;white-space:nowrap;}
+  .chip.whatsapp{background:var(--whatsapp-bg);color:var(--whatsapp);}
+  .chip.edm{background:var(--edm-bg);color:var(--edm);}
+  .chip.website{background:var(--website-bg);color:var(--website);}
+  .chip.generic{background:var(--generic-bg);color:var(--generic);}
+  .chip.warn{background:var(--warn-bg);color:var(--warn);}
+
+  /* ---- section ---- */
+  section{margin-top:48px;}
+  h2{font-size:18px;margin:0 0 4px;padding-bottom:10px;border-bottom:2px solid var(--ink);}
+  h2 .num{color:var(--sub);font-weight:500;margin-right:6px;}
+  .section-note{color:var(--sub);font-size:13.5px;margin:10px 0 18px;}
+
+  /* ---- summary table ---- */
+  table.summary{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  table.summary th, table.summary td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.summary th{background:#f3f4f6;font-size:12.5px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:0.02em;}
+  table.summary tr:last-child td{border-bottom:none;}
+  table.summary td.api-name{font-weight:700;}
+  table.summary td.warn-cell{color:var(--warn);font-weight:600;}
+
+  /* ---- standard logic flow ---- */
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin:16px 0;}
+  .flow-step{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;flex:1;min-width:200px;}
+  .flow-step .tag{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+  .flow-step .title{font-weight:700;font-size:14px;margin-bottom:8px;}
+  .flow-step ul{margin:0;padding-left:18px;font-size:13px;}
+  .flow-step li{margin-bottom:4px;}
+  .flow-arrow{align-self:center;color:var(--sub);font-size:18px;padding:0 2px;}
+
+  /* ---- API cards ---- */
+  .api-grid{display:flex;flex-direction:column;gap:18px;}
+  .api-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;}
+  .api-card .head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+  .api-card .head h3{margin:0;font-size:16px;font-family:"SF Mono",Consolas,monospace;}
+  .api-card .head .src{font-size:12px;color:var(--sub);font-family:"SF Mono",Consolas,monospace;}
+  .api-card .logic-type{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;}
+  .logic-type.standard{background:var(--whatsapp-bg);color:var(--whatsapp);}
+  .logic-type.fixed{background:var(--generic-bg);color:var(--generic);}
+  .logic-type.custom{background:var(--website-bg);color:var(--website);}
+
+  .case-block{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+  .case-block:first-of-type{border-top:none;margin-top:10px;padding-top:0;}
+  .case-label{font-size:11.5px;color:var(--sub);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;margin-bottom:8px;}
+  .case-content{font-size:13.5px;}
+  .case-content.plain{background:#f3f4f6;border-radius:6px;padding:8px 12px;display:inline-block;}
+  .api-card ol.steps{margin:0;padding-left:20px;font-size:13.5px;}
+  .api-card ol.steps li{margin-bottom:6px;}
+  .reuse-note{margin-top:10px;font-size:13.5px;color:var(--ink);background:#f3f4f6;border-radius:6px;padding:10px 14px;}
+
+  .exception-box{margin-top:14px;background:var(--warn-bg);border:1px solid #f2c9c4;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--warn);}
+  .exception-box b{font-weight:700;}
+
+  .default-box{margin-top:10px;font-size:13px;color:var(--sub);}
+  .default-box code{font-family:"SF Mono",Consolas,monospace;background:#f3f4f6;padding:2px 6px;border-radius:4px;}
+
+  code.v{font-family:"SF Mono",Consolas,monospace;font-size:12.5px;font-weight:700;padding:1px 7px;border-radius:5px;white-space:nowrap;}
+  code.v.whatsapp{background:var(--whatsapp-bg);color:var(--whatsapp);}
+  code.v.edm{background:var(--edm-bg);color:var(--edm);}
+  code.v.website{background:var(--website-bg);color:var(--website);}
+  code.v.generic{background:var(--generic-bg);color:var(--generic);}
+
+  /* ---- appendix ---- */
+  details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;}
+  details summary{cursor:pointer;font-weight:700;font-size:14.5px;}
+  details[open] summary{margin-bottom:14px;}
+  table.appendix{width:100%;border-collapse:collapse;font-size:13px;}
+  table.appendix th, table.appendix td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);}
+  table.appendix th{color:var(--sub);font-weight:600;font-size:12px;}
+
+  .footnote{margin-top:40px;font-size:12.5px;color:var(--sub);border-top:1px solid var(--line);padding-top:16px;}
+
+  /* ---- overview summary diagram ---- */
+  .overview-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-top:16px;}
+  .overview-group{border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .group-a{background:var(--whatsapp-bg);border:1px solid #bfe3cd;}
+  .group-b{background:var(--generic-bg);border:1px solid #d7d8db;}
+  .group-c{background:var(--website-bg);border:1px solid #f0d2ab;}
+
+  .og-tag{display:inline-block;font-size:11px;font-weight:700;background:rgba(0,0,0,0.06);padding:2px 9px;border-radius:999px;margin-bottom:8px;}
+  .og-title{font-size:15.5px;font-weight:700;margin-bottom:4px;}
+  .og-sub{font-size:12.5px;color:var(--sub);line-height:1.5;}
+
+  .og-apis{display:flex;flex-direction:column;gap:10px;}
+  .og-api{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+  .og-api.warn{border-color:#f2c9c4;}
+  .og-api-name{font-family:"SF Mono",Consolas,monospace;font-weight:700;font-size:13.5px;flex:1;min-width:90px;}
+  .og-result{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .og-result.whatsapp{background:var(--whatsapp-bg);color:var(--whatsapp);}
+  .og-result.website{background:var(--website-bg);color:var(--website);}
+  .og-result.generic{background:var(--generic-bg);color:var(--generic);}
+  .og-warn-note{width:100%;font-size:12px;color:var(--warn);line-height:1.5;}
+
+  @media (max-width:760px){.overview-grid{grid-template-columns:1fr;}}
+  @media (max-width:640px){
+    .flow{flex-direction:column;}
+    .flow-arrow{transform:rotate(90deg);align-self:flex-start;margin-left:8px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <button id="btn-zh" class="active" onclick="setLang('zh')">中文</button>
+  <button id="btn-en" onclick="setLang('en')">EN</button>
+</div>
+
+<div class="wrap">
+
+  <header class="doc-head">
+    <h1 class="i18n" data-en="Media Field Mapping Logic Overview">Media 字段映射逻辑总览</h1>
+    <p class="i18n" data-en="How the final value of the media field is determined when BOI (BeautyOne) pushes data to each brand via API — Business Quick Reference">BOI（BeautyOne）通过 API 推送给各品牌方时，<code class="v generic">media</code> 字段最终取值的判断逻辑 — 业务速查版</p>
+    <div class="legend">
+      <span class="chip whatsapp">WHATSAPP-SUPERMOM</span>
+      <span class="chip edm">EDM-SUPERMOM</span>
+      <span class="chip website">WEBSITE-SUPERMOM</span>
+      <span class="chip generic i18n" data-en="SUPERMOM (generic fallback)">SUPERMOM（通用兜底）</span>
+    </div>
+    <span class="updated i18n" data-en="Source: logic compiled from DorraMyApi / DorraSgApi / JonssonMyApi / LondonWeightApi / NyssMyApi / NyssSgApi / YunNamApi / UtmSourceEnum">数据来源：DorraMyApi / DorraSgApi / JonssonMyApi / LondonWeightApi / NyssMyApi / NyssSgApi / YunNamApi / UtmSourceEnum 源码逻辑整理</span>
+
+    <div class="toc">
+      <div class="toc-title i18n" data-en="Document structure">本文档结构</div>
+      <ol>
+        <li><a href="#sec1"><span class="i18n" data-en="Glossary">名词解释</span></a> <span class="i18n" data-en="— start here if the technical terms are unfamiliar">— 不懂技术名词先看这里</span></li>
+        <li><a href="#sec2"><span class="i18n" data-en="Overview at a glance">一图总览</span></a> <span class="i18n" data-en="— all 7 APIs grouped into 3 types">— 7 个 API 分 3 类，先看大概</span></li>
+        <li><a href="#sec3"><span class="i18n" data-en="Quick reference table for all 7 APIs">七个 API 速查总表</span></a> <span class="i18n" data-en="— look up by API name">— 按 API 名字查</span></li>
+        <li><a href="#sec4"><span class="i18n" data-en="Standard 3-tier priority logic">标准三级优先级逻辑</span></a> <span class="i18n" data-en="— shared logic used by 3 APIs">— 3 个 API 共用的判断顺序</span></li>
+        <li><a href="#sec5"><span class="i18n" data-en="Detailed logic per API">逐个 API 详细逻辑</span></a> <span class="i18n" data-en="— full decision steps for each API">— 每个 API 的完整判断步骤</span></li>
+        <li><a href="#sec6"><span class="i18n" data-en="Troubleshooting matrix">排查矩阵</span></a> <span class="i18n" data-en="— trace a symptom back to its cause">— 看到异常结果，按现象反查原因</span></li>
+        <li><a href="#sec7"><span class="i18n" data-en="Appendix">附录</span></a> <span class="i18n" data-en="— full utm_source mapping table (36 entries)">— utm_source 完整对照表（36 条）</span></li>
+      </ol>
+    </div>
+  </header>
+
+  <!-- 1. 名词解释 -->
+  <section id="sec1">
+    <h2><span class="num">1.</span><span class="i18n" data-en="Don't recognize these field names? Start here">看不懂字段名？先看这里</span></h2>
+    <p class="section-note i18n" data-en="The terms sm_media / utm_source / utm_medium / oldChannel appear repeatedly below — they are NOT the same thing. Here's a one-line explanation of each:">下文会反复出现 sm_media / utm_source / utm_medium / oldChannel 这几个名字，它们都不是同一个东西。先用一句话讲清楚每个是什么：</p>
+    <table class="summary">
+      <thead>
+        <tr>
+          <th class="i18n" data-en="Name">名字</th>
+          <th class="i18n" data-en="What it is (in plain business terms)">它是什么（业务语言）</th>
+          <th class="i18n" data-en="Who determines its value">谁来决定它的值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="api-name">media</td>
+          <td class="i18n" data-en="The 'channel label' the system finally stamps on this record — the <b>result</b> this document is about. It determines whether this user record is classified as WhatsApp / Email / Website / Generic. <b>This value gets pushed to each BOI (BeautyOne) brand via API</b> — this document explains how that value is calculated before it gets pushed to each brand.">系统最终要打在这条记录上的"渠道标签"——也就是本文档要讨论的<b>结果</b>，决定这条用户数据被归到 WhatsApp / 邮件 / 网站 / 通用 哪一类。<b>这个值会通过 API 推送给 BOI（BeautyOne）各品牌方</b>，本文档讨论的就是推送给每个品牌前，这个值是怎么算出来的</td>
+          <td class="i18n" data-en="Determined jointly by the items below — not entered directly by the user">由下面几项共同决定，不是用户直接填的</td>
+        </tr>
+        <tr>
+          <td class="api-name">sm_media</td>
+          <td class="i18n" data-en="Our own internal source parameter — <b>whether it's included is optional</b>, it's not something the system attaches automatically. If a value is passed, it has the highest priority and is checked first">我们自己内部的来源参数，<b>是否携带可以自主选择</b>——不是系统强制自动带的。如果传了值，优先级最高，最先被检查</td>
+          <td class="i18n" data-en="Decided by whoever submits the request (internal business / API caller) — whether to pass it, and what value">由提交方（内部业务/接口调用方）决定是否传、传什么</td>
+        </tr>
+        <tr>
+          <td class="api-name">utm_source</td>
+          <td class="i18n" data-en="The 'source' marker carried in the link a user clicks — e.g. whether this link came from a Facebook ad or an EDM email. This is what people usually mean by 'UTM parameters'">用户点击的链接里自带的"来源"标记，例如这条链接是从 Facebook 广告来的还是从 EDM 邮件来的。日常说的"UTM 参数"就是它</td>
+          <td class="i18n" data-en="Configured by Marketing/Media-buying when they build the link">市场/投放同学在做链接时配置的</td>
+        </tr>
+        <tr>
+          <td class="api-name">utm_medium</td>
+          <td class="i18n" data-en="Another field from the same UTM parameter set as utm_source, specifically marking the 'medium type' (e.g. email, social, cpc). <b>This is a completely different field from media above — it just sounds similar</b>">和 utm_source 同一批 UTM 参数里的另一个字段，专门标"媒介类型"（比如 email、social、cpc）。<b>它和上面的 media 是两个完全不同的字段，只是名字像</b></td>
+          <td class="i18n" data-en="Configured by Marketing/Media-buying when they build the link">市场/投放同学在做链接时配置的</td>
+        </tr>
+        <tr>
+          <td class="api-name">oldChannel</td>
+          <td class="i18n" data-en="A field whose values currently observed in the code include <code>#sleekflow</code> / <code>#EDM</code> / <code>#social*</code> / <code>#blog</code> / <code>#community</code> / <code>#CDPBanner</code>. It has the lowest priority in the decision order — only used when none of the items before it have a value. <b>What it actually represents and where it comes from is pending business confirmation</b>">一个字段，目前代码中能看到的取值包括 <code>#sleekflow</code> / <code>#EDM</code> / <code>#social*</code> / <code>#blog</code> / <code>#community</code> / <code>#CDPBanner</code>。在判断顺序里优先级最低，只有前面几项都没有值时才会用到它。<b>它具体代表什么、从哪里来，待业务确认</b></td>
+          <td class="i18n" data-en="Pending business confirmation">待业务确认具体来源</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="section-note i18n" data-en="The 'Priority 1 / 2 / 3' wording below can be understood as: <b>the system checks these items in order — sm_media first, then utm_source if that's empty, then oldChannel if that's also empty, and finally a fixed default if all are empty.</b> It's like filling out a form: check the first field, if it's blank check the second, and so on.">
+      下文说的"优先级 1 / 2 / 3"，可以理解成：<b>系统按顺序检查这几项有没有值，先看 sm_media，没有就看 utm_source，还没有就看 oldChannel，全都没有就用一个固定的默认值。</b>就像填表时先看第一栏有没有填，没填看第二栏，依此类推。
+    </p>
+  </section>
+
+  <!-- 2. 一图总览 -->
+  <section id="sec2">
+    <h2><span class="num">2.</span><span class="i18n" data-en="Overview at a Glance: All 7 APIs Grouped into 3 Types">一图总览：7 个 API 分成 3 类</span></h2>
+    <p class="section-note i18n" data-en="If you don't want the details and just want the general picture, this diagram is enough.">不想看细节、只想知道"大概是怎么回事"，看这一张图就够了。</p>
+
+    <div class="overview-grid">
+      <div class="overview-group group-a">
+        <div class="og-head">
+          <span class="og-tag i18n" data-en="Type 1">第 1 类</span>
+          <div class="og-title i18n" data-en="Considers the parameters passed in">会参考携带的参数判断</div>
+          <div class="og-sub i18n" data-en="Checks in the order sm_media → utm_source → oldChannel; falls back to a default if nothing is passed">按 sm_media → utm_source → oldChannel 顺序检查，没传参数就走默认值</div>
+        </div>
+        <div class="og-apis">
+          <div class="og-api">
+            <span class="og-api-name">DORRA_SG</span>
+            <span class="og-result website i18n" data-en="Default: WEBSITE">默认 WEBSITE</span>
+          </div>
+          <div class="og-api">
+            <span class="og-api-name">LondonWeight</span>
+            <span class="og-result website i18n" data-en="Default: WEBSITE">默认 WEBSITE</span>
+          </div>
+          <div class="og-api warn">
+            <span class="og-api-name">NYSS_SG</span>
+            <span class="og-result website i18n" data-en="Default: WEBSITE">默认 WEBSITE</span>
+            <span class="og-warn-note i18n" data-en="⚠ Any result of EDM is forcibly changed to WEBSITE — <b>this API will never output EDM</b>">⚠ 算出 EDM 会被强制改成 WEBSITE，<b>这个 API 永远看不到 EDM</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-group group-b">
+        <div class="og-head">
+          <span class="og-tag i18n" data-en="Type 2">第 2 类</span>
+          <div class="og-title i18n" data-en="Ignores the parameters entirely">完全不看携带的参数</div>
+          <div class="og-sub i18n" data-en="Regardless of what sm_media / utm_source carry, the final value always comes from a fixed config — <b>no need to check the parameters when troubleshooting</b>">不管 sm_media / utm_source 传了什么，最终都用固定配置值，<b>排查问题不用往参数上想</b></div>
+        </div>
+        <div class="og-apis">
+          <div class="og-api">
+            <span class="og-api-name">JONSSON_MY</span>
+            <span class="og-result generic i18n" data-en="Fixed: config value">固定为配置值</span>
+          </div>
+          <div class="og-api">
+            <span class="og-api-name">NYSS_MY</span>
+            <span class="og-result generic i18n" data-en="Fixed: config value">固定为配置值</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-group group-c">
+        <div class="og-head">
+          <span class="og-tag i18n" data-en="Type 3">第 3 类</span>
+          <div class="og-title i18n" data-en="Each has its own special logic">各自一套特殊逻辑</div>
+          <div class="og-sub i18n" data-en="Doesn't fit either category above — behaves differently from all the others, and is <b>the most likely to surprise you</b>">不属于以上两类，行为和别人都不一样，<b>最容易出乎意料</b></div>
+        </div>
+        <div class="og-apis">
+          <div class="og-api warn">
+            <span class="og-api-name">DORRA_MY</span>
+            <span class="og-result generic i18n" data-en="Default: config value">默认配置值</span>
+            <span class="og-warn-note i18n" data-en="⚠ Only checks sm_media, and any WEBSITE result is forcibly changed to SUPERMOM">⚠ 只看 sm_media，且算出 WEBSITE 会被强制改成 SUPERMOM</span>
+          </div>
+          <div class="og-api warn">
+            <span class="og-api-name">YunNam</span>
+            <span class="og-result whatsapp i18n" data-en="Default: WHATSAPP">默认 WHATSAPP</span>
+            <span class="og-warn-note i18n" data-en="⚠ Its default is the opposite of the other 6 — only switches to WEBSITE when utm_medium=website">⚠ 默认值和其他 6 个反着来，只有 utm_medium=website 才变 WEBSITE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="section-note i18n" data-en="After this diagram, check the table in Section 3 for a specific API, or Section 5 for the full decision steps.">看完这张图，去第 3 节表格核对具体某个 API，或第 5 节看完整判断步骤。</p>
+  </section>
+
+  <!-- 3. 速查总表 -->
+  <section id="sec3">
+    <h2><span class="num">3.</span><span class="i18n" data-en="Quick Reference Table for All 7 APIs">七个 API 速查总表</span></h2>
+    <p class="section-note i18n" data-en="Look up by API name: whether it follows the standard logic, whether it has a 'special transformation', and what its final fallback value is.">按 API 名字查：是否走标准逻辑、有没有"特殊转换"、最终兜底值是什么。</p>
+    <table class="summary">
+      <thead>
+        <tr>
+          <th>API</th>
+          <th class="i18n" data-en="Decision logic">判断逻辑</th>
+          <th class="i18n" data-en="Depends on utm_source?">依赖 utm_source？</th>
+          <th class="i18n" data-en="Depends on oldChannel?">依赖 oldChannel？</th>
+          <th class="i18n" data-en="Special transformation (gotcha)">特殊转换（坑点）</th>
+          <th class="i18n" data-en="Fallback default">兜底默认值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="api-name">DORRA_MY</td>
+          <td class="i18n" data-en="sm_media only (does not follow the standard 3-tier logic)">仅 sm_media（不走标准三级）</td>
+          <td class="i18n" data-en="No">否</td><td class="i18n" data-en="No">否</td>
+          <td class="warn-cell i18n" data-en="Finally forces <code class='v website'>WEBSITE-SUPERMOM</code> to become <code class='v generic'>SUPERMOM</code>">最后会把 <code class="v website">WEBSITE-SUPERMOM</code> 强制改成 <code class="v generic">SUPERMOM</code></td>
+          <td class="i18n" data-en="Config value (usually <code class='v generic'>SUPERMOM</code>)">配置值（通常 <code class="v generic">SUPERMOM</code>）</td>
+        </tr>
+        <tr>
+          <td class="api-name">DORRA_SG</td>
+          <td class="i18n" data-en="Standard 3-tier logic">标准三级逻辑</td>
+          <td class="i18n" data-en="Yes">是</td><td class="i18n" data-en="Yes">是</td>
+          <td class="i18n" data-en="None">无</td>
+          <td><code class="v website">WEBSITE-SUPERMOM</code></td>
+        </tr>
+        <tr>
+          <td class="api-name">JONSSON_MY</td>
+          <td class="i18n" data-en="Unconditionally overwritten with config value">无条件覆盖为配置值</td>
+          <td class="i18n" data-en="No">否</td><td class="i18n" data-en="No">否</td>
+          <td class="i18n" data-en="None (sm_media / utm_source have no effect at all)">无（sm_media / utm_source 全部不生效）</td>
+          <td class="i18n" data-en="Config value (usually <code class='v generic'>SUPERMOM</code>)">配置值（通常 <code class="v generic">SUPERMOM</code>）</td>
+        </tr>
+        <tr>
+          <td class="api-name">LondonWeight</td>
+          <td class="i18n" data-en="Standard 3-tier logic">标准三级逻辑</td>
+          <td class="i18n" data-en="Yes">是</td><td class="i18n" data-en="Yes">是</td>
+          <td class="i18n" data-en="None">无</td>
+          <td><code class="v website">WEBSITE-SUPERMOM</code></td>
+        </tr>
+        <tr>
+          <td class="api-name">NYSS_MY</td>
+          <td class="i18n" data-en="Unconditionally overwritten with config value">无条件覆盖为配置值</td>
+          <td class="i18n" data-en="No">否</td><td class="i18n" data-en="No">否</td>
+          <td class="i18n" data-en="None (sm_media / utm_source have no effect at all)">无（sm_media / utm_source 全部不生效）</td>
+          <td class="i18n" data-en="Config value (usually <code class='v generic'>SUPERMOM</code>)">配置值（通常 <code class="v generic">SUPERMOM</code>）</td>
+        </tr>
+        <tr>
+          <td class="api-name">NYSS_SG</td>
+          <td class="i18n" data-en="Standard 3-tier logic + post-processing transform">标准三级逻辑 + 后置转换</td>
+          <td class="i18n" data-en="Yes">是</td><td class="i18n" data-en="Yes">是</td>
+          <td class="warn-cell i18n" data-en="Finally forces <code class='v edm'>EDM-SUPERMOM</code> to become <code class='v website'>WEBSITE-SUPERMOM</code> (EDM never appears)">最后会把 <code class="v edm">EDM-SUPERMOM</code> 强制改成 <code class="v website">WEBSITE-SUPERMOM</code>（永远不会出现 EDM）</td>
+          <td class="i18n" data-en="Config value">配置值</td>
+        </tr>
+        <tr>
+          <td class="api-name">YunNam</td>
+          <td class="i18n" data-en="Independent logic, does not follow the standard 3-tier flow">独立逻辑，不走标准三级</td>
+          <td class="i18n" data-en="No">否</td><td class="i18n" data-en="No">否</td>
+          <td class="warn-cell i18n" data-en="Default is reversed — <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>; only switches to WEBSITE when utm_medium=website">默认值反过来是 <code class="v whatsapp">WHATSAPP-SUPERMOM</code>；只有 utm_medium=website 才变 WEBSITE</td>
+          <td><code class="v whatsapp">WHATSAPP-SUPERMOM</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. 标准三级优先级逻辑 -->
+  <section id="sec4">
+    <h2><span class="num">4.</span><span class="i18n" data-en="What Is the Standard 3-Tier Priority Logic">标准三级优先级逻辑是什么</span></h2>
+    <p class="section-note i18n" data-en="<b>DORRA_SG, LondonWeight, and NYSS_SG</b> all share this same decision order. Understanding this covers the core logic of all three — their cards in Section 5 will simply reference this section instead of repeating the steps.">
+      <b>DORRA_SG、LondonWeight、NYSS_SG</b> 三个 API 共用同一套判断顺序。理解了这一套，就理解了这三个 API 的核心逻辑——第 5 节里这三个 API 的卡片会直接引用这里，不再重复列步骤。
+    </p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="tag i18n" data-en="Priority 1">优先级 1</div>
+        <div class="title">sm_media</div>
+        <ul>
+          <li class="i18n" data-en="Value equals <code class='v generic'>supermom</code> (case-insensitive) → judged as <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>">值为 <code class="v generic">supermom</code>（不分大小写）→ 判定为 <code class="v whatsapp">WHATSAPP-SUPERMOM</code></li>
+          <li class="i18n" data-en="Any other non-empty value → passed through unchanged">其他非空值 → 原值直接透传</li>
+          <li class="i18n" data-en="Empty → proceed to Priority 2">为空 → 往下走优先级 2</li>
+        </ul>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="tag i18n" data-en="Priority 2">优先级 2</div>
+        <div class="title">utm_source</div>
+        <ul>
+          <li class="i18n" data-en="Matches 1 of 3 WhatsApp-type sources → <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>">命中 3 个 WhatsApp 类来源 → <code class="v whatsapp">WHATSAPP-SUPERMOM</code></li>
+          <li class="i18n" data-en="Matches 1 of 5 email-type sources → <code class='v edm'>EDM-SUPERMOM</code>">命中 5 个邮件类来源 → <code class="v edm">EDM-SUPERMOM</code></li>
+          <li class="i18n" data-en="Matches 1 of the other 28 sources → <code class='v website'>WEBSITE-SUPERMOM</code>">命中其余 28 个来源 → <code class="v website">WEBSITE-SUPERMOM</code></li>
+          <li class="i18n" data-en="No match → proceed to Priority 3">未匹配 → 往下走优先级 3</li>
+        </ul>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="tag i18n" data-en="Priority 3">优先级 3</div>
+        <div class="title">oldChannel</div>
+        <ul>
+          <li class="i18n" data-en="Only triggers when the <b>carried media parameter</b> (the result from sm_media), <b>utm_source</b>, and <b>utm_medium</b> are <b>all empty</b>">仅当<b>携带的 media 参数</b>（sm_media 算出的结果）、<b>utm_source</b>、<b>utm_medium</b> 这三者<b>全部为空</b> 才生效</li>
+          <li style="color:var(--warn);" class="i18n" data-en="Note: 'media' here refers to the media parameter that's carried in / already calculated from the request — it is <b>NOT</b> utm_medium. utm_medium is the third, separate field checked alongside it">注意：这里的"media"指的是请求里携带/已算出的 media 参数本身，<b>不是</b> utm_medium —— utm_medium 是与它并列检查的第三个独立字段</li>
+          <li class="i18n" data-en="<code>#sleekflow</code> → <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>"><code>#sleekflow</code> → <code class="v whatsapp">WHATSAPP-SUPERMOM</code></li>
+          <li class="i18n" data-en="<code>#EDM</code> → <code class='v edm'>EDM-SUPERMOM</code>"><code>#EDM</code> → <code class="v edm">EDM-SUPERMOM</code></li>
+          <li class="i18n" data-en="<code>#social*</code> / <code>#blog</code> / <code>#community</code> / <code>#CDPBanner</code> → <code class='v website'>WEBSITE-SUPERMOM</code>"><code>#social*</code> / <code>#blog</code> / <code>#community</code> / <code>#CDPBanner</code> → <code class="v website">WEBSITE-SUPERMOM</code></li>
+        </ul>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="tag i18n" data-en="Final fallback">最终兜底</div>
+        <div class="title i18n" data-en="None of the 3 tiers matched">三级都没命中</div>
+        <ul>
+          <li class="i18n" data-en="Uniformly falls back to <code class='v website'>WEBSITE-SUPERMOM</code>">统一兜底为 <code class="v website">WEBSITE-SUPERMOM</code></li>
+        </ul>
+      </div>
+    </div>
+    <p class="section-note i18n" data-en="The full 36-entry utm_source mapping table is in Section 7 'Appendix' — refer to it when checking a specific source.">完整的 36 条 utm_source 对照表见第 7 节「附录」，业务排查具体来源时查附录即可。</p>
+  </section>
+
+  <!-- 5. 逐个 API 详情 -->
+  <section id="sec5">
+    <h2><span class="num">5.</span><span class="i18n" data-en="Detailed Logic for Each API">逐个 API 详细逻辑</span></h2>
+    <p class="section-note i18n" data-en="Each API follows the same structure: what's used when no parameters are passed → how it's calculated when parameters are passed → whether there's a special exception.">每个 API 统一用同一个结构看：<b>没传任何参数时取什么</b> → <b>传了参数时怎么算</b> → <b>有没有特殊例外</b>。</p>
+    <div class="api-grid">
+
+      <!-- DORRA_MY -->
+      <div class="api-card">
+        <div class="head">
+          <h3>DORRA_MY</h3>
+          <span class="src">DorraMyApi.java</span>
+          <span class="logic-type custom i18n" data-en="Independent logic (sm_media only)">独立逻辑（仅 sm_media）</span>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When sm_media is not passed">没有传 sm_media 时</div>
+          <div class="case-content plain i18n" data-en="Uses the config default directly (<code>DORRA_MY.Media</code>, usually <code class='v generic'>SUPERMOM</code>)">直接取配置默认值（<code>DORRA_MY.Media</code>，通常为 <code class="v generic">SUPERMOM</code>）</div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When sm_media is passed, how it's calculated">传了 sm_media 时，怎么算</div>
+          <ol class="steps">
+            <li class="i18n" data-en="Lowercased equals <code class='v generic'>supermom</code> → <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>">小写后等于 <code class="v generic">supermom</code> → <code class="v whatsapp">WHATSAPP-SUPERMOM</code></li>
+            <li class="i18n" data-en="Any other non-empty value → passed through unchanged">其他任何非空值 → 原值直接透传，不转换</li>
+          </ol>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="Does not depend on">不依赖</div>
+          <div class="case-content plain i18n" data-en="Does not check utm_source or oldChannel">不看 utm_source，不看 oldChannel</div>
+        </div>
+
+        <div class="exception-box">
+          <b class="i18n" data-en="⚠ Special exception:">⚠ 特殊例外：</b> <span class="i18n" data-en="Regardless of which path is taken, if the final result is exactly <code class='v website'>WEBSITE-SUPERMOM</code>, the system forcibly rewrites it to <code class='v generic'>SUPERMOM</code>. <b>This API will never actually output WEBSITE-SUPERMOM.</b>">不管走哪条路，只要最终算出来的结果正好是 <code class="v website">WEBSITE-SUPERMOM</code>，系统会再把它强制改写成 <code class="v generic">SUPERMOM</code>。<b>这个 API 永远不会真正输出 WEBSITE-SUPERMOM。</b></span>
+        </div>
+      </div>
+
+      <!-- DORRA_SG -->
+      <div class="api-card">
+        <div class="head">
+          <h3>DORRA_SG</h3>
+          <span class="src">DorraSgApi.java</span>
+          <span class="logic-type standard i18n" data-en="Standard 3-tier logic">标准三级逻辑</span>
+        </div>
+        <div class="reuse-note i18n" data-en="Fully reuses the 'Standard 3-Tier Priority Logic' from Section 4, with no additional exceptions or post-processing. Falls back to <code class='v website'>WEBSITE-SUPERMOM</code> when none of the 3 tiers match.">完全复用第 4 节「标准三级优先级逻辑」，没有任何额外例外或后置转换。三级都未命中时，兜底为 <code class="v website">WEBSITE-SUPERMOM</code>。</div>
+      </div>
+
+      <!-- JONSSON_MY -->
+      <div class="api-card">
+        <div class="head">
+          <h3>JONSSON_MY</h3>
+          <span class="src">JonssonMyApi.java</span>
+          <span class="logic-type fixed i18n" data-en="Unconditionally overwritten with config value">无条件覆盖为配置值</span>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When no parameters are passed">没有传任何参数时</div>
+          <div class="case-content plain i18n" data-en="Uses the config default (usually <code class='v generic'>SUPERMOM</code>)">取配置默认值（通常为 <code class="v generic">SUPERMOM</code>）</div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When sm_media / utm_source are passed, how it's calculated">传了 sm_media / utm_source 时，怎么算</div>
+          <div class="case-content plain i18n" data-en="Has no effect on the result — this API does not read sm_media / utm_source / oldChannel at all; during request construction, the config value unconditionally overwrites whatever value was there before">不影响结果——这个 API 不读取 sm_media / utm_source / oldChannel，请求构造阶段会直接用配置值无条件覆盖掉之前的任何值</div>
+        </div>
+
+        <div class="exception-box">
+          <b class="i18n" data-en="⚠ Note for business:">⚠ 业务提示：</b> <span class="i18n" data-en="When troubleshooting this API's media value, don't look at sm_media / utm_source — just check the config setting.">排查这个 API 的 media 问题时，不要往 sm_media / utm_source 参数上找原因，只需要查配置项。</span>
+        </div>
+      </div>
+
+      <!-- LondonWeight -->
+      <div class="api-card">
+        <div class="head">
+          <h3>LondonWeight</h3>
+          <span class="src">LondonWeightApi.java</span>
+          <span class="logic-type standard i18n" data-en="Standard 3-tier logic">标准三级逻辑</span>
+        </div>
+        <div class="reuse-note i18n" data-en="Fully reuses the Section 4 logic, identical to DORRA_SG, with no additional exceptions. Falls back to <code class='v website'>WEBSITE-SUPERMOM</code> when none of the 3 tiers match.">完全复用第 4 节「标准三级优先级逻辑」，与 DORRA_SG 逻辑完全一致，没有任何额外例外。三级都未命中时，兜底为 <code class="v website">WEBSITE-SUPERMOM</code>。</div>
+      </div>
+
+      <!-- NYSS_MY -->
+      <div class="api-card">
+        <div class="head">
+          <h3>NYSS_MY</h3>
+          <span class="src">NyssMyApi.java</span>
+          <span class="logic-type fixed i18n" data-en="Unconditionally overwritten with config value">无条件覆盖为配置值</span>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When no parameters are passed">没有传任何参数时</div>
+          <div class="case-content plain i18n" data-en="Uses the config default (usually <code class='v generic'>SUPERMOM</code>)">取配置默认值（通常为 <code class="v generic">SUPERMOM</code>）</div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When sm_media / utm_source are passed, how it's calculated">传了 sm_media / utm_source 时，怎么算</div>
+          <div class="case-content plain i18n" data-en="Has no effect on the result — identical to JONSSON_MY, the config value unconditionally overwrites it during request construction">不影响结果——与 JONSSON_MY 逻辑完全一致，请求构造阶段直接用配置值无条件覆盖</div>
+        </div>
+
+        <div class="exception-box">
+          <b class="i18n" data-en="⚠ Note for business:">⚠ 业务提示：</b> <span class="i18n" data-en="When troubleshooting, don't look at the parameters — just check the config setting.">排查问题时不要往参数上找原因，只需要查配置项。</span>
+        </div>
+      </div>
+
+      <!-- NYSS_SG -->
+      <div class="api-card">
+        <div class="head">
+          <h3>NYSS_SG</h3>
+          <span class="src">NyssSgApi.java</span>
+          <span class="logic-type standard i18n" data-en="Standard 3-tier logic + post-processing transform">标准三级逻辑 + 后置转换</span>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When no parameters are passed">没有传任何参数时</div>
+          <div class="case-content plain i18n" data-en="Falls back to <code class='v website'>WEBSITE-SUPERMOM</code> first; if still empty after the whole process, then uses the config default (<code>NYSS_SG.Media</code>)">先兜底为 <code class="v website">WEBSITE-SUPERMOM</code>；若流程结束后仍为空，再取配置默认值（<code>NYSS_SG.Media</code>）</div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="When parameters are passed, how it's calculated">传了参数时，怎么算</div>
+          <div class="case-content plain i18n" data-en="Same decision order as Section 4's 'Standard 3-Tier Logic' (sm_media → utm_source → oldChannel)">判断顺序与第 4 节「标准三级逻辑」完全相同（sm_media → utm_source → oldChannel）</div>
+        </div>
+
+        <div class="exception-box">
+          <b class="i18n" data-en="⚠ Special exception:">⚠ 特殊例外：</b> <span class="i18n" data-en="Whenever the result is <code class='v edm'>EDM-SUPERMOM</code>, the system forcibly rewrites it to <code class='v website'>WEBSITE-SUPERMOM</code>. As a result, <b>NYSS_SG will never output EDM-SUPERMOM</b>, even if the upstream utm_source is an email-type source or oldChannel=#EDM.">只要算出来是 <code class="v edm">EDM-SUPERMOM</code>，系统会强制改写成 <code class="v website">WEBSITE-SUPERMOM</code>。结果就是：<b>NYSS_SG 永远不会出现 EDM-SUPERMOM</b>，即便上游传的是邮件类 utm_source 或 oldChannel=#EDM。</span>
+        </div>
+      </div>
+
+      <!-- YunNam -->
+      <div class="api-card">
+        <div class="head">
+          <h3>YunNam</h3>
+          <span class="src">YunNamApi.java</span>
+          <span class="logic-type custom i18n" data-en="Independent logic (completely different from the other APIs)">独立逻辑（与其他 API 完全不同）</span>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="Form data (formData) — when utm_medium is not passed">表单数据（formData）— 没传 utm_medium 时</div>
+          <div class="case-content plain i18n" data-en="Defaults directly to <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>">直接默认给 <code class="v whatsapp">WHATSAPP-SUPERMOM</code></div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="Form data (formData) — when utm_medium is passed">表单数据（formData）— 传了 utm_medium 时</div>
+          <div class="case-content plain i18n" data-en="Only when utm_medium = <code>website</code> → changes to <code class='v website'>WEBSITE-SUPERMOM</code>; any other value has no effect, stays WHATSAPP">仅当 utm_medium = <code>website</code> 时 → 改为 <code class="v website">WEBSITE-SUPERMOM</code>；其他值不影响，仍是 WHATSAPP</div>
+        </div>
+
+        <div class="case-block">
+          <div class="case-label i18n" data-en="Excel import data — a separate, independent piece of logic">Excel 导入数据 — 另一套独立逻辑</div>
+          <ol class="steps">
+            <li class="i18n" data-en="media not passed → uses the config default (<code>YUN_NAM.Media</code>)">没传 media → 取配置默认值（<code>YUN_NAM.Media</code>）</li>
+            <li class="i18n" data-en="media passed, lowercased = supermom → <code class='v whatsapp'>WHATSAPP-SUPERMOM</code>">传了 media，小写为 supermom → <code class="v whatsapp">WHATSAPP-SUPERMOM</code></li>
+            <li class="i18n" data-en="media passed, any other non-empty value → passed through unchanged">传了 media，其他非空值 → 原值透传</li>
+          </ol>
+        </div>
+
+        <div class="exception-box">
+          <b class="i18n" data-en="⚠ Special exception:">⚠ 特殊例外：</b> <span class="i18n" data-en="This is the only API whose 'default is WHATSAPP' — the opposite direction from the other six (which default to WEBSITE or a config value) — and it doesn't follow the standard sm_media / utm_source / oldChannel decision order at all. <b>Form data and Excel import data follow two separate, different pieces of logic</b> — don't conflate them.">这是唯一一个"默认值是 WHATSAPP"的 API，方向和其他六个（默认 WEBSITE 或配置值）相反，且完全不参考 sm_media / utm_source / oldChannel 的标准判断顺序。<b>表单数据和 Excel 导入数据走的是两套不同逻辑</b>，不要混用理解。</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. 排查矩阵 -->
+  <section id="sec6">
+    <h2><span class="num">6.</span><span class="i18n" data-en="Troubleshooting Matrix: Trace a Symptom Back to Its Cause">排查矩阵：看到异常结果，按现象反查原因</span></h2>
+    <p class="section-note i18n" data-en="When you run into 'why is this API's media value this?', check this table first to locate the type.">遇到"这个 API 的 media 为什么是这个值"的问题时，先看这张表定位类型。</p>
+    <table class="summary">
+      <thead>
+        <tr>
+          <th class="i18n" data-en="Symptom">问题现象</th>
+          <th class="i18n" data-en="Which API to check first">先查哪个 API</th>
+          <th class="i18n" data-en="Reason">原因</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="i18n" data-en="Upstream passed sm_media / utm_source, but the final media value didn't change">上游传了 sm_media / utm_source，但最终 media 没变化</td>
+          <td class="api-name">JONSSON_MY / NYSS_MY</td>
+          <td class="i18n" data-en="These two APIs' media is unconditionally overwritten by the config value — input parameters have no effect">这两个 API 的 media 由配置值无条件覆盖，输入参数不生效</td>
+        </tr>
+        <tr>
+          <td class="i18n" data-en="Should be WEBSITE, but SUPERMOM is showing instead">本应是 WEBSITE，结果看到的是 SUPERMOM</td>
+          <td class="api-name">DORRA_MY</td>
+          <td class="i18n" data-en="The only API that rewrites WEBSITE-SUPERMOM to SUPERMOM after the fact">唯一一个把 WEBSITE-SUPERMOM 后置改写成 SUPERMOM 的 API</td>
+        </tr>
+        <tr>
+          <td class="i18n" data-en="Should be EDM (an email source), but WEBSITE is showing instead">本应是 EDM（邮件来源），结果看到的是 WEBSITE</td>
+          <td class="api-name">NYSS_SG</td>
+          <td class="i18n" data-en="The only API that rewrites EDM-SUPERMOM to WEBSITE-SUPERMOM after the fact — this API never outputs EDM">唯一一个把 EDM-SUPERMOM 后置改写成 WEBSITE-SUPERMOM 的 API，该 API 永不出现 EDM</td>
+        </tr>
+        <tr>
+          <td class="i18n" data-en="No UTM parameters were passed at all, yet the default is WhatsApp instead of Website">什么 utm 参数都没传，默认值却是 WhatsApp 而不是 Website</td>
+          <td class="api-name">YunNam</td>
+          <td class="i18n" data-en="The only API whose default is WHATSAPP-SUPERMOM; the other six default to WEBSITE or a config value">唯一默认值为 WHATSAPP-SUPERMOM 的 API；其余六个默认是 WEBSITE 或配置值</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 7. 附录 -->
+  <section id="sec7">
+    <h2><span class="num">7.</span><span class="i18n" data-en="Appendix: Full utm_source Mapping Table (36 Entries)">附录：utm_source 完整对照表（36 条）</span></h2>
+    <p class="section-note i18n" data-en="Referenced by Priority 2 in the 'Standard 3-Tier Logic' — use this to look up a specific utm_source value.">被「标准三级逻辑」中的优先级 2 引用，供排查具体 utm_source 取值时查阅。</p>
+    <details>
+      <summary class="i18n" data-en="Expand / collapse the 36-entry utm_source → media mapping table">展开 / 收起 36 条 utm_source → media 对照表</summary>
+      <table class="appendix">
+        <thead><tr><th>utm_source</th><th class="i18n" data-en="Mapped media">对应 media</th></tr></thead>
+        <tbody>
+          <tr><td>crm-whatsapp</td><td><code class="v whatsapp">WHATSAPP-SUPERMOM</code></td></tr>
+          <tr><td>whatsapp</td><td><code class="v whatsapp">WHATSAPP-SUPERMOM</code></td></tr>
+          <tr><td>crm-sms</td><td><code class="v whatsapp">WHATSAPP-SUPERMOM</code></td></tr>
+          <tr><td>hs_email</td><td><code class="v edm">EDM-SUPERMOM</code></td></tr>
+          <tr><td>email</td><td><code class="v edm">EDM-SUPERMOM</code></td></tr>
+          <tr><td>Hubspot</td><td><code class="v edm">EDM-SUPERMOM</code></td></tr>
+          <tr><td>hs_automation</td><td><code class="v edm">EDM-SUPERMOM</code></td></tr>
+          <tr><td>crm-email</td><td><code class="v edm">EDM-SUPERMOM</code></td></tr>
+          <tr><td>crm-push-notif</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-internal</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-external</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-partner-glu</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-partner-mbs</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>facebook</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>ig-page</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>ig-story</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>ig-linktree</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>fb-group</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>fb-page</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>fb-ads</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>ig</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>fb</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-referral</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>tt-feed</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>tt-ycard</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>linkedin-post</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>linkedin-referral</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>yyt-organic</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>web-top-freebies</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>web-hero-banners</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>web-organic</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-ugc</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-ugc-share-to-groups</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-articles</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-partner-motherland</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+          <tr><td>com-partner-kib</td><td><code class="v website">WEBSITE-SUPERMOM</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+  </section>
+
+  <p class="footnote i18n" data-en="This document is compiled from the existing code logic (DorraMyApi / DorraSgApi / JonssonMyApi / LondonWeightApi / NyssMyApi / NyssSgApi / YunNamApi / UtmSourceEnum). It reflects the system's current actual behavior only and does not represent an ideal design. If the logic changes, please update the corresponding section of this document accordingly.">本文档基于现有代码逻辑（DorraMyApi / DorraSgApi / JonssonMyApi / LondonWeightApi / NyssMyApi / NyssSgApi / YunNamApi / UtmSourceEnum）整理，仅反映系统当前实际运行逻辑，不代表理想设计。如逻辑有变更，请同步更新本文档对应章节。</p>
+
+</div>
+
+<script>
+  function setLang(lang){
+    document.querySelectorAll('.i18n').forEach(function(el){
+      if(!el.dataset.zhCache){ el.dataset.zhCache = el.innerHTML; }
+      el.innerHTML = (lang === 'zh') ? el.dataset.zhCache : el.dataset.en;
+    });
+    document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.documentElement.lang = (lang === 'zh') ? 'zh-CN' : 'en';
+  }
+</script>
+
+</body>
+</html>
