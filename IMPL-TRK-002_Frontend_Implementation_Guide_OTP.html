@@ -145,13 +145,12 @@ body.show-en pre .lang-zh{display:none}
       <span class="lang-en"><code>source_component</code> and <code>component_name</code> must never be inferred inside the popup component from the route or global state. Every button/component that triggers the OTP popup must pass them explicitly as call parameters. <code>component_type</code> is a fixed constant <code>"otp_popup"</code> — hardcode it inside the popup component.</span>
     </p>
     <pre><span class="c lang-zh">// 弹窗组件内部 —— 只负责接收参数并 push，不做任何推断</span><span class="c lang-en">// Inside the popup component — only receives params and pushes, no inference</span>
-function openOtpPopup({ sourceComponent, sourcePage, componentName, contentType }) {
+function openOtpPopup({ sourceComponent, componentName, contentType }) {
   pushEvent({
     <span class="k">event</span>: <span class="s">"otp_popup_view"</span>,
     <span class="k">page_type</span>: getCurrentPageType(),
     <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
     <span class="k">source_component</span>: sourceComponent,
-    ...(sourcePage && { <span class="k">source_page</span>: sourcePage }),  <span class="c lang-zh">// 仅 #1 会传，其余 13 个入口不传</span><span class="c lang-en">// only #1 passes this, the other 13 entries omit it</span>
     <span class="k">component_name</span>: componentName,
     ...(contentType && { <span class="k">content_type</span>: contentType })
   });
@@ -160,33 +159,17 @@ function openOtpPopup({ sourceComponent, sourcePage, componentName, contentType 
       <span class="lang-zh">这段是组件内部的通用写法，<code>sourceComponent</code>/<code>componentName</code> 只是形参名，不是具体值——具体传什么取决于是哪个按钮调用它。比如导航栏注册按钮，调用方要这样写：</span>
       <span class="lang-en">The snippet above is the generic implementation. <code>sourceComponent</code>/<code>componentName</code> are just parameter names, not actual values — what gets passed depends on which button calls it. For the nav bar register button, the caller looks like this:</span>
     </p>
-    <pre><span class="c lang-zh">// 调用方（例：#1 导航栏注册按钮，唯一还需要传 sourcePage 的入口）</span><span class="c lang-en">// Caller (example: #1 nav bar register button — the only entry that still passes sourcePage)</span>
+    <pre><span class="c lang-zh">// 调用方（例：#1 导航栏注册按钮）</span><span class="c lang-en">// Caller (example: #1 nav bar register button)</span>
 onClick={() => openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"navigation_register"</span>,
-  <span class="k">sourcePage</span>: <span class="s">"any"</span>,
   <span class="k">componentName</span>: <span class="s">"navigation_register_btn"</span>,
-})}</pre>
-    <pre><span class="c lang-zh">// 调用方（例：#2 首页 Hero AIMA —— 其余 13 个入口都不传 sourcePage）</span><span class="c lang-en">// Caller (example: #2 homepage hero AIMA — the other 13 entries don't pass sourcePage)</span>
-onClick={() => openOtpPopup({
-  <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
-  <span class="k">componentName</span>: <span class="s">"homepage_hero_chat"</span>,
 })}</pre>
     <p class="sdesc">
       <span class="lang-zh">每一个触发点具体该填什么值，不用自己猜或去问产品——§2 已按 14 个入口逐一给出对应的调用示例，直接照抄对应那一段即可。</span>
       <span class="lang-en">You don't need to guess or ask product what value each trigger point should use — §2 already gives a matching call example for all 14 entry points. Just copy the relevant one.</span>
     </p>
 
-    <h3><span class="lang-zh">1.2 source_page 已简化为 #1 专用字段</span><span class="lang-en">1.2 source_page is now specific to #1 only</span></h3>
-    <div class="callout c-note">
-      <span class="lang-zh"><strong>已确认（原 §1.4 分析）：</strong>除 #1 外，其余 13 个入口的 <code>source_page</code> 值与同一事件自带的 <code>page_type</code> 完全重复，因此不再要求前端传这个字段。<code>source_page</code> 现在只在 <strong>#1 导航栏注册</strong> 这一个入口保留，固定传字面量 <code>"any"</code>——原因是这个按钮故意把所有触发页面聚合成一类，方便分析时不用按十几个页面拆开看，这是 <code>page_type</code> 无法替代的聚合设计。</span>
-      <span class="lang-en"><strong>Confirmed (formerly the §1.4 analysis):</strong> apart from #1, the <code>source_page</code> value on the other 13 entries fully duplicates the <code>page_type</code> already carried on the same event, so the frontend no longer needs to pass it. <code>source_page</code> now only applies to <strong>#1 nav bar register</strong>, always passing the literal <code>"any"</code> — this button deliberately aggregates all trigger pages into one bucket for analysis, which <code>page_type</code> alone can't replicate.</span>
-    </div>
-    <p class="sdesc">
-      <span class="lang-zh">用 URL 做页面来源分析在技术上可行，但不建议——URL 比 <code>page_type</code> 脏得多（带 <code>/beta/</code> 环境前缀、query string、多语言路径），在 BigQuery 里再解析一遍容易出错，<code>page_type</code> 是已经清洗过的标准字段，应优先使用。</span>
-      <span class="lang-en">Using the URL for page-source analysis is technically possible but not recommended — URLs are much noisier (env prefixes like <code>/beta/</code>, query strings, locale paths) and re-parsing them in BigQuery is error-prone. <code>page_type</code> is the already-cleaned standard field and should be preferred.</span>
-    </p>
-
-    <h3><span class="lang-zh">1.3 content_type 在指定场景下为必填字段</span><span class="lang-en">1.3 content_type is required in a specific scenario</span></h3>
+    <h3><span class="lang-zh">1.2 content_type 在指定场景下为必填字段</span><span class="lang-en">1.2 content_type is required in a specific scenario</span></h3>
     <div class="callout c-warn">
       <span class="lang-zh"><strong>规则：</strong>当 <code>component_name = "detail_aima_widget"</code> 时，<code>otp_popup_view</code> 必须同时携带 <code>content_type</code> 字段（取值 <code>"flashcard"</code> 或 <code>"article"</code>）。原因：闪卡详情页和文章详情页的 Aima 聊天入口使用相同的 component_name，仅靠基础字段无法区分触发页面类型。</span>
       <span class="lang-en"><strong>Rule:</strong> when <code>component_name = "detail_aima_widget"</code>, <code>otp_popup_view</code> must also carry <code>content_type</code> (value <code>"flashcard"</code> or <code>"article"</code>). Reason: the Aima chat entry on the flashcard detail page and on the article detail page share the same component_name — the base fields alone can't distinguish which page type triggered it.</span>
@@ -223,16 +206,12 @@ onClick={() => openOtpPopup({
         <tr><td>14</td><td><span class="lang-zh">全局搜索无结果 Ask Aima</span><span class="lang-en">Global search empty-state Ask Aima</span></td><td><code>aima_open</code></td><td><code>global_search_results</code></td><td>—</td></tr>
       </tbody>
     </table></div>
-    <p class="sdesc" style="margin-bottom:24px">
-      <span class="lang-zh"><code>source_page</code> 已不再是通用字段，表格里不再单列——<strong>仅 #1</strong> 额外携带 <code>source_page: "any"</code>，其余 13 个入口都不传，详见 §1.2。</span>
-      <span class="lang-en"><code>source_page</code> is no longer a common field, so it's dropped from this table — <strong>only #1</strong> additionally carries <code>source_page: "any"</code>; the other 13 entries omit it. See §1.2.</span>
-    </p>
+
 
     <div class="entry" id="e1">
-      <div class="entry-head"><span class="entry-num">#1</span><span class="entry-title"><span class="lang-zh">顶部导航栏 注册/登录按钮</span><span class="lang-en">Top nav bar register/login button</span></span><div class="entry-tags"><span class="req r-static"><span class="lang-zh">唯一携带 source_page</span><span class="lang-en">only entry with source_page</span></span></div></div>
+      <div class="entry-head"><span class="entry-num">#1</span><span class="entry-title"><span class="lang-zh">顶部导航栏 注册/登录按钮</span><span class="lang-en">Top nav bar register/login button</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"navigation_register"</span>,
-  <span class="k">sourcePage</span>: <span class="s">"any"</span>,
   <span class="k">componentName</span>: <span class="s">"navigation_register_btn"</span>,
 });</pre>
     </div>
@@ -355,28 +334,26 @@ onClick={() => openOtpPopup({
     <div class="stag">§3</div>
     <h2><span class="lang-zh">下游事件同步要求</span><span class="lang-en">Downstream event sync requirements</span></h2>
     <p class="sdesc">
-      <span class="lang-zh">OTP 流程完成后触发的 <code>sign_up</code>、<code>login</code> 事件，需要携带与本次流程起始的 <code>otp_popup_view</code> 相同的 <code>source_component</code> 值；若本次流程是 #1（唯一携带 <code>source_page</code> 的入口），<code>source_page</code> 也要一并同步。前端需要在弹窗打开时用 state 保存这些值，一直持有到验证完成、推送事件时复用同一份值，不要重新计算。</span>
-      <span class="lang-en">The <code>sign_up</code>/<code>login</code> events fired after the OTP flow completes must carry the same <code>source_component</code> as the <code>otp_popup_view</code> that started this flow. If this flow was #1 (the only entry that carries <code>source_page</code>), <code>source_page</code> must be synced too. The frontend must save these values in state when the popup opens, hold them until verification completes, and reuse the same values when pushing the event — never recompute.</span>
+      <span class="lang-zh">OTP 流程完成后触发的 <code>sign_up</code>、<code>login</code> 事件，需要携带与本次流程起始的 <code>otp_popup_view</code> 相同的 <code>source_component</code> 值。前端需要在弹窗打开时用 state 保存这个值，一直持有到验证完成、推送事件时复用同一份值，不要重新计算。</span>
+      <span class="lang-en">The <code>sign_up</code>/<code>login</code> events fired after the OTP flow completes must carry the same <code>source_component</code> as the <code>otp_popup_view</code> that started this flow. The frontend must save this value in state when the popup opens, hold it until verification completes, and reuse it when pushing the event — never recompute.</span>
     </p>
-    <pre>function openOtpPopup({ sourceComponent, sourcePage, componentName, contentType }) {
-  <span class="n">otpContext</span> = { sourceComponent, sourcePage, contentType };  <span class="c lang-zh">// 存进 state，sourcePage/contentType 一并存（多数情况下为 undefined）</span><span class="c lang-en">// saved to state, sourcePage/contentType included too (usually undefined)</span>
+    <pre>function openOtpPopup({ sourceComponent, componentName, contentType }) {
+  <span class="n">otpContext</span> = { sourceComponent, contentType };  <span class="c lang-zh">// 存进 state，contentType 一并存（可能为 undefined）</span><span class="c lang-en">// saved to state, contentType included too (may be undefined)</span>
   pushEvent({
     <span class="k">event</span>: <span class="s">"otp_popup_view"</span>,
     <span class="k">page_type</span>: getCurrentPageType(),
     <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
     <span class="k">source_component</span>: sourceComponent,
-    ...(sourcePage && { <span class="k">source_page</span>: sourcePage }),
     <span class="k">component_name</span>: componentName,
     ...(contentType && { <span class="k">content_type</span>: contentType })
   });
 }
 
-<span class="c lang-zh">// 验证完成后，sign_up / login 复用同一份 state，sourcePage/content_type 同样要带上（有值才带）</span><span class="c lang-en">// After verification, sign_up / login reuse the same state, sourcePage/content_type included too (only when present)</span>
+<span class="c lang-zh">// 验证完成后，sign_up / login 复用同一份 state，content_type 同样要带上（有值才带）</span><span class="c lang-en">// After verification, sign_up / login reuse the same state, content_type included too (only when present)</span>
 pushEvent({
   <span class="k">event</span>: <span class="s">"sign_up"</span>, <span class="k">page_type</span>: getCurrentPageType(),
   <span class="k">method</span>: <span class="s">"otp"</span>, <span class="k">otp_channel</span>: <span class="s">"sms"</span>,
   <span class="k">source_component</span>: otpContext.sourceComponent,
-  ...(otpContext.sourcePage && { <span class="k">source_page</span>: otpContext.sourcePage }),
   ...(otpContext.contentType && { <span class="k">content_type</span>: otpContext.contentType })
 });</pre>
     <div class="callout c-warn">
@@ -385,8 +362,8 @@ pushEvent({
     </div>
 
     <p class="sdesc" style="margin-top:18px">
-      <span class="lang-zh">以 #11（闪卡详情页 "Walk it through with Aima"）为例，完整链路示例——注意这个入口不传 <code>sourcePage</code>：</span>
-      <span class="lang-en">Full chain example using #11 (flashcard detail "Walk it through with Aima") — note this entry does not pass <code>sourcePage</code>:</span>
+      <span class="lang-zh">以 #11（闪卡详情页 "Walk it through with Aima"）为例，完整链路示例：</span>
+      <span class="lang-en">Full chain example using #11 (flashcard detail "Walk it through with Aima"):</span>
     </p>
     <pre><span class="c lang-zh">// Step 1：用户点击闪卡详情页 Aima 按钮，触发弹窗</span><span class="c lang-en">// Step 1: user clicks the Aima button on the flashcard detail page, popup fires</span>
 openOtpPopup({
@@ -395,15 +372,11 @@ openOtpPopup({
   <span class="k">contentType</span>: <span class="s">"flashcard"</span>,
 });
 
-<span class="c lang-zh">// openOtpPopup 内部：otpContext 存住 sourceComponent 与 contentType，sourcePage 为 undefined</span><span class="c lang-en">// Inside openOtpPopup: otpContext saves sourceComponent and contentType; sourcePage is undefined</span>
-<span class="c">// otpContext = { sourceComponent: "aima_open", sourcePage: undefined, contentType: "flashcard" }</span>
-
-<span class="c lang-zh">// otp_popup_view 立即推送，source_page 字段不出现（因为 sourcePage 是 undefined，展开式自动跳过）</span><span class="c lang-en">// otp_popup_view pushes immediately, source_page is absent (sourcePage is undefined, the spread skips it)</span>
-<span class="c">// dataLayer.push({ event: "otp_popup_view", ..., source_component: "aima_open",</span>
-<span class="c">//   component_name: "detail_aima_widget", content_type: "flashcard" })</span>
+<span class="c lang-zh">// openOtpPopup 内部：otpContext 存住 sourceComponent 与 contentType</span><span class="c lang-en">// Inside openOtpPopup: otpContext saves sourceComponent and contentType</span>
+<span class="c">// otpContext = { sourceComponent: "aima_open", contentType: "flashcard" }</span>
 
 <span class="c lang-zh">// Step 2：用户输入手机号、验证码，验证通过，判定为新用户</span><span class="c lang-en">// Step 2: user enters phone + code, verification passes, judged as a new user</span>
-<span class="c lang-zh">// Step 3：推送 sign_up，从 otpContext 里取出值，content_type 不能漏，source_page 本来就没有</span><span class="c lang-en">// Step 3: push sign_up, pull values from otpContext — content_type must not be dropped, source_page was never present</span>
+<span class="c lang-zh">// Step 3：推送 sign_up，从 otpContext 里取出值，content_type 不能漏</span><span class="c lang-en">// Step 3: push sign_up, pull values from otpContext — content_type must not be dropped</span>
 pushEvent({
   <span class="k">event</span>: <span class="s">"sign_up"</span>,
   <span class="k">page_type</span>: getCurrentPageType(),
@@ -412,10 +385,6 @@ pushEvent({
   <span class="k">source_component</span>: otpContext.sourceComponent,   <span class="c">// "aima_open"</span>
   ...(otpContext.contentType && { <span class="k">content_type</span>: otpContext.contentType })  <span class="c lang-zh">// "flashcard"</span><span class="c lang-en">// "flashcard"</span>
 });</pre>
-    <p class="sdesc">
-      <span class="lang-zh">对照组：若用户是从 #1（导航栏注册按钮，唯一携带 <code>sourcePage</code> 的入口）触发的，<code>otpContext.sourcePage</code> 有值（<code>"any"</code>），<code>...(otpContext.sourcePage && {...})</code> 这行展开式就会生效，<code>sign_up</code> 里会出现 <code>source_page: "any"</code>；其余 13 个入口该字段始终为 <code>undefined</code>，自动跳过，不需要为每个入口单独写判断逻辑。</span>
-      <span class="lang-en">Control case: if the user was triggered from #1 (nav bar register, the only entry with <code>sourcePage</code>), <code>otpContext.sourcePage</code> holds a value (<code>"any"</code>), so the spread <code>...(otpContext.sourcePage && {...})</code> kicks in and <code>sign_up</code> will include <code>source_page: "any"</code>. For the other 13 entries this stays <code>undefined</code> and is automatically skipped — no per-entry branching needed.</span>
-    </p>
     <div class="callout c-note">
       <span class="lang-zh">同一份 <code>source_component</code> 值，前端还需要在调用验证 OTP 接口（<code>/api/otp/verify</code>）时作为请求参数一并传给后端，用于新用户注册时写入 <code>t_account.signup_entry_point</code>。这是接口契约变更，需要后端单独排期实现。</span>
       <span class="lang-en">The same <code>source_component</code> value also needs to be passed by the frontend as a request parameter when calling the OTP verification endpoint (<code>/api/otp/verify</code>), so the backend can write it to <code>t_account.signup_entry_point</code> on new user creation. This is an API contract change and needs to be scheduled separately on the backend.</span>
@@ -561,9 +530,8 @@ pushEvent({
     <h2><span class="lang-zh">验收标准</span><span class="lang-en">Acceptance criteria</span></h2>
     <ol>
       <li><span class="lang-zh">以上 14 个触发点，每一个在 GTM Preview 中查看 <code>otp_popup_view</code> 事件的 Data Layer，均能看到 <code>source_component</code>/<code>component_name</code> 两个字段，值与 §2 一致</span><span class="lang-en">For all 14 trigger points above, the <code>otp_popup_view</code> Data Layer in GTM Preview must show <code>source_component</code>/<code>component_name</code>, matching the values in §2</span></li>
-      <li><span class="lang-zh"><strong>仅 #1</strong> 额外携带 <code>source_page: "any"</code>；其余 13 个入口的 <code>otp_popup_view</code> 中不应出现 <code>source_page</code> 字段</span><span class="lang-en"><strong>Only #1</strong> additionally carries <code>source_page: "any"</code>; the other 13 entries' <code>otp_popup_view</code> should not include a <code>source_page</code> field at all</span></li>
       <li><span class="lang-zh">第 11、12 行额外携带 <code>content_type</code> 字段，值分别为 <code>"flashcard"</code>/<code>"article"</code></span><span class="lang-en">Rows 11 and 12 additionally carry <code>content_type</code>, with values <code>"flashcard"</code>/<code>"article"</code> respectively</span></li>
-      <li><span class="lang-zh">完成 OTP 流程后触发的 <code>sign_up</code>/<code>login</code> 事件，携带的 <code>source_component</code> 与本次流程起始的 <code>otp_popup_view</code> 一致；若触发来源是 #1，<code>source_page</code> 也要同步出现</span><span class="lang-en"><code>sign_up</code>/<code>login</code> events fired after the OTP flow completes carry <code>source_component</code> matching the <code>otp_popup_view</code> that started the flow; if the trigger was #1, <code>source_page</code> must be synced too</span></li>
+      <li><span class="lang-zh">完成 OTP 流程后触发的 <code>sign_up</code>/<code>login</code> 事件，携带的 <code>source_component</code> 与本次流程起始的 <code>otp_popup_view</code> 一致</span><span class="lang-en"><code>sign_up</code>/<code>login</code> events fired after the OTP flow completes carry <code>source_component</code> matching the <code>otp_popup_view</code> that started the flow</span></li>
       <li><span class="lang-zh">若触发来源是 #11/#12（<code>detail_aima_widget</code>），<code>sign_up</code>/<code>login</code> 事件也要携带对应的 <code>content_type</code>（<code>"flashcard"</code>/<code>"article"</code>），不能只在 <code>otp_popup_view</code> 里出现</span><span class="lang-en">If the trigger source is #11/#12 (<code>detail_aima_widget</code>), <code>sign_up</code>/<code>login</code> events must also carry the matching <code>content_type</code> (<code>"flashcard"</code>/<code>"article"</code>) — not only in <code>otp_popup_view</code></span></li>
     </ol>
   </section>
