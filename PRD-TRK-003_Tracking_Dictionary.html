@@ -84,6 +84,8 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
     <div class="ngl">Overview 概览</div>
     <a class="nl" href="#about">About this document</a>
     <a class="nl" href="#changelog">v2.0 Changelog <span class="zh">变更记录</span></a>
+    <a class="nl" href="#changelog-v21">v2.1 Changelog <span class="zh">变更记录</span></a>
+    <a class="nl" href="#changelog-v22" style="color:var(--red);font-weight:500">⚡ v2.2 Changelog <span class="zh">最新变更</span></a>
   </div>
   <div class="nav-group">
     <div class="ngl">Page &amp; Component 页面组件</div>
@@ -183,6 +185,17 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
       <tr><td>§15 Filter fields</td><td>废弃单一 filter_value 字段；改为按维度拆分：<code>filter_life_stage</code> <code>filter_content_category</code> <code>filter_group_type</code> <code>filter_audience</code> <code>tab_value</code>；各字段有完整枚举</td><td>多 filter 维度同时激活时单字段无法承载；拆分后各维度独立，BQ 查询更清晰</td></tr>
       <tr><td>§15 event_id</td><td><span class="new">NEW</span> 新增字段定义：前端每次 push 生成唯一 UUID，用于 content_impression 与 view_item_list 去重关联</td><td>双轨方案（自有体系 + 电商事件）需要能精确关联两个事件</td></tr>
       <tr><td>§15 component_name</td><td><span class="new">NEW</span> 新增字段定义：同页多个相同类型组件时标识具体实例，命名规则 {page}_{zone}</td><td>homepage 多个 AIMA 入口需要区分，单靠 component_type 无法识别</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="changelog-v22">
+  <div class="stag">v2.2</div>
+  <h2>Changelog v2.2 <span class="zh">变更记录</span></h2>
+  <div class="tw"><table>
+    <thead><tr><th>Section 节</th><th>Change 变更</th><th>Reason 原因</th></tr></thead>
+    <tbody>
+      <tr><td>§13 source_component</td><td><span class="new">NEW</span> 新增枚举值 <code>view_creator_opportunities</code></td><td>首页 Meaningful Rewards → Create &amp; Earn → "View All Creator Opportunities" 入口无现有枚举可用；不复用 <code>mission_view</code>，因业务语义（创作者变现）与任务列表不同，避免转化分析数据混淆</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -519,6 +532,7 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--accent-soft);padd
       <tr><td><span class="val">vote</span></td><td>投票</td><td>被拦截</td><td>User clicked a poll option inside flashcard detail — intercepted<span class="zh">用户在闪卡详情页点击投票选项，因未登录被拦截</span></td></tr>
       <tr><td><span class="val">village_join</span></td><td>加入 Supermom Village</td><td>被拦截</td><td>User clicked "Log in or join free" / "Join the Supermom Village" CTA. Use <code>source_page</code> to distinguish which page<span class="zh">用户点击加入 Village 的 CTA 按钮，用 source_page 区分页面</span></td></tr>
       <tr><td><span class="val">mission_view</span></td><td>查看任务列表</td><td>被拦截</td><td>User clicked "See active missions" — intercepted<span class="zh">用户点击查看任务列表，因未登录被拦截</span></td></tr>
+      <tr><td><span class="val">view_creator_opportunities</span></td><td>查看创作者赚钱机会</td><td>被拦截</td><td>User clicked "View All Creator Opportunities" under homepage Meaningful Rewards → Create &amp; Earn — intercepted<span class="zh">用户在首页 Meaningful Rewards → Create &amp; Earn 下点击 "View All Creator Opportunities"，因未登录被拦截</span></td></tr>
     </tbody>
   </table></div>
 
