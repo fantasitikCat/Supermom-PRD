@@ -94,16 +94,17 @@ body.show-en pre .lang-zh{display:none}
     <a class="nl" href="#e2"><span class="lang-zh">　#2 Hero AIMA</span><span class="lang-en">　#2 Hero AIMA</span></a>
     <a class="nl" href="#e3"><span class="lang-zh">　#3 Guidance Ask Aima</span><span class="lang-en">　#3 Guidance Ask Aima</span></a>
     <a class="nl" href="#e4"><span class="lang-zh">　#4 See active missions</span><span class="lang-en">　#4 See active missions</span></a>
-    <a class="nl" href="#e5"><span class="lang-zh">　#5 Creator Opportunities</span><span class="lang-en">　#5 Creator Opportunities</span></a>
-    <a class="nl" href="#e6"><span class="lang-zh">　#6 /giveaway Village Join</span><span class="lang-en">　#6 /giveaway Village Join</span></a>
-    <a class="nl" href="#e7"><span class="lang-zh">　#7 /earn Village Join</span><span class="lang-en">　#7 /earn Village Join</span></a>
-    <a class="nl" href="#e8"><span class="lang-zh">　#8 /connect Join</span><span class="lang-en">　#8 /connect Join</span></a>
-    <a class="nl" href="#e9"><span class="lang-zh">　#9 活动详情 CTA</span><span class="lang-en">　#9 Campaign detail CTA</span></a>
-    <a class="nl" href="#e10"><span class="lang-zh">　#10 闪卡答题</span><span class="lang-en">　#10 Flashcard answer</span></a>
-    <a class="nl" href="#e11"><span class="lang-zh">　#11 闪卡 Aima widget（含投票）</span><span class="lang-en">　#11 Flashcard Aima widget (incl. vote)</span></a>
-    <a class="nl" href="#e12"><span class="lang-zh">　#12 文章 Aima widget</span><span class="lang-en">　#12 Article Aima widget</span></a>
-    <a class="nl" href="#e13"><span class="lang-zh">　#13 全局浮动按钮</span><span class="lang-en">　#13 Floating Aima button</span></a>
-    <a class="nl" href="#e14"><span class="lang-zh">　#14 搜索无结果 Aima</span><span class="lang-en">　#14 Search empty-state Aima</span></a>
+    <a class="nl" href="#e5"><span class="lang-zh">　#5 /giveaway Village Join</span><span class="lang-en">　#5 /giveaway Village Join</span></a>
+    <a class="nl" href="#e6"><span class="lang-zh">　#6 /earn Village Join</span><span class="lang-en">　#6 /earn Village Join</span></a>
+    <a class="nl" href="#e7"><span class="lang-zh">　#7 /connect Join</span><span class="lang-en">　#7 /connect Join</span></a>
+    <a class="nl" href="#e8"><span class="lang-zh">　#8 活动详情 CTA</span><span class="lang-en">　#8 Campaign detail CTA</span></a>
+    <a class="nl" href="#e9"><span class="lang-zh">　#9 闪卡答题</span><span class="lang-en">　#9 Flashcard answer</span></a>
+    <a class="nl" href="#e10"><span class="lang-zh">　#10 闪卡 Aima widget（含投票）</span><span class="lang-en">　#10 Flashcard Aima widget (incl. vote)</span></a>
+    <a class="nl" href="#e11"><span class="lang-zh">　#11 文章 Aima widget</span><span class="lang-en">　#11 Article Aima widget</span></a>
+    <a class="nl" href="#e12"><span class="lang-zh">　#12 全局浮动按钮</span><span class="lang-en">　#12 Floating Aima button</span></a>
+    <a class="nl" href="#e13"><span class="lang-zh">　#13 搜索无结果 Aima</span><span class="lang-en">　#13 Search empty-state Aima</span></a>
+    <a class="nl" href="#e14"><span class="lang-zh">　#14 首页通栏 Village</span><span class="lang-en">　#14 Homepage banner Village</span></a>
+    <a class="nl" href="#e15"><span class="lang-zh">　#15 决策卡 Dive deeper</span><span class="lang-en">　#15 Decision card Dive deeper</span></a>
   </div>
   <div class="nav-group">
     <div class="ngl">Downstream</div>
@@ -116,6 +117,10 @@ body.show-en pre .lang-zh{display:none}
   <div class="nav-group">
     <div class="ngl">QA</div>
     <a class="nl" href="#acceptance"><span class="lang-zh">§5 验收标准</span><span class="lang-en">§5 Acceptance criteria</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="ngl">New</div>
+    <a class="nl" href="#content-id"><span class="lang-zh">§6 content_id 落库需求</span><span class="lang-en">§6 content_id write-back</span></a>
   </div>
 </nav>
 
@@ -165,8 +170,8 @@ onClick={() => openOtpPopup({
   <span class="k">componentName</span>: <span class="s">"navigation_register_btn"</span>,
 })}</pre>
     <p class="sdesc">
-      <span class="lang-zh">每一个触发点具体该填什么值，不用自己猜或去问产品——§2 已按 14 个入口逐一给出对应的调用示例，直接照抄对应那一段即可。</span>
-      <span class="lang-en">You don't need to guess or ask product what value each trigger point should use — §2 already gives a matching call example for all 14 entry points. Just copy the relevant one.</span>
+      <span class="lang-zh">每一个触发点具体该填什么值，不用自己猜或去问产品——§2 已按 15 个入口逐一给出对应的调用示例，直接照抄对应那一段即可。</span>
+      <span class="lang-en">You don't need to guess or ask product what value each trigger point should use — §2 already gives a matching call example for all 15 entry points. Just copy the relevant one.</span>
     </p>
 
     <h3><span class="lang-zh">1.2 content_type 在指定场景下为必填字段</span><span class="lang-en">1.2 content_type is required in a specific scenario</span></h3>
@@ -194,16 +199,17 @@ onClick={() => openOtpPopup({
         <tr><td>2</td><td><span class="lang-zh">首页 Hero AIMA 聊天发送</span><span class="lang-en">Homepage hero AIMA chat send</span></td><td><code>aima_open</code></td><td><code>homepage_hero_chat</code></td><td>—</td></tr>
         <tr><td>3</td><td><span class="lang-zh">首页 Guidance tabs Ask Aima</span><span class="lang-en">Homepage guidance tabs Ask Aima</span></td><td><code>aima_open</code></td><td><code>homepage_guidance_tabs</code></td><td>—</td></tr>
         <tr><td>4</td><td><span class="lang-zh">首页 "See active missions"</span><span class="lang-en">Homepage "See active missions"</span></td><td><code>mission_view</code></td><td><code>homepage_guidance_tabs</code></td><td>—</td></tr>
-        <tr><td>5</td><td><span class="lang-zh">首页 "View All Creator Opportunities"</span><span class="lang-en">Homepage "View All Creator Opportunities"</span></td><td><code>view_creator_opportunities</code></td><td><code>homepage_guidance_tabs</code></td><td>—</td></tr>
-        <tr><td>6</td><td><span class="lang-zh">/giveaway 侧边栏 Village Join</span><span class="lang-en">/giveaway sidebar Village Join</span></td><td><code>village_join</code></td><td><code>giveaway_village_join</code></td><td>—</td></tr>
-        <tr><td>7</td><td><span class="lang-zh">/earn 侧边栏 Village Join</span><span class="lang-en">/earn sidebar Village Join</span></td><td><code>village_join</code></td><td><code>earn_village_join</code></td><td>—</td></tr>
-        <tr><td>8</td><td><span class="lang-zh">/connect 列表页 Join</span><span class="lang-en">/connect listing page Join</span></td><td><code>group_join</code></td><td><code>connect_group_join</code></td><td>—</td></tr>
-        <tr><td>9</td><td><span class="lang-zh">活动详情页底部通栏 CTA</span><span class="lang-en">Campaign detail bottom banner CTA</span></td><td><code>campaign_join</code></td><td><code>detail_campaign_join</code></td><td>—</td></tr>
-        <tr><td>10</td><td><span class="lang-zh">闪卡答题选项点击</span><span class="lang-en">Flashcard answer option click</span></td><td><code>flashcard_answer</code></td><td><code>flashcard_answer_option</code></td><td>—</td></tr>
-        <tr><td>11</td><td><span class="lang-zh">闪卡页 "Walk it through with Aima"（含答题投票）</span><span class="lang-en">Flashcard page "Walk it through with Aima" (incl. poll vote)</span></td><td><code>aima_open</code></td><td><code>detail_aima_widget</code></td><td><code>"flashcard"</code> <span class="lang-zh">必填</span><span class="lang-en">required</span></td></tr>
-        <tr><td>12</td><td><span class="lang-zh">文章页 "Join to chat with Aima"</span><span class="lang-en">Article page "Join to chat with Aima"</span></td><td><code>aima_open</code></td><td><code>detail_aima_widget</code></td><td><code>"article"</code> <span class="lang-zh">必填</span><span class="lang-en">required</span></td></tr>
-        <tr><td>13</td><td><span class="lang-zh">全局浮动 AIMA 按钮</span><span class="lang-en">Global floating AIMA button</span></td><td><code>aima_open</code></td><td><code>floating_aima_button</code></td><td>—</td></tr>
-        <tr><td>14</td><td><span class="lang-zh">全局搜索无结果 Ask Aima</span><span class="lang-en">Global search empty-state Ask Aima</span></td><td><code>aima_open</code></td><td><code>global_search_results</code></td><td>—</td></tr>
+        <tr><td>5</td><td><span class="lang-zh">/giveaway 侧边栏 Village Join</span><span class="lang-en">/giveaway sidebar Village Join</span></td><td><code>village_join</code></td><td><code>giveaway_village_join</code></td><td>—</td></tr>
+        <tr><td>6</td><td><span class="lang-zh">/earn 侧边栏 Village Join</span><span class="lang-en">/earn sidebar Village Join</span></td><td><code>village_join</code></td><td><code>earn_village_join</code></td><td>—</td></tr>
+        <tr><td>7</td><td><span class="lang-zh">/connect 列表页 Join</span><span class="lang-en">/connect listing page Join</span></td><td><code>group_join</code></td><td><code>connect_group_join</code></td><td>—</td></tr>
+        <tr><td>8</td><td><span class="lang-zh">活动详情页底部通栏 CTA</span><span class="lang-en">Campaign detail bottom banner CTA</span></td><td><code>campaign_join</code></td><td><code>detail_campaign_join</code></td><td>—</td></tr>
+        <tr><td>9</td><td><span class="lang-zh">闪卡答题选项点击</span><span class="lang-en">Flashcard answer option click</span></td><td><code>flashcard_answer</code></td><td><code>flashcard_answer_option</code></td><td>—</td></tr>
+        <tr><td>10</td><td><span class="lang-zh">闪卡页 "Walk it through with Aima"（含答题投票）</span><span class="lang-en">Flashcard page "Walk it through with Aima" (incl. poll vote)</span></td><td><code>aima_open</code></td><td><code>detail_aima_widget</code></td><td><code>"flashcard"</code> <span class="lang-zh">必填</span><span class="lang-en">required</span></td></tr>
+        <tr><td>11</td><td><span class="lang-zh">文章页 "Join to chat with Aima"</span><span class="lang-en">Article page "Join to chat with Aima"</span></td><td><code>aima_open</code></td><td><code>detail_aima_widget</code></td><td><code>"article"</code> <span class="lang-zh">必填</span><span class="lang-en">required</span></td></tr>
+        <tr><td>12</td><td><span class="lang-zh">全局浮动 AIMA 按钮</span><span class="lang-en">Global floating AIMA button</span></td><td><code>aima_open</code></td><td><code>floating_aima_button</code></td><td>—</td></tr>
+        <tr><td>13</td><td><span class="lang-zh">全局搜索无结果 Ask Aima</span><span class="lang-en">Global search empty-state Ask Aima</span></td><td><code>aima_open</code></td><td><code>global_search_results</code></td><td>—</td></tr>
+        <tr><td>14</td><td><span class="lang-zh">首页通栏 "Join the Supermom Village"</span><span class="lang-en">Homepage full-width banner "Join the Supermom Village"</span></td><td><code>village_join</code></td><td><code>homepage_social_proof</code></td><td>—</td></tr>
+        <tr><td>15</td><td><span class="lang-zh">决策卡片内 "+ Dive deeper" 按钮</span><span class="lang-en">"+ Dive deeper" button on decision option card</span></td><td><code>aima_open</code></td><td><code>flashcard_dive_deeper</code></td><td>—</td></tr>
       </tbody>
     </table></div>
 
@@ -241,55 +247,47 @@ onClick={() => openOtpPopup({
     </div>
 
     <div class="entry" id="e5">
-      <div class="entry-head"><span class="entry-num">#5</span><span class="entry-title"><span class="lang-zh">首页 Meaningful Rewards → Create &amp; Earn → "View All Creator Opportunities"</span><span class="lang-en">Homepage Meaningful Rewards → Create &amp; Earn → "View All Creator Opportunities"</span></span><div class="entry-tags"></div></div>
-      <pre>openOtpPopup({
-  <span class="k">sourceComponent</span>: <span class="s">"view_creator_opportunities"</span>,
-  <span class="k">componentName</span>: <span class="s">"homepage_guidance_tabs"</span>,
-});</pre>
-    </div>
-
-    <div class="entry" id="e6">
-      <div class="entry-head"><span class="entry-num">#6</span><span class="entry-title"><span class="lang-zh">/giveaway 侧边栏 "Log in or join free"</span><span class="lang-en">/giveaway sidebar "Log in or join free"</span></span><div class="entry-tags"></div></div>
+      <div class="entry-head"><span class="entry-num">#5</span><span class="entry-title"><span class="lang-zh">/giveaway 侧边栏 "Log in or join free"</span><span class="lang-en">/giveaway sidebar "Log in or join free"</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"village_join"</span>,
   <span class="k">componentName</span>: <span class="s">"giveaway_village_join"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e7">
-      <div class="entry-head"><span class="entry-num">#7</span><span class="entry-title"><span class="lang-zh">/earn 侧边栏 "Log in or join free"</span><span class="lang-en">/earn sidebar "Log in or join free"</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e6">
+      <div class="entry-head"><span class="entry-num">#6</span><span class="entry-title"><span class="lang-zh">/earn 侧边栏 "Log in or join free"</span><span class="lang-en">/earn sidebar "Log in or join free"</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"village_join"</span>,
   <span class="k">componentName</span>: <span class="s">"earn_village_join"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e8">
-      <div class="entry-head"><span class="entry-num">#8</span><span class="entry-title"><span class="lang-zh">/connect 列表页 Join 按钮</span><span class="lang-en">/connect listing page Join button</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e7">
+      <div class="entry-head"><span class="entry-num">#7</span><span class="entry-title"><span class="lang-zh">/connect 列表页 Join 按钮</span><span class="lang-en">/connect listing page Join button</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"group_join"</span>,
   <span class="k">componentName</span>: <span class="s">"connect_group_join"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e9">
-      <div class="entry-head"><span class="entry-num">#9</span><span class="entry-title"><span class="lang-zh">活动详情页底部通栏 CTA（文案随活动变化）</span><span class="lang-en">Campaign detail bottom banner CTA (copy varies per campaign)</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e8">
+      <div class="entry-head"><span class="entry-num">#8</span><span class="entry-title"><span class="lang-zh">活动详情页底部通栏 CTA（文案随活动变化）</span><span class="lang-en">Campaign detail bottom banner CTA (copy varies per campaign)</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"campaign_join"</span>,
   <span class="k">componentName</span>: <span class="s">"detail_campaign_join"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e10">
-      <div class="entry-head"><span class="entry-num">#10</span><span class="entry-title"><span class="lang-zh">闪卡答题选项点击</span><span class="lang-en">Flashcard answer option click</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e9">
+      <div class="entry-head"><span class="entry-num">#9</span><span class="entry-title"><span class="lang-zh">闪卡答题选项点击</span><span class="lang-en">Flashcard answer option click</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"flashcard_answer"</span>,
   <span class="k">componentName</span>: <span class="s">"flashcard_answer_option"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e11">
-      <div class="entry-head"><span class="entry-num">#11</span><span class="entry-title"><span class="lang-zh">闪卡/决策页内 "Walk it through with Aima" 按钮（含答题选项与投票选项，统一走此入口）</span><span class="lang-en">"Walk it through with Aima" button on flashcard/decision page (covers both answer options and poll voting)</span></span><div class="entry-tags"><span class="req r-dynamic"><span class="lang-zh">content_type 必填</span><span class="lang-en">content_type required</span></span></div></div>
+    <div class="entry" id="e10">
+      <div class="entry-head"><span class="entry-num">#10</span><span class="entry-title"><span class="lang-zh">闪卡/决策页内 "Walk it through with Aima" 按钮（含答题选项与投票选项，统一走此入口）</span><span class="lang-en">"Walk it through with Aima" button on flashcard/decision page (covers both answer options and poll voting)</span></span><div class="entry-tags"><span class="req r-dynamic"><span class="lang-zh">content_type 必填</span><span class="lang-en">content_type required</span></span></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
   <span class="k">componentName</span>: <span class="s">"detail_aima_widget"</span>,
@@ -297,8 +295,8 @@ onClick={() => openOtpPopup({
 });</pre>
     </div>
 
-    <div class="entry" id="e12">
-      <div class="entry-head"><span class="entry-num">#12</span><span class="entry-title"><span class="lang-zh">文章详情页右侧 "Join to chat with Aima" 按钮</span><span class="lang-en">"Join to chat with Aima" button on article detail sidebar</span></span><div class="entry-tags"><span class="req r-dynamic"><span class="lang-zh">content_type 必填</span><span class="lang-en">content_type required</span></span></div></div>
+    <div class="entry" id="e11">
+      <div class="entry-head"><span class="entry-num">#11</span><span class="entry-title"><span class="lang-zh">文章详情页右侧 "Join to chat with Aima" 按钮</span><span class="lang-en">"Join to chat with Aima" button on article detail sidebar</span></span><div class="entry-tags"><span class="req r-dynamic"><span class="lang-zh">content_type 必填</span><span class="lang-en">content_type required</span></span></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
   <span class="k">componentName</span>: <span class="s">"detail_aima_widget"</span>,
@@ -306,29 +304,40 @@ onClick={() => openOtpPopup({
 });</pre>
     </div>
 
-    <div class="entry" id="e13">
-      <div class="entry-head"><span class="entry-num">#13</span><span class="entry-title"><span class="lang-zh">全局浮动 AIMA 按钮（一级菜单页面通用）</span><span class="lang-en">Global floating AIMA button (all top-level pages)</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e12">
+      <div class="entry-head"><span class="entry-num">#12</span><span class="entry-title"><span class="lang-zh">全局浮动 AIMA 按钮（一级菜单页面通用）</span><span class="lang-en">Global floating AIMA button (all top-level pages)</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
   <span class="k">componentName</span>: <span class="s">"floating_aima_button"</span>,
 });</pre>
     </div>
 
-    <div class="entry" id="e14">
-      <div class="entry-head"><span class="entry-num">#14</span><span class="entry-title"><span class="lang-zh">全局搜索无结果 → "Ask Aima"</span><span class="lang-en">Global search empty state → "Ask Aima"</span></span><div class="entry-tags"></div></div>
+    <div class="entry" id="e13">
+      <div class="entry-head"><span class="entry-num">#13</span><span class="entry-title"><span class="lang-zh">全局搜索无结果 → "Ask Aima"</span><span class="lang-en">Global search empty state → "Ask Aima"</span></span><div class="entry-tags"></div></div>
       <pre>openOtpPopup({
   <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
   <span class="k">componentName</span>: <span class="s">"global_search_results"</span>,
 });</pre>
     </div>
+
+    <div class="entry" id="e14">
+      <div class="entry-head"><span class="entry-num">#14</span><span class="entry-title"><span class="lang-zh">首页通栏 "Trusted by millions of moms across Southeast Asia" → "Join the Supermom Village" 按钮</span><span class="lang-en">Homepage full-width banner "Trusted by millions of moms across Southeast Asia" → "Join the Supermom Village" button</span></span><div class="entry-tags"></div></div>
+      <pre>openOtpPopup({
+  <span class="k">sourceComponent</span>: <span class="s">"village_join"</span>,
+  <span class="k">componentName</span>: <span class="s">"homepage_social_proof"</span>,
+});</pre>
+    </div>
+
+    <div class="entry" id="e15">
+      <div class="entry-head"><span class="entry-num">#15</span><span class="entry-title"><span class="lang-zh">决策卡片内 "+ Dive deeper" 按钮（打开 Aima 聊天）</span><span class="lang-en">"+ Dive deeper" button on decision option card (opens Aima chat)</span></span><div class="entry-tags"></div></div>
+      <pre>openOtpPopup({
+  <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
+  <span class="k">componentName</span>: <span class="s">"flashcard_dive_deeper"</span>,
+});</pre>
+    </div>
   </section>
 
   <hr class="div">
-
-  <div class="callout c-warn" style="margin:0 0 24px">
-    <span class="lang-zh"><strong>本轮修正：</strong>原第 11 行（<code>vote</code> / <code>flashcard_poll_option</code>）已删除。经截图核对，闪卡详情页并不存在一个独立于 "Walk it through with Aima" 之外的投票点击入口——答题和投票都统一收口在这一个按钮上，会先触发 OTP（未登录时）。<code>vote</code> 这个 <code>source_component</code> 枚举值目前没有实际 UI 对应，建议同步去 PRD-TRK-003 §13 里确认是否要标记为 deprecated，避免以后又被当成待实现的入口。</span>
-    <span class="lang-en"><strong>This revision:</strong> the previous row 11 (<code>vote</code> / <code>flashcard_poll_option</code>) has been removed. Screenshot verification shows there is no separate poll-vote click entry on the flashcard detail page apart from "Walk it through with Aima" — both answering and voting funnel through this single button, which triggers OTP first if the user isn't logged in. The <code>vote</code> <code>source_component</code> enum value currently has no corresponding UI — recommend checking with PRD-TRK-003 §13 whether it should be marked deprecated, to avoid it being mistaken for a pending entry point later.</span>
-  </div>
 
   <section class="section" id="downstream">
     <div class="stag">§3</div>
@@ -357,13 +366,13 @@ pushEvent({
   ...(otpContext.contentType && { <span class="k">content_type</span>: otpContext.contentType })
 });</pre>
     <div class="callout c-warn">
-      <span class="lang-zh"><strong>补充规则：</strong>若本次 OTP 流程由 #11/#12（<code>detail_aima_widget</code>）触发，<code>content_type</code> 要跟着 <code>source_component</code> 一起存进 state，并同步出现在 <code>sign_up</code>/<code>login</code> 事件里，不能只在 <code>otp_popup_view</code> 那一步携带。</span>
-      <span class="lang-en"><strong>Additional rule:</strong> if this OTP flow was triggered by #11/#12 (<code>detail_aima_widget</code>), <code>content_type</code> must be saved to state alongside <code>source_component</code>, and must appear in the <code>sign_up</code>/<code>login</code> event too — not just at the <code>otp_popup_view</code> step.</span>
+      <span class="lang-zh"><strong>补充规则：</strong>若本次 OTP 流程由 #10/#11（<code>detail_aima_widget</code>）触发，<code>content_type</code> 要跟着 <code>source_component</code> 一起存进 state，并同步出现在 <code>sign_up</code>/<code>login</code> 事件里，不能只在 <code>otp_popup_view</code> 那一步携带。</span>
+      <span class="lang-en"><strong>Additional rule:</strong> if this OTP flow was triggered by #10/#11 (<code>detail_aima_widget</code>), <code>content_type</code> must be saved to state alongside <code>source_component</code>, and must appear in the <code>sign_up</code>/<code>login</code> event too — not just at the <code>otp_popup_view</code> step.</span>
     </div>
 
     <p class="sdesc" style="margin-top:18px">
-      <span class="lang-zh">以 #11（闪卡详情页 "Walk it through with Aima"）为例，完整链路示例：</span>
-      <span class="lang-en">Full chain example using #11 (flashcard detail "Walk it through with Aima"):</span>
+      <span class="lang-zh">以 #10（闪卡详情页 "Walk it through with Aima"）为例，完整链路示例：</span>
+      <span class="lang-en">Full chain example using #10 (flashcard detail "Walk it through with Aima"):</span>
     </p>
     <pre><span class="c lang-zh">// Step 1：用户点击闪卡详情页 Aima 按钮，触发弹窗</span><span class="c lang-en">// Step 1: user clicks the Aima button on the flashcard detail page, popup fires</span>
 openOtpPopup({
@@ -409,7 +418,7 @@ pushEvent({
         <defs><marker id="fa1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
         <rect x="190" y="40" width="300" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
         <text x="340" y="58" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#04342C">用户点击触发按钮</text>
-        <text x="340" y="76" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">14 个入口之一</text>
+        <text x="340" y="76" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">15 个入口之一</text>
         <line x1="340" y1="96" x2="340" y2="136" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#fa1)"/>
         <rect x="190" y="136" width="300" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
         <text x="340" y="154" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#04342C">触发 otp_popup_view</text>
@@ -443,7 +452,7 @@ pushEvent({
         <defs><marker id="fa1en" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
         <rect x="150" y="40" width="380" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
         <text x="340" y="58" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#04342C">User clicks a trigger button</text>
-        <text x="340" y="76" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">one of 14 entry points</text>
+        <text x="340" y="76" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#085041">one of 15 entry points</text>
         <line x1="340" y1="96" x2="340" y2="136" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#fa1en)"/>
         <rect x="150" y="136" width="380" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
         <text x="340" y="154" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#04342C">Fires otp_popup_view</text>
@@ -529,10 +538,99 @@ pushEvent({
     <div class="stag">§5</div>
     <h2><span class="lang-zh">验收标准</span><span class="lang-en">Acceptance criteria</span></h2>
     <ol>
-      <li><span class="lang-zh">以上 14 个触发点，每一个在 GTM Preview 中查看 <code>otp_popup_view</code> 事件的 Data Layer，均能看到 <code>source_component</code>/<code>component_name</code> 两个字段，值与 §2 一致</span><span class="lang-en">For all 14 trigger points above, the <code>otp_popup_view</code> Data Layer in GTM Preview must show <code>source_component</code>/<code>component_name</code>, matching the values in §2</span></li>
-      <li><span class="lang-zh">第 11、12 行额外携带 <code>content_type</code> 字段，值分别为 <code>"flashcard"</code>/<code>"article"</code></span><span class="lang-en">Rows 11 and 12 additionally carry <code>content_type</code>, with values <code>"flashcard"</code>/<code>"article"</code> respectively</span></li>
+      <li><span class="lang-zh">以上 15 个触发点，每一个在 GTM Preview 中查看 <code>otp_popup_view</code> 事件的 Data Layer，均能看到 <code>source_component</code>/<code>component_name</code> 两个字段，值与 §2 一致</span><span class="lang-en">For all 15 trigger points above, the <code>otp_popup_view</code> Data Layer in GTM Preview must show <code>source_component</code>/<code>component_name</code>, matching the values in §2</span></li>
+      <li><span class="lang-zh">第 10、11 行额外携带 <code>content_type</code> 字段，值分别为 <code>"flashcard"</code>/<code>"article"</code></span><span class="lang-en">Rows 10 and 11 additionally carry <code>content_type</code>, with values <code>"flashcard"</code>/<code>"article"</code> respectively</span></li>
       <li><span class="lang-zh">完成 OTP 流程后触发的 <code>sign_up</code>/<code>login</code> 事件，携带的 <code>source_component</code> 与本次流程起始的 <code>otp_popup_view</code> 一致</span><span class="lang-en"><code>sign_up</code>/<code>login</code> events fired after the OTP flow completes carry <code>source_component</code> matching the <code>otp_popup_view</code> that started the flow</span></li>
-      <li><span class="lang-zh">若触发来源是 #11/#12（<code>detail_aima_widget</code>），<code>sign_up</code>/<code>login</code> 事件也要携带对应的 <code>content_type</code>（<code>"flashcard"</code>/<code>"article"</code>），不能只在 <code>otp_popup_view</code> 里出现</span><span class="lang-en">If the trigger source is #11/#12 (<code>detail_aima_widget</code>), <code>sign_up</code>/<code>login</code> events must also carry the matching <code>content_type</code> (<code>"flashcard"</code>/<code>"article"</code>) — not only in <code>otp_popup_view</code></span></li>
+      <li><span class="lang-zh">若触发来源是 #10/#11（<code>detail_aima_widget</code>），<code>sign_up</code>/<code>login</code> 事件也要携带对应的 <code>content_type</code>（<code>"flashcard"</code>/<code>"article"</code>），不能只在 <code>otp_popup_view</code> 里出现</span><span class="lang-en">If the trigger source is #10/#11 (<code>detail_aima_widget</code>), <code>sign_up</code>/<code>login</code> events must also carry the matching <code>content_type</code> (<code>"flashcard"</code>/<code>"article"</code>) — not only in <code>otp_popup_view</code></span></li>
+    </ol>
+  </section>
+
+  <hr class="div">
+
+  <section class="section" id="content-id">
+    <div class="stag">§6</div>
+    <h2><span class="lang-zh">content_id 落库需求（新增）</span><span class="lang-en">content_id write-back requirement (new)</span></h2>
+    <p class="sdesc">
+      <span class="lang-zh">详情页系列入口（活动详情/闪卡详情/文章详情）以及 connect 列表页的 Join 入口，触发 OTP 时用户所在页面本来就绑定着一个具体的内容 ID。若验证结果是新用户，需要把这个 ID 一并写入 <code>t_account</code>，跟 461（<code>signup_entry_point</code>）走同一条链路，不是新开一个接口。</span>
+      <span class="lang-en">The detail-page entries (campaign/flashcard/article detail) and the connect listing Join entry are each tied to a specific content ID at the moment OTP fires. If verification determines the user is new, this ID must also be written to <code>t_account</code>, reusing the same call as 461 (<code>signup_entry_point</code>) rather than a separate endpoint.</span>
+    </p>
+
+    <div class="tw" style="margin-bottom:20px"><table>
+      <thead><tr>
+        <th>#</th>
+        <th><span class="lang-zh">入口</span><span class="lang-en">Entry</span></th>
+        <th>contentId <span class="lang-zh">来源</span><span class="lang-en">source</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><td>7</td><td>/connect <span class="lang-zh">列表页</span><span class="lang-en">listing</span> Join</td><td><span class="lang-zh">当前 group 的 id</span><span class="lang-en">current group's id</span></td></tr>
+        <tr><td>8</td><td><span class="lang-zh">活动详情页 CTA</span><span class="lang-en">Campaign detail CTA</span></td><td><span class="lang-zh">当前活动的 id</span><span class="lang-en">current campaign's id</span></td></tr>
+        <tr><td>9</td><td><span class="lang-zh">闪卡答题选项点击</span><span class="lang-en">Flashcard answer option click</span></td><td><span class="lang-zh">当前闪卡的 id</span><span class="lang-en">current flashcard's id</span></td></tr>
+        <tr><td>10</td><td>Walk it through with Aima</td><td><span class="lang-zh">当前闪卡的 id</span><span class="lang-en">current flashcard's id</span></td></tr>
+        <tr><td>11</td><td>Join to chat with Aima <span class="lang-zh">（文章页）</span><span class="lang-en">(article page)</span></td><td><span class="lang-zh">当前文章的 id</span><span class="lang-en">current article's id</span></td></tr>
+        <tr><td>15</td><td>Dive deeper</td><td><span class="lang-zh">当前闪卡的 id</span><span class="lang-en">current flashcard's id</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout c-note">
+      <span class="lang-zh"><strong>关于类型区分：</strong>content_id 横跨活动/闪卡/文章/群组 4 种不同的 ID 命名空间，后端需要知道该往哪张表 join。建议不新增字段——直接复用同一次调用里已经在传的 <code>source_component</code>（461 已实现）来判断类型：<code>campaign_join</code>→活动、<code>group_join</code>→群组、<code>flashcard_answer</code> 或 <code>aima_open</code> + <code>content_type: "flashcard"</code>→闪卡、<code>aima_open</code> + <code>content_type: "article"</code>→文章。这个设计还需要和后端确认。</span>
+      <span class="lang-en"><strong>On type disambiguation:</strong> content_id spans 4 different ID namespaces (campaign/flashcard/article/group), so the backend needs to know which table to join against. Recommend not adding a new field — instead reuse the <code>source_component</code> already passed in the same call (from 461): <code>campaign_join</code>→campaign, <code>group_join</code>→group, <code>flashcard_answer</code> or <code>aima_open</code> + <code>content_type: "flashcard"</code>→flashcard, <code>aima_open</code> + <code>content_type: "article"</code>→article. This design still needs backend sign-off.</span>
+    </div>
+
+    <h3><span class="lang-zh">6.1 前端改动</span><span class="lang-en">6.1 Frontend changes</span></h3>
+    <p class="sdesc">
+      <span class="lang-zh">在上述 6 个入口触发弹窗时，额外把当前内容 ID 存进 state，一路带到验证接口：</span>
+      <span class="lang-en">At the 6 entries above, when the popup fires, additionally save the current content ID to state and carry it through to the verify call:</span>
+    </p>
+    <pre><span class="c lang-zh">// 以 #8 活动详情页为例，页面本来就有 campaignId 这个上下文</span><span class="c lang-en">// Example: #8 campaign detail page already has campaignId in context</span>
+onClick={() => openOtpPopup({
+  <span class="k">sourceComponent</span>: <span class="s">"campaign_join"</span>,
+  <span class="k">componentName</span>: <span class="s">"detail_campaign_join"</span>,
+  <span class="k">contentId</span>: campaignId,   <span class="c lang-zh">// 新增</span><span class="c lang-en">// new</span>
+})}
+
+<span class="c lang-zh">// 以 #10 闪卡页 Walk it through with Aima 为例，content_type 和 contentId 都要带</span><span class="c lang-en">// Example: #10 flashcard "Walk it through with Aima" — both content_type and contentId are needed</span>
+onClick={() => openOtpPopup({
+  <span class="k">sourceComponent</span>: <span class="s">"aima_open"</span>,
+  <span class="k">componentName</span>: <span class="s">"detail_aima_widget"</span>,
+  <span class="k">contentType</span>: <span class="s">"flashcard"</span>,
+  <span class="k">contentId</span>: flashcardId,   <span class="c lang-zh">// 新增</span><span class="c lang-en">// new</span>
+})}</pre>
+    <pre>function openOtpPopup({ sourceComponent, componentName, contentType, contentId }) {
+  <span class="n">otpContext</span> = { sourceComponent, contentType, contentId };  <span class="c lang-zh">// state 里新增 contentId，多数入口为 undefined</span><span class="c lang-en">// contentId added to state, undefined for most entries</span>
+  <span class="c lang-zh">// 注意：contentId 只用于验证接口传参，不出现在 otp_popup_view / sign_up 的 dataLayer 里</span><span class="c lang-en">// Note: contentId is only used as a verify-call param, it does not appear in the otp_popup_view / sign_up dataLayer</span>
+  pushEvent({
+    <span class="k">event</span>: <span class="s">"otp_popup_view"</span>,
+    <span class="k">page_type</span>: getCurrentPageType(),
+    <span class="k">component_type</span>: <span class="s">"otp_popup"</span>,
+    <span class="k">source_component</span>: sourceComponent,
+    <span class="k">component_name</span>: componentName,
+    ...(contentType && { <span class="k">content_type</span>: contentType })
+  });
+}
+
+<span class="c lang-zh">// 验证接口调用时，contentId 跟 source_component 一起作为参数传给后端</span><span class="c lang-en">// When calling the verify endpoint, contentId is passed as a param alongside source_component</span>
+await fetch(<span class="s">"/api/otp/verify"</span>, {
+  method: <span class="s">"POST"</span>,
+  body: JSON.stringify({
+    phone, code,
+    <span class="k">source_component</span>: otpContext.sourceComponent,
+    ...(otpContext.contentType && { <span class="k">content_type</span>: otpContext.contentType }),
+    ...(otpContext.contentId && { <span class="k">content_id</span>: otpContext.contentId })
+  })
+});</pre>
+
+    <h3><span class="lang-zh">6.2 后端改动（需另行排期）</span><span class="lang-en">6.2 Backend changes (needs separate scheduling)</span></h3>
+    <div class="callout c-warn">
+      <span class="lang-zh"><strong>要求：</strong><code>/api/otp/verify</code> 接口新增 <code>content_id</code> 入参。在判定为新用户、写入 <code>signup_entry_point</code> 的同一分支里，把 <code>content_id</code> 一并写入 <code>t_account</code> 的新字段（字段命名待定，建议 <code>signup_content_id</code>）。老用户 login 分支忽略该参数。</span>
+      <span class="lang-en"><strong>Requirement:</strong> <code>/api/otp/verify</code> needs a new <code>content_id</code> parameter. In the same branch that writes <code>signup_entry_point</code> for new users, also write <code>content_id</code> to a new <code>t_account</code> field (name TBD, suggest <code>signup_content_id</code>). The existing-user login branch ignores this parameter.</span>
+    </div>
+
+    <h3><span class="lang-zh">6.3 验收标准</span><span class="lang-en">6.3 Acceptance criteria</span></h3>
+    <ol>
+      <li><span class="lang-zh">#7、#8、#9、#10、#11、#15 六个入口，触发弹窗时前端能正确拿到并暂存对应的内容 ID</span><span class="lang-en">At entries #7, #8, #9, #10, #11, #15, the frontend correctly captures and holds the matching content ID when the popup fires</span></li>
+      <li><span class="lang-zh">新用户完成注册后，<code>t_account</code> 对应字段有值，且值与触发页面的内容 ID 一致</span><span class="lang-en">After a new user completes sign-up, the corresponding <code>t_account</code> field is populated and matches the content ID of the triggering page</span></li>
+      <li><span class="lang-zh">老用户 login 流程，该字段不受影响</span><span class="lang-en">For the existing-user login flow, this field is unaffected</span></li>
+      <li><span class="lang-zh">其余 9 个不挂靠具体内容的入口（#1-6、#12-14），验证接口不传 <code>content_id</code></span><span class="lang-en">For the other 9 entries not tied to specific content (#1-6, #12-14), the verify call does not pass <code>content_id</code></span></li>
     </ol>
   </section>
 
