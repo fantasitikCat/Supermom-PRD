@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zenith · 业务数据方案</title>
+<style>
+  :root {
+    --ink: #1a1a2e; --ink-soft: #3d3d5c; --ink-muted: #6b6b8a;
+    --bg: #faf9f7; --bg-card: #fff; --bg-alt: #f3f1ee;
+    --accent: #e84393; --accent-light: #fce8f3;
+    --teal: #0d9488; --teal-light: #e0f5f3;
+    --amber: #d97706; --amber-light: #fef3c7;
+    --violet: #7c3aed; --violet-light: #ede9fe;
+    --green: #16a34a; --green-light: #dcfce7;
+    --red: #dc2626; --red-light: #fee2e2;
+    --border: #e5e3df;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07),0 4px 12px rgba(0,0,0,0.04);
+    --radius: 12px; --radius-sm: 8px;
+    --font: 'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.8; }
+  .layout { display: flex; min-height: 100vh; }
+
+  .lang-toggle { position: fixed; top: 16px; right: 20px; z-index: 999; display: flex; gap: 4px; background: var(--ink); border-radius: 20px; padding: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  .lang-btn { padding: 4px 14px; border-radius: 16px; border: none; background: transparent; color: #9090b8; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .lang-btn.active { background: var(--accent); color: #fff; }
+
+  .sidebar { width: 240px; min-width: 240px; background: var(--ink); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-header { padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .sidebar-logo { font-size: 16px; font-weight: 800; color: #fff; }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-sub { font-size: 10px; color: #8888aa; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-audience { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 20px; background: rgba(232,67,147,0.18); color: var(--accent); }
+  .nav-group { padding: 10px 0 4px; }
+  .nav-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #555577; padding: 8px 20px 4px; }
+  .nav-item { display: block; padding: 7px 20px; color: #9090b8; text-decoration: none; font-size: 12.5px; border-left: 2px solid transparent; transition: all 0.12s; }
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(232,67,147,0.08); }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); }
+
+  .main { flex: 1; padding: 44px 52px; max-width: 1040px; }
+
+  .page-header { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .page-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 8px; }
+  .page-title { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -0.6px; line-height: 1.25; margin-bottom: 10px; }
+  .page-desc { color: var(--ink-muted); font-size: 14px; max-width: 620px; line-height: 1.9; }
+  .meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .tag-pink { background: var(--accent-light); color: var(--accent); }
+  .tag-teal { background: var(--teal-light); color: var(--teal); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+
+  .section { margin-bottom: 56px; scroll-margin-top: 20px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid var(--border); }
+  .section-num { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+  .section-title { font-size: 19px; font-weight: 700; color: var(--ink); }
+  h4 { font-size: 13px; font-weight: 700; color: var(--ink); margin: 18px 0 10px; }
+
+  .q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+  .q-card-body { padding: 18px 22px; }
+  .q-answer { font-size: 13.5px; color: var(--ink-soft); line-height: 1.85; margin-bottom: 14px; }
+
+  .answer-box { border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 14px; }
+  .ab-can { background: var(--green-light); border-left: 4px solid var(--green); }
+  .ab-cannot { background: var(--red-light); border-left: 4px solid var(--red); }
+  .ab-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .ab-can .ab-label { color: var(--green); }
+  .ab-cannot .ab-label { color: var(--red); }
+  .ab-list { list-style: none; }
+  .ab-list li { font-size: 13px; color: var(--ink-soft); padding: 4px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .ab-list li::before { flex-shrink: 0; margin-top: 2px; }
+  .ab-can .ab-list li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .ab-cannot .ab-list li::before { content: '✗'; color: var(--red); font-weight: 700; }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+  .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .metric-icon { font-size: 24px; margin-bottom: 10px; }
+  .metric-name { font-size: 12px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .metric-value { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.5; margin-bottom: 6px; }
+  .metric-example { font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+  .metric-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 6px; text-transform: uppercase; }
+  .mt-yes { background: var(--green-light); color: var(--green); }
+  .mt-partial { background: var(--amber-light); color: var(--amber); }
+
+  .report-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+  .report-header { background: var(--ink); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .report-title { font-size: 13px; font-weight: 700; color: #fff; }
+  .report-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(232,67,147,0.3); color: var(--accent); margin-left: auto; text-transform: uppercase; }
+  .report-body { padding: 20px 22px; }
+  .report-desc { font-size: 13.5px; color: var(--ink-soft); line-height: 1.85; margin-bottom: 16px; }
+
+  .mock-chart { background: var(--bg-alt); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 14px; }
+  .chart-title { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; color: var(--ink-soft); width: 130px; flex-shrink: 0; text-align: right; }
+  .bar-track { flex: 1; background: #e5e3df; border-radius: 4px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; }
+  .bar-fill span { font-size: 11px; font-weight: 700; color: #fff; }
+  .bar-pink { background: var(--accent); }
+  .bar-teal { background: var(--teal); }
+  .bar-violet { background: var(--violet); }
+  .bar-amber { background: var(--amber); }
+  .bar-green { background: var(--green); }
+  .funnel-mock { display: flex; flex-direction: column; gap: 2px; }
+  .funnel-row-mock { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .funnel-step-name { font-size: 12.5px; font-weight: 600; color: var(--ink); width: 170px; }
+  .funnel-bar-wrap { flex: 1; }
+  .funnel-bar { height: 18px; background: var(--accent); border-radius: 3px; opacity: 0.75; }
+  .funnel-num { font-size: 12px; font-weight: 700; color: var(--ink-muted); width: 60px; text-align: right; }
+  .funnel-drop { font-size: 11px; color: var(--red); width: 60px; text-align: right; }
+
+  .callout { border-radius: var(--radius-sm); padding: 13px 16px; margin-bottom: 14px; display: flex; gap: 9px; font-size: 13px; line-height: 1.75; }
+  .callout-icon { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+  .ci { background: var(--teal-light); border-left: 3px solid var(--teal); }
+  .cw { background: var(--amber-light); border-left: 3px solid var(--amber); }
+  .cp { background: var(--accent-light); border-left: 3px solid var(--accent); }
+  .cg { background: var(--green-light); border-left: 3px solid var(--green); }
+
+  .table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: var(--ink); }
+  thead th { padding: 10px 14px; text-align: left; font-size: 10.5px; font-weight: 700; color: #c8c8e0; letter-spacing: 0.6px; text-transform: uppercase; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #fafafe; }
+  tbody td { padding: 10px 14px; vertical-align: top; color: var(--ink-soft); line-height: 1.6; }
+  td:first-child { font-weight: 600; color: var(--ink); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+
+  [data-zh] { display: none; }
+  body.zh [data-en] { display: none; }
+  body.zh [data-zh] { display: initial; }
+  body.zh span[data-zh] { display: inline; }
+  body.zh div[data-zh] { display: block; }
+  body.zh li[data-zh] { display: flex; }
+  body.zh td[data-zh] { display: table-cell; }
+  body.zh h4[data-zh] { display: block; }
+  body.zh p[data-zh] { display: block; }
+</style>
+</head>
+<body class="zh">
+
+<div class="lang-toggle">
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
+  <button class="lang-btn active" onclick="setLang('zh')">中文</button>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Zen<span>i</span>th</div>
+    <div class="sidebar-sub" data-en>Business Analytics Guide</div>
+    <div class="sidebar-sub" data-zh>业务数据方案</div>
+    <div class="sidebar-audience" data-en>For Business Team</div>
+    <div class="sidebar-audience" data-zh>业务团队</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Overview</div><div class="nav-label" data-zh>总览</div>
+    <a class="nav-item" href="#overview"><span data-en>What Can We Know?</span><span data-zh>我们能知道什么？</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Business Questions</div><div class="nav-label" data-zh>业务问题</div>
+    <a class="nav-item" href="#q1"><span data-en>Campaign Performance</span><span data-zh>活动整体表现</span></a>
+    <a class="nav-item" href="#q2"><span data-en>Where Do Users Drop Off?</span><span data-zh>用户在哪里流失？</span></a>
+    <a class="nav-item" href="#q3"><span data-en>Which Channel Works Best?</span><span data-zh>哪个渠道效果最好？</span></a>
+    <a class="nav-item" href="#q4"><span data-en>Course Recommendation Mix</span><span data-zh>测评结果分布</span></a>
+    <a class="nav-item" href="#q5"><span data-en>New vs Existing Users</span><span data-zh>新老用户转化差异</span></a>
+    <a class="nav-item" href="#q6"><span data-en>Institution &amp; Timeslot Demand</span><span data-zh>机构与时段热度</span></a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label" data-en>Reports</div><div class="nav-label" data-zh>报告</div>
+    <a class="nav-item" href="#reports"><span data-en>What Reports Can We Build</span><span data-zh>可以产出哪些报告</span></a>
+    <a class="nav-item" href="#limits"><span data-en>What We Cannot Track</span><span data-zh>我们无法追踪什么</span></a>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="page-header" id="overview">
+  <div class="page-eyebrow" data-en>Business Analytics Guide · Trial Lesson Booking Funnel</div>
+  <div class="page-eyebrow" data-zh>业务数据方案 · 体验课预约漏斗</div>
+  <h1 class="page-title" data-en>What Can Our Tracking Tell Us?</h1>
+  <h1 class="page-title" data-zh>我们的埋点<br>能告诉业务什么？</h1>
+  <p class="page-desc" data-en>This document explains in plain language what data we can collect from the Zenith trial lesson booking flow, what business questions we can answer, and what reports we can produce. No technical jargon.</p>
+  <p class="page-desc" data-zh>这份文档用直白的语言说清楚：Zenith 体验课预约流程的埋点能收集哪些数据、能回答哪些业务问题、可以产出哪些报告。不涉及技术细节。</p>
+  <div class="meta-row">
+    <span class="tag tag-pink" data-en>7 tracking events</span><span class="tag tag-pink" data-zh>7 个追踪事件</span>
+    <span class="tag tag-teal" data-en>6 business questions answered</span><span class="tag tag-teal" data-zh>覆盖 6 类业务问题</span>
+    <span class="tag tag-green" data-en>Flow: zenith_onboarding</span><span class="tag tag-green" data-zh>流程：zenith_onboarding</span>
+  </div>
+</div>
+
+<div class="callout cp">
+  <span class="callout-icon">📌</span>
+  <div>
+    <div data-en><strong>In simple terms, we track 8 user actions:</strong> entering the landing page → completing the assessment (page 6 submit) → clicking "Book a trial lesson" → phone number verified (new or existing user identified) → selecting institution + time and submitting → booking success → (if already logged in, or OTP shows they already submitted, jump straight to a placeholder page instead).</div>
+    <div data-zh><strong>简单来说，我们追踪用户的 8 个动作：</strong>进入落地页 → 完成测评（第6页提交）→ 点击「Book a trial lesson」→ 手机号验证通过（识别新老用户）→ 选机构+选时间并提交 → 预约成功 → （若已登录、或OTP识别到已提交过，则直接跳转占位页，不重复走流程）。</div>
+  </div>
+</div>
+
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="metric-icon">🌐</div>
+    <div class="metric-name" data-en>Traffic</div><div class="metric-name" data-zh>流量</div>
+    <div class="metric-value" data-en>Total visits, by campaign</div><div class="metric-value" data-zh>总访问量，按活动拆分</div>
+    <div class="metric-example" data-en>How many people came from each campaign link</div>
+    <div class="metric-example" data-zh>每个活动链接各带来多少人</div>
+    <span class="metric-tag mt-yes" data-en>Available</span><span class="metric-tag mt-yes" data-zh>可获取</span>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon">📊</div>
+    <div class="metric-name" data-en>Funnel</div><div class="metric-name" data-zh>转化漏斗</div>
+    <div class="metric-value" data-en>Drop-off at each step</div><div class="metric-value" data-zh>每个步骤的流失率</div>
+    <div class="metric-example" data-en>Where exactly users give up and leave</div>
+    <div class="metric-example" data-zh>用户在哪个环节放弃</div>
+    <span class="metric-tag mt-yes" data-en>Available</span><span class="metric-tag mt-yes" data-zh>可获取</span>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon">🎯</div>
+    <div class="metric-name" data-en>Course Mix</div><div class="metric-name" data-zh>课程结果分布</div>
+    <div class="metric-value" data-en>Which course level users get</div><div class="metric-value" data-zh>用户被分配到哪个课程等级</div>
+    <div class="metric-example" data-en>What % are Beginner vs Intermediate vs Advanced</div>
+    <div class="metric-example" data-zh>各等级占比，哪种最多</div>
+    <span class="metric-tag mt-yes" data-en>Available</span><span class="metric-tag mt-yes" data-zh>可获取</span>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon">📡</div>
+    <div class="metric-name" data-en>Channel Quality</div><div class="metric-name" data-zh>渠道质量</div>
+    <div class="metric-value" data-en>Which channel brings better users</div><div class="metric-value" data-zh>哪个渠道带来的用户质量更高</div>
+    <div class="metric-example" data-en>Not just clicks — who actually books a lesson (requires UTM set correctly)</div>
+    <div class="metric-example" data-zh>不只看点击，看谁真正预约成功（需正确设置UTM）</div>
+    <span class="metric-tag mt-partial" data-en>Depends on marketing team</span><span class="metric-tag mt-partial" data-zh>需投放团队配合</span>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon">👤</div>
+    <div class="metric-name" data-en>New vs Existing Users</div><div class="metric-name" data-zh>新老用户区分</div>
+    <div class="metric-value" data-en>Conversion rate difference</div><div class="metric-value" data-zh>新用户 vs 老用户的转化率差异</div>
+    <div class="metric-example" data-en>Do existing users book at a higher rate?</div>
+    <div class="metric-example" data-zh>老用户是否有更高的预约转化率？</div>
+    <span class="metric-tag mt-yes" data-en>Available</span><span class="metric-tag mt-yes" data-zh>可获取</span>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon">🏫</div>
+    <div class="metric-name" data-en>Institution &amp; Timeslot Demand</div><div class="metric-name" data-zh>机构与时段热度</div>
+    <div class="metric-value" data-en>Which institutions/times are most booked</div><div class="metric-value" data-zh>哪些机构/时段最受欢迎</div>
+    <div class="metric-example" data-en>Helps with scheduling and resource allocation</div>
+    <div class="metric-example" data-zh>帮助排课与资源分配</div>
+    <span class="metric-tag mt-yes" data-en>Available</span><span class="metric-tag mt-yes" data-zh>可获取</span>
+  </div>
+</div>
+
+<!-- Q1 -->
+<section class="section" id="q1">
+  <div class="section-header">
+    <span class="section-num">Q1</span>
+    <h2 class="section-title" data-en>How did the funnel perform overall?</h2>
+    <h2 class="section-title" data-zh>整体转化表现如何？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>We can see the complete picture from the moment someone lands on page 1, to the moment they successfully book a trial lesson. Every step has a number.</p>
+      <p class="q-answer" data-zh>从用户进入第1页的那一刻，到最终成功预约体验课，每一步都有数字。我们可以看到完整的全貌。</p>
+
+      <div class="mock-chart">
+        <div class="chart-title" data-en>Booking Funnel — Example Numbers</div>
+        <div class="chart-title" data-zh>预约漏斗 — 示例数据</div>
+        <div class="funnel-mock">
+          <div class="funnel-row-mock">
+            <div class="funnel-step-name" data-en>Visited landing page</div><div class="funnel-step-name" data-zh>进入落地页</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:var(--ink)"></div></div>
+            <div class="funnel-num">10,000</div>
+            <div class="funnel-drop"></div>
+          </div>
+          <div class="funnel-row-mock">
+            <div class="funnel-step-name" data-en>Completed assessment</div><div class="funnel-step-name" data-zh>完成测评（第6页）</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:65%;background:var(--violet)"></div></div>
+            <div class="funnel-num">6,500</div>
+            <div class="funnel-drop" style="color:var(--red)">−35%</div>
+          </div>
+          <div class="funnel-row-mock">
+            <div class="funnel-step-name" data-en>Clicked booking CTA</div><div class="funnel-step-name" data-zh>点击预约CTA</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:39%;background:var(--teal)"></div></div>
+            <div class="funnel-num">3,900</div>
+            <div class="funnel-drop" style="color:var(--red)">−40%</div>
+          </div>
+          <div class="funnel-row-mock">
+            <div class="funnel-step-name" data-en>Phone verified</div><div class="funnel-step-name" data-zh>手机验证通过</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:28%;background:var(--amber)"></div></div>
+            <div class="funnel-num">2,800</div>
+            <div class="funnel-drop" style="color:var(--red)">−28%</div>
+          </div>
+          <div class="funnel-row-mock">
+            <div class="funnel-step-name" data-en>Booking submitted</div><div class="funnel-step-name" data-zh>预约提交成功</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:21%;background:var(--green)"></div></div>
+            <div class="funnel-num">2,100</div>
+            <div class="funnel-drop" style="color:var(--red)">−25%</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout ci">
+        <span class="callout-icon">ℹ️</span>
+        <div data-en>The numbers above are examples. Real data will be available once the funnel is live. The key insight is <strong>where the biggest drop-offs happen</strong> — this tells us where to improve next.</div>
+        <div data-zh>以上数字为示例。真实数据在流程上线后可查看。核心洞察是<strong>哪个步骤流失最多</strong>——这告诉我们应该优先改进哪里。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q2 -->
+<section class="section" id="q2">
+  <div class="section-header">
+    <span class="section-num">Q2</span>
+    <h2 class="section-title" data-en>Where do users drop off?</h2>
+    <h2 class="section-title" data-zh>用户在哪里流失？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>We can pinpoint the exact step where users leave. There are 4 key drop-off points in this flow.</p>
+      <p class="q-answer" data-zh>我们可以精确知道用户在哪一步离开。这次流程有 4 个关键流失节点。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-en>Drop-off Point</th><th data-zh>流失节点</th>
+            <th data-en>What It Means</th><th data-zh>说明</th>
+            <th data-en>Possible Reason</th><th data-zh>可能原因</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td data-en>Page 1 → Assessment Complete</td><td data-zh>第1页 → 完成测评</td>
+              <td data-en>Saw the landing page but didn't finish the questionnaire</td><td data-zh>看到落地页但没走完问卷</td>
+              <td data-en>Questionnaire too long, landing page not compelling</td><td data-zh>问卷太长、落地页吸引力不足</td>
+            </tr>
+            <tr>
+              <td data-en>Assessment → Booking CTA click</td><td data-zh>完成测评 → 点击预约CTA</td>
+              <td data-en>Finished the quiz but not interested in booking</td><td data-zh>完成测评但对约课不感兴趣</td>
+              <td data-en>Result/CTA copy not compelling enough</td><td data-zh>结果页文案/CTA吸引力不足</td>
+            </tr>
+            <tr>
+              <td data-en>CTA click → Phone verified</td><td data-zh>点击CTA → 手机验证通过</td>
+              <td data-en>Opened the modal but didn't complete phone verification</td><td data-zh>打开了弹窗但没完成手机验证</td>
+              <td data-en>Didn't receive code, wrong number, gave up mid-way</td><td data-zh>验证码没收到、填错手机号、中途放弃</td>
+            </tr>
+            <tr>
+              <td data-en>Phone verified → Booking submitted</td><td data-zh>手机验证通过 → 预约提交成功</td>
+              <td data-en>Verified identity but didn't finish choosing institution/time</td><td data-zh>验证了身份但没选完机构/时间</td>
+              <td data-en>No suitable slot, form friction</td><td data-zh>可选机构/时间不合适，表单摩擦感强</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout cw">
+        <span class="callout-icon">⚠️</span>
+        <div data-en><strong>What we cannot tell:</strong> We know HOW MANY people dropped off at each step, but not WHO specifically (unless they're a verified/logged-in user). Anonymous users who quit before phone verification are not identifiable, and we don't track which exact assessment question caused a drop-off — only start and finish.</div>
+        <div data-zh><strong>有一点做不到：</strong>我们知道<strong>多少人</strong>在每一步流失，但无法知道<strong>具体是谁</strong>（已验证/已登录用户除外）。手机验证前放弃的匿名用户无法识别身份，也无法知道用户在哪道测评题具体放弃的——我们只追踪测评的开始和完成。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Q3 -->
+<section class="section" id="q3">
+  <div class="section-header">
+    <span class="section-num">Q3</span>
+    <h2 class="section-title" data-en>Which channel brings the best users?</h2>
+    <h2 class="section-title" data-zh>哪个渠道带来的用户质量最高？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>We don't just count clicks from each channel — we measure the quality of those users, all the way through to a completed booking. Some channels bring lots of visitors who mostly leave right away; others bring fewer people, but most of them go on to book.</p>
+      <p class="q-answer" data-zh>我们不只看每个渠道带来多少流量，更看这些流量最终能走到预约成功的质量。有的渠道带来很多人但大多数直接离开；有的渠道带来的人少，但大多数都走到了预约成功。</p>
+
+      <div class="callout" style="background:#fff8f0;border-left:4px solid #d97706;margin-bottom:16px">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <div data-en>
+            <strong>This report depends on the marketing/media team, not the tech team.</strong><br>
+            We identify which channel a user came from by reading the <strong>UTM parameters</strong> in the promotional link URL — for example <strong>utm_source=meta</strong> or <strong>utm_source=tiktok</strong>, with <strong>utm_content</strong> identifying the specific ad/creative. These parameters must be added to every promotional link by the team running the campaign <strong>before it goes live</strong>.<br><br>
+            If UTM parameters are missing or inconsistently named, we cannot tell channels apart and all traffic will appear as having no attributed source — making channel analysis impossible. <strong>This is not something the tech team can fix after the fact</strong> — the tech side only reads whatever is already on the URL, it cannot generate or backfill these values.<br><br>
+            ✅ &nbsp;Action required: Please confirm with the campaign/media team that all promotional links have correct and consistent <strong>utm_source</strong> / <strong>utm_content</strong> parameters before launch.
+          </div>
+          <div data-zh>
+            <strong>这份报告的数据质量由投放/媒介团队决定，不是技术团队能控制的。</strong><br>
+            我们识别用户来自哪个渠道，是通过读取推广链接 URL 里的 <strong>UTM 参数</strong>——例如 <strong>utm_source=meta</strong> 或 <strong>utm_source=tiktok</strong>，具体广告素材由 <strong>utm_content</strong> 标识。这些参数需要由负责投放的团队在<strong>活动上线前</strong>加到每一条推广链接上。<br><br>
+            如果 UTM 参数缺失或命名不统一，我们就无法区分渠道，所有流量都会显示为"无归因来源"，渠道分析将无法进行。<strong>这是技术团队事后无法修复的问题</strong>——技术侧只是被动读取 URL 上已有的参数，无法替业务生成或补全这个值。<br><br>
+            ✅ &nbsp;需要确认：请在活动上线前，与投放/媒介团队确认所有推广链接已正确且统一地加上 <strong>utm_source</strong> / <strong>utm_content</strong> 参数。
+          </div>
+        </div>
+      </div>
+
+      <div class="mock-chart">
+        <div class="chart-title" data-en>Booking Rate by Channel — Example (only possible if UTM is set correctly)</div>
+        <div class="chart-title" data-zh>各渠道预约成功率 — 示例（需投放团队正确设置UTM才可实现）</div>
+        <div class="bar-row">
+          <div class="bar-label">Meta Ads</div>
+          <div class="bar-track"><div class="bar-fill bar-pink" style="width:58%"><span>58%</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">EDM</div>
+          <div class="bar-track"><div class="bar-fill bar-teal" style="width:74%"><span>74%</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Organic</div><div class="bar-label" data-zh>自然流量</div>
+          <div class="bar-track"><div class="bar-fill bar-amber" style="width:66%"><span>66%</span></div></div>
+        </div>
+      </div>
+      <div class="callout ci">
+        <span class="callout-icon">💡</span>
+        <div data-en>In this example, EDM users have the highest booking rate through to a confirmed lesson — even though the email channel probably sent fewer people total. This kind of insight helps the team decide where to put budget next time. <strong>But it is only meaningful if every promotional link had correct UTM parameters from the start.</strong></div>
+        <div data-zh>上例中 EDM 用户最终走到预约成功的比例最高——即便邮件渠道带来的总人数可能更少。这类洞察帮助团队决定下次把预算放在哪里。<strong>但前提是每条推广链接从一开始就有正确的 UTM 参数。</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q4 -->
+<section class="section" id="q4">
+  <div class="section-header">
+    <span class="section-num">Q4</span>
+    <h2 class="section-title" data-en>What course level are most of our users recommended?</h2>
+    <h2 class="section-title" data-zh>我们的用户大多数被推荐哪种课程等级？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>Every user who completes the assessment gets assigned a course level and a recommended course. We track only the classification result — not the raw answers to each question, since the detailed answers are already saved directly to our database as part of the normal submission flow.</p>
+      <p class="q-answer" data-zh>每个完成测评的用户都会被分配一个课程等级和推荐课程。我们只追踪分类结果——不追踪每道题的具体作答内容，因为详细的作答内容已经随正常提交流程直接存入数据库。</p>
+
+      <div class="mock-chart">
+        <div class="chart-title" data-en>Course Level Distribution — Example</div>
+        <div class="chart-title" data-zh>课程等级分布 — 示例</div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Beginner</div><div class="bar-label" data-zh>初级</div>
+          <div class="bar-track"><div class="bar-fill bar-pink" style="width:45%"><span>45%</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Intermediate</div><div class="bar-label" data-zh>中级</div>
+          <div class="bar-track"><div class="bar-fill bar-teal" style="width:35%"><span>35%</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Advanced</div><div class="bar-label" data-zh>高级</div>
+          <div class="bar-track"><div class="bar-fill bar-violet" style="width:20%"><span>20%</span></div></div>
+        </div>
+      </div>
+      <div class="callout ci">
+        <span class="callout-icon">💡</span>
+        <div data-en>This tells us a lot about our user base and can be used to judge whether course supply matches demand at each level, or whether the assessment questions need adjusting.</div>
+        <div data-zh>这反映了我们的用户画像，可以用来判断各等级课程的供给是否匹配需求，或者测评题目设计是否需要调整。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Q6 -->
+<section class="section" id="q5">
+  <div class="section-header">
+    <span class="section-num">Q5</span>
+    <h2 class="section-title" data-en>Do new users and existing users behave differently?</h2>
+    <h2 class="section-title" data-zh>新用户和老用户的表现有差异吗？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>All users go through phone verification when booking. At that moment, the system identifies whether the person is a brand new user or an existing account. We attach this to the booking events — so every conversion is tagged with new or existing user status.</p>
+      <p class="q-answer" data-zh>所有用户预约时都要经过手机验证，系统在这一步会识别用户是全新用户还是已有账号的老用户。我们把这个信息带入预约相关事件——所以每一个转化都带有新老用户标签。</p>
+
+      <div class="callout ci">
+        <span class="callout-icon">ℹ️</span>
+        <div data-en><strong>How we know:</strong> During OTP verification, the backend returns whether the phone number is new to the system. This is passed through as <code>user_status = new_user</code> or <code>existing_user</code> — no extra steps needed from the user.</div>
+        <div data-zh><strong>判断方式：</strong>OTP 验证时，后端会返回该手机号是否为系统新号码。前端将此信息以 <code>user_status = new_user</code> 或 <code>existing_user</code> 的形式透传，用户无感知。</div>
+      </div>
+
+      <div class="mock-chart">
+        <div class="chart-title" data-en>New vs Existing User — Conversion Comparison (Example)</div>
+        <div class="chart-title" data-zh>新老用户转化率对比 — 示例</div>
+        <div class="grid-2" style="margin-bottom:0">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px" data-en>New Users</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px" data-zh>新用户</div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Assessment Complete</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>完成测评</div><div class="bar-track"><div class="bar-fill bar-violet" style="width:65%"><span>65%</span></div></div></div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Phone Verified</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>手机验证通过</div><div class="bar-track"><div class="bar-fill bar-pink" style="width:42%"><span>42%</span></div></div></div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Booking Submitted</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>预约提交</div><div class="bar-track"><div class="bar-fill bar-amber" style="width:30%"><span>30%</span></div></div></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px" data-en>Existing Users</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px" data-zh>老用户</div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Assessment Complete</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>完成测评</div><div class="bar-track"><div class="bar-fill bar-violet" style="width:80%"><span>80%</span></div></div></div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Phone Verified</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>手机验证通过</div><div class="bar-track"><div class="bar-fill bar-pink" style="width:68%"><span>68%</span></div></div></div>
+            <div class="bar-row"><div class="bar-label" style="font-size:11px;width:120px" data-en>Booking Submitted</div><div class="bar-label" style="font-size:11px;width:120px" data-zh>预约提交</div><div class="bar-track"><div class="bar-fill bar-amber" style="width:59%"><span>59%</span></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout cg">
+        <span class="callout-icon">💡</span>
+        <div data-en>In this example, existing users book at nearly double the rate of new users. This suggests the funnel is highly effective as a re-engagement tool, and new users may need a stronger value proposition to complete booking. We can also see how much of the "existing user" volume is a real re-conversion vs. simply a <code>funnel_shortcut</code> (returning logged-in users or users OTP recognises as already booked).</div>
+        <div data-zh>上例中老用户的预约转化率几乎是新用户的两倍。这说明本流程作为老用户唤回工具效果很好，新用户可能需要更强的价值引导才能走完最后一步。我们还能看出"老用户"里有多少是真正走完流程的再转化，多少是 <code>funnel_shortcut</code>（已登录直接跳转 或 OTP识别到已提交过）。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q7 -->
+<section class="section" id="q6">
+  <div class="section-header">
+    <span class="section-num">Q6</span>
+    <h2 class="section-title" data-en>Which institutions and timeslots are in highest demand?</h2>
+    <h2 class="section-title" data-zh>哪些机构/时间段最受欢迎？</h2>
+  </div>
+  <div class="q-card">
+    <div class="q-card-body">
+      <p class="q-answer" data-en>Every successful booking carries the chosen institution and time slot. We can rank institutions by booking volume and see which time slots are consistently in high demand.</p>
+      <p class="q-answer" data-zh>每次预约提交成功都会带上用户选择的机构和时间段。我们能对机构按预约量排名，也能看出哪些时段持续供不应求。</p>
+
+      <div class="mock-chart">
+        <div class="chart-title" data-en>Bookings by Institution — Example</div>
+        <div class="chart-title" data-zh>各机构预约量 — 示例</div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Institution A</div><div class="bar-label" data-zh>机构 A</div>
+          <div class="bar-track"><div class="bar-fill bar-pink" style="width:80%"><span>840</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Institution B</div><div class="bar-label" data-zh>机构 B</div>
+          <div class="bar-track"><div class="bar-fill bar-teal" style="width:55%"><span>580</span></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" data-en>Institution C</div><div class="bar-label" data-zh>机构 C</div>
+          <div class="bar-track"><div class="bar-fill bar-violet" style="width:35%"><span>370</span></div></div>
+        </div>
+      </div>
+      <div class="callout ci">
+        <span class="callout-icon">💡</span>
+        <div data-en>Use this together with timeslot data to decide where extra capacity is needed most.</div>
+        <div data-zh>结合时段数据一起看，可以判断哪里最需要增加名额或资源。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reports -->
+<section class="section" id="reports">
+  <div class="section-header">
+    <span class="section-num">📋</span>
+    <h2 class="section-title" data-en>What reports can we build?</h2>
+    <h2 class="section-title" data-zh>可以产出哪些报告？</h2>
+  </div>
+
+  <div class="report-card">
+    <div class="report-header">
+      <span style="font-size:20px">📊</span>
+      <span class="report-title" data-en>Report 1 — Main Funnel Overview</span>
+      <span class="report-title" data-zh>报告一：主漏斗总览</span>
+      <span class="report-badge" data-en>Real-time</span><span class="report-badge" data-zh>实时</span>
+    </div>
+    <div class="report-body">
+      <p class="report-desc" data-en>Shows how many users move from each step to the next, and what % drop off, from landing page to confirmed booking. Makes it immediately clear which step has the biggest problem.</p>
+      <p class="report-desc" data-zh>展示从落地页到预约成功，每个步骤之间有多少用户进入下一步、多少人流失。一眼就能看出哪个步骤问题最大。</p>
+      <div class="callout cg"><span class="callout-icon">✓</span><div data-en>Best for: Ongoing performance monitoring, optimisation decisions</div><div data-zh>适用于：日常表现监控，优化决策依据</div></div>
+      <div class="callout" style="background:#f0f4ff;border-left:3px solid #7c3aed;margin-bottom:0">
+        <span class="callout-icon">🙋</span>
+        <div data-en>Ask the BA team to set up a Funnel Exploration using <strong>page_view</strong>, <strong>assessment_submitted</strong>, <strong>trial_lesson_booking_started</strong> and <strong>trial_lesson_booking_submitted</strong>.</div>
+        <div data-zh>请 BA 团队用 <strong>page_view</strong>、<strong>assessment_submitted</strong>、<strong>trial_lesson_booking_started</strong>、<strong>trial_lesson_booking_submitted</strong> 配置 Funnel Exploration。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-header">
+      <span style="font-size:20px">🎯</span>
+      <span class="report-title" data-en>Report 2 — Course Level Distribution</span>
+      <span class="report-title" data-zh>报告二：测评结果分布</span>
+      <span class="report-badge" data-en>Real-time</span><span class="report-badge" data-zh>实时</span>
+    </div>
+    <div class="report-body">
+      <p class="report-desc" data-en>Shows what percentage of users are recommended each course level, and which specific courses are most popular.</p>
+      <p class="report-desc" data-zh>展示各课程等级的用户占比，以及各具体课程被推荐的次数排名。</p>
+      <div class="callout cg"><span class="callout-icon">✓</span><div data-en>Best for: Course supply planning, understanding demand mix</div><div data-zh>适用于：课程供给规划，了解需求结构</div></div>
+      <div class="callout" style="background:#f0f4ff;border-left:3px solid #7c3aed;margin-bottom:0">
+        <span class="callout-icon">🙋</span>
+        <div data-en>Ask the BA team to build this using the <strong>course_level</strong> and <strong>course_selected</strong> dimensions from <strong>assessment_submitted</strong>.</div>
+        <div data-zh>请 BA 团队使用 <strong>assessment_submitted</strong> 事件的 <strong>course_level</strong>/<strong>course_selected</strong> 维度搭建。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-header">
+      <span style="font-size:20px">👤</span>
+      <span class="report-title" data-en>Report 3 — New vs Existing User Conversion</span>
+      <span class="report-title" data-zh>报告三：新老用户转化率对比</span>
+      <span class="report-badge" data-en>Real-time</span><span class="report-badge" data-zh>实时</span>
+    </div>
+    <div class="report-body">
+      <p class="report-desc" data-en>Compares how new users and existing users perform across the funnel — assessment completion, verification, and booking rate.</p>
+      <p class="report-desc" data-zh>对比新用户和老用户在整个漏斗中的表现——测评完成率、验证率、预约成功率。</p>
+      <div class="callout cg"><span class="callout-icon">✓</span><div data-en>Best for: Understanding acquisition vs retention effectiveness</div><div data-zh>适用于：评估拉新 vs 唤回老用户的效果</div></div>
+      <div class="callout" style="background:#f0f4ff;border-left:3px solid #7c3aed;margin-bottom:0">
+        <span class="callout-icon">🙋</span>
+        <div data-en>Ask the BA team to segment funnel events by <strong>user_status</strong> (new_user vs existing_user) from <strong>phone_verified</strong>.</div>
+        <div data-zh>请 BA 团队按 <strong>phone_verified</strong> 事件的 <strong>user_status</strong>（new_user vs existing_user）对漏斗事件分层分析。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-header">
+      <span style="font-size:20px">🏫</span>
+      <span class="report-title" data-en>Report 4 — Institution &amp; Timeslot Heatmap</span>
+      <span class="report-title" data-zh>报告四：机构/时段热力表</span>
+      <span class="report-badge" data-en>Real-time</span><span class="report-badge" data-zh>实时</span>
+    </div>
+    <div class="report-body">
+      <p class="report-desc" data-en>Ranks institutions and time slots by booking volume, revealing where demand exceeds supply.</p>
+      <p class="report-desc" data-zh>按预约量对机构和时段排名，揭示哪里供不应求。</p>
+      <div class="callout cg"><span class="callout-icon">✓</span><div data-en>Best for: Scheduling and resource allocation</div><div data-zh>适用于：排课与资源分配</div></div>
+      <div class="callout" style="background:#f0f4ff;border-left:3px solid #7c3aed;margin-bottom:0">
+        <span class="callout-icon">🙋</span>
+        <div data-en>Ask the BA team to build this using <strong>institution_id</strong> and <strong>scheduled_time</strong> from <strong>trial_lesson_booking_submitted</strong>.</div>
+        <div data-zh>请 BA 团队使用 <strong>trial_lesson_booking_submitted</strong> 事件的 <strong>institution_id</strong>/<strong>scheduled_time</strong> 搭建。</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Limits -->
+<section class="section" id="limits">
+  <div class="section-header">
+    <span class="section-num">⚠</span>
+    <h2 class="section-title" data-en>What We Cannot Track</h2>
+    <h2 class="section-title" data-zh>我们无法追踪什么</h2>
+  </div>
+  <p style="color:var(--ink-muted);font-size:13.5px;margin-bottom:18px" data-en>Being honest about limitations prevents wrong conclusions. These are things our tracking genuinely cannot tell us.</p>
+  <p style="color:var(--ink-muted);font-size:13.5px;margin-bottom:18px" data-zh>诚实说明限制，避免产生错误结论。以下是我们的埋点真正做不到的事。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th data-en>What We Cannot Know</th><th data-zh>做不到的事</th>
+        <th data-en>Why</th><th data-zh>原因</th>
+        <th data-en>Workaround</th><th data-zh>替代方案</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td data-en>WHO specifically dropped off before phone verification</td><td data-zh>手机验证前放弃的用户具体是谁</td>
+          <td data-en>Anonymous users have no identity until phone verification succeeds</td><td data-zh>匿名用户在验证前没有身份</td>
+          <td data-en>Re-marketing audiences via ad pixels (future enhancement)</td><td data-zh>通过广告像素做再营销（未来升级）</td>
+        </tr>
+        <tr>
+          <td data-en>Which specific assessment question caused users to quit</td><td data-zh>用户在哪道测评题放弃的</td>
+          <td data-en>We only track assessment start and finish, not each question</td><td data-zh>我们只追踪测评的开始和完成，不追踪每道题</td>
+          <td data-en>Can be added in a future version if needed</td><td data-zh>如有需要，未来版本可以补充</td>
+        </tr>
+        <tr>
+          <td data-en>Whether the user actually attended the trial lesson</td><td data-zh>预约成功后用户是否真的去上了体验课</td>
+          <td data-en>Attendance happens at the institution, outside our tracking</td><td data-zh>到课情况发生在机构侧，不在我们的追踪范围内</td>
+          <td data-en>Requires attendance data from institutions (future enhancement)</td><td data-zh>需要机构侧数据回传（未来升级）</td>
+        </tr>
+        <tr>
+          <td data-en>Whether the user is satisfied with the recommended course</td><td data-zh>用户对推荐课程是否满意</td>
+          <td data-en>No satisfaction feedback mechanism exists today</td><td data-zh>目前没有满意度反馈机制</td>
+          <td data-en>Add a simple feedback step on the success page (future enhancement)</td><td data-zh>可考虑在成功页加一个简单反馈组件（未来升级）</td>
+        </tr>
+        <tr>
+          <td data-en>The child's name, birthday, or exact quiz answers a specific user submitted</td><td data-zh>某个具体用户提交的孩子姓名、生日、或详细测评作答内容</td>
+          <td data-en>These are intentionally not sent to analytics tools (GA4/GTM) for privacy reasons — they go straight to our database as part of the normal submission flow</td><td data-zh>出于隐私考虑，这些内容不会进入分析工具（GA4/GTM），而是随正常提交流程直接进数据库</td>
+          <td data-en>Look these up directly in the database/CRM, not in analytics reports</td><td data-zh>需要直接查数据库/CRM，不能从分析报表里查</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div style="border-top:1px solid var(--border);padding-top:18px;margin-top:8px;color:var(--ink-muted);font-size:11.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
+  <span>Zenith · <span data-en>Business Analytics Guide</span><span data-zh>业务数据方案</span> · v1.0</span>
+  <span>flow: zenith_onboarding</span>
+</div>
+
+</main>
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.className = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+}
+const allIds = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(i => i.classList.remove('active'));
+      const a = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-60px 0px -55% 0px' });
+allIds.forEach(s => obs.observe(s));
+navItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(item.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
